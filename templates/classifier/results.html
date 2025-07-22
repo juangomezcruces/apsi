@@ -1,0 +1,254 @@
+{% extends 'base.html' %}
+
+{% block title %}Classification Results - Political Text Classifier{% endblock %}
+
+{% block content %}
+<!-- Results Header -->
+<section class="py-4 bg-primary text-white">
+    <div class="container">
+        <h2 class="mb-3">📊 Classification Results</h2>
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card bg-light text-dark">
+                    <div class="card-body">
+                        <h6 class="card-title">Analyzed Text:</h6>
+                        <p class="card-text">{{ input_text|truncatechars:200 }}</p>
+                        {% if input_context %}
+                            <h6 class="card-title mt-3">Context:</h6>
+                            <p class="card-text">{{ input_context|truncatechars:150 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <a href="{% url 'classifier:index' %}" class="btn btn-light btn-lg w-100">
+                    ← Analyze Another Text
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 3D Visualization -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h4 class="card-title mb-0">🎯 3D Political Space Visualization</h4>
+                    </div>
+                    <div class="card-body">
+                        <div id="plot3d" style="height: 500px;"></div>
+                        <div class="mt-3">
+                            <small class="text-muted">
+                                <strong>How to read this chart:</strong> The point shows where your text falls in 3D political space. 
+                                X-axis: Left-Right, Y-axis: Liberal-Illiberal, Z-axis: Populism level.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Detailed Results -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <h3 class="text-center mb-4">📈 Detailed Analysis</h3>
+        
+        <!-- Political Dimensions -->
+        <div class="row">
+            {% if results.left_right_regression %}
+            <div class="col-md-4 mb-4">
+                <div class="card dimension-card h-100">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">📊 Left-Right Scale</h5>
+                        <div class="display-6 text-primary mb-2">
+                            {{ results.left_right_regression.predicted_v4_scale_score }}
+                        </div>
+                        <span class="badge bg-primary score-badge">
+                            {{ results.left_right_regression.interpretation }}
+                        </span>
+                        <p class="card-text mt-3 small">
+                            Economic and social ideology positioning on the traditional left-right spectrum.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if results.liberal_illiberal_regression %}
+            <div class="col-md-4 mb-4">
+                <div class="card dimension-card h-100">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">🏛️ Liberal-Illiberal Scale</h5>
+                        <div class="display-6 text-success mb-2">
+                            {{ results.liberal_illiberal_regression.predicted_v16_score }}
+                        </div>
+                        <span class="badge bg-success score-badge">
+                            {{ results.liberal_illiberal_regression.interpretation }}
+                        </span>
+                        <p class="card-text mt-3 small">
+                            Commitment to democratic values, institutions, and pluralistic governance.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if results.populism_regression %}
+            <div class="col-md-4 mb-4">
+                <div class="card dimension-card h-100">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">👥 Populism Scale</h5>
+                        <div class="display-6 text-warning mb-2">
+                            {{ results.populism_regression.predicted_v8_scale_score }}
+                        </div>
+                        <span class="badge bg-warning text-dark score-badge">
+                            {{ results.populism_regression.interpretation }}
+                        </span>
+                        <p class="card-text mt-3 small">
+                            Appeal to "the people" versus political and economic elites.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- ManifestoBERTa Topics -->
+        {% if results.manifesto_topics %}
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="card-title mb-0">🎯 Policy Topic Classification</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Most Likely Topic:</h6>
+                                <span class="badge bg-info fs-6 p-2">
+                                    {{ results.manifesto_topics.predicted_class }}
+                                </span>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Top 5 Policy Topics:</h6>
+                                <div class="row">
+                                    {% for topic, probability in results.manifesto_topics.top_5.items %}
+                                    <div class="col-12 mb-1">
+                                        <div class="d-flex justify-content-between">
+                                            <span class="small">{{ topic|truncatechars:30 }}</span>
+                                            <span class="badge bg-secondary">{{ probability }}%</span>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Error Messages -->
+        {% if coordinates.errors %}
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="alert alert-warning">
+                    <h6>⚠️ Some models encountered issues:</h6>
+                    <ul class="mb-0">
+                        {% for error in coordinates.errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// 3D Political Space Visualization
+document.addEventListener('DOMContentLoaded', function() {
+    const coordinates = {{ coordinates_json|safe }};
+    
+    // Create the 3D scatter plot
+    const trace = {
+        x: [coordinates.x || 0],
+        y: [coordinates.y || 0],
+        z: [coordinates.z || 0],
+        mode: 'markers+text',
+        marker: {
+            size: 12,
+            color: 'red',
+            symbol: 'circle'
+        },
+        text: ['Your Text'],
+        textposition: 'top center',
+        type: 'scatter3d',
+        name: 'Classification Result'
+    };
+
+    // Add reference points for context
+    const referenceTrace = {
+        x: [1, 9, 5],  // Far left, far right, center
+        y: [0, 10, 5], // Illiberal, liberal, moderate
+        z: [0, 10, 5], // Anti-populist, populist, moderate
+        mode: 'markers',
+        marker: {
+            size: 6,
+            color: ['blue', 'blue', 'gray'],
+            opacity: 0.3
+        },
+        text: ['Left/Illiberal/Anti-Pop', 'Right/Liberal/Populist', 'Center/Moderate'],
+        type: 'scatter3d',
+        name: 'Reference Points',
+        showlegend: false
+    };
+
+    const layout = {
+        title: 'Political Classification in 3D Space',
+        scene: {
+            xaxis: {
+                title: 'Left-Right Scale',
+                range: [0, 10],
+                tickvals: [1, 3, 5, 7, 9],
+                ticktext: ['Left', 'Center-Left', 'Center', 'Center-Right', 'Right']
+            },
+            yaxis: {
+                title: 'Liberal-Illiberal Scale',
+                range: [0, 10],
+                tickvals: [0, 2.5, 5, 7.5, 10],
+                ticktext: ['Illiberal', 'Somewhat Illiberal', 'Moderate', 'Somewhat Liberal', 'Liberal']
+            },
+            zaxis: {
+                title: 'Populism Scale',
+                range: [0, 10],
+                tickvals: [0, 2.5, 5, 7.5, 10],
+                ticktext: ['Anti-Pop', 'Low Pop', 'Moderate', 'High Pop', 'Very Pop']
+            },
+            camera: {
+                eye: {x: 1.5, y: 1.5, z: 1.5}
+            }
+        },
+        margin: {t: 50, l: 0, r: 0, b: 0},
+        font: {size: 12}
+    };
+
+    const config = {
+        responsive: true,
+        displayModeBar: true,
+        modeBarButtonsToRemove: ['pan3d', 'orbitRotation']
+    };
+
+    Plotly.newPlot('plot3d', [trace, referenceTrace], layout, config);
+});
+</script>
+{% endblock %}
