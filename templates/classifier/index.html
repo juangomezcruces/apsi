@@ -1,57 +1,19 @@
 {% extends 'base.html' %}
 
-{% block title %}Political Text Classifier - Analyze Political Dimensions{% endblock %}
-
 {% block content %}
 <!-- Hero Section -->
 <section class="hero-section">
     <div class="container text-center">
-        <h1 class="display-4 fw-bold mb-4">Political Text Classifier</h1>
+        <h1 class="display-4 fw-bold mb-4">🗳️ Political Text Classifier</h1>
         <p class="lead mb-4">
-            Analyze political texts across three key dimensions: Left-Right orientation, 
-            Liberal-Illiberal stance, and Populism level using state-of-the-art AI models.
+            Analyze political texts using advanced machine learning to determine their position 
+            on left-right, liberal-illiberal, and populism dimensions.
         </p>
         <div class="row justify-content-center">
             <div class="col-md-8">
-                <div class="row text-center">
-                    <div class="col-md-4">
-                        <h5>📊 Left-Right</h5>
-                        <p class="small">Economic and social ideology</p>
-                    </div>
-                    <div class="col-md-4">
-                        <h5>🏛️ Liberal-Illiberal</h5>
-                        <p class="small">Democratic values and institutions</p>
-                    </div>
-                    <div class="col-md-4">
-                        <h5>👥 Populism</h5>
-                        <p class="small">Appeal to "the people" vs. elite</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Classification Form -->
-<section class="py-5">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="card">
-                    <div class="card-header bg-primary text-white">
-                        <h3 class="card-title mb-0">📝 Analyze Political Text</h3>
-                    </div>
-                    <div class="card-body">
-                        {% if messages %}
-                            {% for message in messages %}
-                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                                    {{ message }}
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                                </div>
-                            {% endfor %}
-                        {% endif %}
-
-                        <form method="post" action="{% url 'classifier:classify' %}">
+                <div class="card shadow-lg">
+                    <div class="card-body p-4">
+                        <form method="post" action="{% url 'classifier:classify' %}" class="text-start">
                             {% csrf_token %}
                             
                             <div class="mb-4">
@@ -63,19 +25,6 @@
                                 {% if form.text.errors %}
                                     <div class="text-danger">
                                         {% for error in form.text.errors %}{{ error }}{% endfor %}
-                                    </div>
-                                {% endif %}
-                            </div>
-
-                            <div class="mb-4">
-                                <label for="{{ form.context.id_for_label }}" class="form-label fw-bold">
-                                    Additional Context (Optional)
-                                </label>
-                                {{ form.context }}
-                                <div class="form-text">{{ form.context.help_text }}</div>
-                                {% if form.context.errors %}
-                                    <div class="text-danger">
-                                        {% for error in form.context.errors %}{{ error }}{% endfor %}
                                     </div>
                                 {% endif %}
                             </div>
@@ -105,7 +54,7 @@
                         <p class="card-text small">
                             "We need higher taxes on the wealthy to fund universal healthcare and education for all citizens."
                         </p>
-                        <button class="btn btn-outline-primary btn-sm" onclick="fillExample(this.parentElement.querySelector('.card-text').textContent)">
+                        <button class="btn btn-outline-primary btn-sm" onclick="fillExample(this.previousElementSibling.textContent)">
                             Use This Example
                         </button>
                     </div>
@@ -114,11 +63,11 @@
             <div class="col-md-4 mb-3">
                 <div class="card h-100">
                     <div class="card-body">
-                        <h6 class="card-title text-success">Populist Example</h6>
+                        <h6 class="card-title text-success">Center Example</h6>
                         <p class="card-text small">
-                            "The corrupt elite have betrayed hardworking families. We must return power to the people!"
+                            "We should balance economic growth with environmental protection through measured regulatory approaches."
                         </p>
-                        <button class="btn btn-outline-success btn-sm" onclick="fillExample(this.parentElement.querySelector('.card-text').textContent)">
+                        <button class="btn btn-outline-success btn-sm" onclick="fillExample(this.previousElementSibling.textContent)">
                             Use This Example
                         </button>
                     </div>
@@ -127,11 +76,11 @@
             <div class="col-md-4 mb-3">
                 <div class="card h-100">
                     <div class="card-body">
-                        <h6 class="card-title text-warning">Liberal Example</h6>
+                        <h6 class="card-title text-danger">Right-Wing Example</h6>
                         <p class="card-text small">
-                            "Individual freedoms and democratic institutions must be protected from authoritarian overreach."
+                            "Lower taxes and reduced government intervention will stimulate economic growth and individual freedom."
                         </p>
-                        <button class="btn btn-outline-warning btn-sm" onclick="fillExample(this.parentElement.querySelector('.card-text').textContent)">
+                        <button class="btn btn-outline-danger btn-sm" onclick="fillExample(this.previousElementSibling.textContent)">
                             Use This Example
                         </button>
                     </div>
@@ -140,14 +89,54 @@
         </div>
     </div>
 </section>
-{% endblock %}
 
-{% block extra_js %}
-<script>
-function fillExample(text) {
-    document.getElementById('id_text').value = text.trim();
-    // Scroll to form
-    document.querySelector('.card').scrollIntoView({ behavior: 'smooth' });
-}
-</script>
+<!-- Features Section -->
+<section class="py-5">
+    <div class="container">
+        <h3 class="text-center mb-5">🔬 Analysis Features</h3>
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <span class="display-6">⚖️</span>
+                        </div>
+                        <h5 class="card-title">Left-Right Scale</h5>
+                        <p class="card-text">
+                            Measures traditional economic and social policy positions
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <span class="display-6">🏛️</span>
+                        </div>
+                        <h5 class="card-title">Liberal-Illiberal</h5>
+                        <p class="card-text">
+                            Analyzes democratic values and institutional attitudes
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <span class="display-6">👥</span>
+                        </div>
+                        <h5 class="card-title">Populism Level</h5>
+                        <p class="card-text">
+                            Detects anti-establishment and people vs. elite rhetoric
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script src="{% load static %}{% static 'classifier.js' %}"></script>
 {% endblock %}

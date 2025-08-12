@@ -8,8 +8,9 @@ services:
     volumes:
       - .:/app
       - ./models:/app/models
+    #TODO
     environment:
       - DEBUG=True
       - SECRET_KEY=docker-secret-key-change-in-production
-      
+
     command: python manage.py runserver 0.0.0.0:8000

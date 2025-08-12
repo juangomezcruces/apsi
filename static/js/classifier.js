@@ -1,11 +1,21 @@
-// JavaScript utilities for the political classifier
+// Example text filling function
+function fillExample(text) {
+    const textInput = document.getElementById('id_text');
+    if (textInput) {
+        textInput.value = text.trim();
+        autoResizeTextarea(textInput);
+        updateCharacterCount();
+        textInput.focus();
+        textInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+}
 
 // Form validation
 function validateForm() {
     const textInput = document.getElementById('id_text');
     const text = textInput.value.trim();
     
-    if (text.length === 0) {
+    if (!text) {
         alert('Please enter some text to analyze.');
         textInput.focus();
         return false;
@@ -75,18 +85,10 @@ document.addEventListener('DOMContentLoaded', function() {
         // Initial update
         updateCharacterCount();
     }
-    
-    // Auto-resize context textarea
-    const contextInput = document.getElementById('id_context');
-    if (contextInput) {
-        contextInput.addEventListener('input', function() {
-            autoResizeTextarea(this);
-        });
-    }
 });
 
 // API helper function
-async function classifyTextAPI(text, context = null) {
+async function classifyTextAPI(text) {
     try {
         const response = await fetch('/api/classify/', {
             method: 'POST',
@@ -94,8 +96,7 @@ async function classifyTextAPI(text, context = null) {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                text: text,
-                context: context
+                text: text
             })
         });
         

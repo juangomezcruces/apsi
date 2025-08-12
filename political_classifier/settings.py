@@ -74,3 +74,5 @@ MODEL_PATHS = {
     'liberal_illiberal_regression': str(BASE_DIR / "models/fine_tuned_liberal_illiberal_regression/model"),
     'populism_regression': str(BASE_DIR / "models/fine_tuned_populist_regression_Cust/model"),
 }
+
+ENABLE_ALTERNATIVE_SCORES = True
