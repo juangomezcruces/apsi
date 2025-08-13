@@ -15,101 +15,100 @@ logger = logging.getLogger(__name__)
 
 def get_alternative_scorers():
     """Initialize alternative hypothesis scorers"""
+    from .inference_service import MOCK_MODE  # Import at runtime to get current value
+    
+    if MOCK_MODE:
+        logger.info("🚧 Alternative approaches running in MOCK MODE (controlled by inference_service.MOCK_MODE)")
+        return None
+    
     try:
         from . import alternative
         from . import alternativeLib  
         from . import alternativePop
         
         return {
-            'left_right': alternative.HypothesisScorer(),
+            'left_right': alternative.LeftRightEconomicScorer(),
             'liberal_illiberal': alternativeLib.LiberalIlliberalScorer(),
             'populism_pluralism': alternativePop.PopulismPluralismScorer()
         }
     except Exception as e:
-        logger.warning(f"Could not load alternative scorers: {e}")
+        logger.warning(f"Could not load alternative scorers (will use mock data): {e}")
         return None
 
 def generate_alternative_scores(text, scorers=None):
     """Generate alternative hypothesis scores using real models or mock data"""
+    from .inference_service import MOCK_MODE  # Import at runtime to get current value
+    
     if not getattr(settings, 'ENABLE_ALTERNATIVE_SCORES', False):
+        logger.debug("Alternative scores disabled in settings")
         return None
     
     alternative_scores = {}
     
     try:
-        if scorers:
+        if scorers and not MOCK_MODE:
+            # Real model predictions
+            logger.info("🔬 Using real alternative hypothesis models")
+            
             # Left-Right Hypothesis Scoring
             if 'left_right' in scorers:
                 try:
-                    # HypothesisScorer has different interface - use score_manual_with_explanation
-                    lr_score, lr_explanation = scorers['left_right'].score_manual_with_explanation(text)
-                    
-                    # Generate interpretation based on score
-                    if lr_score < 3:
-                        interpretation = 'Strong Left'
-                    elif lr_score < 4.5:
-                        interpretation = 'Left'
-                    elif lr_score < 5.5:
-                        interpretation = 'Center'
-                    elif lr_score < 7:
-                        interpretation = 'Right'
-                    else:
-                        interpretation = 'Strong Right'
-                    
-                    # Try to derive confidence from explanation, fall back to mock if needed
-                    confidence = 0.8  # default
-                    if lr_explanation and 'hypothesis_contributions' in lr_explanation:
-                        # Calculate confidence based on hypothesis probabilities
-                        probs = [contrib.get('probability', 0.5) for contrib in lr_explanation['hypothesis_contributions']]
-                        confidence = round(np.mean(probs), 3) if probs else 0.8
-                    else:
-                        # Parameter-dependent: use mock only if enabled
-                        if getattr(settings, 'ENABLE_ALTERNATIVE_SCORES', False):
-                            confidence = round(random.uniform(0.7, 0.9), 3)
+                    logger.debug("Running left-right hypothesis scoring...")
+                    lr_result = scorers['left_right'].score_left_right(text)
                     
                     alternative_scores['left_right_hypothesis'] = {
-                        'score': round(lr_score, 2),
-                        'confidence': confidence,
-                        'interpretation': interpretation
+                        'score': round(lr_result.get('score', 5.0), 2),
+                        'confidence': round(lr_result.get('confidence', 0.8), 3),
+                        'interpretation': lr_result.get('interpretation', 'Center')
                     }
+                    logger.debug(f"✓ Left-right hypothesis: {lr_result.get('score', 'N/A'):.2f} ({lr_result.get('interpretation', 'N/A')})")
                 except Exception as e:
-                    logger.warning(f"Left-Right alternative scoring failed: {e}")
+                    logger.error(f"Left-Right alternative scoring failed: {e}")
                     alternative_scores['left_right_hypothesis'] = generate_mock_score('left_right')
             
             # Liberal-Illiberal Hypothesis Scoring  
             if 'liberal_illiberal' in scorers:
                 try:
+                    logger.debug("Running liberal-illiberal hypothesis scoring...")
                     li_result = scorers['liberal_illiberal'].score_liberal_illiberal(text)
                     alternative_scores['liberal_illiberal_hypothesis'] = {
                         'score': round(li_result.get('score', 5.0), 2),
                         'confidence': round(li_result.get('confidence', 0.8), 3),
                         'interpretation': li_result.get('interpretation', 'Moderate')
                     }
+                    logger.debug(f"✓ Liberal-illiberal hypothesis: {li_result.get('score', 'N/A'):.2f}")
                 except Exception as e:
-                    logger.warning(f"Liberal-Illiberal alternative scoring failed: {e}")
+                    logger.error(f"Liberal-Illiberal alternative scoring failed: {e}")
                     alternative_scores['liberal_illiberal_hypothesis'] = generate_mock_score('liberal_illiberal')
             
             # Populism-Pluralism Hypothesis Scoring
             if 'populism_pluralism' in scorers:
                 try:
+                    logger.debug("Running populism-pluralism hypothesis scoring...")
                     pp_result = scorers['populism_pluralism'].score_populism_pluralism(text)
                     alternative_scores['populism_pluralism_hypothesis'] = {
                         'score': round(pp_result.get('score', 5.0), 2),
                         'confidence': round(pp_result.get('confidence', 0.8), 3),
                         'interpretation': pp_result.get('interpretation', 'Moderate')
                     }
+                    logger.debug(f"✓ Populism-pluralism hypothesis: {pp_result.get('score', 'N/A'):.2f}")
                 except Exception as e:
-                    logger.warning(f"Populism-Pluralism alternative scoring failed: {e}")
+                    logger.error(f"Populism-Pluralism alternative scoring failed: {e}")
                     alternative_scores['populism_pluralism_hypothesis'] = generate_mock_score('populism_pluralism')
             
         else:
-            # Fall back to mock data if scorers not available
-            logger.info("Using mock alternative scores (scorers not available)")
+            # Fall back to mock data
+            if MOCK_MODE:
+                logger.info("🚧 Using mock alternative scores (MOCK_MODE = True)")
+            else:
+                logger.warning("Using mock alternative scores (real scorers not available)")
+            
             alternative_scores = {
                 'left_right_hypothesis': generate_mock_score('left_right'),
                 'liberal_illiberal_hypothesis': generate_mock_score('liberal_illiberal'),
                 'populism_pluralism_hypothesis': generate_mock_score('populism_pluralism')
             }
+            logger.debug("Generated mock scores for all three dimensions")
             
     except Exception as e:
         logger.error(f"Alternative scoring error: {e}")
@@ -119,6 +118,7 @@ def generate_alternative_scores(text, scorers=None):
             'liberal_illiberal_hypothesis': generate_mock_score('liberal_illiberal'),
             'populism_pluralism_hypothesis': generate_mock_score('populism_pluralism')
         }
+        logger.warning("Fell back to mock scores due to error")
     
     return alternative_scores
 
@@ -161,6 +161,8 @@ def generate_mock_score(dimension_type):
         else:
             interpretation = 'Strong Populist'
     
+    logger.debug(f"Generated mock {dimension_type} score: {score} ({interpretation})")
+    
     return {
         'score': score,
         'confidence': confidence,
@@ -188,6 +190,7 @@ def classify_text(request):
                 coordinates = inference_service.get_3d_coordinates(text, None)
                 
                 # Generate alternative hypothesis scores
+                logger.debug("Generating alternative hypothesis scores...")
                 alternative_scorers = get_alternative_scorers()
                 alternative_scores = generate_alternative_scores(text, alternative_scorers)
                 
@@ -233,6 +236,7 @@ def api_classify(request):
         coordinates = inference_service.get_3d_coordinates(text, None)
         
         # Generate alternative hypothesis scores
+        logger.debug("Generating alternative hypothesis scores...")
         alternative_scorers = get_alternative_scorers()
         alternative_scores = generate_alternative_scores(text, alternative_scorers)
         

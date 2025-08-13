@@ -29,6 +29,102 @@
                                 {% endif %}
                             </div>
 
+                            <!-- Analysis Approaches Selection -->
+                            <div class="mb-4">
+                                <h5 class="mb-3">🔬 Select Analysis Approaches</h5>
+                                <div class="row">
+                                    <!-- Left-Right Approaches -->
+                                    <div class="col-md-4 mb-3">
+                                        <div class="card h-100">
+                                            <div class="card-header bg-primary text-white text-center">
+                                                <h6 class="mb-0">⚖️ Left-Right Scale</h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="form-check mb-2">
+                                                    {{ form.left_right_direct }}
+                                                    <label class="form-check-label" for="{{ form.left_right_direct.id_for_label }}">
+                                                        <strong>Direct Regression</strong><br>
+                                                        <small class="text-muted">Trained on political position scores</small>
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    {{ form.left_right_hypothesis }}
+                                                    <label class="form-check-label" for="{{ form.left_right_hypothesis.id_for_label }}">
+                                                        <strong>Hypothesis-Based</strong><br>
+                                                        <small class="text-muted">Using political theory hypotheses</small>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Liberal-Illiberal Approaches -->
+                                    <div class="col-md-4 mb-3">
+                                        <div class="card h-100">
+                                            <div class="card-header bg-success text-white text-center">
+                                                <h6 class="mb-0">🏛️ Liberal-Illiberal</h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="form-check mb-2">
+                                                    {{ form.liberal_illiberal_direct }}
+                                                    <label class="form-check-label" for="{{ form.liberal_illiberal_direct.id_for_label }}">
+                                                        <strong>Direct Regression</strong><br>
+                                                        <small class="text-muted">Trained on democratic values scores</small>
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    {{ form.liberal_illiberal_hypothesis }}
+                                                    <label class="form-check-label" for="{{ form.liberal_illiberal_hypothesis.id_for_label }}">
+                                                        <strong>Hypothesis-Based</strong><br>
+                                                        <small class="text-muted">Using democratic theory hypotheses</small>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Populism Approaches -->
+                                    <div class="col-md-4 mb-3">
+                                        <div class="card h-100">
+                                            <div class="card-header bg-warning text-dark text-center">
+                                                <h6 class="mb-0">👥 Populism Level</h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="form-check mb-2">
+                                                    {{ form.populism_direct }}
+                                                    <label class="form-check-label" for="{{ form.populism_direct.id_for_label }}">
+                                                        <strong>Direct Regression</strong><br>
+                                                        <small class="text-muted">Trained on populism scores</small>
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    {{ form.populism_hypothesis }}
+                                                    <label class="form-check-label" for="{{ form.populism_hypothesis.id_for_label }}">
+                                                        <strong>Hypothesis-Based</strong><br>
+                                                        <small class="text-muted">Using populism theory hypotheses</small>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                {% if form.non_field_errors %}
+                                    <div class="alert alert-danger">
+                                        {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                
+                                <div class="text-center mt-2">
+                                    <button type="button" class="btn btn-outline-secondary btn-sm me-2" onclick="selectAllApproaches()">
+                                        Select All
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="clearAllApproaches()">
+                                        Clear All
+                                    </button>
+                                </div>
+                            </div>
+
                             <div class="d-grid">
                                 <button type="submit" class="btn btn-primary btn-lg">
                                     🔍 Analyze Text
@@ -90,53 +186,24 @@
     </div>
 </section>
 
-<!-- Features Section -->
-<section class="py-5">
-    <div class="container">
-        <h3 class="text-center mb-5">🔬 Analysis Features</h3>
-        <div class="row">
-            <div class="col-md-4 mb-4">
-                <div class="card text-center h-100">
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <span class="display-6">⚖️</span>
-                        </div>
-                        <h5 class="card-title">Left-Right Scale</h5>
-                        <p class="card-text">
-                            Measures traditional economic and social policy positions
-                        </p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-4">
-                <div class="card text-center h-100">
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <span class="display-6">🏛️</span>
-                        </div>
-                        <h5 class="card-title">Liberal-Illiberal</h5>
-                        <p class="card-text">
-                            Analyzes democratic values and institutional attitudes
-                        </p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-4">
-                <div class="card text-center h-100">
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <span class="display-6">👥</span>
-                        </div>
-                        <h5 class="card-title">Populism Level</h5>
-                        <p class="card-text">
-                            Detects anti-establishment and people vs. elite rhetoric
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+<script>
+function fillExample(text) {
+    document.getElementById('{{ form.text.id_for_label }}').value = text.trim();
+}
 
-<script src="{% load static %}{% static 'classifier.js' %}"></script>
+function selectAllApproaches() {
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = true;
+    });
+}
+
+function clearAllApproaches() {
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = false;
+    });
+}
+</script>
+
 {% endblock %}
