@@ -8,7 +8,7 @@ from transformers import AutoModelForSequenceClassification, AutoTokenizer
 logger = logging.getLogger(__name__)
 
 # MOCK MODE - Set this to True to test without actual models
-MOCK_MODE = True  # Change to False when you add real models
+MOCK_MODE = False  # Change to False when you add real models
 
 class PoliticalInferenceService:
     """
@@ -207,7 +207,7 @@ class PoliticalInferenceService:
     def predict_liberal_illiberal_regression(self, sentence: str, context: str = None) -> Dict:
         """Get Liberal-Illiberal regression predictions."""
         if MOCK_MODE:
-            return self._mock_prediction("Left-Right", "V4_Scale")
+            return self._mock_prediction("Liberal-Illiberal", "V16")  # ✅ FIXED!
         return self._predict_regression(
             sentence, context,
             self.libil_regression_model, self.libil_regression_tokenizer,
@@ -217,7 +217,7 @@ class PoliticalInferenceService:
     def predict_populism_regression(self, sentence: str, context: str = None) -> Dict:
         """Get Populism regression predictions."""
         if MOCK_MODE:
-            return self._mock_prediction("Left-Right", "V4_Scale")
+            return self._mock_prediction("Populism", "V8_Scale")  # ✅ FIXED!
         return self._predict_regression(
             sentence, context,
             self.pop_regression_model, self.pop_regression_tokenizer,

@@ -194,13 +194,24 @@ def classify_text(request):
                 alternative_scorers = get_alternative_scorers()
                 alternative_scores = generate_alternative_scores(text, alternative_scorers)
                 
+                # ✅ FIXED: Extract selected approaches from form
+                selected_approaches = {
+                    'left_right_direct': form.cleaned_data.get('left_right_direct', False),
+                    'left_right_hypothesis': form.cleaned_data.get('left_right_hypothesis', False),
+                    'liberal_illiberal_direct': form.cleaned_data.get('liberal_illiberal_direct', False),
+                    'liberal_illiberal_hypothesis': form.cleaned_data.get('liberal_illiberal_hypothesis', False),
+                    'populism_direct': form.cleaned_data.get('populism_direct', False),
+                    'populism_hypothesis': form.cleaned_data.get('populism_hypothesis', False),
+                }
+                
                 context_data = {
                     'form': form,
                     'results': results,
                     'coordinates': coordinates,
                     'input_text': text,
                     'coordinates_json': json.dumps(coordinates),
-                    'alternative_scores': alternative_scores
+                    'alternative_scores': alternative_scores,
+                    'selected_approaches': selected_approaches  # ✅ FIXED: Add this line
                 }
                 
                 return render(request, 'classifier/results.html', context_data)
@@ -240,11 +251,22 @@ def api_classify(request):
         alternative_scorers = get_alternative_scorers()
         alternative_scores = generate_alternative_scores(text, alternative_scorers)
         
+        # For API, default to all approaches enabled if not specified
+        selected_approaches = data.get('selected_approaches', {
+            'left_right_direct': True,
+            'left_right_hypothesis': True,
+            'liberal_illiberal_direct': True,
+            'liberal_illiberal_hypothesis': True,
+            'populism_direct': True,
+            'populism_hypothesis': True,
+        })
+        
         return JsonResponse({
             'results': results,
             'coordinates': coordinates,
             'input_text': text,
-            'alternative_scores': alternative_scores
+            'alternative_scores': alternative_scores,
+            'selected_approaches': selected_approaches  # ADD THIS LINE
         })
         
     except json.JSONDecodeError:
