@@ -57,20 +57,53 @@ class TextClassificationForm(forms.Form):
         widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
     )
     
-    def clean(self):
-        cleaned_data = super().clean()
+        # NEW: Left-Right Response-Based
+    left_right_responses = forms.BooleanField(
+        required=False,
+        initial=True,
+        label='Left-Right (Response-Based)',
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
+    )
+
+    # NEW: Liberal-Illiberal Response-Based
+    liberal_illiberal_responses = forms.BooleanField(
+        required=False,
+        initial=True,
+        label='Liberal-Illiberal (Response-Based)',
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
+    )
+
+    # NEW: Populism-Pluralism Response-Based
+    populism_responses = forms.BooleanField(
+        required=False,
+        initial=True,
+        label='Populism-Pluralism (Response-Based)',
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
+    )
+
+# Also update your clean() method to include these new fields:
+def clean(self):
+    cleaned_data = super().clean()
+    
+    # Check that at least one approach is selected - ADD the new fields
+    selected_approaches = [
+        # Direct approaches
+        cleaned_data.get('left_right_direct'),
+        cleaned_data.get('liberal_illiberal_direct'), 
+        cleaned_data.get('populism_direct'),
         
-        # Check that at least one approach is selected
-        selected_approaches = [
-            cleaned_data.get('left_right_direct'),
-            cleaned_data.get('left_right_hypothesis'),
-            cleaned_data.get('liberal_illiberal_direct'), 
-            cleaned_data.get('liberal_illiberal_hypothesis'),
-            cleaned_data.get('populism_direct'),
-            cleaned_data.get('populism_hypothesis'),
-        ]
+        # Hypothesis-based approaches  
+        cleaned_data.get('left_right_hypothesis'),
+        cleaned_data.get('liberal_illiberal_hypothesis'),
+        cleaned_data.get('populism_hypothesis'),
         
-        if not any(selected_approaches):
-            raise forms.ValidationError("Please select at least one analysis approach.")
-        
-        return cleaned_data
+        # NEW: Response-based approaches
+        cleaned_data.get('left_right_responses'),
+        cleaned_data.get('liberal_illiberal_responses'),
+        cleaned_data.get('populism_responses'),
+    ]
+    
+    if not any(selected_approaches):
+        raise forms.ValidationError("Please select at least one analysis approach.")
+    
+    return cleaned_data

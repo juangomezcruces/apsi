@@ -5,6 +5,6 @@ app_name = 'classifier'
 
 urlpatterns = [
     path('', views.index, name='index'),
-    path('classify/', views.classify_text, name='classify'),
+    path('classify/', views.classify_text, name='classify_text'),
     path('api/classify/', views.api_classify, name='api_classify'),
 ]
