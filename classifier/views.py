@@ -32,9 +32,9 @@ def get_alternative_scorers():
         from . import alternativePop
         
         # NEW: Response-based scorers (adapted versions of your new scripts)
-        from . import libillibwithresponses3_adapted as lib_responses
-        from . import rilewresponses_adapted as lr_responses  
-        from . import popnonpopwresponses_adapted as pop_responses
+        from . import libillibwresponses as lib_responses
+        from . import rilewresponses as lr_responses  
+        from . import popnonpopwresponses as pop_responses
         
         return {
             # Existing hypothesis-based models
