@@ -79,22 +79,23 @@
                     <div class="card-body text-center">
                         <h5 class="card-title">⚖️ Left-Right Scale</h5>
                         <div class="display-4 mb-3" style="color: #dc3545;">
-                            {{ results.left_right_regression.predicted_V4_Scale|floatformat:2 }}
+                            <!-- CORRECTED: Use the actual field names from your inference service -->
+                            {{ results.left_right_regression.predicted_v4_scale_score|default_if_none:results.left_right_regression.raw_score|floatformat:2 }}
                         </div>
-                        <!-- UPDATED: Show both raw score and interpretation -->
                         <div class="mb-3">
                             <span class="badge bg-secondary mb-2">
                                 {{ results.left_right_regression.interpretation }}
                             </span>
                             <br>
                             <small class="text-muted">
-                                Raw Score: {{ results.left_right_regression.predicted_V4_Scale|floatformat:3 }}
+                                Raw Score: {{ results.left_right_regression.predicted_v4_scale_score|default_if_none:results.left_right_regression.raw_score|floatformat:3 }}
                             </small>
                         </div>
-                        {% if results.left_right_regression.predicted_V4_Scale < 0 %}
+                        {% with score=results.left_right_regression.predicted_v4_scale_score|default_if_none:results.left_right_regression.raw_score %}
+                        {% if score < 4 %}
                         <p class="card-text">
                             <strong>Left-leaning:</strong> Favors government intervention and social welfare.
-                        {% elif results.left_right_regression.predicted_V4_Scale > 0 %}
+                        {% elif score > 6 %}
                         <p class="card-text">
                             <strong>Right-leaning:</strong> Prefers market solutions and limited government.
                         {% else %}
@@ -102,6 +103,7 @@
                             <strong>Centrist:</strong> Balanced approach to economic and social issues.
                         {% endif %}
                         </p>
+                        {% endwith %}
                     </div>
                 </div>
             </div>
@@ -114,19 +116,20 @@
                     <div class="card-body text-center">
                         <h5 class="card-title">🏛️ Liberal-Illiberal</h5>
                         <div class="display-4 mb-3" style="color: #28a745;">
-                            {{ results.liberal_illiberal_regression.predicted_V16|floatformat:2 }}
+                            <!-- CORRECTED: Use the actual field names -->
+                            {{ results.liberal_illiberal_regression.predicted_v16_score|default_if_none:results.liberal_illiberal_regression.raw_score|floatformat:2 }}
                         </div>
-                        <!-- UPDATED: Show both raw score and interpretation -->
                         <div class="mb-3">
                             <span class="badge bg-secondary mb-2">
                                 {{ results.liberal_illiberal_regression.interpretation }}
                             </span>
                             <br>
                             <small class="text-muted">
-                                Raw Score: {{ results.liberal_illiberal_regression.predicted_V16|floatformat:3 }}
+                                Raw Score: {{ results.liberal_illiberal_regression.predicted_v16_score|default_if_none:results.liberal_illiberal_regression.raw_score|floatformat:3 }}
                             </small>
                         </div>
-                        {% if results.liberal_illiberal_regression.predicted_V16 > 0 %}
+                        {% with score=results.liberal_illiberal_regression.predicted_v16_score|default_if_none:results.liberal_illiberal_regression.raw_score %}
+                        {% if score > 5 %}
                         <p class="card-text">
                             <strong>Liberal:</strong> Supports democratic norms and institutional constraints.
                         {% else %}
@@ -134,6 +137,7 @@
                             <strong>Illiberal:</strong> May challenge democratic institutions and norms.
                         {% endif %}
                         </p>
+                        {% endwith %}
                     </div>
                 </div>
             </div>
@@ -146,19 +150,20 @@
                     <div class="card-body text-center">
                         <h5 class="card-title">💥 Populism Level</h5>
                         <div class="display-4 mb-3" style="color: #ffc107;">
-                            {{ results.populism_regression.predicted_V8_Scale|floatformat:2 }}
+                            <!-- CORRECTED: Use the actual field names -->
+                            {{ results.populism_regression.predicted_v8_scale_score|default_if_none:results.populism_regression.raw_score|floatformat:2 }}
                         </div>
-                        <!-- UPDATED: Show both raw score and interpretation -->
                         <div class="mb-3">
                             <span class="badge bg-secondary mb-2">
                                 {{ results.populism_regression.interpretation }}
                             </span>
                             <br>
                             <small class="text-muted">
-                                Raw Score: {{ results.populism_regression.predicted_V8_Scale|floatformat:3 }}
+                                Raw Score: {{ results.populism_regression.predicted_v8_scale_score|default_if_none:results.populism_regression.raw_score|floatformat:3 }}
                             </small>
                         </div>
-                        {% if results.populism_regression.predicted_V8_Scale > 0 %}
+                        {% with score=results.populism_regression.predicted_v8_scale_score|default_if_none:results.populism_regression.raw_score %}
+                        {% if score > 5 %}
                         <p class="card-text">
                             <strong>Populist:</strong> Uses "people vs. elite" rhetoric.
                         {% else %}
@@ -166,6 +171,7 @@
                             <strong>Non-populist:</strong> Uses conventional political discourse without populist appeals.
                         {% endif %}
                         </p>
+                        {% endwith %}
                     </div>
                 </div>
             </div>
