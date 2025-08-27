@@ -6,6 +6,8 @@ import json
 import logging
 import random
 import numpy as np
+import gc
+import torch
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -16,6 +18,12 @@ from .forms import TextClassificationForm
 from .inference_service import PoliticalInferenceService
 
 logger = logging.getLogger(__name__)
+
+def cleanup_memory():
+    """Clean up memory after model operations"""
+    gc.collect()
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
 
 def get_alternative_scorers():
     """Initialize alternative hypothesis scorers - UPDATED to include new response-based models"""
@@ -243,8 +251,9 @@ def classify_text(request):
                 logger.debug("Generating alternative hypothesis scores...")
                 alternative_scorers = get_alternative_scorers()
                 alternative_scores = generate_alternative_scores(text, alternative_scorers)
-                
-                # UPDATED: Extract selected approaches from form - ADD the new response fields
+
+                cleanup_memory()
+		# UPDATED: Extract selected approaches from form - ADD the new response fields
                 selected_approaches = {
                     # Direct regression approaches
                     'left_right_direct': form.cleaned_data.get('left_right_direct', False),
