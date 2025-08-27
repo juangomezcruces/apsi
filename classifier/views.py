@@ -89,9 +89,9 @@ def get_alternative_scorers(selected_approaches):
             selected_approaches.get('populism_responses')):
             
             logger.info("Loading response-based scorers...")
-            from . import libillibwithresponses3_adapted as lib_responses
-            from . import rilewresponses_adapted as lr_responses  
-            from . import popnonpopwresponses_adapted as pop_responses
+            from . import libillibwresponses as lib_responses
+            from . import rilewresponses as lr_responses  
+            from . import popnonpopwresponses as pop_responses
             
             if selected_approaches.get('left_right_responses'):
                 scorers['left_right_responses'] = lr_responses.LeftRightResponsesScorer()
