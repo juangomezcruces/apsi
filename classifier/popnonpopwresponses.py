@@ -6,9 +6,8 @@ warnings.filterwarnings('ignore')
 
 class PopulismPluralismResponsesScorer:
     """
-    Populism-Pluralism classification using responses-based scoring approach
-    Adapted for integration with existing political classification system
-    Output: 0-10 scale (mapped from 0-4 scale for consistency)
+    Populism-Pluralism classification using Norris (2020) framework
+    Scale: 0-10 interval from "Strongly favors pluralist rhetoric" to "Strongly favors populist rhetoric"
     """
     
     def __init__(self, model_name="mlburnham/Political_DEBATE_large_v1.0"):
@@ -17,102 +16,88 @@ class PopulismPluralismResponsesScorer:
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.entailment_idx = self._find_entailment_index()
 
-        # Topic determination question
+        # Topic determination question (Norris framework)
         self.topic_question = (
-            "Does this text makes reference to the people or societal unity/diversity? "
-            "This includes rhetoric emphasizing homogeneity of the people (populist rhetoric) or diversity/compromise (pluralist rhetoric), "
-            "Populist rhetoric tends to privilege the will of the majority, while pluralist rhetoric emphasizes equal protection of all citizens, including minorities."
+            "Does this text discuss political rhetoric, governance approaches, or institutional legitimacy? "
+            "This includes references to populist rhetoric (challenging institutions, emphasizing popular will) "
+            "or pluralist rhetoric (supporting checks and balances, minority rights, compromise)."
         )
 
-        # Core question to assess rhetoric
-        self.core_question = "To what extent does the author of this text use populist or pluralist rhetoric?"
+        # Core question based on Norris (2020) framework
+        self.core_question = "Does this text favor populist rhetoric (challenging institutions, emphasizing popular will) or pluralist rhetoric (supporting checks and balances, minority rights, compromise)?"
 
-        # Response options with their corresponding scores (0-4 scale for consistency)
+        # Response options aligned with Norris (2020) 0-10 scale
         self.response_options = {
-            0: {  # Strong Pluralist
-                'description': "Strong Pluralist. Explicitly emphasizes diversity, minority rights, and institutional protections against majority tyranny.",
-                'interpretation': "Strong Pluralist",
+            0: {  # Strong Pluralist (0-2.5)
+                'description': "Strongly favors pluralist rhetoric. Emphasizes institutional constraints, minority rights, bargaining, and compromise as essential to democratic governance.",
+                'interpretation': "Strongly favors pluralist rhetoric",
                 'primary': [
-                    "Explicitly acknowledges multiple legitimate perspectives, identities, or interests within society.",
-                    "Frames political legitimacy as coming from inclusive representation of all groups, not a single will.",
-                    "Strongly emphasizes the need to protect minority rights, even against majority preferences.",
-                    "Describes diversity as a fundamental democratic strength that must be preserved."
+                    "Explicitly supports checks and balances on executive power",
+                    "Emphasizes protection of minority rights against majority will",
+                    "Values political bargaining and compromise as democratic virtues",
+                    "Believes elected leaders should govern within institutional constraints"
                 ],
                 'secondary': [
-                    "Presents unity as cooperation among diverse groups, without erasing disagreements.",
-                    "Emphasizes institutions, rules, or processes that guarantee equal participation for all voices.",
-                    "Rejects the idea that any single group represents 'the true people'.",
-                    "Advocates for checks and balances to prevent majority domination."
+                    "Rejects the idea that popular will should override institutional safeguards",
+                    "Supports gradual reform through established democratic processes",
+                    "Views diversity of opinion as strengthening democratic decision-making",
+                    "Advocates for inclusive representation of all groups"
                 ]
             },
-            1: {  # Pluralist
-                'description': "Pluralist. Recognizes diversity and supports inclusive representation, with some emphasis on shared values.",
-                'interpretation': "Pluralist",
+            2.5: {  # Pluralist (2.5-5)
+                'description': "Favors pluralist rhetoric with some recognition of popular sovereignty. Generally supports institutional constraints but acknowledges role of popular will.",
+                'interpretation': "Favors pluralist rhetoric",
                 'primary': [
-                    "Acknowledges societal diversity and supports inclusive political representation.",
-                    "Frames legitimate governance as requiring input from multiple groups and perspectives.",
-                    "Supports minority rights and institutional protections for all citizens."
+                    "Supports institutional constraints but with flexibility for popular input",
+                    "Balances majority rule with minority protections",
+                    "Values compromise but recognizes limits to bargaining",
+                    "Acknowledges legitimacy of popular will within constitutional framework"
                 ],
                 'secondary': [
-                    "Recognizes the value of political compromise and negotiation.",
-                    "Depicts political differences as manageable through democratic institutions.",
-                    "Avoids framing opponents as illegitimate or anti-democratic.",
-                    "Balances majority will with minority protection."
+                    "Seeks middle ground between populist and pluralist approaches",
+                    "Supports institutions but criticizes their inefficiency or unresponsiveness",
+                    "Emphasizes both representation and effective governance",
+                    "Recognizes tension between popular sovereignty and institutional safeguards"
                 ]
             },
-            2: {  # Moderate/Neutral
-                'description': "Moderate. Balances people-centered rhetoric with recognition of diversity; neither strongly populist nor pluralist.",
-                'interpretation': "Moderate",
+            5: {  # Moderate/Populist (5-7.5)
+                'description': "Leans toward populist rhetoric. Criticizes institutional constraints as obstacles to popular will, but without strong moral condemnation.",
+                'interpretation': "Favors populist rhetoric",
                 'primary': [
-                    "Uses both unity-focused and diversity-acknowledging language.",
-                    "References 'the people' but also acknowledges different groups and interests.",
-                    "Supports both majority decision-making and minority protection, without strong emphasis on either."
+                    "Criticizes political institutions as unresponsive to popular needs",
+                    "Emphasizes that the will of the people should prevail",
+                    "Questions legitimacy of established political processes",
+                    "Advocates for more direct popular influence on governance"
                 ],
                 'secondary': [
-                    "Frames political legitimacy as coming from both popular will and institutional processes.",
-                    "Mentions both shared values and diverse perspectives.",
-                    "Takes a balanced approach to questions of majority rule vs. minority rights.",
-                    "Avoids strong populist or pluralist framing devices."
+                    "Portrays political elites as out of touch with ordinary citizens",
+                    "Supports reforms to make institutions more responsive to popular will",
+                    "Questions the value of excessive bargaining and compromise",
+                    "Emphasizes common people's wisdom over expert opinion"
                 ]
             },
-            3: {  # Populist
-                'description': "Populist. Emphasizes unified people with common interests; criticizes elites but without strong moral condemnation.",
-                'interpretation': "Populist",
+            7.5: {  # Strong Populist (7.5-10)
+                'description': "Strongly favors populist rhetoric. Challenges legitimacy of established institutions and emphasizes that popular will should override constraints.",
+                'interpretation': "Strongly favors populist rhetoric",
                 'primary': [
-                    "Portrays 'the people' as having a largely common will or shared interests.",
-                    "Frames ordinary citizens as the primary source of political legitimacy.",
-                    "Criticizes political elites, institutions, or opponents as out of touch with popular will.",
-                    "Unity and shared identity are emphasized over diversity and difference."
+                    "Directly challenges legitimacy of established political institutions",
+                    "Claims exclusive representation of the 'true will of the people'",
+                    "Argues that popular will should override checks and balances",
+                    "Portrays political opponents as illegitimate or anti-democratic"
                 ],
                 'secondary': [
-                    "Emphasizes shared values, traditions, or national identity as the foundation for political action.",
-                    "Depicts political conflict as between 'the people' and unresponsive institutions or elites.",
-                    "Mentions diversity rarely or frames it as secondary to unity.",
-                    "Suggests that the people's voice should have primacy in political decisions."
-                ]
-            },
-            4: {  # Strong Populist
-                'description': "Strong Populist. People framed as morally pure and homogeneous, opposed to corrupt, illegitimate elites or dangerous outsiders.",
-                'interpretation': "Strong Populist",
-                'primary': [
-                    "Portrays 'the people' as morally pure, homogeneous, and the only rightful political authority.",
-                    "Claims exclusive representation of the 'true will of the people', rejecting other voices as illegitimate.",
-                    "Frames politics as a moral struggle between virtuous people and corrupt elites or dangerous outsiders.",
-                    "Describes political opponents as enemies, traitors, or threats to the people's well-being."
-                ],
-                'secondary': [
-                    "Emphasizes that the people's voice should override institutional constraints, checks and balances, or minority rights.",
-                    "Positions outsiders, foreigners, or minority groups as threats to the unity or moral integrity of the people.",
-                    "Conflict is moralized as a struggle between good and evil, not just policy disagreements.",
-                    "Rejects the legitimacy of pluralist institutions or processes that might constrain popular will."
+                    "Frames politics as moral struggle between people and corrupt elites",
+                    "Rejects institutional constraints as obstacles to popular sovereignty",
+                    "Emphasizes homogeneous people with single common will",
+                    "Advocates for radical restructuring of political system"
                 ]
             }
         }
 
         # Threshold for topic determination
-        self.topic_threshold = 0.7
+        self.topic_threshold = 0.6
 
-        print("Populism-Pluralism responses scorer initialized (0-4 scale)")
+        print("Norris (2020) Populism-Pluralism scorer initialized (0-10 scale)")
 
     def _find_entailment_index(self):
         """Auto-detect entailment index for different NLI models"""
@@ -136,154 +121,150 @@ class PopulismPluralismResponsesScorer:
             prob = torch.softmax(outputs.logits, dim=-1)[0, self.entailment_idx].item()
         return prob
 
-    def is_about_people_unity(self, text):
-        """Determine if text is about people/societal unity"""
+    def is_about_political_rhetoric(self, text):
+        """Determine if text is about political rhetoric/institutional legitimacy"""
         prob = self._get_entailment_prob(text, self.topic_question)
         return prob >= self.topic_threshold, prob
 
     def get_response_probabilities(self, text):
         """Get probabilities for each response option"""
-        probs = []
-        for score in sorted(self.response_options.keys()):
+        probs = {}
+        for score in self.response_options.keys():
             response_text = self.response_options[score]['description']
-            # Also include primary characteristics for better matching
+            # Include primary characteristics for better matching
             if 'primary' in self.response_options[score]:
-                primary_text = " ".join(self.response_options[score]['primary'][:2])  # Use first 2 characteristics
+                primary_text = " ".join(self.response_options[score]['primary'][:2])
                 response_text += " " + primary_text
             
             prob = self._get_entailment_prob(text, response_text)
-            probs.append(prob)
-        return np.array(probs)
+            probs[score] = prob
+        
+        return probs
 
-    def compute_confidence(self, probs):
+    def compute_confidence(self, probs_dict):
         """Compute confidence based on probability distribution"""
+        probs = np.array(list(probs_dict.values()))
         normalized_probs = probs / np.sum(probs)
         entropy = -np.sum(normalized_probs * np.log(normalized_probs + 1e-10))
         max_prob = np.max(normalized_probs)
         confidence = max_prob * (1 - entropy/np.log(len(probs)))
         return confidence
 
-    def _map_to_10_scale(self, score_0_4):
+    def _calculate_norris_score(self, probs_dict):
         """
-        Map 0-4 scale to 0-10 scale for consistency with existing system
-        NOW CONSISTENT: 0-4 → 0-10 (same as Liberal-Illiberal and Left-Right)
-        0 (Strong Pluralist) -> 0-1
-        1 (Pluralist) -> 2-3  
-        2 (Moderate) -> 4-6
-        3 (Populist) -> 7-8
-        4 (Strong Populist) -> 9-10
+        Calculate Norris (2020) 0-10 score using weighted average
+        of the four anchor points (0, 2.5, 5, 7.5)
         """
-        scale_mapping = {
-            0: (0, 1),   # Strong Pluralist
-            1: (2, 3),   # Pluralist
-            2: (4, 6),   # Moderate  
-            3: (7, 8),   # Populist
-            4: (9, 10)   # Strong Populist
-        }
+        scores = np.array(list(probs_dict.keys()))
+        probs = np.array(list(probs_dict.values()))
         
-        # Linear interpolation within ranges
-        if score_0_4 <= 0:
-            return 0.5
-        elif score_0_4 >= 4:
-            return 9.5
+        # Normalize probabilities
+        normalized_probs = probs / np.sum(probs)
         
-        # Find the two adjacent integer scores
-        lower_int = int(score_0_4)
-        upper_int = min(lower_int + 1, 4)
+        # Calculate weighted average score
+        weighted_score = np.sum(scores * normalized_probs)
         
-        # Get the ranges for interpolation
-        lower_range = scale_mapping[lower_int]
-        upper_range = scale_mapping[upper_int]
+        # Ensure score stays within 0-10 range
+        final_score = max(0, min(10, weighted_score))
         
-        # Linear interpolation
-        fraction = score_0_4 - lower_int
-        lower_mapped = (lower_range[0] + lower_range[1]) / 2
-        upper_mapped = (upper_range[0] + upper_range[1]) / 2
-        
-        mapped_score = lower_mapped + fraction * (upper_mapped - lower_mapped)
-        return round(mapped_score, 2)
+        return round(final_score, 2)
 
-    def _get_interpretation_from_10_scale(self, score_10):
-        """Get interpretation for 10-scale score"""
-        if score_10 < 2:
-            return "Strong Pluralist"
-        elif score_10 < 4:
+    def _get_interpretation_from_score(self, score):
+        """Get interpretation based on Norris (2020) scale"""
+        if score < 2.5:
+            return "Strong pluralist"
+        elif score < 5:
             return "Pluralist"
-        elif score_10 < 7:
-            return "Moderate"
-        elif score_10 < 9:
+        elif score < 7.5:
             return "Populist"
         else:
-            return "Strong Populist"
+            return "Strong populist"
 
     def score_populism_pluralism(self, text):
         """
-        Main scoring method - standardized interface for integration
-        Returns format expected by views.py: {'score', 'confidence', 'interpretation'}
+        Main scoring method using Norris (2020) framework
+        Returns: {'score', 'confidence', 'interpretation', 'is_relevant'}
         """
-        # Step 1: Determine if text is about people/societal unity
-        is_about_topic, topic_prob = self.is_about_people_unity(text)
+        # Step 1: Determine if text is about political rhetoric/institutional legitimacy
+        is_about_topic, topic_prob = self.is_about_political_rhetoric(text)
         
         if not is_about_topic:
             return {
-                'score': 5.0,  # Neutral/moderate score when not relevant
-                'confidence': 0.5,  # Low confidence for irrelevant text
-                'interpretation': "Not about people or unity",
+                'score': 'NA',  # Middle of scale when not relevant
+                'confidence': 0.3,  # Low confidence for irrelevant text
+                'interpretation': "Not about political rhetoric or institutional legitimacy",
                 'is_relevant': False,
-                'topic_probability': topic_prob
+                'topic_probability': topic_prob,
+                'framework': "Norris (2020)"
             }
         
-        # Step 2: Score the populist/pluralist rhetoric
-        probs = self.get_response_probabilities(text)
-        normalized_probs = probs / np.sum(probs)
-        
-        # Calculate continuous score on 0-4 scale (NOW CONSISTENT)
-        scores = np.array(list(self.response_options.keys()))
-        continuous_score_0_4 = np.sum(scores * normalized_probs)
-        
-        # Map to 0-10 scale to match existing system
-        score_10 = self._map_to_10_scale(continuous_score_0_4)
+        # Step 2: Score using Norris framework
+        probs_dict = self.get_response_probabilities(text)
+        score = self._calculate_norris_score(probs_dict)
         
         # Get confidence and interpretation
-        confidence = self.compute_confidence(probs)
-        interpretation = self._get_interpretation_from_10_scale(score_10)
+        confidence = self.compute_confidence(probs_dict)
+        interpretation = self._get_interpretation_from_score(score)
         
         return {
-            'score': score_10,
+            'score': score,
             'confidence': confidence,
             'interpretation': interpretation,
             'is_relevant': True,
             'topic_probability': topic_prob,
-            'original_score_0_4': round(continuous_score_0_4, 2)  # Keep for debugging
+            'framework': "Norris (2020)",
+            'category_probs': {k: round(v, 3) for k, v in probs_dict.items()}
         }
 
-# Test function
-def test_scorer():
-    """Test the adapted scorer"""
+# Test function with Norris-specific examples
+def test_norris_scorer():
+    """Test the Norris (2020) framework scorer"""
     scorer = PopulismPluralismResponsesScorer()
     
+    # Test texts aligned with Norris framework
     test_texts = [
-        "We must protect the rights of all minorities and ensure diverse voices are heard in democracy.",
-        "The corrupt establishment has betrayed the true will of the American people!",
-        "Today's weather report shows partly cloudy skies.",
-        "Real patriots know what's best for this country, not Washington insiders and foreign influences.",
-        "Democratic institutions must balance majority rule with constitutional protections for all citizens.",
-        "The people have spoken clearly, but special interests and courts keep blocking our agenda."
+        # Strong Pluralist examples (0-2.5)
+        "We must uphold our constitutional system of checks and balances to protect minority rights from majority tyranny",
+        "Democratic governance requires compromise and bargaining between diverse interests, not just majority rule",
+        "Institutional constraints on executive power are essential for preserving our democratic values",
+        "Protecting minority rights is fundamental to our democratic system, even when it limits majority preferences",
+        
+        # Pluralist examples (2.5-5)
+        "While we respect popular sovereignty, our institutions must also safeguard against the tyranny of the majority",
+        "Effective governance requires balancing the will of the people with necessary institutional constraints",
+        "We should reform our political system to be more responsive while maintaining essential democratic safeguards",
+        "Both popular input and institutional expertise are valuable for sound democratic decision-making",
+        
+        # Populist-Leaning examples (5-7.5)
+        "The political establishment has lost touch with the real needs and desires of ordinary citizens",
+        "I want to get some chocolate", #irrelevant
+        "We need to break through bureaucratic obstacles that prevent the people's will from being implemented",
+        "Too much compromise and bargaining has led to weak leadership and unresponsive government",
+        "The voices of common people should carry more weight than expert opinions in political decisions",
+        
+        # Strong Populist examples (7.5-10)
+        "The entire political system is corrupt and needs to be completely overhauled to reflect the true will of the people",
+        "We alone represent the authentic voice of the people against the corrupt elite establishment",
+        "Institutional constraints are nothing but obstacles created by elites to block the people's legitimate demands",
+        "The will of the people must prevail over any and all institutional barriers or minority objections"
     ]
     
     print("\n" + "="*80)
-    print("TESTING POPULISM-PLURALISM RESPONSES SCORER (0-4 SCALE)")
+    print("TESTING NORRIS (2020) POPULISM-PLURALISM SCORER")
+    print("0 = Strongly pluralist, 10 = Strongly populist")
     print("="*80)
     
-    for text in test_texts:
+    for i, text in enumerate(test_texts):
         result = scorer.score_populism_pluralism(text)
-        print(f"\nText: {text}")
-        print(f"Score (0-10): {result['score']}")
-        print(f"Confidence: {result['confidence']:.3f}")
-        print(f"Interpretation: {result['interpretation']}")
-        print(f"Relevant: {result['is_relevant']}")
-        if 'original_score_0_4' in result:
-            print(f"Original (0-4): {result['original_score_0_4']}")
+        
+        print(f"\n{i+1}. {text}")
+        print(f"   Score: {result['score']}/10")
+        print(f"   Interpretation: {result['interpretation']}")
+        print(f"   Confidence: {result['confidence']:.3f}")
+        print(f"   Relevant: {result['is_relevant']}")
+        
+        if result['is_relevant']:
+            print(f"   Category probabilities: {result['category_probs']}")
 
 if __name__ == "__main__":
-    test_scorer()
+    test_norris_scorer()
