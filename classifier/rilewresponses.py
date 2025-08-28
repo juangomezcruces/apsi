@@ -27,7 +27,7 @@ class LeftRightResponsesScorer:
         )
 
         # Core question to assess economic rhetoric
-        self.core_question = "Please locate the party in terms of its overall ideological stance on economic issues."
+        self.core_question = "Please locate the text in terms of its overall ideological stance on economic issues."
 
         # Response options with their corresponding scores (0-6 scale)
         self.response_options = {
