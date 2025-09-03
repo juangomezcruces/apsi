@@ -3,6 +3,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
+from .shared_model_cache import SharedModelCache
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -12,9 +13,8 @@ warnings.filterwarnings('ignore')
 
 class LeftRightEconomicScorer:
     def __init__(self, model_name="mlburnham/Political_DEBATE_large_v1.0"):
-        print(f"Loading NLI model: {model_name}...")
-        self.model = AutoModelForSequenceClassification.from_pretrained(model_name)
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+        cache = SharedModelCache()
+        self.model, self.tokenizer = cache.get_model_and_tokenizer(model_name)
         self.entailment_idx = self._find_entailment_index()
 
         # Left-Right Economic hypotheses - streamlined to ~15 per side
