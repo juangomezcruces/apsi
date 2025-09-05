@@ -150,11 +150,9 @@ class LeftRightResponsesScorer:
         return np.array(probs)
 
     def compute_confidence(self, probs):
-        """Compute confidence based on probability distribution"""
+        """Compute confidence as the maximum normalized probability"""
         normalized_probs = probs / np.sum(probs)
-        entropy = -np.sum(normalized_probs * np.log(normalized_probs + 1e-10))
-        max_prob = np.max(normalized_probs)
-        confidence = max_prob * (1 - entropy/np.log(len(probs)))
+        confidence = np.max(normalized_probs)
         return confidence
 
     def _map_to_10_scale(self, score_0_6):
