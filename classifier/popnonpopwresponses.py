@@ -91,8 +91,8 @@ class PopulismPluralismResponsesScorer:
                 response_text += " " + primary_text
             
             prob = self._get_entailment_prob(text, response_text)
-            probs[score] = prob + 0.0001 #remember to check this once access to the node is available
-        
+            probs[score] = prob + 0.001 
+
         return probs
 
 
@@ -114,7 +114,7 @@ class PopulismPluralismResponsesScorer:
         scores = np.array(list(probs_dict.keys()))
         probs = np.array(list(probs_dict.values()))
         # Apply temperature scaling to soften probabilities
-        temperature = 2  # Higher temperature = softer distribution
+        temperature = 1.7  # Higher temperature = softer distribution
         scaled_probs = np.exp(np.log(probs + 1e-10) / temperature)
         normalized_probs = scaled_probs / np.sum(scaled_probs)
         
