@@ -165,7 +165,7 @@ class LiberalIlliberalResponsesScorer:
             return "Strongly committed"
 
 
-    def score_liberal_democracy(self, text):
+    def score_liberal_illiberal(self, text):
         is_about_topic, topic_prob = self.is_about_political_rhetoric(text)
         
         if not is_about_topic:
