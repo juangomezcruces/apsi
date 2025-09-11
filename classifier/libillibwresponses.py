@@ -6,7 +6,7 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import warnings
 warnings.filterwarnings('ignore')
 
-class SupportLibDemResponsesScorer:
+class LiberalIlliberalResponsesScorer:
     """
     SupportLibDem classification using V-Dem framework
     Scale: 0-10 interval from "Strongly favors pluralist rhetoric" to "Strongly favors populist rhetoric"
@@ -201,7 +201,7 @@ class SupportLibDemResponsesScorer:
 # Test function with Norris-specific examples
 def lib_dem_scorer():
     """Test the V-Dem framework scorer"""
-    scorer = SupportLibDemResponsesScorer()
+    scorer = LiberalIlliberalResponsesScorer()
     
     # Test texts aligned with Norris framework
     test_texts = [
