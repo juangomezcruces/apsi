@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %} Automated Political Stance Identifier{% endblock %}
 
@@ -7,7 +8,7 @@
 <section class="py-5 bg-white">
     <div class="container text-center">
         <img 
-            src="APSIlogo.jpg" 
+	    src="{% static 'APSIlogo.png' %}" 
             alt="APSI Logo" 
             class="img-fluid mx-auto d-block"
             style="max-height: 200px;"
