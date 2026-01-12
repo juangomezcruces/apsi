@@ -55,7 +55,12 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
             <a class="navbar-brand" href="{% url 'classifier:index' %}">
-                🗳️ Automated Political Stance Identification
+                <img src="{% static 'APSIblack.png' %}" 
+            alt="APSI black Logo" 
+            class="img-fluid mx-auto d-block"
+            style="max-height: 20px;"
+        >
+
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
