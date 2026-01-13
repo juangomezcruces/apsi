@@ -47,6 +47,44 @@
             font-weight: bold;
             margin: 1rem 0;
         }
+        	.bg-custom {
+   	          background-color: #1F2A6D !important;
+	    }
+	        .form-check-input:checked {
+    	        background-color: #37A3B1;
+    	        border-color: #37A3B1;
+	    }
+	
+        	.form-check-input:focus {
+    	      border-color: #37A3B1;
+    	     box-shadow: 0 0 0 0.25rem rgba(14, 37, 107, 0.25);
+	    }
+        	.italic-text {
+    	       font-style: italic;
+	    }
+	 
+        	.truncate-text {
+	            display: -webkit-box;
+            	-webkit-line-clamp: 4;
+   	            -webkit-box-orient: vertical;
+            	overflow: hidden;
+	    }
+        	.truncate-text.expanded {
+            	-webkit-line-clamp: unset;
+	    }
+
+        	.read-more {
+          	    display: inline-block;
+  	            margin-top: 5px;
+   	            font-size: 0.70rem;
+    	        color: #0E256B;
+    	        cursor: pointer;
+    	        text-decoration: none;
+	    }
+        	.read-more:hover {
+   	            text-decoration: underline;
+	    }
+
     </style>
     {% block extra_css %}{% endblock %}
 </head>
@@ -54,6 +92,11 @@
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
 	<div class="container">
+        	<img 
+    	src="/static/APSIblack.png" 
+    	alt="APSI Logo" 
+    	class="img-fluid"
+    	style="max-height: 35px;">
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
