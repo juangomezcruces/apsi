@@ -56,48 +56,53 @@
                         </div>
                         
                         <div class="row">
+
                             <!-- Left-Right Approaches -->
                             <div class="col-md-4 mb-3">
                                 <div class="card h-100">
-                                    <div class="card-header bg-danger text-white text-center">
+                                   <div class="card-header bg-custom text-white text-center">
                                         <h6 class="mb-0"> Left-Right Scale</h6>
                                     </div>
                                     <div class="card-body">
                                         <div class="form-check mb-2">
-                                            {{ form.left_right_hypothesis }}
-                                            <label class="form-check-label" for="{{ form.left_right_hypothesis.id_for_label }}">
-                                                <strong>Hypothesis-Based</strong><br>
+                                            <input type="checkbox" name="left_right_hypothesis" class="form-check-input" id="id_left_right_hypothesis" checked>
+                                            <label class="form-check-label" for="id_left_right_hypothesis">
+<div class="truncate-text" id="text-left-right">
+    <small class="mb-0 italic-text">
+        "Parties and actors can be classified in terms of their stance on ECONOMIC ISSUES such as privatization, taxes, regulation, government spending, and the welfare state. Parties on the economic left want government to play an active role in the economy. Those on the economic right want a reduced role for government."
+        (Jolly et al. 2022, p. 22)
+    </small>
+</div>
+
+<a href="#" class="read-more" data-target="text-left-right">Read more</a>
+
                                             </label>
-                                        </div>
-                                        <!-- NEW: Response-Based Option -->
-                                        <div class="form-check">
-                                            {{ form.left_right_responses }}
-                                            <label class="form-check-label" for="{{ form.left_right_responses.id_for_label }}">
-                                                <strong>Response-Based</strong><br>
-                                            </label>
-                                        </div>
-                                    </div>
+                                       </div>
+</div>
                                 </div>
                             </div>
 
                             <!-- Liberal-Illiberal Approaches -->
                             <div class="col-md-4 mb-3">
                                 <div class="card h-100">
-                                    <div class="card-header bg-success text-white text-center">
-                                        <h6 class="mb-0">Liberal-Illiberal</h6>
+                                    <div class="card-header bg-custom text-white text-center">
+                                        <h6 class="mb-0">Support for Liberal Democracy</h6>
                                     </div>
                                     <div class="card-body">
                                         <div class="form-check mb-2">
-                                            {{ form.liberal_illiberal_hypothesis }}
-                                            <label class="form-check-label" for="{{ form.liberal_illiberal_hypothesis.id_for_label }}">
-                                                <strong>Hypothesis-Based</strong><br>
-                                            </label>
-                                        </div>
-                                        <!-- NEW: Response-Based Option -->
-                                        <div class="form-check">
-                                            {{ form.liberal_illiberal_responses }}
-                                            <label class="form-check-label" for="{{ form.liberal_illiberal_responses.id_for_label }}">
-                                                <strong>Response-Based</strong><br>
+                                            <input type="checkbox" name="liberal_illiberal_hypothesis" class="form-check-input" id="id_liberal_illiberal_hypothesis" checked>
+                                            <label class="form-check-label" for="id_liberal_illiberal_hypothesis">
+
+<div class="truncate-text" id="text-lib-illib">
+    <small class="mb-0 italic-text">
+"...to what extent was [the actor or party] clearly committed to free and fair elections with multiple parties, freedom of speech, media, assembly and association? [Actors or parties] show no commitment to such principles if they openly support an autocratic form of government without elections or freedom of speech, assembly and association (e.g. theocracy; single-party rule; revolutionary regime). [Actors or parties] show a full commitment to key democratic principles if they unambiguously support freedom of speech, media, assembly and association and pledge to accept defeat in free and fair elections." (Lindberg et al. 2022, p. 27)
+    </small>
+</div>
+
+<a href="#" class="read-more" data-target="text-lib-illib">Read more</a>
+
+
+
                                             </label>
                                         </div>
                                     </div>
@@ -107,77 +112,39 @@
                             <!-- Populism Approaches -->
                             <div class="col-md-4 mb-3">
                                 <div class="card h-100">
-                                    <div class="card-header bg-warning text-dark text-center">
+                                    <div class="card-header bg-custom text-white text-center">
                                         <h6 class="mb-0">Populism-Pluralism</h6>
                                     </div>
                                     <div class="card-body">
                                         <div class="form-check mb-2">
-                                            {{ form.populism_hypothesis }}
-                                            <label class="form-check-label" for="{{ form.populism_hypothesis.id_for_label }}">
-                                                <strong>Hypothesis-Based</strong><br>
+                                            <input type="checkbox" name="populism_hypothesis" class="form-check-input" id="id_populism_hypothesis" checked>
+                                            <label class="form-check-label" for="id_populism_hypothesis">
+
+
+<div class="truncate-text" id="text-pop-plur">
+    <small class="mb-0 italic-text">
+"Parties [or actors] can also be classified by their current use of POPULIST OR PLURALIST rhetoric. POPULIST language typically challenges the legitimacy of established political institutions and emphasizes that the will of the people should prevail. By contrast, PLURALIST rhetoric rejects these ideas, believing that elected leaders should govern, constrained by minority rights, bargaining and compromise, as well as checks and balances on executive power." (Norris 2020, p. 6, 7)
+    </small>
+</div>
+
+<a href="#" class="read-more" data-target="text-pop-plur">Read more</a>
+
                                             </label>
                                         </div>
-                                        <!-- NEW: Response-Based Option -->
-                                        <div class="form-check">
-                                            {{ form.populism_responses }}
-                                            <label class="form-check-label" for="{{ form.populism_responses.id_for_label }}">
-                                                <strong>Response-Based</strong><br>
-                                            </label>
-                                        </div>
+                                        
                                     </div>
                                 </div>
                             </div>
                         </div>
                         
-                        {% if form.non_field_errors %}
-                            <div class="alert alert-danger mt-3">
-                                {% for error in form.non_field_errors %}
-                                    {{ error }}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
+                        
                     </div>
-
-
-<!-- Definitions -->
-<div class="row mt-4">
-
-    <div class="col-md-4 mb-3">
-        <div class="card h-50">
-            <div class="card-header bg-danger text-white fst-italic text-center">
-                <small class="mb-0"> “Parties and actors can be classified in terms of their stance on ECONOMIC ISSUES such as privatization, taxes, regulation, government spending, and the welfare state. Parties on the economic left want government to play an active role in the economy. Those on the economic right want a reduced role for government.” (Jolly et al. 2022, p. 22)		</small>
-            </div>
-
-        </div>
-    </div>
-
-    <div class="col-md-4 mb-3">
-        <div class="card h-100">
-            <div class="card-header bg-success text-white fst-italic text-center">
-                <small class="mb-0"> “...to what extent was [the actor or party] clearly committed to free and fair elections with multiple parties, freedom of speech, media, assembly and association? [Actors or parties] show no commitment to such principles if they openly support an autocratic form of government without elections or freedom of speech, assembly and association (e.g. theocracy; single-party rule; revolutionary regime). [Actors or parties] show a full commitment to key democratic principles if they unambiguously support freedom of speech, media, assembly and association and pledge to accept defeat in free and fair elections.” (Lindberg et al. 2022, p. 27)		</small>
-            
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-4 mb-3">
-        <div class="card h-375">
-            <div class="card-header bg-warning fst-italic text-center">
-                <small class="mb-0"> "Parties [or actors] can also be classified by their current use of POPULIST OR PLURALIST rhetoric. 							POPULIST language typically challenges the legitimacy of established political institutions and 							emphasizes that the will of the people should prevail. By contrast, PLURALIST rhetoric rejects these 							ideas, believing that elected leaders should govern, constrained by minority rights, bargaining and 							compromise, as well as checks and balances on executive power." (Norris 2020, p. 6, 7)
-		</small>
-            </div>
-
-        </div>
-    </div>
-
-</div>
-
 
 
                     <!-- Submit Button -->
                     <div class="text-center">
                         <button type="submit" class="btn btn-primary btn-lg px-5 py-3">
-                            🚀 Analyze Text
+                            Analyze Text
                         </button>
                     </div>
                 </form>
@@ -186,84 +153,7 @@
     </div>
 </section>
 
-<!-- Method Comparison Section -->
-<section class="py-5 bg-light">
-    <div class="container">
-        <div class="row">
-            <div class="col-12 text-center mb-5">
-                <h3>Disclaimer</h3>
-                <p class="text-muted"> This tool provides automated analyses intended to approximate potential political stances expressed in text. Its assessments may be inaccurate or incomplete, and should not be treated as definitive judgments about an individual’s beliefs, affiliations, or intentions.</p>
-                <p class="text-muted"> Political language is often nuanced, context-dependent, and influenced by cultural, historical, or rhetorical factors the tool may not fully capture. Results may also be affected by biases present in training data or model limitations.</p>
-                <p class="text-muted"> This tool is intended for informational and research purposes only. It should not be used for decisions affecting individuals’ rights, opportunities, or access to services (including employment, housing, legal, or political participation decisions). Users are responsible for applying human review, critical judgment, and, when appropriate, expert consultation.</p>
-             <div class="col-12 text-center mb-5">
-                <h3>Haftungsausschluss</h3>
-                <p class="text-muted"> Dieses Tool führt automatisierte Analysen durch, um wahrscheinliche politische Haltungen in Texten zu erkennen. Die Ergebnisse können ungenau oder unvollständig sein und sollten nicht als endgültige Aussagen über die Überzeugungen, Zugehörigkeiten oder Absichten einer Person verstanden werden.</p>
-                <p class="text-muted"> Politische Sprache ist oft nuanciert, kontextabhängig und wird von kulturellen, historischen oder rhetorischen Faktoren beeinflusst, die das Tool möglicherweise nicht vollständig erfassen kann. Die Resultate können zudem durch Bias in den Trainingsdaten oder durch Modellgrenzen verfälscht werden.</p>
-                <p class="text-muted"> Dieses Tool dient ausschließlich Informations- und Forschungszwecken. Es darf nicht für Entscheidungen verwendet werden, die die Rechte, Chancen oder den Zugang zu Dienstleistungen von Personen betreffen (einschließlich Entscheidungen in den Bereichen Beschäftigung, Wohnen, Rechtliches oder politische Teilhabe). Nutzerinnen und Nutzer sind dafür verantwortlich, die Ergebnisse mit menschlicher Prüfung, kritischem Urteilsvermögen und gegebenenfalls fachlicher Beratung zu bewerten.</p>
-            
-            </div>
-        </div>
-        
-        <div class="row">
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 border-primary">
-                    <div class="card-header bg-primary text-white text-center">
-                        <h6 class="mb-0"> Direct Regression</h6>
-                    </div>
-                    <div class="card-body">
-                        <ul class="list-unstyled">
-                            <li class="mb-2">✓ <strong>Data-Driven:</strong> Trained on labeled political datasets</li>
-                            <li class="mb-2">✓ <strong>Empirical:</strong> Based on actual political position scores</li>
-                            <li class="mb-2">✓ <strong>Quantitative:</strong> Produces continuous numerical scores</li>
-                            <li class="mb-2">✓ <strong>Fast:</strong> Single model prediction</li>
-                        </ul>
-                        <p class="card-text small text-muted mt-3">
-                            Best for: Quick, empirically-grounded political position estimates
-                        </p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 border-secondary">
-                    <div class="card-header bg-secondary text-white text-center">
-                        <h6 class="mb-0"> Hypothesis-Based</h6>
-                    </div>
-                    <div class="card-body">
-                        <ul class="list-unstyled">
-                            <li class="mb-2">✓ <strong>Theory-Driven:</strong> Based on political science theories</li>
-                            <li class="mb-2">✓ <strong>Interpretable:</strong> Clear logical reasoning</li>
-                            <li class="mb-2">✓ <strong>Robust:</strong> Multiple hypothesis testing</li>
-                            <li class="mb-2">✓ <strong>Confidence:</strong> Provides uncertainty estimates</li>
-                        </ul>
-                        <p class="card-text small text-muted mt-3">
-                            Best for: Theoretically-informed analysis with high interpretability
-                        </p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 border-info">
-                    <div class="card-header bg-info text-white text-center">
-                        <h6 class="mb-0"> Response-Based</h6>
-                    </div>
-                    <div class="card-body">
-                        <ul class="list-unstyled">
-                            <li class="mb-2">✓ <strong>Structured:</strong> Uses systematic response patterns</li>
-                            <li class="mb-2">✓ <strong>Comprehensive:</strong> Multi-level scoring framework</li>
-                            <li class="mb-2">✓ <strong>Detailed:</strong> Fine-grained position classification</li>
-                            <li class="mb-2">✓ <strong>Contextual:</strong> Topic relevance assessment</li>
-                        </ul>
-                        <p class="card-text small text-muted mt-3">
-                            Best for: Detailed, systematic analysis with structured criteria
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+
 
 <!-- Example Texts Section -->
 <section class="py-5">
@@ -359,7 +249,7 @@
 
 <script>
 function fillExample(text) {
-    document.getElementById('{{ form.text.id_for_label }}').value = text.trim();
+    document.getElementById('id_text').value = text.trim();
 }
 
 function selectAllApproaches() {
@@ -376,5 +266,40 @@ function clearAllApproaches() {
     });
 }
 </script>
+
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white text-center">
+        <div class="container">
+            <p>&copy; Automated Political Stance Identification.</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+ 
+
+    <!-- Step 3: Read more toggle -->
+    <script>
+    document.querySelectorAll('.read-more').forEach(link => {
+        link.addEventListener('click', function (e) {
+            e.preventDefault();
+
+            const targetId = this.getAttribute('data-target');
+            const textDiv = document.getElementById(targetId);
+
+            textDiv.classList.toggle('expanded');
+            this.textContent = textDiv.classList.contains('expanded')
+                ? 'Read less'
+                : 'Read more';
+        });
+    });
+    </script>
+
+   
+</body>
+</html>
 
 {% endblock %}
