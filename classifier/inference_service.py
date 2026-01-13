@@ -10,6 +10,11 @@ logger = logging.getLogger(__name__)
 # MOCK MODE - Set this to True to test without actual models
 MOCK_MODE = False  # Change to False when you add real models
 
+# Political pre-check configuration
+ENABLE_POLITICAL_PRECHECK = True  # Set False to disable pre-check
+POLITICAL_THRESHOLD = 0.3  # Probability threshold (0-1)
+
+
 class PoliticalInferenceService:
     """
     Django service wrapper for the political text classification models.
@@ -25,10 +30,16 @@ class PoliticalInferenceService:
 
     def __init__(self):
         if not self._initialized:
+            # Political detector (used in both mock and real mode)
+            self.political_detector_model = None
+            self.political_detector_tokenizer = None
+            self._entailment_idx = 0
+            
             if MOCK_MODE:
                 logger.info("🚧 Running in MOCK MODE - no real models loaded")
                 self._initialized = True
                 return
+            
             self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
             logger.info(f"Using device: {self.device}")
             
@@ -52,9 +63,35 @@ class PoliticalInferenceService:
         """Load all models with error handling."""
         try:
             self._load_regression_models()
-            logger.info("All regression models loaded successfully")
+            self._load_political_detector()
+            logger.info("All models loaded successfully")
         except Exception as e:
             logger.error(f"Error loading models: {e}")
+
+    def _load_political_detector(self):
+        """Load the NLI model for political text detection."""
+        if not ENABLE_POLITICAL_PRECHECK:
+            return
+        
+        try:
+            model_name = "mlburnham/Political_DEBATE_large_v1.0"
+            self.political_detector_tokenizer = AutoTokenizer.from_pretrained(model_name)
+            self.political_detector_model = AutoModelForSequenceClassification.from_pretrained(model_name)
+            self.political_detector_model.to(self.device)
+            self.political_detector_model.eval()
+            
+            # Find entailment index
+            config = self.political_detector_model.config
+            if hasattr(config, 'label2id') and config.label2id:
+                for label, idx in config.label2id.items():
+                    if label.lower() in ['entailment', 'entail']:
+                        self._entailment_idx = idx
+                        break
+            
+            logger.info("✓ Political text detector loaded")
+        except Exception as e:
+            logger.warning(f"Could not load political detector: {e}")
+            self.political_detector_model = None
 
     def _load_regression_models(self):
         """Load all regression models."""
@@ -104,6 +141,99 @@ class PoliticalInferenceService:
         except Exception as e:
             logger.error(f"✗ Error loading {model_description} model: {e}")
             return None, None
+
+    # =========================================================================
+    # POLITICAL TEXT PRE-CHECK
+    # =========================================================================
+    
+    def is_political_text(self, text: str) -> Dict:
+        """
+        Check if text is about political topics before scoring.
+        
+        Returns:
+            Dict with 'is_political' (bool), 'probability' (float), 'reason' (str)
+        """
+        if not ENABLE_POLITICAL_PRECHECK:
+            return {'is_political': True, 'probability': 1.0, 'reason': 'Pre-check disabled'}
+        
+        if MOCK_MODE:
+            return self._mock_political_check(text)
+        
+        if self.political_detector_model is None:
+            return {'is_political': True, 'probability': 1.0, 'reason': 'Detector not loaded'}
+        
+        hypothesis = (
+            "This text discusses political topics such as government, parties, "
+            "policies, elections, ideology, or governance."
+        )
+        
+        try:
+            inputs = self.political_detector_tokenizer(
+                text, hypothesis,
+                return_tensors="pt",
+                truncation=True,
+                max_length=512
+            ).to(self.device)
+            
+            with torch.no_grad():
+                outputs = self.political_detector_model(**inputs)
+                probs = torch.softmax(outputs.logits, dim=-1)
+                political_prob = probs[0, self._entailment_idx].item()
+            
+            is_political = political_prob >= POLITICAL_THRESHOLD
+            
+            return {
+                'is_political': is_political,
+                'probability': round(political_prob, 4),
+                'threshold': POLITICAL_THRESHOLD,
+                'reason': self._get_political_reason(is_political, political_prob)
+            }
+        except Exception as e:
+            logger.error(f"Political check failed: {e}")
+            return {'is_political': True, 'probability': 1.0, 'reason': f'Check failed: {e}'}
+
+    def _mock_political_check(self, text: str) -> Dict:
+        """Simple keyword-based check for mock mode."""
+        political_keywords = {
+            'government', 'parliament', 'congress', 'election', 'vote', 'party',
+            'democrat', 'republican', 'conservative', 'liberal', 'socialist',
+            'policy', 'legislation', 'tax', 'budget', 'democracy', 'freedom',
+            'rights', 'constitution', 'political', 'politician', 'president',
+            'minister', 'law', 'regulation', 'campaign', 'populist', 'reform'
+        }
+        
+        words = set(text.lower().split())
+        matches = words.intersection(political_keywords)
+        
+        is_political = len(matches) > 0
+        probability = min(1.0, len(matches) * 0.3) if matches else 0.1
+        
+        return {
+            'is_political': is_political,
+            'probability': round(probability, 4),
+            'threshold': POLITICAL_THRESHOLD,
+            'reason': f"Mock check: found {len(matches)} political keywords",
+            'mock': True
+        }
+
+    def _get_political_reason(self, is_political: bool, prob: float) -> str:
+        """Generate explanation for the political check result."""
+        if is_political:
+            if prob > 0.8:
+                return "Text is clearly about political topics"
+            elif prob > 0.6:
+                return "Text appears to discuss political content"
+            else:
+                return "Text contains some political content"
+        else:
+            if prob < 0.2:
+                return "Text does not appear to be about politics"
+            else:
+                return "Text has minimal political content (below threshold)"
+
+    # =========================================================================
+    # PREDICTION METHODS
+    # =========================================================================
 
     def _mock_prediction(self, dimension: str, score_name: str) -> Dict:
         """Return mock predictions for testing."""
@@ -207,7 +337,7 @@ class PoliticalInferenceService:
     def predict_liberal_illiberal_regression(self, sentence: str, context: str = None) -> Dict:
         """Get Liberal-Illiberal regression predictions."""
         if MOCK_MODE:
-            return self._mock_prediction("Liberal-Illiberal", "V16")  # ✅ FIXED!
+            return self._mock_prediction("Liberal-Illiberal", "V16")
         return self._predict_regression(
             sentence, context,
             self.libil_regression_model, self.libil_regression_tokenizer,
@@ -217,16 +347,26 @@ class PoliticalInferenceService:
     def predict_populism_regression(self, sentence: str, context: str = None) -> Dict:
         """Get Populism regression predictions."""
         if MOCK_MODE:
-            return self._mock_prediction("Populism", "V8_Scale")  # ✅ FIXED!
+            return self._mock_prediction("Populism", "V8_Scale")
         return self._predict_regression(
             sentence, context,
             self.pop_regression_model, self.pop_regression_tokenizer,
             "Populism", "V8_Scale"
         )
 
-    def predict_all(self, sentence: str, context: str = None) -> Dict:
+    def predict_all(self, sentence: str, context: str = None, skip_precheck: bool = False) -> Dict:
         """Run all predictions on the input."""
         results = {}
+        
+        # Pre-check if text is political (unless skipped)
+        if not skip_precheck and ENABLE_POLITICAL_PRECHECK:
+            political_check = self.is_political_text(sentence)
+            results['political_check'] = political_check
+            
+            if not political_check['is_political']:
+                results['not_political'] = True
+                results['message'] = "Text does not appear to be about political topics. Scoring skipped."
+                return results
 
         # Regression predictions
         regression_models = [
@@ -244,9 +384,20 @@ class PoliticalInferenceService:
 
         return results
 
-    def get_3d_coordinates(self, sentence: str, context: str = None) -> Dict:
+    def get_3d_coordinates(self, sentence: str, context: str = None, skip_precheck: bool = False) -> Dict:
         """Get 3D coordinates for visualization."""
-        results = self.predict_all(sentence, context)
+        results = self.predict_all(sentence, context, skip_precheck=skip_precheck)
+        
+        # Handle non-political text
+        if results.get('not_political'):
+            return {
+                'x': None, 'y': None, 'z': None,
+                'labels': {},
+                'errors': [],
+                'not_political': True,
+                'political_check': results.get('political_check'),
+                'message': results.get('message')
+            }
         
         # Extract scores for 3D plotting
         coordinates = {
@@ -254,7 +405,8 @@ class PoliticalInferenceService:
             'y': None,  # Liberal-Illiberal  
             'z': None,  # Populism
             'labels': {},
-            'errors': []
+            'errors': [],
+            'political_check': results.get('political_check')
         }
 
         if "left_right_regression" in results:
@@ -274,7 +426,7 @@ class PoliticalInferenceService:
 
         # Collect any errors
         for model_name, result in results.items():
-            if "error" in result:
+            if isinstance(result, dict) and "error" in result:
                 coordinates['errors'].append(f"{model_name}: {result['error']}")
 
         return coordinates

@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}          
 
 {% block title %}Classification Results - Automated Political Stance Identifier{% endblock %}
 
@@ -22,42 +23,90 @@
                 </a>
             </div>
         </div>
-        
-        <!-- Selected Approaches Summary -->
-        <div class="row mt-3">
-            <div class="col-12">
-                <div class="card bg-light text-dark">
+    </div>
+</section>
+
+{% if not_political %}
+<!-- Non-political text message -->
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="alert alert-warning" role="alert">
+                    <h4 class="alert-heading">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        Not a Political Text
+                    </h4>
+                    <p>{{ message }}</p>
+                    {% if political_check %}
+                    <hr>
+                    <p class="mb-0">
+                        <small class="text-muted">
+                            Political probability: {{ political_check.probability }} 
+                            (threshold: {{ political_check.threshold }})
+                            <br>
+                            {{ political_check.reason }}
+                        </small>
+                    </p>
+                    {% endif %}
+                </div>
+                
+                <div class="card">
                     <div class="card-body">
-                        <h6 class="card-title">Selected Analysis Approaches:</h6>
-                        <div class="row">
-                            {% if selected_approaches.left_right_direct or selected_approaches.left_right_hypothesis or selected_approaches.left_right_responses %}
-                            <div class="col-md-4">
-                                <strong>⚖️ Left-Right Scale:</strong>
-                                {% if selected_approaches.left_right_direct %}<span class="badge bg-primary me-1">Direct</span>{% endif %}
-                                {% if selected_approaches.left_right_hypothesis %}<span class="badge bg-secondary me-1">Hypothesis</span>{% endif %}
-                                {% if selected_approaches.left_right_responses %}<span class="badge bg-info">Response</span>{% endif %}
-                            </div>
-                            {% endif %}
-                            
-                            {% if selected_approaches.liberal_illiberal_direct or selected_approaches.liberal_illiberal_hypothesis or selected_approaches.liberal_illiberal_responses %}
-                            <div class="col-md-4">
-                                <strong>🏛️ Liberal-Illiberal:</strong>
-                                {% if selected_approaches.liberal_illiberal_direct %}<span class="badge bg-success me-1">Direct</span>{% endif %}
-                                {% if selected_approaches.liberal_illiberal_hypothesis %}<span class="badge bg-secondary me-1">Hypothesis</span>{% endif %}
-                                {% if selected_approaches.liberal_illiberal_responses %}<span class="badge bg-info">Response</span>{% endif %}
-                            </div>
-                            {% endif %}
-                            
-                            {% if selected_approaches.populism_direct or selected_approaches.populism_hypothesis or selected_approaches.populism_responses %}
-                            <div class="col-md-4">
-                                <strong>💥 Populism-Pluralism:</strong>
-                                {% if selected_approaches.populism_direct %}<span class="badge bg-warning text-dark me-1">Direct</span>{% endif %}
-                                {% if selected_approaches.populism_hypothesis %}<span class="badge bg-secondary me-1">Hypothesis</span>{% endif %}
-                                {% if selected_approaches.populism_responses %}<span class="badge bg-info">Response</span>{% endif %}
-                            </div>
-                            {% endif %}
-                        </div>
+                        <h5>What does this mean?</h5>
+                        <p>
+                            The classifier detected that your text does not contain sufficient 
+                            political content for meaningful scoring on the Left-Right, 
+                            Liberal-Illiberal, and Populism dimensions.
+                        </p>
+                        <p class="mb-0">
+                            <strong>Try texts that include:</strong> government policy, 
+                            political parties, elections, legislation, taxes, democracy, 
+                            rights, or political ideology.
+                        </p>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% else %}
+<!-- Political text - show full results -->
+
+<!-- Selected Approaches Summary -->
+<section class="py-3 bg-light">
+    <div class="container">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="card-title">Selected Analysis Approaches:</h6>
+                <div class="row">
+                    {% if selected_approaches.left_right_direct or selected_approaches.left_right_hypothesis or selected_approaches.left_right_responses %}
+                    <div class="col-md-4">
+                        <strong>⚖️ Left-Right Scale:</strong>
+                        {% if selected_approaches.left_right_direct %}<span class="badge bg-primary me-1">Direct</span>{% endif %}
+                        {% if selected_approaches.left_right_hypothesis %}<span class="badge bg-secondary me-1">Hypothesis</span>{% endif %}
+                        {% if selected_approaches.left_right_responses %}<span class="badge bg-info">Response</span>{% endif %}
+                    </div>
+                    {% endif %}
+                    
+                    {% if selected_approaches.liberal_illiberal_direct or selected_approaches.liberal_illiberal_hypothesis or selected_approaches.liberal_illiberal_responses %}
+                    <div class="col-md-4">
+                        <strong>🏛️ Liberal-Illiberal:</strong>
+                        {% if selected_approaches.liberal_illiberal_direct %}<span class="badge bg-success me-1">Direct</span>{% endif %}
+                        {% if selected_approaches.liberal_illiberal_hypothesis %}<span class="badge bg-secondary me-1">Hypothesis</span>{% endif %}
+                        {% if selected_approaches.liberal_illiberal_responses %}<span class="badge bg-info">Response</span>{% endif %}
+                    </div>
+                    {% endif %}
+                    
+                    {% if selected_approaches.populism_direct or selected_approaches.populism_hypothesis or selected_approaches.populism_responses %}
+                    <div class="col-md-4">
+                        <strong>💥 Populism-Pluralism:</strong>
+                        {% if selected_approaches.populism_direct %}<span class="badge bg-warning text-dark me-1">Direct</span>{% endif %}
+                        {% if selected_approaches.populism_hypothesis %}<span class="badge bg-secondary me-1">Hypothesis</span>{% endif %}
+                        {% if selected_approaches.populism_responses %}<span class="badge bg-info">Response</span>{% endif %}
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -79,7 +128,6 @@
                     <div class="card-body text-center">
                         <h5 class="card-title">⚖️ Left-Right Scale</h5>
                         <div class="display-4 mb-3" style="color: #dc3545;">
-                            <!-- CORRECTED: Use the actual field names from your inference service -->
                             {{ results.left_right_regression.predicted_v4_scale_score|default_if_none:results.left_right_regression.raw_score|floatformat:2 }}
                         </div>
                         <div class="mb-3">
@@ -116,7 +164,6 @@
                     <div class="card-body text-center">
                         <h5 class="card-title">🏛️ Liberal-Illiberal</h5>
                         <div class="display-4 mb-3" style="color: #28a745;">
-                            <!-- CORRECTED: Use the actual field names -->
                             {{ results.liberal_illiberal_regression.predicted_v16_score|default_if_none:results.liberal_illiberal_regression.raw_score|floatformat:2 }}
                         </div>
                         <div class="mb-3">
@@ -150,7 +197,6 @@
                     <div class="card-body text-center">
                         <h5 class="card-title">💥 Populism Level</h5>
                         <div class="display-4 mb-3" style="color: #ffc107;">
-                            <!-- CORRECTED: Use the actual field names -->
                             {{ results.populism_regression.predicted_v8_scale_score|default_if_none:results.populism_regression.raw_score|floatformat:2 }}
                         </div>
                         <div class="mb-3">
@@ -421,5 +467,8 @@
     </div>
 </section>
 {% endif %}
+
+{% endif %}
+<!-- End of not_political else block -->
 
 {% endblock %}

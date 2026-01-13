@@ -335,20 +335,37 @@ def classify_text(request):
             logger.info(f"Selected approaches: {[k for k, v in selected_approaches.items() if v]}")
             
             try:
-                # Only run direct regression models if selected
                 results = {}
-                if (selected_approaches.get('left_right_direct') or 
+                coordinates = {'x': None, 'y': None, 'z': None, 'labels': {}, 'errors': []}
+                
+                # Check if any direct regression is selected
+                direct_selected = (
+                    selected_approaches.get('left_right_direct') or 
                     selected_approaches.get('liberal_illiberal_direct') or 
-                    selected_approaches.get('populism_direct')):
-                    
+                    selected_approaches.get('populism_direct')
+                )
+                
+                if direct_selected:
                     logger.info("Running direct regression models...")
                     inference_service = PoliticalInferenceService.get_instance()
                     results = inference_service.predict_all(text, None)
-                    coordinates = inference_service.get_3d_coordinates(text, None)
+                    
+                    # === FIXED: Check for non-political AFTER predict_all ===
+                    if results.get('not_political'):
+                        context_data = {
+                            'form': form,
+                            'input_text': text,
+                            'not_political': True,
+                            'political_check': results.get('political_check', {}),
+                            'message': results.get('message', 'Text does not appear to be about political topics.'),
+                            'selected_approaches': selected_approaches,
+                        }
+                        return render(request, 'classifier/results.html', context_data)
+                    
+                    coordinates = inference_service.get_3d_coordinates(text, None, skip_precheck=True)
                     log_memory_usage("after direct regression")
                 else:
                     logger.info("Skipping direct regression models (not selected)")
-                    coordinates = {'x': None, 'y': None, 'z': None, 'labels': {}, 'errors': []}
                 
                 # Only run alternative approaches if any are selected
                 alternative_scores = None
@@ -380,6 +397,7 @@ def classify_text(request):
                     'input_text': text,
                     'coordinates_json': json.dumps(coordinates),
                     'alternative_scores': alternative_scores,
+                    'political_check': results.get('political_check'),
                     'selected_approaches': selected_approaches
                 }
                 
@@ -414,6 +432,7 @@ def api_classify(request):
     try:
         data = json.loads(request.body)
         text = data.get('text', '').strip()
+        skip_precheck = data.get('skip_precheck', False)  # NEW: allow skipping
         
         if not text:
             return JsonResponse({'error': 'Text is required'}, status=400)
@@ -438,7 +457,18 @@ def api_classify(request):
         inference_service = PoliticalInferenceService.get_instance()
         
         # Run predictions
-        results = inference_service.predict_all(text, None)
+        results = inference_service.predict_all(text, None, skip_precheck=skip_precheck)
+
+        # === NEW: Handle non-political text ===
+        if results.get('not_political'):
+            return JsonResponse({
+                'not_political': True,
+                'political_check': results.get('political_check'),
+                'message': results.get('message'),
+                'input_text': text
+            })
+        # === END NEW ===
+
         coordinates = inference_service.get_3d_coordinates(text, None)
         
         # Generate alternative scores
@@ -467,3 +497,4 @@ def api_classify(request):
         import traceback
         logger.error(f"API Full traceback: {traceback.format_exc()}")
         return JsonResponse({'error': str(e)}, status=500)
+
