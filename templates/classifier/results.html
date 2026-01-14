@@ -73,26 +73,26 @@
 
 <!-- Selected Approaches Summary -->
 <section class="py-3 bg-light">
-    <div class="container">
-        <div class="card">
+    <div class="container" >
+        <div class="card" style="max-width: 500px; width: 100%;">
             <div class="card-body">
                 <h6 class="card-title">Selected Analysis:</h6>
                 <div class="row">
                     {% if selected_approaches.left_right_direct or selected_approaches.left_right_hypothesis or selected_approaches.left_right_responses %}
                     <div class="col-md-4">
-                        <span class="badge bg-primary me-1"><strong>Economic Left-Right Scale</strong></span>
+                        <span class="badge bg-primary fs-6"><strong>Economic Left-Right Scale</strong></span>
                     </div>
                     {% endif %}
                     
                     {% if selected_approaches.liberal_illiberal_direct or selected_approaches.liberal_illiberal_hypothesis or selected_approaches.liberal_illiberal_responses %}
                     <div class="col-md-4">
-                        <span class="badge bg-success me-1"><strong>Liberal-Illiberal</strong></span>
+                        <span class="badge bg-success fs-6"><strong>Liberal-Illiberal</strong></span>
                     </div>
                     {% endif %}
                     
                     {% if selected_approaches.populism_direct or selected_approaches.populism_hypothesis or selected_approaches.populism_responses %}
                     <div class="col-md-4">
-                        <span class="badge bg-warning text-dark me-1"><strong>Populism-Pluralism</strong></span>
+                        <span class="badge bg-warning text-dark fs-6"><strong>Populism-Pluralism</strong></span>
                     </div>
                     {% endif %}
                 </div>
