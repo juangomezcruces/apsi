@@ -80,7 +80,7 @@
                 <div class="row justify-content-center g-2">
                     {% if selected_approaches.left_right_direct or selected_approaches.left_right_hypothesis or selected_approaches.left_right_responses %}
                     <div class="col-auto">
-                        <span class="badge bg-primary fs-6"><strong>Economic Left-Right Scale</strong></span>
+                        <span class="badge economic-badge fs-6"><strong>Economic Left-Right</strong></span>
                     </div>
                     {% endif %}
                     
@@ -107,7 +107,6 @@
 {% if alternative_scores %}
 <section class="py-5">
     <div class="container">
-        <!-- Hypothesis-Based Approaches -->
         {% if alternative_scores.left_right_hypothesis or alternative_scores.liberal_illiberal_hypothesis or alternative_scores.populism_pluralism_hypothesis %}
         <div class="mb-5">            
             <div class="row">
@@ -116,7 +115,7 @@
                 <div class="col-lg-4 col-md-6 mb-4">
                     <div class="card h-100" style="border-left: 4px solid #e83e8c;">
                         <div class="card-body text-center">
-                            <h6 class="card-title">Left-Right Hypothesis</h6>
+                            <h6 class="card-title">Economic Left-Right</h6>
 
 {% with score=alternative_scores.left_right_hypothesis.score confidence=alternative_scores.left_right_hypothesis.confidence %}
   {# If your score is already 0–10, use it directly. If it's a string, you may want to ensure it's numeric in your view. #}
