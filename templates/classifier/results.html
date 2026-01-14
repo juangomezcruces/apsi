@@ -161,56 +161,7 @@
 
 
 
-<!-- Populism–Pluralism Hypothesis -->
-{% if alternative_scores.populism_pluralism_hypothesis %}
-<div class="col-lg-4 col-md-6 mb-4">
-  <div class="card h-100" style="border-left: 4px solid #ffc107;">
-    <div class="card-body text-center">
-      <h6 class="card-title">Populism–Pluralism</h6>
 
-      {% with score=alternative_scores.populism_pluralism_hypothesis.score confidence=alternative_scores.populism_pluralism_hypothesis.confidence %}
-        {# If score is 0–10, we can use it directly for positioning #}
-        {% with populism=score|floatformat:1 %}
-          <div class="scale-wrap my-2">
-            <!-- Score above the dot -->
-            <div class="scale-score" style="left: calc({{ populism }} * 10%);">
-              <span class="display-6" style="color:#ffc107;">
-                {{ score|floatformat:1 }}
-              </span>
-            </div>
-
-            <!-- Line + dot -->
-            <div class="scale-line">
-              <div class="scale-dot" style="left: calc({{ populism }} * 10%);"></div>
-            </div>
-
-            <!-- Labels -->
-            <div class="scale-labels">
-              <span>Populism</span>
-              <span>Pluralism</span>
-            </div>
-          </div>
-        {% endwith %}
-
-        <div class="mb-2">
-          <span class="badge bg-secondary">
-            {{ alternative_scores.populism_pluralism_hypothesis.interpretation }}
-          </span>
-        </div>
-
-        <!-- Confidence as text instead of a bar -->
-        <div class="text-muted" style="font-size: 0.9rem;">
-          <strong>Confidence:</strong> {{ confidence|floatformat:1 }}%
-        </div>
-      {% endwith %}
-
-      <p class="card-text mt-3 small">
-        Hypothesis-driven analysis of people vs. elite discourse patterns.
-      </p>
-    </div>
-  </div>
-</div>
-{% endif %}
 
          <!-- Liberal-Illiberal Hypothesis -->
 {% if alternative_scores.liberal_illiberal_hypothesis %}
@@ -257,6 +208,58 @@
 
       <p class="card-text mt-3 small">
         Hypothesis-based evaluation of democratic institutional attitudes.
+      </p>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Populism–Pluralism Hypothesis -->
+{% if alternative_scores.populism_pluralism_hypothesis %}
+<div class="col-lg-4 col-md-6 mb-4">
+  <div class="card h-100" style="border-left: 4px solid #ffc107;">
+    <div class="card-body text-center">
+      <h6 class="card-title">Populism–Pluralism</h6>
+
+      {% with score=alternative_scores.populism_pluralism_hypothesis.score confidence=alternative_scores.populism_pluralism_hypothesis.confidence %}
+        {# If your score is already 0–10, use it directly. If it's a string, you may want to ensure it's numeric in your view. #}
+        {% with populism=score|floatformat:1 %}
+          <div class="scale-wrap my-2">
+            <!-- Score above the dot -->
+            <div class="scale-score" style="left: calc({{ populism }} * 10%);">
+              <span class="display-6" style="color:#ffc107;">
+                {{ score|floatformat:1 }}
+              </span>
+            </div>
+
+            <!-- Line + dot -->
+            <div class="scale-line">
+              <div class="scale-dot" style="left: calc({{ populism }} * 10%);"></div>
+            </div>
+
+            <!-- Labels -->
+            <div class="scale-labels">
+              <span>Populism</span>
+              <span>Pluralism</span>
+            </div>
+          </div>
+        {% endwith %}
+
+        <div class="mb-2">
+          <span class="badge bg-secondary">
+            {{ alternative_scores.populism_pluralism_hypothesis.interpretation }}
+          </span>
+        </div>
+
+        <!-- Confidence as text instead of a bar -->
+        <div class="text-muted" style="font-size: 0.9rem;">
+          <strong>Confidence:</strong> {{ confidence|floatformat:1 }}%
+        </div>
+      {% endwith %}
+
+      <p class="card-text mt-3 small">
+        Hypothesis-driven analysis of people vs. elite discourse patterns.
       </p>
     </div>
   </div>
