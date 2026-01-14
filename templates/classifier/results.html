@@ -86,7 +86,7 @@
                     
                     {% if selected_approaches.liberal_illiberal_direct or selected_approaches.liberal_illiberal_hypothesis or selected_approaches.liberal_illiberal_responses %}
                     <div class="col-auto">
-                        <span class="badge bg-success fs-6"><strong>Support for Liberal Democracy</strong></span>
+                        <span class="badge bg-success fs-6"><strong>Liberal-Illiberal</strong></span>
                     </div>
                     {% endif %}
                     
@@ -143,7 +143,6 @@
     </div>
   {% endwith %}
 
-  <!-- Interpretation badge stays if you want -->
   <div class="mb-2">
     <span class="badge bg-secondary">
       {{ alternative_scores.left_right_hypothesis.interpretation }}
@@ -155,24 +154,43 @@
     <strong>Confidence:</strong> {{ confidence|floatformat:1 }}%
   </div>
 {% endwith %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
 
-
-<!-- Liberal-Illiberal Hypothesis --> 
-{% if alternative_scores.liberal_illiberal_hypothesis %} 
-<div class="col-lg-4 col-md-6 mb-4"> <div class="card h-100" style="border-left: 4px solid #20c997;">
-     <div class="card-body text-center"> <h6 class="card-title">Support for Liberal Democracy</h6> 
-     <div class="display-6 mb-2" style="color: #20c997;"> {{ alternative_scores.liberal_illiberal_hypothesis.score }} 
-         </div> 
-         <div class="mb-3"> <span class="badge bg-secondary"> {{ alternative_scores.liberal_illiberal_hypothesis.interpretation }} </span> </div> 
-         {% with confidence=alternative_scores.liberal_illiberal_hypothesis.confidence|floatformat:1 %} 
-         <div class="progress mb-2" style="height: 8px;"> <div class="progress-bar bg-info confidence-bar" data-confidence="{{ alternative_scores.liberal_illiberal_hypothesis.confidence }}" style="width: {{ confidence }}%"> 
-             </div> 
-             </div>
-          <small class="text-muted"> Confidence: {{ confidence }}% </small> {% endwith %} <p class="card-text mt-3 small"> Hypothesis-based evaluation of democratic institutional attitudes. </p> </div>
-           </div> 
-           </div> 
-           {% endif %}
-
+                <!-- Liberal-Illiberal Hypothesis -->
+                {% if alternative_scores.liberal_illiberal_hypothesis %}
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card h-100" style="border-left: 4px solid #20c997;">
+                        <div class="card-body text-center">
+                            <h6 class="card-title">Liberal-Illiberal Hypothesis</h6>
+                            <div class="display-6 mb-2" style="color: #20c997;">
+                                {{ alternative_scores.liberal_illiberal_hypothesis.score }}
+                            </div>
+                            <div class="mb-3">
+                                <span class="badge bg-secondary">
+                                    {{ alternative_scores.liberal_illiberal_hypothesis.interpretation }}
+                                </span>
+                            </div>
+                            {% with confidence=alternative_scores.liberal_illiberal_hypothesis.confidence|floatformat:1 %}
+                            <div class="progress mb-2" style="height: 8px;">
+                                <div class="progress-bar bg-info confidence-bar" 
+                                     data-confidence="{{ alternative_scores.liberal_illiberal_hypothesis.confidence }}"
+                                     style="width: {{ confidence }}%">
+                                </div>
+                            </div>
+                            <small class="text-muted">
+                                Confidence: {{ confidence }}%
+                            </small>
+                            {% endwith %}
+                            <p class="card-text mt-3 small">
+                                Hypothesis-based evaluation of democratic institutional attitudes.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
 
                 <!-- Populism-Pluralism Hypothesis -->
                 {% if alternative_scores.populism_pluralism_hypothesis %}
