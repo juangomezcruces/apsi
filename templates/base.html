@@ -101,7 +101,26 @@
                 background-color: #cc0000;
             color: #fff;
         }
+            .disclaimer-box {
+                max-width: 200px;
+                margin: 0 auto;
 
+                padding: 1.5rem;
+                background-color: #ffffff;
+                border-radius: 16px;
+
+                border-width: 3px;
+                border-style: dashed;
+                border-color: #dc3545;
+
+                border-image: repeating-linear-gradient(
+                    90deg,
+                    #dc3545 0,
+                    #dc3545 16px,
+                    transparent 16px,
+                    transparent 32px
+                    ) 1;
+            }
 
     </style>
     {% block extra_css %}{% endblock %}
