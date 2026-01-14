@@ -159,56 +159,7 @@
                 </div>
                 {% endif %}
 
-         <!-- Liberal-Illiberal Hypothesis -->
-{% if alternative_scores.liberal_illiberal_hypothesis %}
-<div class="col-lg-4 col-md-6 mb-4">
-  <div class="card h-100" style="border-left: 4px solid #20c997;">
-    <div class="card-body text-center">
-      <h6 class="card-title">Liberal–Illiberal</h6>
 
-      {% with score=alternative_scores.liberal_illiberal_hypothesis.score confidence=alternative_scores.liberal_illiberal_hypothesis.confidence %}
-        {# If score is 0–10, we can use it directly for positioning #}
-        {% with liberal=score|floatformat:1 %}
-          <div class="scale-wrap my-2">
-            <!-- Score above the dot -->
-            <div class="scale-score" style="left: calc({{ liberal }} * 10%);">
-              <span class="display-6" style="color:#20c997;">
-                {{ score|floatformat:1 }}
-              </span>
-            </div>
-
-            <!-- Line + dot -->
-            <div class="scale-line">
-              <div class="scale-dot" style="left: calc({{ liberal }} * 10%);"></div>
-            </div>
-
-            <!-- Labels -->
-            <div class="scale-labels">
-              <span>Liberal</span>
-              <span>Illiberal</span>
-            </div>
-          </div>
-        {% endwith %}
-
-        <div class="mb-2">
-          <span class="badge bg-secondary">
-            {{ alternative_scores.liberal_illiberal_hypothesis.interpretation }}
-          </span>
-        </div>
-
-        <!-- Confidence as text instead of a bar -->
-        <div class="text-muted" style="font-size: 0.9rem;">
-          <strong>Confidence:</strong> {{ confidence|floatformat:1 }}%
-        </div>
-      {% endwith %}
-
-      <p class="card-text mt-3 small">
-        Hypothesis-based evaluation of democratic institutional attitudes.
-      </p>
-    </div>
-  </div>
-</div>
-{% endif %}
 
 <!-- Populism–Pluralism Hypothesis -->
 {% if alternative_scores.populism_pluralism_hypothesis %}
@@ -261,7 +212,56 @@
 </div>
 {% endif %}
 
+         <!-- Liberal-Illiberal Hypothesis -->
+{% if alternative_scores.liberal_illiberal_hypothesis %}
+<div class="col-lg-4 col-md-6 mb-4">
+  <div class="card h-100" style="border-left: 4px solid #20c997;">
+    <div class="card-body text-center">
+      <h6 class="card-title">Liberal–Illiberal</h6>
 
+      {% with score=alternative_scores.liberal_illiberal_hypothesis.score confidence=alternative_scores.liberal_illiberal_hypothesis.confidence %}
+        {# If score is 0–10, we can use it directly for positioning #}
+        {% with liberal=score|floatformat:1 %}
+          <div class="scale-wrap my-2">
+            <!-- Score above the dot -->
+            <div class="scale-score" style="left: calc({{ liberal }} * 10%);">
+              <span class="display-6" style="color:#20c997;">
+                {{ score|floatformat:1 }}
+              </span>
+            </div>
+
+            <!-- Line + dot -->
+            <div class="scale-line">
+              <div class="scale-dot" style="left: calc({{ liberal }} * 10%);"></div>
+            </div>
+
+            <!-- Labels -->
+            <div class="scale-labels">
+              <span>Liberal</span>
+              <span>Illiberal</span>
+            </div>
+          </div>
+        {% endwith %}
+
+        <div class="mb-2">
+          <span class="badge bg-secondary">
+            {{ alternative_scores.liberal_illiberal_hypothesis.interpretation }}
+          </span>
+        </div>
+
+        <!-- Confidence as text instead of a bar -->
+        <div class="text-muted" style="font-size: 0.9rem;">
+          <strong>Confidence:</strong> {{ confidence|floatformat:1 }}%
+        </div>
+      {% endwith %}
+
+      <p class="card-text mt-3 small">
+        Hypothesis-based evaluation of democratic institutional attitudes.
+      </p>
+    </div>
+  </div>
+</div>
+{% endif %}
 
 
         <!-- Response-Based Approaches -->
