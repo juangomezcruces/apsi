@@ -166,44 +166,34 @@
                         <div class="card-body text-center">
 
 
-                            <h6 class="card-title mb-3">Liberal-Illiberal Hypothesis</h6>
+                             <h6 class="card-title">Liberal-Illiberal Hypothesis</h6>
+                            <div class="display-6 mb-2" style="color: #20c997;">
+                                {{ alternative_scores.liberal_illiberal_hypothesis.score }}
+                            </div>
+                            <div class="mb-3">
+                                <span class="badge bg-secondary">
+                                    {{ alternative_scores.liberal_illiberal_hypothesis.interpretation }}
+                                </span>
+                            </div>
+                            {% with confidence=alternative_scores.liberal_illiberal_hypothesis.confidence|floatformat:1 %}
+                            <div class="progress mb-2" style="height: 8px;">
+                                <div class="progress-bar bg-info confidence-bar" 
+                                     data-confidence="{{ alternative_scores.liberal_illiberal_hypothesis.confidence }}"
+                                     style="width: {{ confidence }}%">
+                                </div>
+                            </div>
+                            <small class="text-muted">
+                                Confidence: {{ confidence }}%
+                            </small>
+                            {% endwith %}
+                            <p class="card-text mt-3 small">
+                                Hypothesis-based evaluation of democratic institutional attitudes.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
 
-{% with score=alternative_scores.liberal_illiberal_hypothesis.score
-       confidence=alternative_scores.liberal_illiberal_hypothesis.confidence %}
-
-  <div class="scale-wrap my-2">
-    <!-- Score above the dot -->
-    <div class="scale-score" style="left: calc({{ score|floatformat:1 }} * 10%);">
-      <span class="display-6" style="color: #20c997;">
-        {{ score|floatformat:1 }}
-      </span>
-    </div>
-
-    <!-- Line + dot -->
-    <div class="scale-line">
-      <div class="scale-dot" style="left: calc({{ score|floatformat:1 }} * 10%);"></div>
-    </div>
-
-    <!-- Scale labels -->
-    <div class="scale-labels">
-      <span>0</span>
-      <span>10</span>
-    </div>
-  </div>
-
-  <!-- Interpretation -->
-  <div class="mb-2">
-    <span class="badge bg-secondary">
-      {{ alternative_scores.liberal_illiberal_hypothesis.interpretation }}
-    </span>
-  </div>
-
-  <!-- Confidence as text -->
-  <div class="text-muted" style="font-size: 0.9rem;">
-    <strong>Confidence:</strong> {{ confidence|floatformat:1 }}%
-  </div>
-
-{% endwith %}
 
                 <!-- Populism-Pluralism Hypothesis -->
                 {% if alternative_scores.populism_pluralism_hypothesis %}
