@@ -102,25 +102,47 @@
             color: #fff;
         }
 .disclaimer-box {
-  max-width: 1300px;
+  max-width: 1000px;
   margin: 0 auto;
-
   padding: 1.5rem;
-  background-color: #ffffff;
+
+  background:
+   
+    repeating-linear-gradient(
+      to right,
+      #dc3545 0 14px,
+      transparent 14px 28px
+    ) top / 100% 3px no-repeat,
+
+   
+    repeating-linear-gradient(
+      to right,
+      #dc3545 0 14px,
+      transparent 14px 28px
+    ) bottom / 100% 3px no-repeat,
+
+ 
+    repeating-linear-gradient(
+      to bottom,
+      #dc3545 0 14px,
+      transparent 14px 28px
+    ) left / 3px 100% no-repeat,
+
+    repeating-linear-gradient(
+      to bottom,
+      #dc3545 0 14px,
+      transparent 14px 28px
+    ) right / 3px 100% no-repeat,
+
+    #ffffff;
+
   border-radius: 16px;
 
-  border-width: 3px;
-  border-style: dashed;
-  border-color: #dc3545;
 
-  /* Long dashed red border */
-  border-image: repeating-linear-gradient(
-    90deg,
-    #dc3545 0,
-    #dc3545 16px,
-    transparent 16px,
-    transparent 32px
-  ) 1;
+  font-size: 0.85rem;
+  color: #555; 
+
+  box-sizing: border-box;
 }
 
 
