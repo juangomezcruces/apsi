@@ -163,8 +163,7 @@ class PoliticalInferenceService:
             return {'is_political': True, 'probability': 1.0, 'reason': 'Detector not loaded'}
         
         hypothesis = (
-            "This text discusses political topics such as government, parties, "
-            "policies, elections, ideology, or governance."
+            "This text discusses political topics such as government, parties, policies, elections, ideology, or governance."
         )
         
         try:
