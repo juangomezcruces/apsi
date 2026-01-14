@@ -138,13 +138,12 @@
 
       <!-- Optional labels -->
       <div class="scale-labels">
-        <span>0</span>
-        <span>10</span>
+        <span>Left</span>
+        <span>Right</span>
       </div>
     </div>
   {% endwith %}
 
-  <!-- Interpretation badge stays if you want -->
   <div class="mb-2">
     <span class="badge bg-secondary">
       {{ alternative_scores.left_right_hypothesis.interpretation }}
@@ -156,9 +155,6 @@
     <strong>Confidence:</strong> {{ confidence|floatformat:1 }}%
   </div>
 {% endwith %}
-                            <p class="card-text mt-3 small">
-                                Hypothesis-driven analysis of economic and social policy positions.
-                            </p>
                         </div>
                     </div>
                 </div>
