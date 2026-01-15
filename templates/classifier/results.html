@@ -108,11 +108,12 @@
 
 <!-- Alternative Approaches Section -->
 {% if alternative_scores %}
-<section class="py-5">
-    <div class="container">
+
+<section class="py-5 d-flex justify-content-center">
+    <div class="container d-flex justify-content-center">
         {% if alternative_scores.left_right_hypothesis or alternative_scores.liberal_illiberal_hypothesis or alternative_scores.populism_pluralism_hypothesis %}
-        <div class="mb-5">            
-            <div class="row">
+        <div class="mb-5 w-100" style="max-width: 1100px;">
+            <div class="row justify-content-center">         
                 <!-- Left-Right Hypothesis -->
                 {% if alternative_scores.left_right_hypothesis %}
                 <div class="col-lg-4 col-md-6 mb-4">
