@@ -228,7 +228,7 @@
         {% with populism=score|floatformat:1 %}
           <div class="scale-wrap my-2">
             <!-- Score above the dot -->
-            <div class="scale-dot" style="left: calc({{ populism }} * 10%); background-color: #ffc107;">
+            <div class="scale-score" style="populism: calc({{ liberal }} * 10%);">
               <span class="display-6" style="color:#ffc107;">
                 {{ score|floatformat:1 }}
               </span>
@@ -236,7 +236,8 @@
 
             <!-- Line + dot -->
             <div class="scale-line">
-              <div class="scale-dot" style="left: calc({{ populism }} * 10%);"></div>
+              <div class="scale-dot" style="left: calc({{ populism }} * 10%); background-color: #ffc107;">                
+              </div>
             </div>
 
             <!-- Labels -->
