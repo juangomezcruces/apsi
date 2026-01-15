@@ -262,6 +262,35 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+const messages = [
+    "Tokenizing text…",
+    "Analyzing political language…",
+    "Estimating ideological stance…",
+    "Finalizing results…"
+];
+
+let msgIndex = 0;
+let msgInterval = null;
+
+function startLoadingMessages() {
+    msgInterval = setInterval(() => {
+        const el = document.getElementById("loading-message");
+        if (el) {
+            el.textContent = messages[msgIndex++ % messages.length];
+        }
+    }, 1200);
+}
+
+function stopLoadingMessages() {
+    if (msgInterval) {
+        clearInterval(msgInterval);
+    }
+}
+</script>
+
+
     {% block extra_js %}{% endblock %}
 </body>
 </html>
