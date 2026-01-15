@@ -240,6 +240,17 @@
     color: #37A3B1;
 }
 
+.loading-box {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 1.25rem 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.15);
+    color: #37A3B1;
+}
+
+.loading-box .spinner-border {
+    color: #37A3B1;
+}
 
     </style>
     {% block extra_css %}{% endblock %}
@@ -290,13 +301,14 @@
 
 <!-- Loading Overlay -->
 <div id="loading-overlay" class="loading-overlay d-none">
-    <div class="text-center">
-        <div class="spinner-border" role="status"></div>
-        <p id="loading-message" class="mt-3">
+    <div class="loading-box text-center">
+        <div class="spinner-border mb-3" role="status"></div>
+        <p id="loading-message" class="mb-0">
             Analyzing text…
         </p>
     </div>
 </div>
+
 
 <script>
 const messages = [
