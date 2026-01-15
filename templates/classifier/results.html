@@ -5,7 +5,7 @@
 
 {% block content %}
 <!-- Results Header -->
-<section class="py-4 bg-custom text-white">
+<section class="py-4 bg-custom" style="color: #37A3B1;">
     <div class="container">
         <h2 class="mb-3">Classification Results</h2>
         <div class="row">
@@ -18,10 +18,12 @@
                 </div>
             </div>
             <div class="col-md-4">
-                <a href="{% url 'classifier:index' %}" class="btn btn-light btn-lg w-100">
-                    ← Analyze Another Text
-                </a>
-            </div>
+    <a href="{% url 'classifier:index' %}"
+       class="btn btn-lg w-100"
+       style="background-color:#37A3B1; color:#fff;">
+        ← Analyze Another Text
+    </a>
+</div>
         </div>
     </div>
 </section>
@@ -168,7 +170,7 @@
 <div class="col-lg-4 col-md-6 mb-4">
   <div class="card h-100" style="border-left: 4px solid #20c997;">
     <div class="card-body text-center">
-      <h6 class="card-title">Liberal–Illiberal</h6>
+      <h6 class="card-title">Support for Liberal Democracy</h6>
 
       {% with score=alternative_scores.liberal_illiberal_hypothesis.score confidence=alternative_scores.liberal_illiberal_hypothesis.confidence %}
         {# If score is 0–10, we can use it directly for positioning #}
@@ -189,8 +191,8 @@
 
             <!-- Labels -->
             <div class="scale-labels">
-              <span>Support</span>
               <span>No Support</span>
+              <span>Support</span>
             </div>
           </div>
         {% endwith %}
