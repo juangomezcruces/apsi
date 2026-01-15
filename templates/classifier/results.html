@@ -5,7 +5,7 @@
 
 {% block content %}
 <!-- Results Header -->
-<section class="py-4 bg-primary text-white">
+<section class="py-4 bg-custom text-white">
     <div class="container">
         <h2 class="mb-3">Classification Results</h2>
         <div class="row">
@@ -183,7 +183,8 @@
 
             <!-- Line + dot -->
             <div class="scale-line">
-              <div class="scale-dot" style="left: calc({{ liberal }} * 10%);"></div>
+              <div class="scale-dot" style="left: calc({{ liberal }} * 10%); background-color: #20c997;">
+            </div>
             </div>
 
             <!-- Labels -->
@@ -227,7 +228,7 @@
         {% with populism=score|floatformat:1 %}
           <div class="scale-wrap my-2">
             <!-- Score above the dot -->
-            <div class="scale-score" style="left: calc({{ populism }} * 10%);">
+            <div class="scale-dot" style="left: calc({{ populism }} * 10%); background-color: #ffc107;">
               <span class="display-6" style="color:#ffc107;">
                 {{ score|floatformat:1 }}
               </span>
