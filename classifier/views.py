@@ -433,6 +433,9 @@ def classify_text(request):
 def privacy_notice(request):
     return render(request, 'classifier/privacynotice.html')
 
+def imprint(request):
+    return render(request, 'classifier/imprint.html')
+
 
 @csrf_exempt
 @require_http_methods(["POST"])
