@@ -429,6 +429,11 @@ def classify_text(request):
     else:
         return index(request)
 
+
+def privacy_notice(request):
+    return render(request, 'classifier/privacynotice.html')
+
+
 @csrf_exempt
 @require_http_methods(["POST"])
 def api_classify(request):
