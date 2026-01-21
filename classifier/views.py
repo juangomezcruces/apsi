@@ -436,6 +436,8 @@ def privacy_notice(request):
 def imprint(request):
     return render(request, 'classifier/imprint.html')
 
+def contact(request):
+    return render(request, 'classifier/contact.html')
 
 @csrf_exempt
 @require_http_methods(["POST"])
