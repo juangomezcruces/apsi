@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load static %}          
+
+{% block title %}Data Privacy Policy - Automated Political Stance Identifier{% endblock %}
+
+{% block content %}
+<section class="py-5 bg-white">
+    <div class="container text-center">
+        <img 
+	    src="{% static 'APSIlogo.png' %}" 
+            alt="APSI Logo" 
+            class="img-fluid mx-auto d-block"
+            style="max-height: 200px;"
+        >
+    </div>
+</section>
+
+<section class="py-5 bg-white">
+  <div class="container">
+    <div class="row">
+      <div class="col-12">
+
+<h3 style="margin-bottom: 24px;">Contact us</h3>
+<h4>Project Leader</h4>
+<p class="text-muted">
+  Dr. Juan S. Gómez Cruces<br>
+  E-mail: juan.gomezcruces@hpi.de<br>
+ <img 
+	    src="{% static 'Bluesky_Logo.svg' %}" 
+            alt="bsky Logo" 
+            class="img-fluid mx-auto d-block"
+            style="max-height: 20px;"
+        > @juansgomezcruces.bsky.social
+</p>
+
+
+<h3 style="margin-bottom: 24px;">Contact us</h3>
+<h4>Project Member</h4>
+<p class="text-muted">
+  Yorick Scheffler
+  yorick.scheffler@student.hpi.uni-potsdam.de
+</p>
+
+<h3 style="margin-bottom: 24px;">Contact us</h3>
+<h4>Project Member</h4>
+<p class="text-muted">
+  Ewan Thomas-Colquhoun<br>
+  ewan.thomas-Colquhoun@hpi.de
+  <img 
+	    src="{% static 'LinkedIn_icon.svg' %}" 
+            alt="lnkdn Logo" 
+            class="img-fluid mx-auto d-block"
+            style="max-height: 20px;"
+        > linkedin.com/in/ewan-thomas-colquhoun-61872b194
+</p>
+         
+
+        
+
+      </div>
+    </div>
+  </div>
+</section>
+
+
+{% endblock %}
+
