@@ -24,7 +24,7 @@ class LeftRightEconomicScorer:
             "public vs. private sector roles, or economic equality."
         )
 
-        self.topic_threshold = 0.60 
+        self.topic_threshold = 0.10 
 
 
         # Left-Right Economic hypotheses - streamlined to ~15 per side
