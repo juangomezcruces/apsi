@@ -15,21 +15,15 @@ class LeftRightEconomicScorer:
     def __init__(self, model_name="mlburnham/Political_DEBATE_large_v1.0"):
         cache = SharedModelCache()
         self.model, self.tokenizer = cache.get_model_and_tokenizer(model_name)
-        # Many NLI-style sequence-classification checkpoints expose labels like
-        # LABEL_0/LABEL_1/LABEL_2 instead of explicit names. If we default to 0
-        # as "entailment", the probabilities can be meaningless (and a precheck
-        # will incorrectly pass unrelated text like "I love chocolate").
-        self.contradiction_idx, self.neutral_idx, self.entailment_idx = self._find_nli_label_indices()
+        self.entailment_idx = self._find_entailment_index()
 
         # Topic precheck: only score texts that clearly discuss governance / institutions / political rhetoric
         self.topic_question = (
-            "Does this text discuss political rhetoric, governance approaches, or institutional legitimacy? "
-            "This includes references to populist rhetoric (challenging institutions, emphasizing popular will) "
-            "or pluralist rhetoric (supporting checks and balances, minority rights, compromise)."
+            "Does this text discuss economic policy, government intervention, or public services? "
+            "This includes topics like healthcare, education, housing, transport, taxation, natural resources "
+            "privatization, welfare, regulation, minimum wage, wealth redistribution, "
+            "public vs. private sector roles, or economic equality."
         )
-        # Precheck threshold (0–1). If the entailment probability that the text is
-        # about the topic question is below this value, we short-circuit and do
-        # not run any downstream hypothesis scoring.
         self.topic_threshold = 0.30
 
         # Left-Right Economic hypotheses - streamlined to ~15 per side
@@ -74,61 +68,14 @@ class LeftRightEconomicScorer:
         right_count = sum(1 for _, (_, direction) in self.left_right_hypotheses.items() if direction == "right")
         print(f"Loaded {len(self.left_right_hypotheses)} hypotheses ({left_count} left, {right_count} right)")
 
-    def _find_nli_label_indices(self):
-        """Best-effort mapping for NLI heads (contradiction/neutral/entailment).
-
-        Why: many checkpoints don't name labels, and assuming entailment==0 is wrong.
-        Fallbacks:
-          - If we can find strings in id2label/label2id, use them.
-          - If num_labels==3, assume MNLI ordering: contradiction=0, neutral=1, entailment=2.
-          - If num_labels==2, assume contradiction=0, entailment=1.
-        """
-        cfg = self.model.config
-        id2label = getattr(cfg, "id2label", None) or {}
-        label2id = getattr(cfg, "label2id", None) or {}
-
-        def norm(s: str) -> str:
-            return str(s).strip().lower().replace(" ", "_")
-
-        # Try id2label first
-        c = n = e = None
-        for idx, lab in (id2label.items() if isinstance(id2label, dict) else []):
-            nl = norm(lab)
-            if "contrad" in nl:
-                c = int(idx)
-            elif "neutral" in nl:
-                n = int(idx)
-            elif "entail" in nl:
-                e = int(idx)
-
-        # Try label2id if still missing
-        if c is None or n is None or e is None:
-            for lab, idx in (label2id.items() if isinstance(label2id, dict) else []):
-                nl = norm(lab)
-                if c is None and "contrad" in nl:
-                    c = int(idx)
-                elif n is None and "neutral" in nl:
-                    n = int(idx)
-                elif e is None and "entail" in nl:
-                    e = int(idx)
-
-        # Fallback by num_labels
-        num_labels = int(getattr(cfg, "num_labels", 0) or 0)
-        if num_labels == 3:
-            c = 0 if c is None else c
-            n = 1 if n is None else n
-            e = 2 if e is None else e
-        elif num_labels == 2:
-            c = 0 if c is None else c
-            n = None  # no neutral
-            e = 1 if e is None else e
-        else:
-            # As a last resort, keep a sane default but don't pretend it's reliable.
-            c = 0 if c is None else c
-            n = 1 if n is None else n
-            e = 2 if e is None else e
-
-        return c, n, e
+    def _find_entailment_index(self):
+        """Auto-detect entailment index for different NLI models"""
+        config = self.model.config
+        if hasattr(config, 'label2id') and config.label2id:
+            for label, idx in config.label2id.items():
+                if label.lower() in ['entailment', 'entail']:
+                    return idx
+        return 0
 
     def _entailment_prob(self, premise: str, hypothesis: str) -> float:
         """Return entailment probability for (premise, hypothesis) using the loaded NLI model."""
@@ -144,16 +91,11 @@ class LeftRightEconomicScorer:
             return torch.softmax(outputs.logits, dim=-1)[0, self.entailment_idx].item()
 
     def topic_precheck(self, text: str) -> dict:
-        """Check whether the text is in-scope for analysis.
-
-        IMPORTANT: This runs *before* any downstream hypothesis scoring. If it
-        fails, we return early and do not compute any labels/scores.
-        """
-        entail = float(self._entailment_prob(text, self.topic_question))
-        passed = entail >= float(self.topic_threshold)
+        """Check whether the text is in-scope for (political rhetoric/governance/institutions) analysis."""
+        score = float(self._entailment_prob(text, self.topic_question))
         return {
-            "passed": passed,
-            "score": entail,
+            "passed": score >= float(self.topic_threshold),
+            "score": score,
             "threshold": float(self.topic_threshold),
             "question": self.topic_question,
         }
