@@ -27,18 +27,10 @@ class LeftRightEconomicScorer:
             "This includes references to populist rhetoric (challenging institutions, emphasizing popular will) "
             "or pluralist rhetoric (supporting checks and balances, minority rights, compromise)."
         )
-        # 0.30 was too permissive in practice on this checkpoint; use a stricter
-        # threshold and also apply a lightweight keyword + length guard.
-        self.topic_threshold = 0.60
-
-        # A small, high-signal keyword set to prevent obviously non-political text
-        # from passing even if the NLI head is overconfident.
-        self._topic_keywords = {
-            "government", "governance", "parliament", "congress", "senate", "election", "vote",
-            "democracy", "constitution", "court", "judiciary", "rights", "minority", "checks",
-            "balances", "institution", "legitimacy", "rule of law", "populist", "pluralist",
-            "party", "coalition", "president", "prime minister", "minister", "policy", "state",
-        }
+        # Precheck threshold (0–1). If the entailment probability that the text is
+        # about the topic question is below this value, we short-circuit and do
+        # not run any downstream hypothesis scoring.
+        self.topic_threshold = 0.30
 
         # Left-Right Economic hypotheses - streamlined to ~15 per side
         self.left_right_hypotheses = {
@@ -151,53 +143,18 @@ class LeftRightEconomicScorer:
             outputs = self.model(**inputs)
             return torch.softmax(outputs.logits, dim=-1)[0, self.entailment_idx].item()
 
-    def _contradiction_prob(self, premise: str, hypothesis: str) -> float:
-        """Return contradiction probability for (premise, hypothesis) if available."""
-        if self.contradiction_idx is None:
-            return 0.0
-        inputs = self.tokenizer(
-            premise,
-            hypothesis,
-            return_tensors="pt",
-            truncation=True,
-            max_length=512,
-        )
-        with torch.no_grad():
-            outputs = self.model(**inputs)
-            return torch.softmax(outputs.logits, dim=-1)[0, self.contradiction_idx].item()
-
     def topic_precheck(self, text: str) -> dict:
-        """Check whether the text is in-scope for (political rhetoric/governance/institutions) analysis."""
-        # 1) quick guards for obviously out-of-scope text
-        t = (text or "").strip().lower()
-        if len(t) < 40:
-            return {
-                "passed": False,
-                "score": 0.0,
-                "threshold": float(self.topic_threshold),
-                "question": self.topic_question,
-                "reason": "too_short",
-            }
+        """Check whether the text is in-scope for analysis.
 
-        # keyword presence check (allows multi-word phrases like "rule of law")
-        has_kw = any(kw in t for kw in self._topic_keywords)
-
-        # 2) NLI-based check: require strong entailment AND low contradiction
+        IMPORTANT: This runs *before* any downstream hypothesis scoring. If it
+        fails, we return early and do not compute any labels/scores.
+        """
         entail = float(self._entailment_prob(text, self.topic_question))
-        contrad = float(self._contradiction_prob(text, self.topic_question))
-
-        # If there are *no* topic keywords, require very strong entailment.
-        # This prevents unrelated lifestyle text from slipping through.
-        effective_threshold = 0.85 if not has_kw else float(self.topic_threshold)
-
-        passed = (entail >= effective_threshold) and (contrad <= 0.25)
+        passed = entail >= float(self.topic_threshold)
         return {
             "passed": passed,
             "score": entail,
-            "contradiction": contrad,
             "threshold": float(self.topic_threshold),
-            "effective_threshold": float(effective_threshold),
-            "has_keyword": bool(has_kw),
             "question": self.topic_question,
         }
 
