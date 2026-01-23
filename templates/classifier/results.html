@@ -131,55 +131,47 @@
     <div class="card-body text-center">
       <h6 class="card-title">Support for Liberal Democracy</h6>
 
-{% with li=alternative_scores.liberal_illiberal_hypothesis %}
-  {% if li.ok %}
-    {% with score=li.score confidence=li.confidence %}
-      {% with liberal=score|floatformat:1 %}
-        <div class="scale-wrap my-2">
-          <div class="scale-score" style="left: calc({{ liberal }} * 10%);">
-            <span class="display-6" style="color:#20c997;">
-              {{ score|floatformat:1 }}
-            </span>
-          </div>
+      {% with score=alternative_scores.liberal_illiberal_hypothesis.score confidence=alternative_scores.liberal_illiberal_hypothesis.confidence %}
+        {# If score is 0–10, we can use it directly for positioning #}
+        {% with liberal=score|floatformat:1 %}
+          <div class="scale-wrap my-2">
+            <!-- Score above the dot -->
+            <div class="scale-score" style="left: calc({{ liberal }} * 10%);">
+              <span class="display-6" style="color:#20c997;">
+                {{ score|floatformat:1 }}
+              </span>
+            </div>
 
-          <div class="scale-line">
-            <div class="scale-dotlibillib" style="left: calc({{ liberal }} * 10%); background-color: #20c997;"></div>
-          </div>
+            <!-- Line + dot -->
+            <div class="scale-line">
+              <div class="scale-dotlibillib" style="left: calc({{ liberal }} * 10%); background-color: #20c997;">
+            </div>
+            </div>
 
-          <div class="scale-labels">
-            <span>No Support</span>
-            <span>Support</span>
+            <!-- Labels -->
+            <div class="scale-labels">
+              <span>No Support</span>
+              <span>Support</span>
+            </div>
           </div>
+        {% endwith %}
+
+        <div class="mb-2">
+          <span class="badge bg-custom">
+            {{ alternative_scores.liberal_illiberal_hypothesis.interpretation }}
+          </span>
+        </div>
+
+        <!-- Confidence as text instead of a bar -->
+        <div class="text-muted" style="font-size: 0.9rem;">
+          <strong>Confidence:</strong> {{ confidence|floatformat:1 }}%
         </div>
       {% endwith %}
-
-      <div class="mb-2">
-        <span class="badge bg-custom">
-          {{ li.interpretation }}
-        </span>
-      </div>
-
-      <div class="text-muted" style="font-size: 0.9rem;">
-        <strong>Confidence:</strong> {{ confidence|floatformat:1 }}%
-      </div>
-    {% endwith %}
-  {% else %}
-    <div class="alert alert-warning text-start mb-0" role="alert">
-      <strong>Not scored:</strong> {{ li.error_message }}
-      {% if li.topic_entailment %}
-        <div class="small text-muted mt-2">
-          Topic check: {{ li.topic_entailment|floatformat:2 }}
-          {% if li.topic_threshold %}(threshold {{ li.topic_threshold|floatformat:2 }}){% endif %}
-        </div>
-      {% endif %}
-    </div>
-  {% endif %}
-{% endwith %}
-
     </div>
   </div>
 </div>
 {% endif %}
+
 
 <!-- Populism–Pluralism Hypothesis -->
 {% if alternative_scores.populism_pluralism_hypothesis %}
