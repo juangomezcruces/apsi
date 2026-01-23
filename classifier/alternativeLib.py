@@ -11,11 +11,22 @@ warnings.filterwarnings('ignore')
 # LIBERAL-ILLIBERAL HYPOTHESIS-BASED SCORER
 # ============================================================================
 
+
+
+
 class LiberalIlliberalScorer:
     def __init__(self, model_name="mlburnham/Political_DEBATE_large_v1.0"):
         cache = SharedModelCache()
         self.model, self.tokenizer = cache.get_model_and_tokenizer(model_name)
         self.entailment_idx = self._find_entailment_index()
+
+
+        self.topic_question = (
+            "Does this text discuss political ideas related to democratic principles?"
+        )
+
+        self.topic_threshold = 0.60 
+
 
         # Enhanced Liberal-Illiberal hypotheses using recommended format
         self.liberal_illiberal_hypotheses = {
@@ -136,6 +147,18 @@ class LiberalIlliberalScorer:
             'top_liberal_avg': top_liberal_avg,
             'top_illiberal_avg': top_illiberal_avg
         }
+
+
+        def score_text(self, text: str):
+        passed, p_entail = self._topic_precheck(text, self.topic_question, self.topic_threshold)
+        if not passed:
+            return {
+                "ok": False,
+                "error_code": "TOPIC_PRECHECK_FAILED",
+                "error_message": "This text doesn’t appear to be about democratic principles, so a Liberal–Illiberal score wasn’t computed.",
+                "topic_entailment": p_entail,
+                "topic_threshold": self.topic_threshold,
+            }
 
     def score_liberal_illiberal(self, text):
         """Score text and return comprehensive results"""
