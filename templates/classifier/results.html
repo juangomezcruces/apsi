@@ -165,7 +165,7 @@
     {% endwith %}
   {% else %}
     <div class="alert alert-warning text-start mb-0" role="alert">
-      <strong>Not scored:</strong> {{ li.error_message|default:"Not scored (topic precheck failed)." }}
+      <strong>Not scored:</strong> {{ li.error_message }}
       {% if li.topic_entailment %}
         <div class="small text-muted mt-2">
           Topic check: {{ li.topic_entailment|floatformat:2 }}
@@ -175,11 +175,6 @@
     </div>
   {% endif %}
 {% endwith %}
-
-    </div>
-  </div>
-</div>
-{% endif %}
 
 
 <!-- Populism–Pluralism Hypothesis -->
