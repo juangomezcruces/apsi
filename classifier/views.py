@@ -160,7 +160,7 @@ def generate_alternative_scores(text, scorers=None, selected_approaches=None):
                         'confidence': round(lr_result.get('confidence', 0.8) * 100, 1),
                         'interpretation': lr_result.get('interpretation', 'Center')
                     }
-                    logger.debug(f"✓ Left-right hypothesis: {lr_result.get('score', 'N/A'):.2f}")
+                    logger.debug(f"✓ Left-right hypothesis: {lr_result.get('score', 'N/A')}")
                 except Exception as e:
                     logger.error(f"Left-Right hypothesis scoring failed: {e}")
                     alternative_scores['left_right_hypothesis'] = generate_mock_score('left_right')
@@ -170,12 +170,12 @@ def generate_alternative_scores(text, scorers=None, selected_approaches=None):
                     logger.debug("Running liberal-illiberal hypothesis scoring...")
                     li_result = scorers['liberal_illiberal'].score_liberal_illiberal(text)
 
-        # ✅ If precheck failed, pass the error payload through to the template
+                    # ✅ If precheck failed, pass the error payload through to the template
                     precheck_payload = normalize_precheck_result(li_result, default_interpretation="Not scored")
                     if precheck_payload is not None:
                         alternative_scores['liberal_illiberal_hypothesis'] = precheck_payload
                     else:
-                        # ✅ Normal scoring payload
+                        # ✅ Normal scoring payload (what you already do)
                         alternative_scores['liberal_illiberal_hypothesis'] = {
                             'ok': True,
                             'score': round(li_result.get('score', 5.0), 2),
@@ -183,7 +183,9 @@ def generate_alternative_scores(text, scorers=None, selected_approaches=None):
                             'interpretation': li_result.get('interpretation', 'Moderate')
                         }
 
-                    logger.debug(f"✓ Liberal-illiberal hypothesis: {li_result.get('score', 'N/A'):.2f}")
+                    # Avoid float formatting here because on precheck fail score may be missing/non-numeric
+                    logger.debug(f"✓ Liberal-illiberal hypothesis: {li_result.get('score', 'N/A')}")
+
                 except Exception as e:
                     logger.error(f"Liberal-Illiberal hypothesis scoring failed: {e}")
                     alternative_scores['liberal_illiberal_hypothesis'] = generate_mock_score('liberal_illiberal')
@@ -197,7 +199,7 @@ def generate_alternative_scores(text, scorers=None, selected_approaches=None):
                         'confidence': round(pp_result.get('confidence', 0.8) * 100, 1),
                         'interpretation': pp_result.get('interpretation', 'Moderate')
                     }
-                    logger.debug(f"✓ Populism-pluralism hypothesis: {pp_result.get('score', 'N/A'):.2f}")
+                    logger.debug(f"✓ Populism-pluralism hypothesis: {pp_result.get('score', 'N/A')}")
                 except Exception as e:
                     logger.error(f"Populism-Pluralism hypothesis scoring failed: {e}")
                     alternative_scores['populism_pluralism_hypothesis'] = generate_mock_score('populism_pluralism')
@@ -213,7 +215,7 @@ def generate_alternative_scores(text, scorers=None, selected_approaches=None):
                         'confidence': round(lr_resp_result.get('confidence', 0.8) * 100, 1),
                         'interpretation': lr_resp_result.get('interpretation', 'Center')
                     }
-                    logger.debug(f"✓ Left-right responses: {lr_resp_result.get('score', 'N/A'):.2f}")
+                    logger.debug(f"✓ Left-right responses: {lr_resp_result.get('score', 'N/A')}")
                 except Exception as e:
                     logger.error(f"Left-Right response-based scoring failed: {e}")
                     alternative_scores['left_right_responses'] = generate_mock_score('left_right')
@@ -227,7 +229,7 @@ def generate_alternative_scores(text, scorers=None, selected_approaches=None):
                         'confidence': round(li_resp_result.get('confidence', 0.8) * 100, 1),
                         'interpretation': li_resp_result.get('interpretation', 'Moderate')
                     }
-                    logger.debug(f"✓ Liberal-illiberal responses: {li_resp_result.get('score', 'N/A'):.2f}")
+                    logger.debug(f"✓ Liberal-illiberal responses: {li_resp_result.get('score', 'N/A')}")
                 except Exception as e:
                     logger.error(f"Liberal-Illiberal response-based scoring failed: {e}")
                     alternative_scores['liberal_illiberal_responses'] = generate_mock_score('liberal_illiberal')
@@ -241,7 +243,7 @@ def generate_alternative_scores(text, scorers=None, selected_approaches=None):
                         'confidence': round(pp_resp_result.get('confidence', 0.8) * 100, 1),
                         'interpretation': pp_resp_result.get('interpretation', 'Moderate')
                     }
-                    logger.debug(f"✓ Populism-pluralism responses: {pp_resp_result.get('score', 'N/A'):.2f}")
+                    logger.debug(f"✓ Populism-pluralism responses: {pp_resp_result.get('score', 'N/A')}")
                 except Exception as e:
                     logger.error(f"Populism-Pluralism response-based scoring failed: {e}")
                     alternative_scores['populism_pluralism_responses'] = generate_mock_score('populism_pluralism')
@@ -322,7 +324,6 @@ def generate_mock_score(dimension_type):
             interpretation = 'Strong Populist'
     
     return {
-        'ok': True,
         'score': score,
         'confidence': confidence,
         'interpretation': interpretation
