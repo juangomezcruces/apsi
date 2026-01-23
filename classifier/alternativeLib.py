@@ -110,6 +110,26 @@ class LiberalIlliberalScorer:
 
         return np.array(probs)
 
+    def _topic_precheck(self, text: str):
+        """Lightweight topic gate using the same NLI model.
+
+        Returns:
+            passed (bool), entailment_probability (float)
+        """
+        inputs = self.tokenizer(
+            text,
+            self.topic_question,
+            return_tensors="pt",
+            truncation=True,
+            max_length=512,
+        )
+
+        with torch.no_grad():
+            outputs = self.model(**inputs)
+            prob = torch.softmax(outputs.logits, dim=-1)[0, self.entailment_idx].item()
+
+        return (prob >= self.topic_threshold), float(prob)
+
     def compute_combined_confidence(self, liberal_probs, illiberal_probs, all_probs):
         """Simplified confidence with Top-K contradiction detection only"""
         
@@ -148,9 +168,11 @@ class LiberalIlliberalScorer:
             'top_illiberal_avg': top_illiberal_avg
         }
 
+    def score_liberal_illiberal(self, text):
+        """Score text and return comprehensive results"""
 
-        def score_text(self, text: str):
-        passed, p_entail = self._topic_precheck(text, self.topic_question, self.topic_threshold)
+        # --- Topic precheck ---
+        passed, p_entail = self._topic_precheck(text)
         if not passed:
             return {
                 "ok": False,
@@ -160,8 +182,6 @@ class LiberalIlliberalScorer:
                 "topic_threshold": self.topic_threshold,
             }
 
-    def score_liberal_illiberal(self, text):
-        """Score text and return comprehensive results"""
         probs = self.get_hypothesis_probabilities(text)
 
         liberal_probs = []
@@ -218,13 +238,14 @@ class LiberalIlliberalScorer:
             interpretation = "Strongly Liberal"
 
         return {
+            'ok': True,
             'text': text,
-            'score': final_score,
-            'confidence': confidence_data['combined'],
-            'contradiction_detected': confidence_data['contradiction_detected'],
+            'score': float(final_score),
+            'confidence': float(confidence_data['combined']),
+            'contradiction_detected': bool(confidence_data['contradiction_detected']),
             'interpretation': interpretation,
-            'liberal_avg': liberal_avg,
-            'illiberal_avg': illiberal_avg,
+            'liberal_avg': float(liberal_avg),
+            'illiberal_avg': float(illiberal_avg),
             'top_liberal_hypotheses': top_liberal,
             'top_illiberal_hypotheses': top_illiberal
         }
