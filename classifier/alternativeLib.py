@@ -19,15 +19,13 @@ class LiberalIlliberalScorer:
         cache = SharedModelCache()
         self.model, self.tokenizer = cache.get_model_and_tokenizer(model_name)
         self.entailment_idx = self._find_entailment_index()
-        self.model.eval()
 
 
         self.topic_question = (
-            "Does the text engage with democratic principles and institutions?
-            "Argues either in favor of liberal norms or against them"
+            "Does this text discuss political ideas related to democratic principles?"
         )
 
-        self.topic_threshold = 0.90 
+        self.topic_threshold = 0.60 
 
 
         # Enhanced Liberal-Illiberal hypotheses using recommended format
@@ -86,73 +84,33 @@ class LiberalIlliberalScorer:
         print(f"Loaded {len(self.liberal_illiberal_hypotheses)} hypotheses ({liberal_count} liberal, {illiberal_count} illiberal)")
 
     def _find_entailment_index(self):
-    """Auto-detect entailment label index for different NLI heads.
+        """Auto-detect entailment index for different NLI models"""
+        config = self.model.config
+        if hasattr(config, 'label2id') and config.label2id:
+            for label, idx in config.label2id.items():
+                if label.lower() in ['entailment', 'entail']:
+                    return idx
+        return 0
 
-    Tries label2id / id2label mappings; falls back to common MNLI ordering
-    (contradiction, neutral, entailment) -> entailment index 2.
-    """
-    config = getattr(self.model, "config", None)
+    def get_hypothesis_probabilities(self, text):
+        """Get probabilities for all liberal-illiberal hypotheses"""
+        probs = []
+        for hypothesis in self.liberal_illiberal_hypotheses.keys():
+            inputs = self.tokenizer(
+                text, hypothesis,
+                return_tensors="pt",
+                truncation=True,
+                max_length=512
+            )
 
-    # 1) label2id
-    label2id = getattr(config, "label2id", None) or {}
-    for label, idx in label2id.items():
-        if str(label).lower() in ("entailment", "entails", "entail"):
-            return int(idx)
+            with torch.no_grad():
+                outputs = self.model(**inputs)
+                prob = torch.softmax(outputs.logits, dim=-1)[0, self.entailment_idx].item()
+                probs.append(prob)
 
-    # 2) id2label
-    id2label = getattr(config, "id2label", None) or {}
-    for idx, label in id2label.items():
-        if str(label).lower() in ("entailment", "entails", "entail"):
-            return int(idx)
+        return np.array(probs)
 
-    # 3) sensible default for 3-way NLI
-    num_labels = getattr(config, "num_labels", None)
-    if num_labels == 3:
-        return 2
-
-    # Final fallback
-    return 0def get_hypothesis_probabilities(self, text):
-    """Get entailment probabilities for all liberal-illiberal hypotheses."""
-    self.model.eval()
-    device = next(self.model.parameters()).device
-
-    probs = []
-    for hypothesis in self.liberal_illiberal_hypotheses.keys():
-        inputs = self.tokenizer(
-            text,
-            hypothesis,
-            return_tensors="pt",
-            truncation=True,
-            max_length=512
-        ).to(device)
-
-        with torch.no_grad():
-            outputs = self.model(**inputs)
-            prob = torch.softmax(outputs.logits, dim=-1)[0, self.entailment_idx].item()
-            probs.append(prob)
-
-    return np.array(probs)def _topic_precheck(self, text: str):
-    """Lightweight topic gate using the same NLI model.
-
-    Returns:
-        passed (bool), entailment_probability (float)
-    """
-    self.model.eval()
-    device = next(self.model.parameters()).device
-
-    inputs = self.tokenizer(
-        text,
-        self.topic_question,
-        return_tensors="pt",
-        truncation=True,
-        max_length=512,
-    ).to(device)
-
-    with torch.no_grad():
-        outputs = self.model(**inputs)
-        prob = torch.softmax(outputs.logits, dim=-1)[0, self.entailment_idx].item()
-
-    return (prob >= self.topic_threshold), float(prob)def compute_combined_confidence(self, liberal_probs, illiberal_probs, all_probs):
+    def compute_combined_confidence(self, liberal_probs, illiberal_probs, all_probs):
         """Simplified confidence with Top-K contradiction detection only"""
         
         # Basic confidence from variance (lower variance = higher confidence)
@@ -190,11 +148,9 @@ class LiberalIlliberalScorer:
             'top_illiberal_avg': top_illiberal_avg
         }
 
-    def score_liberal_illiberal(self, text):
-        """Score text and return comprehensive results"""
 
-        # --- Topic precheck ---
-        passed, p_entail = self._topic_precheck(text)
+        def score_text(self, text: str):
+        passed, p_entail = self._topic_precheck(text, self.topic_question, self.topic_threshold)
         if not passed:
             return {
                 "ok": False,
@@ -204,6 +160,8 @@ class LiberalIlliberalScorer:
                 "topic_threshold": self.topic_threshold,
             }
 
+    def score_liberal_illiberal(self, text):
+        """Score text and return comprehensive results"""
         probs = self.get_hypothesis_probabilities(text)
 
         liberal_probs = []
@@ -260,14 +218,13 @@ class LiberalIlliberalScorer:
             interpretation = "Strongly Liberal"
 
         return {
-            'ok': True,
             'text': text,
-            'score': float(final_score),
-            'confidence': float(confidence_data['combined']),
-            'contradiction_detected': bool(confidence_data['contradiction_detected']),
+            'score': final_score,
+            'confidence': confidence_data['combined'],
+            'contradiction_detected': confidence_data['contradiction_detected'],
             'interpretation': interpretation,
-            'liberal_avg': float(liberal_avg),
-            'illiberal_avg': float(illiberal_avg),
+            'liberal_avg': liberal_avg,
+            'illiberal_avg': illiberal_avg,
             'top_liberal_hypotheses': top_liberal,
             'top_illiberal_hypotheses': top_illiberal
         }
