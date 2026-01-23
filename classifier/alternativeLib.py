@@ -23,10 +23,11 @@ class LiberalIlliberalScorer:
 
 
         self.topic_question = (
-            "Does this text discuss political ideas related to democratic principles?"
+            "Does the text engage with democratic principles and institutions?
+            "Argues either in favor of liberal norms or against them"
         )
 
-        self.topic_threshold = 0.60 
+        self.topic_threshold = 0.90 
 
 
         # Enhanced Liberal-Illiberal hypotheses using recommended format
