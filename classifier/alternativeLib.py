@@ -25,7 +25,7 @@ class LiberalIlliberalScorer:
             "Does this text discuss political ideas related to democratic principles?"
         )
 
-        self.topic_threshold = 0.10 
+        self.topic_threshold = 0.60 
 
 
         # Enhanced Liberal-Illiberal hypotheses using recommended format
@@ -84,13 +84,88 @@ class LiberalIlliberalScorer:
         print(f"Loaded {len(self.liberal_illiberal_hypotheses)} hypotheses ({liberal_count} liberal, {illiberal_count} illiberal)")
 
     def _find_entailment_index(self):
-        """Auto-detect entailment index for different NLI models"""
-        config = self.model.config
-        if hasattr(config, 'label2id') and config.label2id:
-            for label, idx in config.label2id.items():
-                if label.lower() in ['entailment', 'entail']:
-                    return idx
-        return 0
+
+            """Auto-detect entailment index for different NLI models.
+
+    
+
+            Tries label2id/id2label mappings first. If unavailable, falls back to a
+
+            reasonable default for 3-way NLI heads (often: 0=contradiction,
+
+            1=neutral, 2=entailment).
+
+            """
+
+            config = getattr(self.model, "config", None)
+
+    
+
+            # 1) label2id
+
+            label2id = getattr(config, "label2id", None) if config is not None else None
+
+            if isinstance(label2id, dict) and label2id:
+
+                for label, idx in label2id.items():
+
+                    if str(label).lower() in ["entailment", "entails", "entail"]:
+
+                        return int(idx)
+
+    
+
+            # 2) id2label
+
+            id2label = getattr(config, "id2label", None) if config is not None else None
+
+            if isinstance(id2label, dict) and id2label:
+
+                for idx, label in id2label.items():
+
+                    if str(label).lower() in ["entailment", "entails", "entail"]:
+
+                        return int(idx)
+
+                # Sometimes labels look like "LABEL_0" etc; if we can infer MNLI-like, use last label
+
+                try:
+
+                    num_labels = int(getattr(config, "num_labels", 0) or 0)
+
+                except Exception:
+
+                    num_labels = 0
+
+                if num_labels == 3:
+
+                    return 2
+
+    
+
+            # 3) final fallback based on num_labels
+
+            try:
+
+                num_labels = int(getattr(config, "num_labels", 0) or 0)
+
+            except Exception:
+
+                num_labels = 0
+
+            if num_labels == 3:
+
+                return 2
+
+            if num_labels > 0:
+
+                return num_labels - 1
+
+    
+
+            # Worst-case fallback
+
+            return 0
 
     def get_hypothesis_probabilities(self, text):
         """Get probabilities for all liberal-illiberal hypotheses"""
@@ -122,7 +197,7 @@ class LiberalIlliberalScorer:
             return_tensors="pt",
             truncation=True,
             max_length=512,
-        )
+        ).to(self.model.device)
 
         with torch.no_grad():
             outputs = self.model(**inputs)
