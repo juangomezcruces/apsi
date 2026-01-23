@@ -15,16 +15,23 @@ class LeftRightEconomicScorer:
     def __init__(self, model_name="mlburnham/Political_DEBATE_large_v1.0"):
         cache = SharedModelCache()
         self.model, self.tokenizer = cache.get_model_and_tokenizer(model_name)
-        self.entailment_idx = self._find_entailment_index()
+        # Ensure deterministic inference (disable dropout)
+        try:
+            self.model.eval()
+        except Exception:
+            pass
+        self.device = next(self.model.parameters()).device
 
-        # Topic precheck: only score texts that clearly discuss governance / institutions / political rhetoric
+        # Topic precheck: run BEFORE any hypothesis scoring
         self.topic_question = (
-            "Does this text discuss economic policy, government intervention, or public services? "
-            "This includes topics like healthcare, education, housing, transport, taxation, natural resources "
-            "privatization, welfare, regulation, minimum wage, wealth redistribution, "
-            "public vs. private sector roles, or economic equality."
+            "Does this text discuss political rhetoric, governance approaches, or institutional legitimacy? "
+            "This includes references to populist rhetoric (challenging institutions, emphasizing popular will) "
+            "or pluralist rhetoric (supporting checks and balances, minority rights, compromise)."
         )
+
         self.topic_threshold = 0.30
+
+        self.entailment_idx, self.contradiction_idx = self._find_nli_label_indices()
 
         # Left-Right Economic hypotheses - streamlined to ~15 per side
         self.left_right_hypotheses = {
@@ -68,38 +75,106 @@ class LeftRightEconomicScorer:
         right_count = sum(1 for _, (_, direction) in self.left_right_hypotheses.items() if direction == "right")
         print(f"Loaded {len(self.left_right_hypotheses)} hypotheses ({left_count} left, {right_count} right)")
 
-    def _find_entailment_index(self):
-        """Auto-detect entailment index for different NLI models"""
-        config = self.model.config
-        if hasattr(config, 'label2id') and config.label2id:
-            for label, idx in config.label2id.items():
-                if label.lower() in ['entailment', 'entail']:
-                    return idx
-        return 0
+    def _find_nli_label_indices(self):
+        """Return (entailment_idx, contradiction_idx) for NLI-style classifiers.
 
-    def _entailment_prob(self, premise: str, hypothesis: str) -> float:
-        """Return entailment probability for (premise, hypothesis) using the loaded NLI model."""
-        inputs = self.tokenizer(
-            premise,
-            hypothesis,
-            return_tensors="pt",
-            truncation=True,
-            max_length=512,
-        )
-        with torch.no_grad():
-            outputs = self.model(**inputs)
-            return torch.softmax(outputs.logits, dim=-1)[0, self.entailment_idx].item()
+        Many HF checkpoints expose id2label/label2id with keys like 'ENTAILMENT'/'CONTRADICTION'
+        or generic 'LABEL_0/1/2'. If we cannot infer labels, fall back to common MNLI ordering.
+        """
+        config = getattr(self.model, "config", None)
+        num_labels = getattr(config, "num_labels", None)
 
-    def topic_precheck(self, text: str) -> dict:
-        """Check whether the text is in-scope for (political rhetoric/governance/institutions) analysis."""
-        score = float(self._entailment_prob(text, self.topic_question))
+        # Try config mappings first
+        label2id = getattr(config, "label2id", None) or {}
+        id2label = getattr(config, "id2label", None) or {}
+
+        def norm(s: str) -> str:
+            return (s or "").strip().lower()
+
+        entailment_idx = None
+        contradiction_idx = None
+
+        # From label2id
+        for label, idx in label2id.items():
+            l = norm(label)
+            if "entail" in l:
+                entailment_idx = idx
+            if "contrad" in l:
+                contradiction_idx = idx
+
+        # From id2label if needed
+        if entailment_idx is None or contradiction_idx is None:
+            for idx, label in id2label.items():
+                l = norm(label)
+                if entailment_idx is None and "entail" in l:
+                    entailment_idx = int(idx)
+                if contradiction_idx is None and "contrad" in l:
+                    contradiction_idx = int(idx)
+
+        # Heuristic fallbacks
+        if entailment_idx is None or contradiction_idx is None:
+            # Typical 3-way NLI head: 0=contradiction,1=neutral,2=entailment
+            if num_labels == 3:
+                contradiction_idx = 0 if contradiction_idx is None else contradiction_idx
+                entailment_idx = 2 if entailment_idx is None else entailment_idx
+            # Typical binary head: 0=contradiction/negative, 1=entailment/positive
+            elif num_labels == 2:
+                contradiction_idx = 0 if contradiction_idx is None else contradiction_idx
+                entailment_idx = 1 if entailment_idx is None else entailment_idx
+            else:
+                # Last-resort: assume entailment is the last logit
+                entailment_idx = int(num_labels - 1) if (num_labels and entailment_idx is None) else (entailment_idx or 0)
+                contradiction_idx = 0 if contradiction_idx is None else contradiction_idx
+
+        return int(entailment_idx), int(contradiction_idx)
+
+def topic_precheck(self, text: str):
+    """Gate: decide if text is in-scope for political/governance rhetoric BEFORE scoring hypotheses.
+
+    This runs *before* any hypothesis inference and is intentionally deterministic.
+    We use a lightweight keyword/phrase heuristic as the primary gate to avoid
+    unstable NLI outputs on out-of-domain text.
+    """
+    raw = (text or "").strip()
+    if len(raw) < 25:
         return {
-            "passed": score >= float(self.topic_threshold),
-            "score": score,
+            "passed": False,
+            "score": 0.0,
             "threshold": float(self.topic_threshold),
             "question": self.topic_question,
         }
 
+    t = raw.lower()
+
+    # Broad but fairly precise political/governance vocabulary.
+    keywords = [
+        "government", "governance", "state", "policy", "policies", "public", "institution", "institutions",
+        "democracy", "democratic", "authoritarian", "rule of law", "legitimacy", "constitution", "constitutional",
+        "parliament", "congress", "legislature", "election", "elections", "vote", "voting", "campaign",
+        "party", "parties", "coalition", "opposition", "minister", "president", "prime minister",
+        "tax", "taxes", "welfare", "benefits", "healthcare", "education", "immigration", "border",
+        "rights", "minority", "minorities", "checks and balances", "separation of powers", "compromise",
+        "corruption", "accountability", "freedom", "censorship", "civil liberties",
+        "populist", "populism", "elite", "the elites", "the people", "popular will",
+        "courts", "judiciary", "supreme court", "media", "press", "bureaucracy",
+    ]
+
+    hits = 0
+    for kw in keywords:
+        if kw in t:
+            hits += 1
+
+    # Convert hits to a 0..1 score: 0 hits -> 0.0, 1 hit -> 0.33, 2 hits -> 0.67, 3+ hits -> 1.0
+    score = min(1.0, hits / 3.0)
+
+    passed = score >= float(self.topic_threshold)
+
+    return {
+        "passed": passed,
+        "score": float(score),
+        "threshold": float(self.topic_threshold),
+        "question": self.topic_question,
+    }
 
     def get_hypothesis_probabilities(self, text):
         """Get probabilities for all left-right hypotheses"""
@@ -111,6 +186,7 @@ class LeftRightEconomicScorer:
                 truncation=True,
                 max_length=512
             )
+            inputs = {k: v.to(self.device) for k, v in inputs.items()}
 
             with torch.no_grad():
                 outputs = self.model(**inputs)
@@ -159,19 +235,18 @@ class LeftRightEconomicScorer:
 
     def score_left_right(self, text):
         """Score text and return comprehensive results"""
-
-        # Topic precheck (guards against scoring non-political/non-governance text)
-        precheck = self.topic_precheck(text)
-        if not precheck["passed"]:
+        # 1) Topic precheck FIRST — do not run hypothesis inference if out of scope
+        pre = self.topic_precheck(text)
+        if not pre.get('passed', False):
             return {
-                "text": text,
-                "passed_precheck": False,
-                "precheck_score": precheck["score"],
-                "precheck_threshold": precheck["threshold"],
-                "precheck_question": precheck["question"],
-                "error": "Text did not pass the topic precheck.",
+                'text': text,
+                'passed_precheck': False,
+                'precheck_score': float(pre.get('score', 0.0)),
+                'precheck_threshold': float(pre.get('threshold', self.topic_threshold)),
+                'error': 'Text did not pass the political/governance topic precheck.',
             }
 
+        # 2) Only after passing, run the hypothesis inference
         probs = self.get_hypothesis_probabilities(text)
 
         left_probs = []
@@ -229,9 +304,6 @@ class LeftRightEconomicScorer:
 
         return {
             'text': text,
-            'passed_precheck': True,
-            'precheck_score': precheck['score'],
-            'precheck_threshold': precheck['threshold'],
             'score': final_score,
             'confidence': confidence_data['combined'],
             'contradiction_detected': confidence_data['contradiction_detected'],
