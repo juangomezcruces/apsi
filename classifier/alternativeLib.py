@@ -27,7 +27,7 @@ class LiberalIlliberalScorer:
             "Argues either in favor of liberal norms or against them"
         )
 
-        self.topic_threshold = 0.10 
+        self.topic_threshold = 0.90 
 
 
         # Enhanced Liberal-Illiberal hypotheses using recommended format
