@@ -17,6 +17,14 @@ class LeftRightEconomicScorer:
         self.model, self.tokenizer = cache.get_model_and_tokenizer(model_name)
         self.entailment_idx = self._find_entailment_index()
 
+        # Topic precheck: only score texts that clearly discuss governance / institutions / political rhetoric
+        self.topic_question = (
+            "Does this text discuss political rhetoric, governance approaches, or institutional legitimacy? "
+            "This includes references to populist rhetoric (challenging institutions, emphasizing popular will) "
+            "or pluralist rhetoric (supporting checks and balances, minority rights, compromise)."
+        )
+        self.topic_threshold = 0.30
+
         # Left-Right Economic hypotheses - streamlined to ~15 per side
         self.left_right_hypotheses = {
             # Left Economic Positions (15) - More specific and policy-focused
@@ -67,6 +75,30 @@ class LeftRightEconomicScorer:
                 if label.lower() in ['entailment', 'entail']:
                     return idx
         return 0
+
+    def _entailment_prob(self, premise: str, hypothesis: str) -> float:
+        """Return entailment probability for (premise, hypothesis) using the loaded NLI model."""
+        inputs = self.tokenizer(
+            premise,
+            hypothesis,
+            return_tensors="pt",
+            truncation=True,
+            max_length=512,
+        )
+        with torch.no_grad():
+            outputs = self.model(**inputs)
+            return torch.softmax(outputs.logits, dim=-1)[0, self.entailment_idx].item()
+
+    def topic_precheck(self, text: str) -> dict:
+        """Check whether the text is in-scope for (political rhetoric/governance/institutions) analysis."""
+        score = float(self._entailment_prob(text, self.topic_question))
+        return {
+            "passed": score >= float(self.topic_threshold),
+            "score": score,
+            "threshold": float(self.topic_threshold),
+            "question": self.topic_question,
+        }
+
 
     def get_hypothesis_probabilities(self, text):
         """Get probabilities for all left-right hypotheses"""
@@ -126,6 +158,19 @@ class LeftRightEconomicScorer:
 
     def score_left_right(self, text):
         """Score text and return comprehensive results"""
+
+        # Topic precheck (guards against scoring non-political/non-governance text)
+        precheck = self.topic_precheck(text)
+        if not precheck["passed"]:
+            return {
+                "text": text,
+                "passed_precheck": False,
+                "precheck_score": precheck["score"],
+                "precheck_threshold": precheck["threshold"],
+                "precheck_question": precheck["question"],
+                "error": "Text did not pass the topic precheck.",
+            }
+
         probs = self.get_hypothesis_probabilities(text)
 
         left_probs = []
@@ -183,6 +228,9 @@ class LeftRightEconomicScorer:
 
         return {
             'text': text,
+            'passed_precheck': True,
+            'precheck_score': precheck['score'],
+            'precheck_threshold': precheck['threshold'],
             'score': final_score,
             'confidence': confidence_data['combined'],
             'contradiction_detected': confidence_data['contradiction_detected'],
