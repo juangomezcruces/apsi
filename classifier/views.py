@@ -150,27 +150,12 @@ def generate_alternative_scores(text, scorers=None, selected_approaches=None):
                 try:
                     logger.debug("Running liberal-illiberal hypothesis scoring...")
                     li_result = scorers['liberal_illiberal'].score_liberal_illiberal(text)
-                    # Preserve rich error information from the scorer (e.g., topic precheck)
-                    if li_result.get('ok', True):
-                        alternative_scores['liberal_illiberal_hypothesis'] = {
-                            'ok': True,
-                            'score': round(li_result.get('score', 5.0), 2),
-                            'confidence': round(li_result.get('confidence', 0.8) * 100, 1),
-                            'interpretation': li_result.get('interpretation', 'Moderate'),
-                        }
-                        logger.debug(f"✓ Liberal-illiberal hypothesis: {li_result.get('score', 0.0):.2f}")
-                    else:
-                        alternative_scores['liberal_illiberal_hypothesis'] = {
-                            'ok': False,
-                            'error_code': li_result.get('error_code', 'TOPIC_PRECHECK_FAILED'),
-                            'error_message': li_result.get(
-                                'error_message',
-                                "This text didn’t pass the topic check, so no score was computed.",
-                            ),
-                            'topic_entailment': li_result.get('topic_entailment'),
-                            'topic_threshold': li_result.get('topic_threshold'),
-                        }
-                        logger.debug("✗ Liberal-illiberal hypothesis not scored (topic precheck failed).")
+                    alternative_scores['liberal_illiberal_hypothesis'] = {
+                        'score': round(li_result.get('score', 5.0), 2),
+                        'confidence': round(li_result.get('confidence', 0.8) * 100, 1),
+                        'interpretation': li_result.get('interpretation', 'Moderate')
+                    }
+                    logger.debug(f"✓ Liberal-illiberal hypothesis: {li_result.get('score', 'N/A'):.2f}")
                 except Exception as e:
                     logger.error(f"Liberal-Illiberal hypothesis scoring failed: {e}")
                     alternative_scores['liberal_illiberal_hypothesis'] = generate_mock_score('liberal_illiberal')
@@ -309,7 +294,6 @@ def generate_mock_score(dimension_type):
             interpretation = 'Strong Populist'
     
     return {
-        'ok': True,
         'score': score,
         'confidence': confidence,
         'interpretation': interpretation
@@ -495,4 +479,3 @@ def api_classify(request):
         import traceback
         logger.error(f"API Full traceback: {traceback.format_exc()}")
         return JsonResponse({'error': str(e)}, status=500)
-
