@@ -17,8 +17,8 @@ MOCK_MODE = False  # Change to True to test without downloading / loading models
 
 # Topic-gate configuration (axis-specific filtering)
 ENABLE_TOPIC_GATE = True  # Set False to disable axis topic-gating
-TOPIC_THRESHOLD = 0.3  # Probability threshold (0-1) for topic relevance
-CONSISTENCY_THRESHOLD = 0.2  # Max acceptable mismatch between positive & negative checks
+TOPIC_THRESHOLD = 0.5  # Probability threshold (0-1) for topic relevance
+CONSISTENCY_THRESHOLD = 0.3  # Max acceptable mismatch between positive & negative checks
 
 # Axis identifiers supported by the service.
 AXIS_LEFT_RIGHT = "left_right"
