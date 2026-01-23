@@ -16,9 +16,9 @@ logger = logging.getLogger(__name__)
 MOCK_MODE = False  # Change to True to test without downloading / loading models
 
 # Topic-gate configuration (axis-specific filtering)
-ENABLE_TOPIC_GATE = True  # Set False to disable axis topic-gating
+ENABLE_TOPIC_GATE = False  # Set False to disable axis topic-gating
 TOPIC_THRESHOLD = 0.5  # Probability threshold (0-1) for topic relevance
-
+CONSISTENCY_THRESHOLD = 0.3  # Max acceptable mismatch between positive & negative checks
 
 # Axis identifiers supported by the service.
 AXIS_LEFT_RIGHT = "left_right"
@@ -35,8 +35,12 @@ AXIS_TOPICS = {
             "This includes topics like healthcare, education, housing, transport, taxation, natural resources "
             "privatization, welfare, regulation, minimum wage, wealth redistribution, "
             "public vs. private sector roles, or economic equality."
-        )
-
+        ),
+        "negative": (
+            "This text does not discuss economic policy, government intervention, or public services. "
+            "It does not cover taxation, welfare, privatization, regulation, minimum wage, redistribution, "
+            "or public vs. private sector roles."
+        ),
     },
     AXIS_LIBERAL_ILLIBERAL: {
         "positive": (
@@ -44,16 +48,23 @@ AXIS_TOPICS = {
             "This includes civil liberties, human rights, minority rights, rule of law, judicial independence, "
             "checks and balances, free and fair elections, free press, constitutional limits, "
             "or constraints on executive power."
-        )
-
+        ),
+        "negative": (
+            "This text does not discuss democratic principles, civil liberties, human rights, minority rights, "
+            "rule of law, checks and balances, elections, free press, or constitutional constraints."
+        ),
     },
     AXIS_POPULISM_PLURALISM: {
         "positive": (
             "This text discusses political rhetoric, governance approaches, or institutional legitimacy. "
             "This includes populist rhetoric (challenging institutions, emphasizing popular will, anti-elite framing) "
             "or pluralist rhetoric (supporting checks and balances, minority rights, compromise, coalition-building)."
-        )
-
+        ),
+        "negative": (
+            "This text does not discuss populist or pluralist rhetoric, governance approaches, or institutional legitimacy. "
+            "It does not involve anti-elite framing, popular will versus institutions, compromise, "
+            "checks and balances, or minority rights."
+        ),
     },
 }
 
