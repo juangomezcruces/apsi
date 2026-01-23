@@ -149,7 +149,32 @@ class LiberalIlliberalScorer:
         }
 
 
-        def score_text(self, text: str):
+    def _topic_precheck(self, text: str, topic_question: str, threshold: float):
+        """Lightweight topic gate using the same NLI entailment head.
+
+        Returns:
+            (passed: bool, entailment_prob: float)
+        """
+        inputs = self.tokenizer(
+            text,
+            topic_question,
+            return_tensors="pt",
+            truncation=True,
+            max_length=512,
+        )
+        with torch.no_grad():
+            outputs = self.model(**inputs)
+            p_entail = torch.softmax(outputs.logits, dim=-1)[0, self.entailment_idx].item()
+
+        return (p_entail >= threshold), p_entail
+
+    def score_text(self, text: str):
+        """Compatibility wrapper: run topic precheck, then score."""
+        return self.score_liberal_illiberal(text)
+
+    def score_liberal_illiberal(self, text):
+        """Score text and return comprehensive results"""
+
         passed, p_entail = self._topic_precheck(text, self.topic_question, self.topic_threshold)
         if not passed:
             return {
@@ -160,8 +185,6 @@ class LiberalIlliberalScorer:
                 "topic_threshold": self.topic_threshold,
             }
 
-    def score_liberal_illiberal(self, text):
-        """Score text and return comprehensive results"""
         probs = self.get_hypothesis_probabilities(text)
 
         liberal_probs = []
@@ -218,6 +241,9 @@ class LiberalIlliberalScorer:
             interpretation = "Strongly Liberal"
 
         return {
+            'ok': True,
+            'topic_entailment': p_entail,
+            'topic_threshold': self.topic_threshold,
             'text': text,
             'score': final_score,
             'confidence': confidence_data['combined'],
