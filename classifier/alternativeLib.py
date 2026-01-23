@@ -11,22 +11,11 @@ warnings.filterwarnings('ignore')
 # LIBERAL-ILLIBERAL HYPOTHESIS-BASED SCORER
 # ============================================================================
 
-
-
-
 class LiberalIlliberalScorer:
     def __init__(self, model_name="mlburnham/Political_DEBATE_large_v1.0"):
         cache = SharedModelCache()
         self.model, self.tokenizer = cache.get_model_and_tokenizer(model_name)
         self.entailment_idx = self._find_entailment_index()
-
-
-        self.topic_question = (
-            "Does this text discuss political ideas related to democratic principles?"
-        )
-
-        self.topic_threshold = 0.95 
-
 
         # Enhanced Liberal-Illiberal hypotheses using recommended format
         self.liberal_illiberal_hypotheses = {
@@ -148,43 +137,8 @@ class LiberalIlliberalScorer:
             'top_illiberal_avg': top_illiberal_avg
         }
 
-
-    def _topic_precheck(self, text: str, topic_question: str, threshold: float):
-        """Lightweight topic gate using the same NLI entailment head.
-
-        Returns:
-            (passed: bool, entailment_prob: float)
-        """
-        inputs = self.tokenizer(
-            text,
-            topic_question,
-            return_tensors="pt",
-            truncation=True,
-            max_length=512,
-        )
-        with torch.no_grad():
-            outputs = self.model(**inputs)
-            p_entail = torch.softmax(outputs.logits, dim=-1)[0, self.entailment_idx].item()
-
-        return (p_entail >= threshold), p_entail
-
-    def score_text(self, text: str):
-        """Compatibility wrapper: run topic precheck, then score."""
-        return self.score_liberal_illiberal(text)
-
     def score_liberal_illiberal(self, text):
         """Score text and return comprehensive results"""
-
-        passed, p_entail = self._topic_precheck(text, self.topic_question, self.topic_threshold)
-        if not passed:
-            return {
-                "ok": False,
-                "error_code": "TOPIC_PRECHECK_FAILED",
-                "error_message": "This text doesn’t appear to be about democratic principles, so a Liberal–Illiberal score wasn’t computed.",
-                "topic_entailment": p_entail,
-                "topic_threshold": self.topic_threshold,
-            }
-
         probs = self.get_hypothesis_probabilities(text)
 
         liberal_probs = []
@@ -241,9 +195,6 @@ class LiberalIlliberalScorer:
             interpretation = "Strongly Liberal"
 
         return {
-            'ok': True,
-            'topic_entailment': p_entail,
-            'topic_threshold': self.topic_threshold,
             'text': text,
             'score': final_score,
             'confidence': confidence_data['combined'],
