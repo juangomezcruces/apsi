@@ -1,4 +1,4 @@
- {% extends 'base.html' %}
+{% extends 'base.html' %}
 {% load static %}          
 
 {% block title %}Classification Results - Automated Political Stance Identifier{% endblock %}
@@ -72,61 +72,55 @@
         <div class="mb-5 w-100" style="max-width: 1100px;">
             <div class="row justify-content-center">         
                 <!-- Left-Right Hypothesis -->
-{% if alternative_scores.left_right_hypothesis %}
-<div class="col-lg-4 col-md-6 mb-4">
-  <div class="card h-100" style="border-left: 4px solid #20c997;">
-    <div class="card-body text-center">
-      <h6 class="card-title">Economic Left-Right</h6>
+                {% if alternative_scores.left_right_hypothesis %}
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card h-100" style="border-left: 4px solid #e83e8c;">
+                        <div class="card-body text-center">
+                            <h6 class="card-title">Economic Left-Right</h6>
 
-{% with lr=alternative_scores.left_right_hypothesis %}
-  {% if lr.ok %}
-    {% with score=lr.score confidence=lr.confidence %}
-      {% with left=score|floatformat:1 %}
-        <div class="scale-wrap my-2">
-          <div class="scale-score" style="left: calc({{ left }} * 10%);">
-            <span class="display-6" style="color:#20c997;">
-              {{ score|floatformat:1 }}
-            </span>
-          </div>
+{% with score=alternative_scores.left_right_hypothesis.score confidence=alternative_scores.left_right_hypothesis.confidence %}
+  {# If your score is already 0–10, use it directly. If it's a string, you may want to ensure it's numeric in your view. #}
 
-          <div class="scale-line">
-            <div class="scale-dot" style="left: calc({{ left }} * 10%); background-color: #20c997;"></div>
-          </div>
-
-          <div class="scale-labels">
-            <span>Left</span>
-            <span>Right</span>
-          </div>
-        </div>
-      {% endwith %}
-
-      <div class="mb-2">
-        <span class="badge bg-custom">
-          {{ lr.interpretation }}
+  {# Convert score (0–10) into percentage for left position #}
+  {% with left=score|floatformat:1 %}
+    <div class="scale-wrap my-2">
+      <!-- Score above the dot -->
+      <div class="scale-score" style="left: calc({{ left }} * 10%);">
+        <span class="display-6" style="color:#e83e8c;">
+          {{ score|floatformat:1 }}
         </span>
       </div>
 
-      <div class="text-muted" style="font-size: 0.9rem;">
-        <strong>Confidence:</strong> {{ confidence|floatformat:1 }}%
+      <!-- Line + dot -->
+      <div class="scale-line">
+        <div class="scale-dot" style="left: calc({{ left }} * 10%);"></div>
       </div>
-    {% endwith %}
-  {% else %}
-    <div class="alert alert-warning text-start mb-0" role="alert">
-      <strong>Not scored:</strong> {{ lr.error_message }}
-      {% if lr.topic_entailment %}
-        <div class="small text-muted mt-2">
-          Topic check: {{ lr.topic_entailment|floatformat:2 }}
-          {% if lr.topic_threshold %}(threshold {{ lr.topic_threshold|floatformat:2 }}){% endif %}
-       </div>
-      {% endif %}
-    </div>
-  {% endif %}
-{% endwith %}
 
+      <!-- Optional labels -->
+      <div class="scale-labels">
+        <span>Left</span>
+        <span>Right</span>
+      </div>
     </div>
+  {% endwith %}
+
+  <div class="mb-2">
+   <span class="badge bg-custom">
+      {{ alternative_scores.left_right_hypothesis.interpretation }}
+    </span>
   </div>
-</div>
-{% endif %}
+
+  <!-- Confidence as text instead of a bar -->
+  <div class="text-muted" style="font-size: 0.9rem;">
+    <strong>Confidence:</strong> {{ confidence|floatformat:1 }}%
+  </div>
+{% endwith %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+
 
 
 
