@@ -160,6 +160,17 @@ class LeftRightEconomicScorer:
 
     def score_left_right(self, text):
         """Score text and return comprehensive results"""
+
+        passed, p_entail = self._topic_precheck(text)
+        if not passed:
+            return {
+                "ok": False,
+                "error_code": "TOPIC_PRECHECK_FAILED",
+                "error_message": "This text doesn’t appear to be about economic etc. principles, so a Ecomnomic Left-Right score wasn’t computed.",
+                "topic_entailment": p_entail,
+                "topic_threshold": self.topic_threshold,
+            }
+
         probs = self.get_hypothesis_probabilities(text)
 
         left_probs = []
