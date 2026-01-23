@@ -156,6 +156,7 @@ def generate_alternative_scores(text, scorers=None, selected_approaches=None):
                     logger.debug("Running left-right hypothesis scoring...")
                     lr_result = scorers['left_right'].score_left_right(text)
                     alternative_scores['left_right_hypothesis'] = {
+                        'ok': True,
                         'score': round(lr_result.get('score', 5.0), 2),
                         'confidence': round(lr_result.get('confidence', 0.8) * 100, 1),
                         'interpretation': lr_result.get('interpretation', 'Center')
@@ -195,6 +196,7 @@ def generate_alternative_scores(text, scorers=None, selected_approaches=None):
                     logger.debug("Running populism-pluralism hypothesis scoring...")
                     pp_result = scorers['populism_pluralism'].score_populism_pluralism(text)
                     alternative_scores['populism_pluralism_hypothesis'] = {
+                        'ok': True,
                         'score': round(pp_result.get('score', 5.0), 2),
                         'confidence': round(pp_result.get('confidence', 0.8) * 100, 1),
                         'interpretation': pp_result.get('interpretation', 'Moderate')
@@ -211,6 +213,7 @@ def generate_alternative_scores(text, scorers=None, selected_approaches=None):
                     logger.debug("Running left-right response-based scoring...")
                     lr_resp_result = scorers['left_right_responses'].score_left_right(text)
                     alternative_scores['left_right_responses'] = {
+                        'ok': True,
                         'score': round(lr_resp_result.get('score', 5.0), 2),
                         'confidence': round(lr_resp_result.get('confidence', 0.8) * 100, 1),
                         'interpretation': lr_resp_result.get('interpretation', 'Center')
@@ -225,6 +228,7 @@ def generate_alternative_scores(text, scorers=None, selected_approaches=None):
                     logger.debug("Running liberal-illiberal response-based scoring...")
                     li_resp_result = scorers['liberal_illiberal_responses'].score_liberal_illiberal(text)
                     alternative_scores['liberal_illiberal_responses'] = {
+                        'ok': True,
                         'score': round(li_resp_result.get('score', 5.0), 2),
                         'confidence': round(li_resp_result.get('confidence', 0.8) * 100, 1),
                         'interpretation': li_resp_result.get('interpretation', 'Moderate')
@@ -239,6 +243,7 @@ def generate_alternative_scores(text, scorers=None, selected_approaches=None):
                     logger.debug("Running populism-pluralism response-based scoring...")
                     pp_resp_result = scorers['populism_pluralism_responses'].score_populism_pluralism(text)
                     alternative_scores['populism_pluralism_responses'] = {
+                        'ok': True,
                         'score': round(pp_resp_result.get('score', 5.0), 2),
                         'confidence': round(pp_resp_result.get('confidence', 0.8) * 100, 1),
                         'interpretation': pp_resp_result.get('interpretation', 'Moderate')
@@ -324,6 +329,7 @@ def generate_mock_score(dimension_type):
             interpretation = 'Strong Populist'
     
     return {
+        'ok': True,
         'score': score,
         'confidence': confidence,
         'interpretation': interpretation
