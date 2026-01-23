@@ -1,4 +1,4 @@
- {% extends 'base.html' %}
+{% extends 'base.html' %}
 {% load static %}          
 
 {% block title %}Classification Results - Automated Political Stance Identifier{% endblock %}
@@ -165,7 +165,7 @@
     {% endwith %}
   {% else %}
     <div class="alert alert-warning text-start mb-0" role="alert">
-      <strong>Not scored:</strong> {{ li.error_message|default:"Not applicable." }}
+      <strong>Not scored:</strong> {{ li.error_message }}
       {% if li.topic_entailment %}
         <div class="small text-muted mt-2">
           Topic check: {{ li.topic_entailment|floatformat:2 }}
@@ -393,3 +393,4 @@
 </section>
 
 {% endblock %}
+
