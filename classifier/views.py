@@ -1,519 +1,430 @@
-import json
-import logging
-import random
+import pandas as pd
 import numpy as np
-import gc
 import torch
-import psutil
-import time
-from django.shortcuts import render
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_http_methods
-from django.contrib import messages
-from django.conf import settings
-from .forms import TextClassificationForm
-from .inference_service import PoliticalInferenceService
+import torch.nn as nn
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
+from .shared_model_cache import SharedModelCache
+import warnings
+warnings.filterwarnings('ignore')
 
-logger = logging.getLogger(__name__)
+# ============================================================================
+# LEFT-RIGHT ECONOMIC HYPOTHESIS-BASED SCORER
+# ============================================================================
 
-def log_memory_usage(context=""):
-    """Log current memory usage for debugging"""
-    if context:
-        context = f" ({context})"
-    
-    try:
-        process = psutil.Process()
-        memory_info = process.memory_info()
-        memory_mb = memory_info.rss / 1024 / 1024
-        
-        # System memory
-        system_memory = psutil.virtual_memory()
-        system_available_gb = system_memory.available / 1024 / 1024 / 1024
-        system_used_percent = system_memory.percent
-        
-        logger.info(f"Memory{context}: Process={memory_mb:.1f}MB, System={system_used_percent:.1f}% used, {system_available_gb:.1f}GB available")
-        
-        # GPU memory if available
-        if torch.cuda.is_available():
-            gpu_memory = torch.cuda.memory_allocated() / 1024 / 1024
-            gpu_cached = torch.cuda.memory_reserved() / 1024 / 1024
-            logger.info(f"GPU Memory{context}: Allocated={gpu_memory:.1f}MB, Cached={gpu_cached:.1f}MB")
+class LeftRightEconomicScorer:
+    def __init__(self, model_name="mlburnham/Political_DEBATE_large_v1.0"):
+        cache = SharedModelCache()
+        self.model, self.tokenizer = cache.get_model_and_tokenizer(model_name)
+        # Ensure deterministic inference (disable dropout)
+        try:
+            self.model.eval()
+        except Exception:
+            pass
+        self.device = next(self.model.parameters()).device
+
+        # Topic precheck: run BEFORE any hypothesis scoring
+        self.topic_question = (
+            "Does this text discuss political rhetoric, governance approaches, or institutional legitimacy? "
+            "This includes references to populist rhetoric (challenging institutions, emphasizing popular will) "
+            "or pluralist rhetoric (supporting checks and balances, minority rights, compromise)."
+        )
+
+        self.topic_threshold = 0.30
+
+        self.entailment_idx, self.contradiction_idx = self._find_nli_label_indices()
+
+        # Left-Right Economic hypotheses - streamlined to ~15 per side
+        self.left_right_hypotheses = {
+            # Left Economic Positions (15) - More specific and policy-focused
+            "The author of this text believes corporations should pay higher taxes": (1.0, "left"),
+            "The author of this text believes wealthy individuals should pay higher tax rates": (1.0, "left"),
+            "The author of this text believes government should increase spending on healthcare": (1.0, "left"),
+            "The author of this text believes government should increase spending on education": (1.0, "left"),
+            "The author of this text believes unemployment benefits should be expanded": (1.0, "left"),
+            "The author of this text believes government should provide universal healthcare": (1.0, "left"),
+            "The author of this text believes banks and financial institutions should be heavily regulated": (1.0, "left"),
+            "The author of this text believes environmental regulations on business are necessary": (1.0, "left"),
+            "The author of this text believes utilities should be publicly owned": (1.0, "left"),
+            "The author of this text believes government should break up large corporations": (1.0, "left"),
+            "The author of this text believes minimum wage laws should be strengthened": (1.0, "left"),
+            "The author of this text believes unions should have more power": (1.0, "left"),
+            "The author of this text believes government should reduce income inequality": (1.0, "left"),
+            "The author of this text believes public investment creates jobs": (1.0, "left"),
+            "The author of this text believes social safety nets should be expanded": (1.0, "left"),
             
-    except Exception as e:
-        logger.warning(f"Could not log memory usage{context}: {e}")
-
-def cleanup_memory():
-    """Clean up memory after model operations"""
-    gc.collect()
-    if torch.cuda.is_available():
-        torch.cuda.empty_cache()
-
-def get_alternative_scorers(selected_approaches):
-    """Initialize ONLY the selected alternative hypothesis scorers"""
-    from .inference_service import MOCK_MODE
-    
-    if MOCK_MODE:
-        logger.info("Alternative approaches running in MOCK MODE")
-        return None
-    
-    # Only load scorers that are actually selected
-    scorers = {}
-    
-    try:
-        # Load hypothesis-based scorers only if selected
-        if (selected_approaches.get('left_right_hypothesis') or 
-            selected_approaches.get('liberal_illiberal_hypothesis') or 
-            selected_approaches.get('populism_hypothesis')):
-            
-            logger.info("Loading hypothesis-based scorers...")
-            from . import alternative
-            from . import alternativeLib  
-            from . import alternativePop
-            
-            if selected_approaches.get('left_right_hypothesis'):
-                scorers['left_right'] = alternative.LeftRightEconomicScorer()
-                logger.info("âœ“ Left-Right hypothesis scorer loaded")
-                
-            if selected_approaches.get('liberal_illiberal_hypothesis'):
-                scorers['liberal_illiberal'] = alternativeLib.LiberalIlliberalScorer()
-                logger.info("âœ“ Liberal-Illiberal hypothesis scorer loaded")
-                
-            if selected_approaches.get('populism_hypothesis'):
-                scorers['populism_pluralism'] = alternativePop.PopulismPluralismScorer()
-                logger.info("âœ“ Populism-Pluralism hypothesis scorer loaded")
-        
-        # Load response-based scorers only if selected
-        if (selected_approaches.get('left_right_responses') or 
-            selected_approaches.get('liberal_illiberal_responses') or 
-            selected_approaches.get('populism_responses')):
-            
-            logger.info("Loading response-based scorers...")
-            from . import libillibwresponses as lib_responses
-            from . import rilewresponses as lr_responses  
-            from . import popnonpopwresponses as pop_responses
-            
-            if selected_approaches.get('left_right_responses'):
-                scorers['left_right_responses'] = lr_responses.LeftRightResponsesScorer()
-                logger.info("âœ“ Left-Right responses scorer loaded")
-                
-            if selected_approaches.get('liberal_illiberal_responses'):
-                scorers['liberal_illiberal_responses'] = lib_responses.LiberalIlliberalResponsesScorer()
-                logger.info("âœ“ Liberal-Illiberal responses scorer loaded")
-                
-            if selected_approaches.get('populism_responses'):
-                scorers['populism_pluralism_responses'] = pop_responses.PopulismPluralismResponsesScorer()
-                logger.info("âœ“ Populism-Pluralism responses scorer loaded")
-        
-        log_memory_usage("after loading scorers")
-        return scorers
-        
-    except Exception as e:
-        logger.error(f"Error loading alternative scorers: {e}")
-        return None
-
-def generate_alternative_scores(text, scorers=None, selected_approaches=None):
-    """Generate ONLY the selected alternative hypothesis scores"""
-    from .inference_service import MOCK_MODE
-    
-    if not getattr(settings, 'ENABLE_ALTERNATIVE_SCORES', False):
-        logger.debug("Alternative scores disabled in settings")
-        return None
-    
-    if not selected_approaches:
-        logger.debug("No alternative approaches selected")
-        return None
-    
-    alternative_scores = {}
-    
-    try:
-        if scorers and not MOCK_MODE:
-            logger.info(f"Running selected alternative approaches: {list(selected_approaches.keys())}")
-            
-            # === HYPOTHESIS-BASED MODELS (only if selected) ===
-            
-            if selected_approaches.get('left_right_hypothesis') and 'left_right' in scorers:
-                try:
-                    logger.debug("Running left-right hypothesis scoring...")
-                    lr_result = scorers['left_right'].score_left_right(text)
-
-                    # If the scorer implements a topic precheck, pass through the result so the template
-                    # can show a clear error state instead of a misleading numeric score.
-                    passed_precheck = lr_result.get('passed_precheck', True)
-
-                    alternative_scores['left_right_hypothesis'] = {
-                        'passed_precheck': passed_precheck,
-                        'precheck_score': round(lr_result.get('precheck_score', 0.0), 3) if not passed_precheck else round(lr_result.get('precheck_score', 0.0), 3),
-                        'precheck_threshold': lr_result.get('precheck_threshold', None),
-                        'error': lr_result.get('error', None),
-                    }
-
-                    if passed_precheck:
-                        alternative_scores['left_right_hypothesis'].update({
-                            'score': round(lr_result.get('score', 5.0), 2),
-                            'confidence': round(lr_result.get('confidence', 0.8) * 100, 1),
-                            'interpretation': lr_result.get('interpretation', 'Center'),
-                        })
-                    logger.debug(f"âœ“ Left-right hypothesis: {lr_result.get('score', 'N/A'):.2f}")
-                except Exception as e:
-                    logger.error(f"Left-Right hypothesis scoring failed: {e}")
-                    alternative_scores['left_right_hypothesis'] = generate_mock_score('left_right')
-            
-            if selected_approaches.get('liberal_illiberal_hypothesis') and 'liberal_illiberal' in scorers:
-                try:
-                    logger.debug("Running liberal-illiberal hypothesis scoring...")
-                    li_result = scorers['liberal_illiberal'].score_liberal_illiberal(text)
-
-                    passed_precheck = li_result.get('passed_precheck', True)
-
-                    alternative_scores['liberal_illiberal_hypothesis'] = {
-                        'passed_precheck': passed_precheck,
-                        'precheck_score': round(li_result.get('precheck_score', 0.0), 3) if not passed_precheck else round(li_result.get('precheck_score', 0.0), 3),
-                        'precheck_threshold': li_result.get('precheck_threshold', None),
-                        'error': li_result.get('error', None),
-                    }
-
-                    if passed_precheck:
-                        alternative_scores['liberal_illiberal_hypothesis'].update({
-                            'score': round(li_result.get('score', 5.0), 2),
-                            'confidence': round(li_result.get('confidence', 0.8) * 100, 1),
-                            'interpretation': li_result.get('interpretation', 'Moderate'),
-                        })
-                    logger.debug(f"âœ“ Liberal-illiberal hypothesis: {li_result.get('score', 'N/A'):.2f}")
-                except Exception as e:
-                    logger.error(f"Liberal-Illiberal hypothesis scoring failed: {e}")
-                    alternative_scores['liberal_illiberal_hypothesis'] = generate_mock_score('liberal_illiberal')
-            
-            if selected_approaches.get('populism_hypothesis') and 'populism_pluralism' in scorers:
-                try:
-                    logger.debug("Running populism-pluralism hypothesis scoring...")
-                    pp_result = scorers['populism_pluralism'].score_populism_pluralism(text)
-
-                    passed_precheck = pp_result.get('passed_precheck', True)
-
-                    alternative_scores['populism_pluralism_hypothesis'] = {
-                        'passed_precheck': passed_precheck,
-                        'precheck_score': round(pp_result.get('precheck_score', 0.0), 3) if not passed_precheck else round(pp_result.get('precheck_score', 0.0), 3),
-                        'precheck_threshold': pp_result.get('precheck_threshold', None),
-                        'error': pp_result.get('error', None),
-                    }
-
-                    if passed_precheck:
-                        alternative_scores['populism_pluralism_hypothesis'].update({
-                            'score': round(pp_result.get('score', 5.0), 2),
-                            'confidence': round(pp_result.get('confidence', 0.8) * 100, 1),
-                            'interpretation': pp_result.get('interpretation', 'Moderate'),
-                        })
-                    logger.debug(f"âœ“ Populism-pluralism hypothesis: {pp_result.get('score', 'N/A'):.2f}")
-                except Exception as e:
-                    logger.error(f"Populism-Pluralism hypothesis scoring failed: {e}")
-                    alternative_scores['populism_pluralism_hypothesis'] = generate_mock_score('populism_pluralism')
-            
-            # === RESPONSE-BASED MODELS (only if selected) ===
-            
-            if selected_approaches.get('left_right_responses') and 'left_right_responses' in scorers:
-                try:
-                    logger.debug("Running left-right response-based scoring...")
-                    lr_resp_result = scorers['left_right_responses'].score_left_right(text)
-                    alternative_scores['left_right_responses'] = {
-                        'score': round(lr_resp_result.get('score', 5.0), 2),
-                        'confidence': round(lr_resp_result.get('confidence', 0.8) * 100, 1),
-                        'interpretation': lr_resp_result.get('interpretation', 'Center')
-                    }
-                    logger.debug(f"âœ“ Left-right responses: {lr_resp_result.get('score', 'N/A'):.2f}")
-                except Exception as e:
-                    logger.error(f"Left-Right response-based scoring failed: {e}")
-                    alternative_scores['left_right_responses'] = generate_mock_score('left_right')
-            
-            if selected_approaches.get('liberal_illiberal_responses') and 'liberal_illiberal_responses' in scorers:
-                try:
-                    logger.debug("Running liberal-illiberal response-based scoring...")
-                    li_resp_result = scorers['liberal_illiberal_responses'].score_liberal_illiberal(text)
-                    alternative_scores['liberal_illiberal_responses'] = {
-                        'score': round(li_resp_result.get('score', 5.0), 2),
-                        'confidence': round(li_resp_result.get('confidence', 0.8) * 100, 1),
-                        'interpretation': li_resp_result.get('interpretation', 'Moderate')
-                    }
-                    logger.debug(f"âœ“ Liberal-illiberal responses: {li_resp_result.get('score', 'N/A'):.2f}")
-                except Exception as e:
-                    logger.error(f"Liberal-Illiberal response-based scoring failed: {e}")
-                    alternative_scores['liberal_illiberal_responses'] = generate_mock_score('liberal_illiberal')
-            
-            if selected_approaches.get('populism_responses') and 'populism_pluralism_responses' in scorers:
-                try:
-                    logger.debug("Running populism-pluralism response-based scoring...")
-                    pp_resp_result = scorers['populism_pluralism_responses'].score_populism_pluralism(text)
-                    alternative_scores['populism_pluralism_responses'] = {
-                        'score': round(pp_resp_result.get('score', 5.0), 2),
-                        'confidence': round(pp_resp_result.get('confidence', 0.8) * 100, 1),
-                        'interpretation': pp_resp_result.get('interpretation', 'Moderate')
-                    }
-                    logger.debug(f"âœ“ Populism-pluralism responses: {pp_resp_result.get('score', 'N/A'):.2f}")
-                except Exception as e:
-                    logger.error(f"Populism-Pluralism response-based scoring failed: {e}")
-                    alternative_scores['populism_pluralism_responses'] = generate_mock_score('populism_pluralism')
-        else:
-            # Generate mock data only for selected approaches
-            if MOCK_MODE:
-                logger.info("Using mock alternative scores (MOCK_MODE = True)")
-            else:
-                logger.warning("Using mock alternative scores (real scorers not available)")
-            
-            if selected_approaches.get('left_right_hypothesis'):
-                alternative_scores['left_right_hypothesis'] = generate_mock_score('left_right')
-            if selected_approaches.get('liberal_illiberal_hypothesis'):
-                alternative_scores['liberal_illiberal_hypothesis'] = generate_mock_score('liberal_illiberal')
-            if selected_approaches.get('populism_hypothesis'):
-                alternative_scores['populism_pluralism_hypothesis'] = generate_mock_score('populism_pluralism')
-            if selected_approaches.get('left_right_responses'):
-                alternative_scores['left_right_responses'] = generate_mock_score('left_right')
-            if selected_approaches.get('liberal_illiberal_responses'):
-                alternative_scores['liberal_illiberal_responses'] = generate_mock_score('liberal_illiberal')
-            if selected_approaches.get('populism_responses'):
-                alternative_scores['populism_pluralism_responses'] = generate_mock_score('populism_pluralism')
-            
-            logger.debug(f"Generated mock scores for selected approaches: {list(alternative_scores.keys())}")
-            
-    except Exception as e:
-        logger.error(f"Alternative scoring error: {e}")
-        # Emergency fallback - only mock the selected approaches
-        alternative_scores = {}
-        for approach, selected in selected_approaches.items():
-            if selected:
-                if 'left_right' in approach:
-                    alternative_scores[approach] = generate_mock_score('left_right')
-                elif 'liberal_illiberal' in approach:
-                    alternative_scores[approach] = generate_mock_score('liberal_illiberal')
-                elif 'populism' in approach:
-                    alternative_scores[approach] = generate_mock_score('populism_pluralism')
-    
-    return alternative_scores
-
-def generate_mock_score(dimension_type):
-    """Generate a single mock score for a dimension"""
-    score = round(random.uniform(0, 10), 2)
-    confidence = round(random.uniform(60, 95), 1)  # Already as percentage
-    
-    if dimension_type == 'left_right':
-        if score < 3:
-            interpretation = 'Strong Left'
-        elif score < 4.5:
-            interpretation = 'Left'
-        elif score < 5.5:
-            interpretation = 'Center'
-        elif score < 7:
-            interpretation = 'Right'
-        else:
-            interpretation = 'Strong Right'
-    elif dimension_type == 'liberal_illiberal':
-        if score < 3:
-            interpretation = 'Strong Illiberal'
-        elif score < 4.5:
-            interpretation = 'Illiberal'
-        elif score < 5.5:
-            interpretation = 'Moderate'
-        elif score < 7:
-            interpretation = 'Liberal'
-        else:
-            interpretation = 'Strong Liberal'
-    else:  # populism_pluralism
-        if score < 3:
-            interpretation = 'Strong Pluralist'
-        elif score < 4.5:
-            interpretation = 'Pluralist'
-        elif score < 5.5:
-            interpretation = 'Moderate'
-        elif score < 7:
-            interpretation = 'Populist'
-        else:
-            interpretation = 'Strong Populist'
-    
-    return {
-        'score': score,
-        'confidence': confidence,
-        'interpretation': interpretation
-    }
-
-def index(request):
-    """Main page with classification form."""
-    form = TextClassificationForm()
-    return render(request, 'classifier/index.html', {'form': form})
-
-def classify_text(request):
-    """Handle form submission and show results - FIXED approach selection logic"""
-    start_time = time.time()
-    log_memory_usage("start of request")
-    
-    if request.method == 'POST':
-        form = TextClassificationForm(request.POST)
-        if form.is_valid():
-            text = form.cleaned_data['text']
-            
-            # Extract selected approaches FIRST
-            selected_approaches = {
-                # Direct regression approaches
-                'left_right_direct': form.cleaned_data.get('left_right_direct', False),
-                'liberal_illiberal_direct': form.cleaned_data.get('liberal_illiberal_direct', False),
-                'populism_direct': form.cleaned_data.get('populism_direct', False),
-                
-                # Hypothesis-based approaches
-                'left_right_hypothesis': form.cleaned_data.get('left_right_hypothesis', False),
-                'liberal_illiberal_hypothesis': form.cleaned_data.get('liberal_illiberal_hypothesis', False),
-                'populism_hypothesis': form.cleaned_data.get('populism_hypothesis', False),
-                
-                # Response-based approaches
-                'left_right_responses': form.cleaned_data.get('left_right_responses', False),
-                'liberal_illiberal_responses': form.cleaned_data.get('liberal_illiberal_responses', False),
-                'populism_responses': form.cleaned_data.get('populism_responses', False),
-            }
-            
-            logger.info(f"Selected approaches: {[k for k, v in selected_approaches.items() if v]}")
-            
-            try:
-                results = {}
-                coordinates = {'x': None, 'y': None, 'z': None, 'labels': {}, 'errors': []}
-
-                # Check if any direct regression is selected
-                direct_selected = (
-                    selected_approaches.get('left_right_direct') or 
-                    selected_approaches.get('liberal_illiberal_direct') or 
-                    selected_approaches.get('populism_direct')
-                )
-                
-                if direct_selected:
-                    logger.info("Running direct regression models...")
-                    # Skip pre-check since we already did it above
-                    results = inference_service.predict_all(text, None)
-                    coordinates = inference_service.get_3d_coordinates(text, None)
-                    log_memory_usage("after direct regression")
-                else:
-                    logger.info("Skipping direct regression models (not selected)")
-                
-                # Only run alternative approaches if any are selected
-                alternative_scores = None
-                alternative_approaches_selected = any([
-                    selected_approaches.get('left_right_hypothesis'),
-                    selected_approaches.get('liberal_illiberal_hypothesis'),
-                    selected_approaches.get('populism_hypothesis'),
-                    selected_approaches.get('left_right_responses'),
-                    selected_approaches.get('liberal_illiberal_responses'),
-                    selected_approaches.get('populism_responses'),
-                ])
-                
-                if alternative_approaches_selected:
-                    logger.info("Loading and running selected alternative approaches...")
-                    alternative_scorers = get_alternative_scorers(selected_approaches)
-                    alternative_scores = generate_alternative_scores(text, alternative_scorers, selected_approaches)
-                    log_memory_usage("after alternative approaches")
-                else:
-                    logger.info("Skipping alternative approaches (none selected)")
-                
-                # Clean up memory after heavy operations
-                cleanup_memory()
-                log_memory_usage("after cleanup")
-                
-                context_data = {
-                    'form': form,
-                    'results': results,
-                    'coordinates': coordinates,
-                    'input_text': text,
-                    'coordinates_json': json.dumps(coordinates),
-                    'alternative_scores': alternative_scores,
-                    'selected_approaches': selected_approaches
-                }
-                
-                processing_time = time.time() - start_time
-                logger.info(f"Request completed in {processing_time:.2f} seconds")
-                
-                return render(request, 'classifier/results.html', context_data)
-                
-            except Exception as e:
-                processing_time = time.time() - start_time
-                log_memory_usage("after error")
-                logger.error(f"Classification error after {processing_time:.2f}s: {str(e)}")
-                logger.error(f"Error type: {type(e).__name__}")
-                import traceback
-                logger.error(f"Full traceback: {traceback.format_exc()}")
-                
-                messages.error(request, f"An error occurred during classification: {str(e)}")
-                return render(request, 'classifier/index.html', {'form': form})
-        else:
-            logger.warning(f"Form validation failed: {form.errors}")
-            return render(request, 'classifier/index.html', {'form': form})
-    else:
-        return index(request)
-
-
-def privacy_notice(request):
-    return render(request, 'classifier/privacynotice.html')
-
-def imprint(request):
-    return render(request, 'classifier/imprint.html')
-
-def contact(request):
-    return render(request, 'classifier/contact.html')
-
-@csrf_exempt
-@require_http_methods(["POST"])
-def api_classify(request):
-    """API endpoint for classification with enhanced debugging"""
-    start_time = time.time()
-    log_memory_usage("API start")
-    
-    try:
-        data = json.loads(request.body)
-        text = data.get('text', '').strip()
-        
-        if not text:
-            return JsonResponse({'error': 'Text is required'}, status=400)
-        
-        if len(text) > 2000:
-            return JsonResponse({'error': 'Text too long (max 2000 characters)'}, status=400)
-        
-        # For API, use all approaches by default (can be made configurable)
-        selected_approaches = {
-            'left_right_direct': True,
-            'liberal_illiberal_direct': True,
-            'populism_direct': True,
-            'left_right_hypothesis': True,
-            'liberal_illiberal_hypothesis': True,
-            'populism_hypothesis': True,
-            'left_right_responses': True,
-            'liberal_illiberal_responses': True,
-            'populism_responses': True,
+            # Right Economic Positions (15) - More specific and policy-focused  
+            "The author of this text believes corporate tax rates should be lowered": (1.0, "right"),
+            "The author of this text believes income taxes should be reduced": (1.0, "right"),
+            "The author of this text believes government spending on social programs should be cut": (1.0, "right"),
+            "The author of this text believes welfare programs should be reduced": (1.0, "right"),
+            "The author of this text believes healthcare should be privatized": (1.0, "right"),
+            "The author of this text believes education should be privatized": (1.0, "right"),
+            "The author of this text believes financial regulations should be eliminated": (1.0, "right"),
+            "The author of this text believes environmental regulations hurt business competitiveness": (1.0, "right"),
+            "The author of this text believes government services should be privatized": (1.0, "right"),
+            "The author of this text believes large corporations drive economic growth": (1.0, "right"),
+            "The author of this text believes minimum wage laws hurt employment": (1.0, "right"),
+            "The author of this text believes unions hurt economic competitiveness": (1.0, "right"),
+            "The author of this text believes income inequality reflects merit and effort": (1.0, "right"),
+            "The author of this text believes private investment is more efficient than public": (1.0, "right"),
+            "The author of this text believes social programs create dependency": (1.0, "right"),
         }
-        
-        # Get inference service
-        inference_service = PoliticalInferenceService.get_instance()
-        
-        # Run predictions
-        results = inference_service.predict_all(text, None)
 
-        coordinates = inference_service.get_3d_coordinates(text, None)
+
+        left_count = sum(1 for _, (_, direction) in self.left_right_hypotheses.items() if direction == "left")
+        right_count = sum(1 for _, (_, direction) in self.left_right_hypotheses.items() if direction == "right")
+        print(f"Loaded {len(self.left_right_hypotheses)} hypotheses ({left_count} left, {right_count} right)")
+
+    def _find_nli_label_indices(self):
+        """Return (entailment_idx, contradiction_idx) for NLI-style classifiers.
+
+        Many HF checkpoints expose id2label/label2id with keys like 'ENTAILMENT'/'CONTRADICTION'
+        or generic 'LABEL_0/1/2'. If we cannot infer labels, fall back to common MNLI ordering.
+        """
+        config = getattr(self.model, "config", None)
+        num_labels = getattr(config, "num_labels", None)
+
+        # Try config mappings first
+        label2id = getattr(config, "label2id", None) or {}
+        id2label = getattr(config, "id2label", None) or {}
+
+        def norm(s: str) -> str:
+            return (s or "").strip().lower()
+
+        entailment_idx = None
+        contradiction_idx = None
+
+        # From label2id
+        for label, idx in label2id.items():
+            l = norm(label)
+            if "entail" in l:
+                entailment_idx = idx
+            if "contrad" in l:
+                contradiction_idx = idx
+
+        # From id2label if needed
+        if entailment_idx is None or contradiction_idx is None:
+            for idx, label in id2label.items():
+                l = norm(label)
+                if entailment_idx is None and "entail" in l:
+                    entailment_idx = int(idx)
+                if contradiction_idx is None and "contrad" in l:
+                    contradiction_idx = int(idx)
+
+        # Heuristic fallbacks
+        if entailment_idx is None or contradiction_idx is None:
+            # Typical 3-way NLI head: 0=contradiction,1=neutral,2=entailment
+            if num_labels == 3:
+                contradiction_idx = 0 if contradiction_idx is None else contradiction_idx
+                entailment_idx = 2 if entailment_idx is None else entailment_idx
+            # Typical binary head: 0=contradiction/negative, 1=entailment/positive
+            elif num_labels == 2:
+                contradiction_idx = 0 if contradiction_idx is None else contradiction_idx
+                entailment_idx = 1 if entailment_idx is None else entailment_idx
+            else:
+                # Last-resort: assume entailment is the last logit
+                entailment_idx = int(num_labels - 1) if (num_labels and entailment_idx is None) else (entailment_idx or 0)
+                contradiction_idx = 0 if contradiction_idx is None else contradiction_idx
+
+        return int(entailment_idx), int(contradiction_idx)
+
+    def topic_precheck(self, text: str):
+        """Gate: return whether text is in-scope for political/governance rhetoric BEFORE scoring hypotheses."""
+        # Short-circuit empty/very short inputs (prevents noisy, inconsistent scores)
+        if not text or len(text.strip()) < 25:
+            return {
+                "passed": False,
+                "score": 0.0,
+                "threshold": self.topic_threshold,
+                "question": self.topic_question,
+            }
+
+        inputs = self.tokenizer(
+            text,
+            self.topic_question,
+            return_tensors="pt",
+            truncation=True,
+            max_length=512
+        )
+        # Move to same device as model
+        inputs = {k: v.to(self.device) for k, v in inputs.items()}
+
+        with torch.no_grad():
+            outputs = self.model(**inputs)
+            probs = torch.softmax(outputs.logits, dim=-1)[0]
+
+        entail = float(probs[self.entailment_idx].item())
+        passed = entail >= float(self.topic_threshold)
+
+        return {
+            "passed": passed,
+            "score": entail,
+            "threshold": float(self.topic_threshold),
+            "question": self.topic_question,
+        }
+
+    def get_hypothesis_probabilities(self, text):
+        """Get probabilities for all left-right hypotheses"""
+        probs = []
+        for hypothesis in self.left_right_hypotheses.keys():
+            inputs = self.tokenizer(
+                text, hypothesis,
+                return_tensors="pt",
+                truncation=True,
+                max_length=512
+            )
+
+            with torch.no_grad():
+                outputs = self.model(**inputs)
+                prob = torch.softmax(outputs.logits, dim=-1)[0, self.entailment_idx].item()
+                probs.append(prob)
+
+        return np.array(probs)
+
+    def compute_combined_confidence(self, left_probs, right_probs, all_probs):
+        """Simplified confidence with Top-K contradiction detection only"""
         
-        # Generate alternative scores
-        alternative_scorers = get_alternative_scorers(selected_approaches)
-        alternative_scores = generate_alternative_scores(text, alternative_scorers, selected_approaches)
+        # Basic confidence from variance (lower variance = higher confidence)
+        left_variance = np.var(left_probs) if len(left_probs) > 1 else 0
+        right_variance = np.var(right_probs) if len(right_probs) > 1 else 0
         
-        cleanup_memory()
-        processing_time = time.time() - start_time
-        logger.info(f"API request completed in {processing_time:.2f} seconds")
+        left_confidence = 1 / (1 + left_variance * 4)
+        right_confidence = 1 / (1 + right_variance * 4)
+        base_confidence = 0.7 * min(left_confidence, right_confidence) + 0.3 * (left_confidence + right_confidence) / 2
         
-        return JsonResponse({
-            'results': results,
-            'coordinates': coordinates,
-            'input_text': text,
-            'alternative_scores': alternative_scores,
-            'selected_approaches': selected_approaches,
-            'processing_time': round(processing_time, 2)
-        })
+        # Top-K contradiction detection (only method we use)
+        k = 5
+        top_left = np.sort(left_probs)[-k:] if len(left_probs) >= k else left_probs
+        top_right = np.sort(right_probs)[-k:] if len(right_probs) >= k else right_probs
         
-    except json.JSONDecodeError:
-        return JsonResponse({'error': 'Invalid JSON'}, status=400)
-    except Exception as e:
-        processing_time = time.time() - start_time
-        log_memory_usage("API error")
-        logger.error(f"API Classification error after {processing_time:.2f}s: {str(e)}")
-        import traceback
-        logger.error(f"API Full traceback: {traceback.format_exc()}")
-        return JsonResponse({'error': str(e)}, status=500)
+        top_left_avg = np.mean(top_left)
+        top_right_avg = np.mean(top_right)
+        
+        # Simple contradiction detection: both top-5 averages must be > 0.25
+        topk_contradiction = min(top_left_avg, top_right_avg)
+        contradiction_detected = topk_contradiction > 0.25
+        
+        # Apply penalty if contradiction detected
+        if contradiction_detected:
+            contradiction_penalty = min(1.0, topk_contradiction * 2.0)
+            final_confidence = base_confidence * (1 - contradiction_penalty * 0.8)
+        else:
+            final_confidence = base_confidence
+        
+        return {
+            'combined': final_confidence,
+            'contradiction_detected': contradiction_detected,
+            'contradiction_score': topk_contradiction if contradiction_detected else 0,
+            'top_left_avg': top_left_avg,
+            'top_right_avg': top_right_avg
+        }
+
+    def score_left_right(self, text):
+        """Score text and return comprehensive results"""
+        # 1) Topic precheck FIRST — do not run hypothesis inference if out of scope
+        pre = self.topic_precheck(text)
+        if not pre.get('passed', False):
+            return {
+            'text': text,
+            'passed_precheck': True,
+            'precheck_score': float(pre.get('score', 0.0)),
+            'precheck_threshold': float(pre.get('threshold', self.topic_threshold)),
+                'passed_precheck': False,
+                'precheck_score': float(pre.get('score', 0.0)),
+                'precheck_threshold': float(pre.get('threshold', self.topic_threshold)),
+                'error': 'Text did not pass the political/governance topic precheck.',
+            }
+
+        # 2) Only after passing, run the hypothesis inference
+        probs = self.get_hypothesis_probabilities(text)
+
+        left_probs = []
+        right_probs = []
+        hypothesis_results = []
+        
+        # Process each hypothesis
+        for i, (hypothesis, (weight, direction)) in enumerate(self.left_right_hypotheses.items()):
+            prob = probs[i]
+            
+            hypothesis_results.append({
+                'hypothesis': hypothesis,
+                'probability': prob,
+                'direction': direction
+            })
+            
+            if direction == "left":
+                left_probs.append(prob * weight)
+            else:
+                right_probs.append(prob * weight)
+
+        # Calculate averages and score
+        left_avg = np.mean(left_probs) if left_probs else 0
+        right_avg = np.mean(right_probs) if right_probs else 0
+        
+        difference = left_avg - right_avg
+        final_score = 5 - (difference * 5)  # Flipped: left = low numbers, right = high numbers
+        final_score = np.clip(final_score, 0, 10)
+
+        # Compute confidence
+        confidence_data = self.compute_combined_confidence(
+            [p/1.0 for p in left_probs],  # Unweight for confidence calc
+            [p/1.0 for p in right_probs],
+            probs
+        )
+
+        # Get top hypotheses from each direction
+        left_hyps = [h for h in hypothesis_results if h['direction'] == 'left']
+        right_hyps = [h for h in hypothesis_results if h['direction'] == 'right']
+        
+        top_left = sorted(left_hyps, key=lambda x: x['probability'], reverse=True)[:5]
+        top_right = sorted(right_hyps, key=lambda x: x['probability'], reverse=True)[:5]
+
+        # Interpret score (0-10 scale: 0=Far Left, 5=Center, 10=Far Right)
+        if final_score < 2:
+            interpretation = "Far Left"
+        elif final_score < 4:
+            interpretation = "Left"
+        elif final_score < 6:
+            interpretation = "Center"
+        elif final_score < 8:
+            interpretation = "Right"
+        else:
+            interpretation = "Far Right"
+
+        return {
+            'text': text,
+            'score': final_score,
+            'confidence': confidence_data['combined'],
+            'contradiction_detected': confidence_data['contradiction_detected'],
+            'interpretation': interpretation,
+            'left_avg': left_avg,
+            'right_avg': right_avg,
+            'top_left_hypotheses': top_left,
+            'top_right_hypotheses': top_right
+        }
+
+    def quick_score(self, text):
+        """Ultra-simple interface - just returns the numerical score"""
+        result = self.score_left_right(text)
+        return result['score']
+
+# ============================================================================
+# INTERACTIVE ANALYSIS FUNCTIONS
+# ============================================================================
+
+def analyze_text(scorer, text):
+    """Analyze a single text and display clean results"""
+    result = scorer.score_left_right(text)
+    
+    print(f"\n{'='*80}")
+    print(f"TEXT: {text}")
+    print(f"{'='*80}")
+    
+    print(f"\n📊 RESULTS:")
+    print(f"   LeftAvg: {result['left_avg']:.2f}")
+    print(f"   RightAvg: {result['right_avg']:.2f}")
+    print(f"   Score: {result['score']:.2f}/10 (0=Far Left, 10=Far Right)")
+    print(f"   Confidence: {result['confidence']:.3f}")
+    print(f"   Contradiction: {'YES' if result['contradiction_detected'] else 'NO'}")
+    print(f"   Interpretation: {result['interpretation']}")
+    
+    print(f"\n🔍 TOP LEFT HYPOTHESES:")
+    for i, hyp in enumerate(result['top_left_hypotheses']):
+        short_hyp = hyp['hypothesis'][:100] + "..." if len(hyp['hypothesis']) > 100 else hyp['hypothesis']
+        print(f"   {i}. {hyp['probability']:.3f} - {short_hyp}")
+    
+    print(f"\n🔍 TOP RIGHT HYPOTHESES:")
+    for i, hyp in enumerate(result['top_right_hypotheses']):
+        short_hyp = hyp['hypothesis'][:100] + "..." if len(hyp['hypothesis']) > 100 else hyp['hypothesis']
+        print(f"   {i}. {hyp['probability']:.3f} - {short_hyp}")
+    
+    return result
+
+def analyze_batch(scorer, texts):
+    """Analyze multiple texts and display summary table"""
+    print(f"\n{'='*120}")
+    print("BATCH ANALYSIS RESULTS")
+    print(f"{'='*120}")
+    
+    print(f"{'Text':<70} {'Score':<7} {'Conf':<7} {'Contr':<6} {'Interpretation'}")
+    print("-" * 120)
+    
+    results = []
+    for text in texts:
+        result = scorer.score_left_right(text)
+        text_display = text[:67] + "..." if len(text) > 70 else text
+        contradiction_status = "YES" if result['contradiction_detected'] else "NO"
+        
+        print(f"{text_display:<70} {result['score']:<7.2f} {result['confidence']:<7.3f} {contradiction_status:<6} {result['interpretation']}")
+        results.append(result)
+    
+    # Summary statistics
+    scores = [r['score'] for r in results]
+    confidences = [r['confidence'] for r in results]
+    contradictions = sum(1 for r in results if r['contradiction_detected'])
+    
+    print(f"\n📊 SUMMARY:")
+    print(f"   Score Range: {min(scores):.2f} - {max(scores):.2f}")
+    print(f"   Mean Score: {np.mean(scores):.2f}")
+    print(f"   Mean Confidence: {np.mean(confidences):.3f}")
+    print(f"   Contradictions: {contradictions}/{len(results)} ({contradictions/len(results)*100:.1f}%)")
+    
+    return results
+
+def interactive_mode(scorer):
+    """Interactive mode for testing individual texts"""
+    print(f"\n{'='*60}")
+    print("INTERACTIVE LEFT-RIGHT ECONOMIC SCORER")
+    print(f"{'='*60}")
+    print("Enter text to analyze (or 'quit' to exit)")
+    print("Commands: 'batch' for multiple texts, 'help' for guidance")
+    print("Scale: 0 = Far Left, 5 = Center, 10 = Far Right")
+    
+    while True:
+        text = input("\n> ").strip()
+        
+        if text.lower() in ['quit', 'exit', 'q']:
+            break
+        elif text.lower() == 'help':
+            print("\nCommands:")
+            print("- Enter any economic policy text to get left-right score")
+            print("- 'batch' - analyze multiple predefined test texts")
+            print("- 'quit' - exit the program")
+            print("\nScoring:")
+            print("- 0-2: Far Left (extensive government role, wealth redistribution)")
+            print("- 2-4: Left (active government, social programs)")
+            print("- 4-6: Center (mixed economy)")
+            print("- 6-8: Right (limited government role, pro-business)")
+            print("- 8-10: Far Right (minimal government, maximum market freedom)")
+            continue
+        elif text.lower() == 'batch':
+            test_texts = [
+                "We need to cut taxes and reduce government spending to boost economic growth.",
+                "The government should provide universal healthcare and free education for all.",
+                "Private companies are more efficient than government-run services.",
+                "Wealth inequality requires higher taxes on the rich and stronger social programs.",
+                "Deregulation will unleash business innovation and create jobs.",
+                "We must strengthen worker protections and raise the minimum wage.",
+                "Free markets allocate resources better than government planning.",
+                "Essential services like healthcare should be publicly owned and funded."
+            ]
+            analyze_batch(scorer, test_texts)
+            continue
+        elif not text:
+            continue
+        
+        try:
+            analyze_text(scorer, text)
+        except Exception as e:
+            print(f"Error analyzing text: {e}")
+
+# ============================================================================
+# MAIN EXECUTION
+# ============================================================================
+
+if __name__ == "__main__":
+    # Initialize scorer
+    scorer = LeftRightEconomicScorer()
+    
+    # Run interactive mode
+    interactive_mode(scorer)
