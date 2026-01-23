@@ -73,15 +73,15 @@ def get_alternative_scorers(selected_approaches):
             
             if selected_approaches.get('left_right_hypothesis'):
                 scorers['left_right'] = alternative.LeftRightEconomicScorer()
-                logger.info("✓ Left-Right hypothesis scorer loaded")
+                logger.info("âœ“ Left-Right hypothesis scorer loaded")
                 
             if selected_approaches.get('liberal_illiberal_hypothesis'):
                 scorers['liberal_illiberal'] = alternativeLib.LiberalIlliberalScorer()
-                logger.info("✓ Liberal-Illiberal hypothesis scorer loaded")
+                logger.info("âœ“ Liberal-Illiberal hypothesis scorer loaded")
                 
             if selected_approaches.get('populism_hypothesis'):
                 scorers['populism_pluralism'] = alternativePop.PopulismPluralismScorer()
-                logger.info("✓ Populism-Pluralism hypothesis scorer loaded")
+                logger.info("âœ“ Populism-Pluralism hypothesis scorer loaded")
         
         # Load response-based scorers only if selected
         if (selected_approaches.get('left_right_responses') or 
@@ -95,15 +95,15 @@ def get_alternative_scorers(selected_approaches):
             
             if selected_approaches.get('left_right_responses'):
                 scorers['left_right_responses'] = lr_responses.LeftRightResponsesScorer()
-                logger.info("✓ Left-Right responses scorer loaded")
+                logger.info("âœ“ Left-Right responses scorer loaded")
                 
             if selected_approaches.get('liberal_illiberal_responses'):
                 scorers['liberal_illiberal_responses'] = lib_responses.LiberalIlliberalResponsesScorer()
-                logger.info("✓ Liberal-Illiberal responses scorer loaded")
+                logger.info("âœ“ Liberal-Illiberal responses scorer loaded")
                 
             if selected_approaches.get('populism_responses'):
                 scorers['populism_pluralism_responses'] = pop_responses.PopulismPluralismResponsesScorer()
-                logger.info("✓ Populism-Pluralism responses scorer loaded")
+                logger.info("âœ“ Populism-Pluralism responses scorer loaded")
         
         log_memory_usage("after loading scorers")
         return scorers
@@ -141,7 +141,7 @@ def generate_alternative_scores(text, scorers=None, selected_approaches=None):
                         'confidence': round(lr_result.get('confidence', 0.8) * 100, 1),
                         'interpretation': lr_result.get('interpretation', 'Center')
                     }
-                    logger.debug(f"✓ Left-right hypothesis: {lr_result.get('score', 'N/A'):.2f}")
+                    logger.debug(f"âœ“ Left-right hypothesis: {lr_result.get('score', 'N/A'):.2f}")
                 except Exception as e:
                     logger.error(f"Left-Right hypothesis scoring failed: {e}")
                     alternative_scores['left_right_hypothesis'] = generate_mock_score('left_right')
@@ -155,7 +155,7 @@ def generate_alternative_scores(text, scorers=None, selected_approaches=None):
                         'confidence': round(li_result.get('confidence', 0.8) * 100, 1),
                         'interpretation': li_result.get('interpretation', 'Moderate')
                     }
-                    logger.debug(f"✓ Liberal-illiberal hypothesis: {li_result.get('score', 'N/A'):.2f}")
+                    logger.debug(f"âœ“ Liberal-illiberal hypothesis: {li_result.get('score', 'N/A'):.2f}")
                 except Exception as e:
                     logger.error(f"Liberal-Illiberal hypothesis scoring failed: {e}")
                     alternative_scores['liberal_illiberal_hypothesis'] = generate_mock_score('liberal_illiberal')
@@ -169,7 +169,7 @@ def generate_alternative_scores(text, scorers=None, selected_approaches=None):
                         'confidence': round(pp_result.get('confidence', 0.8) * 100, 1),
                         'interpretation': pp_result.get('interpretation', 'Moderate')
                     }
-                    logger.debug(f"✓ Populism-pluralism hypothesis: {pp_result.get('score', 'N/A'):.2f}")
+                    logger.debug(f"âœ“ Populism-pluralism hypothesis: {pp_result.get('score', 'N/A'):.2f}")
                 except Exception as e:
                     logger.error(f"Populism-Pluralism hypothesis scoring failed: {e}")
                     alternative_scores['populism_pluralism_hypothesis'] = generate_mock_score('populism_pluralism')
@@ -185,7 +185,7 @@ def generate_alternative_scores(text, scorers=None, selected_approaches=None):
                         'confidence': round(lr_resp_result.get('confidence', 0.8) * 100, 1),
                         'interpretation': lr_resp_result.get('interpretation', 'Center')
                     }
-                    logger.debug(f"✓ Left-right responses: {lr_resp_result.get('score', 'N/A'):.2f}")
+                    logger.debug(f"âœ“ Left-right responses: {lr_resp_result.get('score', 'N/A'):.2f}")
                 except Exception as e:
                     logger.error(f"Left-Right response-based scoring failed: {e}")
                     alternative_scores['left_right_responses'] = generate_mock_score('left_right')
@@ -199,7 +199,7 @@ def generate_alternative_scores(text, scorers=None, selected_approaches=None):
                         'confidence': round(li_resp_result.get('confidence', 0.8) * 100, 1),
                         'interpretation': li_resp_result.get('interpretation', 'Moderate')
                     }
-                    logger.debug(f"✓ Liberal-illiberal responses: {li_resp_result.get('score', 'N/A'):.2f}")
+                    logger.debug(f"âœ“ Liberal-illiberal responses: {li_resp_result.get('score', 'N/A'):.2f}")
                 except Exception as e:
                     logger.error(f"Liberal-Illiberal response-based scoring failed: {e}")
                     alternative_scores['liberal_illiberal_responses'] = generate_mock_score('liberal_illiberal')
@@ -213,7 +213,7 @@ def generate_alternative_scores(text, scorers=None, selected_approaches=None):
                         'confidence': round(pp_resp_result.get('confidence', 0.8) * 100, 1),
                         'interpretation': pp_resp_result.get('interpretation', 'Moderate')
                     }
-                    logger.debug(f"✓ Populism-pluralism responses: {pp_resp_result.get('score', 'N/A'):.2f}")
+                    logger.debug(f"âœ“ Populism-pluralism responses: {pp_resp_result.get('score', 'N/A'):.2f}")
                 except Exception as e:
                     logger.error(f"Populism-Pluralism response-based scoring failed: {e}")
                     alternative_scores['populism_pluralism_responses'] = generate_mock_score('populism_pluralism')
@@ -335,20 +335,44 @@ def classify_text(request):
             logger.info(f"Selected approaches: {[k for k, v in selected_approaches.items() if v]}")
             
             try:
-                # Only run direct regression models if selected
                 results = {}
-                if (selected_approaches.get('left_right_direct') or 
+                coordinates = {'x': None, 'y': None, 'z': None, 'labels': {}, 'errors': []}
+                
+                # === POLITICAL PRE-CHECK (runs for ALL approaches) ===
+                inference_service = PoliticalInferenceService.get_instance()
+                political_check_result = inference_service.is_political_text(text)
+                
+                # If text is not political, show warning and stop
+                if not political_check_result['is_political']:
+                    logger.info(f"Text rejected as non-political: {political_check_result}")
+                    context_data = {
+                        'form': form,
+                        'input_text': text,
+                        'not_political': True,
+                        'political_check': political_check_result,
+                        'message': 'Text does not appear to be about political topics. Scoring skipped.',
+                        'selected_approaches': selected_approaches,
+                    }
+                    return render(request, 'classifier/results.html', context_data)
+                
+                logger.info(f"Text passed political check: {political_check_result}")
+                # === END POLITICAL PRE-CHECK ===
+                
+                # Check if any direct regression is selected
+                direct_selected = (
+                    selected_approaches.get('left_right_direct') or 
                     selected_approaches.get('liberal_illiberal_direct') or 
-                    selected_approaches.get('populism_direct')):
-                    
+                    selected_approaches.get('populism_direct')
+                )
+                
+                if direct_selected:
                     logger.info("Running direct regression models...")
-                    inference_service = PoliticalInferenceService.get_instance()
-                    results = inference_service.predict_all(text, None)
-                    coordinates = inference_service.get_3d_coordinates(text, None)
+                    # Skip pre-check since we already did it above
+                    results = inference_service.predict_all(text, None, skip_precheck=True)
+                    coordinates = inference_service.get_3d_coordinates(text, None, skip_precheck=True)
                     log_memory_usage("after direct regression")
                 else:
                     logger.info("Skipping direct regression models (not selected)")
-                    coordinates = {'x': None, 'y': None, 'z': None, 'labels': {}, 'errors': []}
                 
                 # Only run alternative approaches if any are selected
                 alternative_scores = None
@@ -380,6 +404,7 @@ def classify_text(request):
                     'input_text': text,
                     'coordinates_json': json.dumps(coordinates),
                     'alternative_scores': alternative_scores,
+                    'political_check': results.get('political_check'),
                     'selected_approaches': selected_approaches
                 }
                 
@@ -414,8 +439,6 @@ def imprint(request):
 def contact(request):
     return render(request, 'classifier/contact.html')
 
-
-
 @csrf_exempt
 @require_http_methods(["POST"])
 def api_classify(request):
@@ -426,6 +449,7 @@ def api_classify(request):
     try:
         data = json.loads(request.body)
         text = data.get('text', '').strip()
+        skip_precheck = data.get('skip_precheck', False)  # NEW: allow skipping
         
         if not text:
             return JsonResponse({'error': 'Text is required'}, status=400)
@@ -450,7 +474,18 @@ def api_classify(request):
         inference_service = PoliticalInferenceService.get_instance()
         
         # Run predictions
-        results = inference_service.predict_all(text, None)
+        results = inference_service.predict_all(text, None, skip_precheck=skip_precheck)
+
+        # === NEW: Handle non-political text ===
+        if results.get('not_political'):
+            return JsonResponse({
+                'not_political': True,
+                'political_check': results.get('political_check'),
+                'message': results.get('message'),
+                'input_text': text
+            })
+        # === END NEW ===
+
         coordinates = inference_service.get_3d_coordinates(text, None)
         
         # Generate alternative scores
