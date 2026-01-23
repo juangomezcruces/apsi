@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 MOCK_MODE = False  # Change to True to test without downloading / loading models
 
 # Topic-gate configuration (axis-specific filtering)
-ENABLE_TOPIC_GATE = False  # Set False to disable axis topic-gating
+ENABLE_TOPIC_GATE = True  # Set False to disable axis topic-gating
 TOPIC_THRESHOLD = 0.5  # Probability threshold (0-1) for topic relevance
 
 
