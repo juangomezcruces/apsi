@@ -25,7 +25,7 @@ class LiberalIlliberalScorer:
             "Does this text discuss political ideas related to democratic principles?"
         )
 
-        self.topic_threshold = 0.30 
+        self.topic_threshold = 0.60 
 
 
         # Enhanced Liberal-Illiberal hypotheses using recommended format
