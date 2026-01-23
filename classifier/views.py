@@ -49,6 +49,25 @@ def cleanup_memory():
     if torch.cuda.is_available():
         torch.cuda.empty_cache()
 
+
+
+def normalize_precheck_result(result, default_interpretation):
+    """
+    If scorer returns ok=False (topic precheck failed), keep it and pass to template.
+    Otherwise, return None to indicate "normal scoring path".
+    """
+    if isinstance(result, dict) and result.get("ok") is False:
+        # Make sure template has consistent keys
+        return {
+            "ok": False,
+            "error_code": result.get("error_code", "TOPIC_PRECHECK_FAILED"),
+            "error_message": result.get("error_message", "Not scored (topic precheck failed)."),
+            "topic_entailment": result.get("topic_entailment"),
+            "topic_threshold": result.get("topic_threshold"),
+            "interpretation": default_interpretation,  # optional; template may ignore
+        }
+    return None
+
 def get_alternative_scorers(selected_approaches):
     """Initialize ONLY the selected alternative hypothesis scorers"""
     from .inference_service import MOCK_MODE
@@ -150,11 +169,19 @@ def generate_alternative_scores(text, scorers=None, selected_approaches=None):
                 try:
                     logger.debug("Running liberal-illiberal hypothesis scoring...")
                     li_result = scorers['liberal_illiberal'].score_liberal_illiberal(text)
-                    alternative_scores['liberal_illiberal_hypothesis'] = {
-                        'score': round(li_result.get('score', 5.0), 2),
-                        'confidence': round(li_result.get('confidence', 0.8) * 100, 1),
-                        'interpretation': li_result.get('interpretation', 'Moderate')
-                    }
+
+                # ✅ If precheck failed, pass the error payload through to the template
+                precheck_payload = normalize_precheck_result(li_result, default_interpretation="Not scored")
+                if precheck_payload is not None:
+                alternative_scores['liberal_illiberal_hypothesis'] = precheck_payload
+            else:
+                # ✅ Normal scoring payload (what you already do)
+                alternative_scores['liberal_illiberal_hypothesis'] = {
+                'ok': True,
+                'score': round(li_result.get('score', 5.0), 2),
+                'confidence': round(li_result.get('confidence', 0.8) * 100, 1),
+                'interpretation': li_result.get('interpretation', 'Moderate')
+            }
                     logger.debug(f"✓ Liberal-illiberal hypothesis: {li_result.get('score', 'N/A'):.2f}")
                 except Exception as e:
                     logger.error(f"Liberal-Illiberal hypothesis scoring failed: {e}")
