@@ -155,12 +155,20 @@ def generate_alternative_scores(text, scorers=None, selected_approaches=None):
                 try:
                     logger.debug("Running left-right hypothesis scoring...")
                     lr_result = scorers['left_right'].score_left_right(text)
-                    alternative_scores['left_right_hypothesis'] = {
-                        'score': round(lr_result.get('score', 5.0), 2),
-                        'confidence': round(lr_result.get('confidence', 0.8) * 100, 1),
-                        'interpretation': lr_result.get('interpretation', 'Center')
-                    }
+
+                    precheck_payload = normalize_precheck_result(li_result, default_interpretation="Not scored")
+                    if precheck_payload is not None:
+                        alternative_scores['left_right_hypothesis'] = precheck_payload
+                    else:
+                        # ✅ Normal scoring payload (what you already do)
+                        alternative_scores['left_right_hypothesis'] = {
+                            'ok': True,
+                            'score': round(lr_result.get('score', 5.0), 2),
+                            'confidence': round(lr_result.get('confidence', 0.8) * 100, 1),
+                            'interpretation': lr_result.get('interpretation', 'Moderate')
+                        }
                     logger.debug(f"✓ Left-right hypothesis: {lr_result.get('score', 'N/A')}")
+
                 except Exception as e:
                     logger.error(f"Left-Right hypothesis scoring failed: {e}")
                     alternative_scores['left_right_hypothesis'] = generate_mock_score('left_right')
