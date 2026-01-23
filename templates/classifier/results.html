@@ -106,6 +106,17 @@
       </div>
     </div>
   {% endwith %}
+{% else %}
+  <div class="alert alert-danger mt-3 mb-0" role="alert">
+    <strong>Not in scope:</strong> the text didn’t pass the political/governance topic precheck.
+    {% if alternative_scores.left_right_hypothesis.precheck_threshold %}
+      <div class="small text-muted mt-1">
+        Precheck score: {{ alternative_scores.left_right_hypothesis.precheck_score|floatformat:3 }}
+        (threshold {{ alternative_scores.left_right_hypothesis.precheck_threshold }})
+      </div>
+    {% endif %}
+  </div>
+{% endif %}
 
   <div class="mb-2">
    <span class="badge bg-custom">
@@ -118,15 +129,6 @@
     <strong>Confidence:</strong> {{ confidence|floatformat:1 }}%
   </div>
 {% endwith %}
-
-{% else %}
-  <div class="alert alert-danger mt-3 mb-0" role="alert">
-    <strong>Not in scope:</strong> the text didn’t pass the political/governance topic precheck.
-    {% if alternative_scores.left_right_hypothesis.precheck_threshold %}
-      <div class="small text-muted mt-1">Precheck score: {{ alternative_scores.left_right_hypothesis.precheck_score|floatformat:3 }} (threshold {{ alternative_scores.left_right_hypothesis.precheck_threshold }})</div>
-    {% endif %}
-  </div>
-{% endif %}
                         </div>
                     </div>
                 </div>
@@ -145,7 +147,7 @@
 
       {% if alternative_scores.liberal_illiberal_hypothesis.passed_precheck|default:True %}
 
-      {% with score=alternative_scores.liberal_illiberal_hypothesis.score confidence=alternative_scores.liberal_illiberal_hypothesis.confidence %}
+{% with score=alternative_scores.liberal_illiberal_hypothesis.score confidence=alternative_scores.liberal_illiberal_hypothesis.confidence %}
         {# If score is 0–10, we can use it directly for positioning #}
         {% with liberal=score|floatformat:1 %}
           <div class="scale-wrap my-2">
@@ -169,6 +171,17 @@
             </div>
           </div>
         {% endwith %}
+{% else %}
+  <div class="alert alert-danger mt-3 mb-0" role="alert">
+    <strong>Not in scope:</strong> the text didn’t pass the political/governance topic precheck.
+    {% if alternative_scores.liberal_illiberal_hypothesis.precheck_threshold %}
+      <div class="small text-muted mt-1">
+        Precheck score: {{ alternative_scores.liberal_illiberal_hypothesis.precheck_score|floatformat:3 }}
+        (threshold {{ alternative_scores.liberal_illiberal_hypothesis.precheck_threshold }})
+      </div>
+    {% endif %}
+  </div>
+{% endif %}
 
         <div class="mb-2">
           <span class="badge bg-custom">
@@ -181,16 +194,6 @@
           <strong>Confidence:</strong> {{ confidence|floatformat:1 }}%
         </div>
       {% endwith %}
-
-    {% else %}
-      <div class="alert alert-danger mt-3 mb-0" role="alert">
-        <strong>Not in scope:</strong> the text didn’t pass the political/governance topic precheck.
-        {% if alternative_scores.liberal_illiberal_hypothesis.precheck_threshold %}
-          <div class="small text-muted mt-1">Precheck score: {{ alternative_scores.liberal_illiberal_hypothesis.precheck_score|floatformat:3 }} (threshold {{ alternative_scores.liberal_illiberal_hypothesis.precheck_threshold }})</div>
-        {% endif %}
-      </div>
-    {% endif %}
-
     </div>
   </div>
 </div>
@@ -206,7 +209,7 @@
 
       {% if alternative_scores.populism_pluralism_hypothesis.passed_precheck|default:True %}
 
-      {% with score=alternative_scores.populism_pluralism_hypothesis.score confidence=alternative_scores.populism_pluralism_hypothesis.confidence %}
+{% with score=alternative_scores.populism_pluralism_hypothesis.score confidence=alternative_scores.populism_pluralism_hypothesis.confidence %}
         {# If your score is already 0–10, use it directly. If it's a string, you may want to ensure it's numeric in your view. #}
         {% with populism=score|floatformat:1 %}
           <div class="scale-wrap my-2">
@@ -230,6 +233,17 @@
             </div>
           </div>
         {% endwith %}
+{% else %}
+  <div class="alert alert-danger mt-3 mb-0" role="alert">
+    <strong>Not in scope:</strong> the text didn’t pass the political/governance topic precheck.
+    {% if alternative_scores.populism_pluralism_hypothesis.precheck_threshold %}
+      <div class="small text-muted mt-1">
+        Precheck score: {{ alternative_scores.populism_pluralism_hypothesis.precheck_score|floatformat:3 }}
+        (threshold {{ alternative_scores.populism_pluralism_hypothesis.precheck_threshold }})
+      </div>
+    {% endif %}
+  </div>
+{% endif %}
 
         <div class="mb-2">
           <span class="badge bg-custom">
@@ -242,16 +256,6 @@
           <strong>Confidence:</strong> {{ confidence|floatformat:1 }}%
         </div>
       {% endwith %}
-
-    {% else %}
-      <div class="alert alert-danger mt-3 mb-0" role="alert">
-        <strong>Not in scope:</strong> the text didn’t pass the political/governance topic precheck.
-        {% if alternative_scores.populism_pluralism_hypothesis.precheck_threshold %}
-          <div class="small text-muted mt-1">Precheck score: {{ alternative_scores.populism_pluralism_hypothesis.precheck_score|floatformat:3 }} (threshold {{ alternative_scores.populism_pluralism_hypothesis.precheck_threshold }})</div>
-        {% endif %}
-      </div>
-    {% endif %}
-
     </div>
   </div>
 </div>
