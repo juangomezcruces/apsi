@@ -35,7 +35,7 @@ AXIS_TOPICS = {
             "This includes topics like healthcare, education, housing, transport, taxation, natural resources "
             "privatization, welfare, regulation, minimum wage, wealth redistribution, "
             "public vs. private sector roles, or economic equality."
-        ),
+        )
 
     },
     AXIS_LIBERAL_ILLIBERAL: {
@@ -44,7 +44,7 @@ AXIS_TOPICS = {
             "This includes civil liberties, human rights, minority rights, rule of law, judicial independence, "
             "checks and balances, free and fair elections, free press, constitutional limits, "
             "or constraints on executive power."
-        ),
+        )
 
     },
     AXIS_POPULISM_PLURALISM: {
@@ -52,7 +52,7 @@ AXIS_TOPICS = {
             "This text discusses political rhetoric, governance approaches, or institutional legitimacy. "
             "This includes populist rhetoric (challenging institutions, emphasizing popular will, anti-elite framing) "
             "or pluralist rhetoric (supporting checks and balances, minority rights, compromise, coalition-building)."
-        ),
+        )
 
     },
 }
