@@ -110,6 +110,7 @@ class LiberalIlliberalScorer:
 
         return np.array(probs)
 
+
     def _topic_precheck(self, text: str):
         """Lightweight topic gate using the same NLI model.
 
@@ -122,13 +123,14 @@ class LiberalIlliberalScorer:
             return_tensors="pt",
             truncation=True,
             max_length=512,
-        )
+        ).to(self.model.device)
 
         with torch.no_grad():
             outputs = self.model(**inputs)
             prob = torch.softmax(outputs.logits, dim=-1)[0, self.entailment_idx].item()
 
         return (prob >= self.topic_threshold), float(prob)
+
 
     def compute_combined_confidence(self, liberal_probs, illiberal_probs, all_probs):
         """Simplified confidence with Top-K contradiction detection only"""
