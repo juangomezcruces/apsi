@@ -17,6 +17,16 @@ class LeftRightEconomicScorer:
         self.model, self.tokenizer = cache.get_model_and_tokenizer(model_name)
         self.entailment_idx = self._find_entailment_index()
 
+         self.topic_question = (
+            "Does this text discuss economic policy, government intervention, or public services? "
+            "This includes topics like healthcare, education, housing, transport, taxation, natural resources "
+            "privatization, welfare, regulation, minimum wage, wealth redistribution, "
+            "public vs. private sector roles, or economic equality."
+        )
+
+        self.topic_threshold = 0.60 
+
+
         # Left-Right Economic hypotheses - streamlined to ~15 per side
         self.left_right_hypotheses = {
             # Left Economic Positions (15) - More specific and policy-focused
@@ -86,6 +96,28 @@ class LeftRightEconomicScorer:
 
         return np.array(probs)
 
+
+    def _topic_precheck(self, text: str):
+        """Lightweight topic gate using the same NLI model.
+
+        Returns:
+            passed (bool), entailment_probability (float)
+        """
+        inputs = self.tokenizer(
+            text,
+            self.topic_question,
+            return_tensors="pt",
+            truncation=True,
+            max_length=512,
+        )
+
+        with torch.no_grad():
+            outputs = self.model(**inputs)
+            prob = torch.softmax(outputs.logits, dim=-1)[0, self.entailment_idx].item()
+
+        return (prob >= self.topic_threshold), float(prob)
+
+
     def compute_combined_confidence(self, left_probs, right_probs, all_probs):
         """Simplified confidence with Top-K contradiction detection only"""
         
@@ -123,6 +155,8 @@ class LeftRightEconomicScorer:
             'top_left_avg': top_left_avg,
             'top_right_avg': top_right_avg
         }
+
+
 
     def score_left_right(self, text):
         """Score text and return comprehensive results"""
