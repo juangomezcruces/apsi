@@ -28,6 +28,49 @@
     </div>
 </section>
 
+{% if not_political %}
+<!-- Non-political text message -->
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="alert alert-warning" role="alert">
+                    <h4 class="alert-heading">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        Not a Political Text
+                    </h4>
+                    <p>{{ message }}</p>
+                    {% if political_check %}
+                    <hr>
+                    <p class="mb-0">
+                        <small class="text-muted">
+                            Political probability: {{ political_check.probability }} 
+                            (threshold: {{ political_check.threshold }})
+                            <br>
+                            {{ political_check.reason }}
+                        </small>
+                    </p>
+                    {% endif %}
+                </div>
+                
+                <div class="card">
+                    <div class="card-body">
+                        <h5>What does this mean?</h5>
+                        <p>
+                            The classifier detected that your text does not contain a political stance for meaningful scoring on the Economic Left-Right, 
+                            Support for Liberal Democracy, and Populism-Pluralism dimensions.
+                        </p>
+                        <p class="mb-0">
+                            <strong>For instance, try texts that include statements expressing opinions or value judgments about economic policy, democracy, or the role of government.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% else %}
 <!-- Political text - show full results -->
 
 <!-- Selected Approaches Summary -->
@@ -347,6 +390,8 @@
 </section>
 {% endif %}
 
+{% endif %}
+<!-- End of not_political else block -->
 <section class="py-5 bg-light">
   <div class="container">
     <div class="row">
