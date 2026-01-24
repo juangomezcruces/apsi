@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 import argparse
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
-from shared_model_cache import SharedModelCache
+from .shared_model_cache import SharedModelCache
 import warnings
 warnings.filterwarnings('ignore')
 

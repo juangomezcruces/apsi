@@ -5,15 +5,14 @@ class TextClassificationForm(forms.Form):
         widget=forms.Textarea(attrs={
             'class': 'form-control',
             'rows': 6,
-            'placeholder': 'Enter a text to analyze...',
+            'placeholder': 'Enter political text to analyze...',
             'maxlength': 2000
         }),
-        min_length=20,
         max_length=2000,
-        help_text='Enter a text between 20 and 2000 characters for analysis.'
+        help_text='Enter up to 2000 characters of political text for analysis.'
     )
     
-    
+    # Only hypothesis-based approaches
     left_right_hypothesis = forms.BooleanField(
         required=False,
         initial=True,
@@ -34,22 +33,18 @@ class TextClassificationForm(forms.Form):
         label='Populism (Hypothesis-Based)',
         widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
     )
-    
- 
-# Also update your clean() method to include these new fields:
-def clean(self):
-    cleaned_data = super().clean()
-    
-    # Check that at least one approach is selected - ADD the new fields
-    selected_approaches = [
-        # Hypothesis-based approaches  
-        cleaned_data.get('left_right_hypothesis'),
-        cleaned_data.get('liberal_illiberal_hypothesis'),
-        cleaned_data.get('populism_hypothesis'),
+
+    def clean(self):
+        cleaned_data = super().clean()
         
-    ]
-    
-    if not any(selected_approaches):
-        raise forms.ValidationError("Please select at least one analysis approach.")
-    
-    return cleaned_data
+        # Check that at least one approach is selected
+        selected_approaches = [
+            cleaned_data.get('left_right_hypothesis'),
+            cleaned_data.get('liberal_illiberal_hypothesis'),
+            cleaned_data.get('populism_hypothesis'),
+        ]
+        
+        if not any(selected_approaches):
+            raise forms.ValidationError("Please select at least one analysis approach.")
+        
+        return cleaned_data
