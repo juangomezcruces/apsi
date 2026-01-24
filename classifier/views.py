@@ -70,84 +70,141 @@ def get_alternative_scorers(selected_approaches):
             from . import alternative
             from . import alternativeLib  
             from . import alternativePop
+            
+            if selected_approaches.get('left_right_hypothesis'):
+                scorers['left_right'] = alternative.LeftRightEconomicScorer()
+                logger.info("âœ“ Left-Right hypothesis scorer loaded")
+                
+            if selected_approaches.get('liberal_illiberal_hypothesis'):
+                scorers['liberal_illiberal'] = alternativeLib.LiberalIlliberalScorer()
+                logger.info("âœ“ Liberal-Illiberal hypothesis scorer loaded")
+                
+            if selected_approaches.get('populism_hypothesis'):
+                scorers['populism_pluralism'] = alternativePop.PopulismPluralismScorer()
+                logger.info("âœ“ Populism-Pluralism hypothesis scorer loaded")
+        
+        # Load response-based scorers only if selected
+        if (selected_approaches.get('left_right_responses') or 
+            selected_approaches.get('liberal_illiberal_responses') or 
+            selected_approaches.get('populism_responses')):
+            
+            logger.info("Loading response-based scorers...")
+            from . import libillibwresponses as lib_responses
+            from . import rilewresponses as lr_responses  
+            from . import popnonpopwresponses as pop_responses
+            
+            if selected_approaches.get('left_right_responses'):
+                scorers['left_right_responses'] = lr_responses.LeftRightResponsesScorer()
+                logger.info("âœ“ Left-Right responses scorer loaded")
+                
+            if selected_approaches.get('liberal_illiberal_responses'):
+                scorers['liberal_illiberal_responses'] = lib_responses.LiberalIlliberalResponsesScorer()
+                logger.info("âœ“ Liberal-Illiberal responses scorer loaded")
+                
+            if selected_approaches.get('populism_responses'):
+                scorers['populism_pluralism_responses'] = pop_responses.PopulismPluralismResponsesScorer()
+                logger.info("âœ“ Populism-Pluralism responses scorer loaded")
+        
+        log_memory_usage("after loading scorers")
+        return scorers
+        
+    except Exception as e:
+        logger.error(f"Error loading alternative scorers: {e}")
+        return None
+
+def generate_alternative_scores(text, scorers=None, selected_approaches=None):
+    """Generate ONLY the selected alternative hypothesis scores"""
+    from .inference_service import MOCK_MODE
+    
+    if not getattr(settings, 'ENABLE_ALTERNATIVE_SCORES', False):
+        logger.debug("Alternative scores disabled in settings")
+        return None
+    
+    if not selected_approaches:
+        logger.debug("No alternative approaches selected")
+        return None
+    
+    alternative_scores = {}
+    
+    try:
+        if scorers and not MOCK_MODE:
+            logger.info(f"Running selected alternative approaches: {list(selected_approaches.keys())}")
+            
+            # === HYPOTHESIS-BASED MODELS (only if selected) ===
+            
             if selected_approaches.get('left_right_hypothesis') and 'left_right' in scorers:
                 try:
                     logger.debug("Running left-right hypothesis scoring...")
                     lr_result = scorers['left_right'].score_left_right(text)
 
-                    # Pass through topic-precheck info so the template can show an error instead of a misleading score
-                    passed_precheck = lr_result.get('passed_precheck', lr_result.get('passed', True))
+                    # If the scorer implements a topic precheck, pass through the result so the template
+                    # can show a clear error state instead of a misleading numeric score.
+                    passed_precheck = lr_result.get('passed_precheck', True)
 
                     alternative_scores['left_right_hypothesis'] = {
                         'passed_precheck': passed_precheck,
-                        'precheck_score': round(float(lr_result.get('precheck_score', 0.0)), 3),
+                        'precheck_score': round(lr_result.get('precheck_score', 0.0), 3) if not passed_precheck else round(lr_result.get('precheck_score', 0.0), 3),
                         'precheck_threshold': lr_result.get('precheck_threshold', None),
                         'error': lr_result.get('error', None),
                     }
 
                     if passed_precheck:
                         alternative_scores['left_right_hypothesis'].update({
-                            'score': round(float(lr_result.get('score', 5.0)), 2),
-                            'confidence': round(float(lr_result.get('confidence', 0.8)) * 100, 1),
-                            'interpretation': lr_result.get('interpretation', 'Center')
+                            'score': round(lr_result.get('score', 5.0), 2),
+                            'confidence': round(lr_result.get('confidence', 0.8) * 100, 1),
+                            'interpretation': lr_result.get('interpretation', 'Center'),
                         })
-
-                    lr_score_for_log = lr_result.get('score', None)
-                    logger.debug(f"✓ Left-right hypothesis: {lr_score_for_log:.2f}" if isinstance(lr_score_for_log, (int, float)) else "✓ Left-right hypothesis complete")
+                    logger.debug(f"âœ“ Left-right hypothesis: {lr_result.get('score', 'N/A'):.2f}")
                 except Exception as e:
                     logger.error(f"Left-Right hypothesis scoring failed: {e}")
                     alternative_scores['left_right_hypothesis'] = generate_mock_score('left_right')
-            
             
             if selected_approaches.get('liberal_illiberal_hypothesis') and 'liberal_illiberal' in scorers:
                 try:
                     logger.debug("Running liberal-illiberal hypothesis scoring...")
                     li_result = scorers['liberal_illiberal'].score_liberal_illiberal(text)
 
-                    passed_precheck = li_result.get('passed_precheck', li_result.get('passed', True))
+                    passed_precheck = li_result.get('passed_precheck', True)
+
                     alternative_scores['liberal_illiberal_hypothesis'] = {
                         'passed_precheck': passed_precheck,
-                        'precheck_score': round(float(li_result.get('precheck_score', 0.0)), 3),
+                        'precheck_score': round(li_result.get('precheck_score', 0.0), 3) if not passed_precheck else round(li_result.get('precheck_score', 0.0), 3),
                         'precheck_threshold': li_result.get('precheck_threshold', None),
                         'error': li_result.get('error', None),
                     }
 
                     if passed_precheck:
                         alternative_scores['liberal_illiberal_hypothesis'].update({
-                            'score': round(float(li_result.get('score', 5.0)), 2),
-                            'confidence': round(float(li_result.get('confidence', 0.8)) * 100, 1),
-                            'interpretation': li_result.get('interpretation', 'Center')
+                            'score': round(li_result.get('score', 5.0), 2),
+                            'confidence': round(li_result.get('confidence', 0.8) * 100, 1),
+                            'interpretation': li_result.get('interpretation', 'Moderate'),
                         })
-
-                    li_score_for_log = li_result.get('score', None)
-                    logger.debug(f"✓ Liberal-illiberal hypothesis: {li_score_for_log:.2f}" if isinstance(li_score_for_log, (int, float)) else "✓ Liberal-illiberal hypothesis complete")
+                    logger.debug(f"âœ“ Liberal-illiberal hypothesis: {li_result.get('score', 'N/A'):.2f}")
                 except Exception as e:
                     logger.error(f"Liberal-Illiberal hypothesis scoring failed: {e}")
                     alternative_scores['liberal_illiberal_hypothesis'] = generate_mock_score('liberal_illiberal')
-            
             
             if selected_approaches.get('populism_hypothesis') and 'populism_pluralism' in scorers:
                 try:
                     logger.debug("Running populism-pluralism hypothesis scoring...")
                     pp_result = scorers['populism_pluralism'].score_populism_pluralism(text)
 
-                    passed_precheck = pp_result.get('passed_precheck', pp_result.get('passed', True))
+                    passed_precheck = pp_result.get('passed_precheck', True)
+
                     alternative_scores['populism_pluralism_hypothesis'] = {
                         'passed_precheck': passed_precheck,
-                        'precheck_score': round(float(pp_result.get('precheck_score', 0.0)), 3),
+                        'precheck_score': round(pp_result.get('precheck_score', 0.0), 3) if not passed_precheck else round(pp_result.get('precheck_score', 0.0), 3),
                         'precheck_threshold': pp_result.get('precheck_threshold', None),
                         'error': pp_result.get('error', None),
                     }
 
                     if passed_precheck:
                         alternative_scores['populism_pluralism_hypothesis'].update({
-                            'score': round(float(pp_result.get('score', 5.0)), 2),
-                            'confidence': round(float(pp_result.get('confidence', 0.8)) * 100, 1),
-                            'interpretation': pp_result.get('interpretation', 'Moderate')
+                            'score': round(pp_result.get('score', 5.0), 2),
+                            'confidence': round(pp_result.get('confidence', 0.8) * 100, 1),
+                            'interpretation': pp_result.get('interpretation', 'Moderate'),
                         })
-
-                    pp_score_for_log = pp_result.get('score', None)
-                    logger.debug(f"✓ Populism-pluralism hypothesis: {pp_score_for_log:.2f}" if isinstance(pp_score_for_log, (int, float)) else "✓ Populism-pluralism hypothesis complete")
+                    logger.debug(f"âœ“ Populism-pluralism hypothesis: {pp_result.get('score', 'N/A'):.2f}")
                 except Exception as e:
                     logger.error(f"Populism-Pluralism hypothesis scoring failed: {e}")
                     alternative_scores['populism_pluralism_hypothesis'] = generate_mock_score('populism_pluralism')
