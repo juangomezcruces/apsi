@@ -2,8 +2,9 @@ import pandas as pd
 import numpy as np
 import torch
 import torch.nn as nn
+import argparse
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
-from .shared_model_cache import SharedModelCache
+from shared_model_cache import SharedModelCache
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -64,6 +65,13 @@ class PopulismPluralismScorer:
         populist_count = sum(1 for _, (_, direction) in self.populism_hypotheses.items() if direction == "populist")
         pluralist_count = sum(1 for _, (_, direction) in self.populism_hypotheses.items() if direction == "pluralist")
         print(f"Loaded {len(self.populism_hypotheses)} hypotheses ({populist_count} populist, {pluralist_count} pluralist)")
+        
+        # Topic check configuration
+        self.topic_threshold = 0.6
+        self.topic_question = (
+            "This text is about political rhetoric, elite versus people dynamics, "
+            "institutional trust, or governance approaches"
+        )
 
     def _find_entailment_index(self):
         """Auto-detect entailment index for different NLI models"""
@@ -73,6 +81,26 @@ class PopulismPluralismScorer:
                 if label.lower() in ['entailment', 'entail']:
                     return idx
         return 0
+
+    def _get_entailment_prob(self, text, hypothesis):
+        """Get probability that text entails hypothesis"""
+        inputs = self.tokenizer(
+            text, hypothesis,
+            return_tensors="pt",
+            truncation=True,
+            max_length=512
+        )
+        
+        with torch.no_grad():
+            outputs = self.model(**inputs)
+            prob = torch.softmax(outputs.logits, dim=-1)[0, self.entailment_idx].item()
+        return prob
+
+    def is_about_political_rhetoric(self, text):
+        """Check if text discusses political rhetoric or governance"""
+        prob = self._get_entailment_prob(text, self.topic_question)
+        return prob >= self.topic_threshold, prob
+
 
     def get_hypothesis_probabilities(self, text):
         """Get probabilities for all populism-pluralism hypotheses"""
@@ -132,6 +160,19 @@ class PopulismPluralismScorer:
 
     def score_populism_pluralism(self, text):
         """Score text and return comprehensive results"""
+        # Check if text is about political rhetoric or governance
+        is_relevant, topic_prob = self.is_about_political_rhetoric(text)
+        if not is_relevant:
+            return {
+                'text': text,
+                'score': 'NA',
+                'confidence': 0.0,
+                'contradiction_detected': False,
+                'interpretation': 'Not about political rhetoric or governance',
+                'is_relevant': False,
+                'topic_probability': topic_prob
+            }
+        
         probs = self.get_hypothesis_probabilities(text)
 
         populist_probs = []
@@ -172,8 +213,8 @@ class PopulismPluralismScorer:
         populist_hyps = [h for h in hypothesis_results if h['direction'] == 'populist']
         pluralist_hyps = [h for h in hypothesis_results if h['direction'] == 'pluralist']
         
-        top_populist = sorted(populist_hyps, key=lambda x: x['probability'], reverse=True)[:5]
-        top_pluralist = sorted(pluralist_hyps, key=lambda x: x['probability'], reverse=True)[:5]
+        top_populist = sorted(populist_hyps, key=lambda x: x['probability'], reverse=True)[:10]
+        top_pluralist = sorted(pluralist_hyps, key=lambda x: x['probability'], reverse=True)[:10]
 
         # Interpret score (0-10 scale: 0=Strong Pluralist, 5=Moderate, 10=Strong Populist)
         if final_score < 2:
@@ -197,12 +238,86 @@ class PopulismPluralismScorer:
             'pluralist_avg': pluralist_avg,
             'top_populist_hypotheses': top_populist,
             'top_pluralist_hypotheses': top_pluralist
+            'is_relevant': True,
+            'topic_probability': topic_prob
         }
 
     def quick_score(self, text):
         """Ultra-simple interface - just returns the numerical score"""
         result = self.score_populism_pluralism(text)
         return result['score']
+
+
+def process_csv(scorer, input_file, output_file):
+    """
+    Process texts from a CSV file and output results to a new CSV file
+    
+    Args:
+        scorer: PopulismPluralismScorer instance
+        input_file: Path to input CSV file
+        output_file: Path to output CSV file
+    """
+    try:
+        # Read the input CSV
+        print(f"Reading input CSV from {input_file}...")
+        df = pd.read_csv(input_file)
+        
+        # Check if the expected column exists
+        if 'Text (English)' not in df.columns:
+            print(f"Warning: 'Text (English)' column not found in {input_file}")
+            print(f"Available columns: {df.columns.tolist()}")
+            return
+        
+        # Create output columns
+        print(f"Processing {len(df)} texts...")
+        df['Populism_Score'] = None
+        df['Populism_Interpretation'] = None
+        df['Populism_Confidence'] = None
+        df['Populism_Contradiction'] = None
+        
+        # Process each text
+        for idx, row in df.iterrows():
+            if idx % 10 == 0 and idx > 0:
+                print(f"Processed {idx}/{len(df)} texts...")
+                
+            text = row['Text (English)']
+            if pd.isna(text) or not text.strip():
+                print(f"Warning: Empty text at row {idx+2}, skipping...")
+                continue
+                
+            try:
+                result = scorer.score_populism_pluralism(text)
+                
+                # Add results to dataframe
+                df.at[idx, 'Populism_Score'] = result['score']
+                df.at[idx, 'Populism_Interpretation'] = result['interpretation']
+                df.at[idx, 'Populism_Confidence'] = result['confidence']
+                df.at[idx, 'Populism_Contradiction'] = result['contradiction_detected']
+                
+            except Exception as e:
+                print(f"Error processing text at row {idx+2}: {e}")
+                # Continue with next row instead of failing completely
+        
+        # Write output CSV
+        print(f"Writing results to {output_file}...")
+        df.to_csv(output_file, index=False)
+        print(f"Done! Results saved to {output_file}")
+        
+        # Print summary
+        scores = df['Populism_Score'].dropna().tolist()
+        interpretations = df['Populism_Interpretation'].value_counts().to_dict()
+        
+        print(f"\nðŸ“Š SUMMARY:")
+        print(f"   Processed: {len(scores)}/{len(df)} texts")
+        if scores:
+            print(f"   Score Range: {min(scores):.2f} - {max(scores):.2f}")
+            print(f"   Mean Score: {np.mean(scores):.2f}")
+            print(f"   Interpretations:")
+            for interp, count in sorted(interpretations.items()):
+                print(f"      - {interp}: {count} ({count/len(scores)*100:.1f}%)")
+    
+    except Exception as e:
+        print(f"Error processing CSV: {e}")
 
 # ============================================================================
 # INTERACTIVE ANALYSIS FUNCTIONS
@@ -216,7 +331,7 @@ def analyze_text(scorer, text):
     print(f"TEXT: {text}")
     print(f"{'='*80}")
     
-    print(f"\n📊 RESULTS:")
+    print(f"\nðŸ“Š RESULTS:")
     print(f"   PopulistAvg: {result['populist_avg']:.2f}")
     print(f"   PluralistAvg: {result['pluralist_avg']:.2f}")
     print(f"   Score: {result['score']:.2f}/10 (0=Strong Pluralist, 10=Strong Populist)")
@@ -224,14 +339,14 @@ def analyze_text(scorer, text):
     print(f"   Contradiction: {'YES' if result['contradiction_detected'] else 'NO'}")
     print(f"   Interpretation: {result['interpretation']}")
     
-    print(f"\n🔍 TOP POPULIST HYPOTHESES:")
+    print(f"\nðŸ” TOP POPULIST HYPOTHESES:")
     for i, hyp in enumerate(result['top_populist_hypotheses']):
-        short_hyp = hyp['hypothesis'][:100] + "..." if len(hyp['hypothesis']) > 100 else hyp['hypothesis']
+        short_hyp = hyp['hypothesis'][:200] + "..." if len(hyp['hypothesis']) > 200 else hyp['hypothesis']
         print(f"   {i}. {hyp['probability']:.3f} - {short_hyp}")
     
-    print(f"\n🔍 TOP PLURALIST HYPOTHESES:")
+    print(f"\nðŸ” TOP PLURALIST HYPOTHESES:")
     for i, hyp in enumerate(result['top_pluralist_hypotheses']):
-        short_hyp = hyp['hypothesis'][:100] + "..." if len(hyp['hypothesis']) > 100 else hyp['hypothesis']
+        short_hyp = hyp['hypothesis'][:200] + "..." if len(hyp['hypothesis']) > 200 else hyp['hypothesis']
         print(f"   {i}. {hyp['probability']:.3f} - {short_hyp}")
     
     return result
@@ -259,7 +374,7 @@ def analyze_batch(scorer, texts):
     confidences = [r['confidence'] for r in results]
     contradictions = sum(1 for r in results if r['contradiction_detected'])
     
-    print(f"\n📊 SUMMARY:")
+    print(f"\nðŸ“Š SUMMARY:")
     print(f"   Score Range: {min(scores):.2f} - {max(scores):.2f}")
     print(f"   Mean Score: {np.mean(scores):.2f}")
     print(f"   Mean Confidence: {np.mean(confidences):.3f}")
@@ -296,35 +411,12 @@ def interactive_mode(scorer):
         elif text.lower() == 'batch':
             test_texts = [
                 # Clear Examples
-                "We must respect democratic institutions and protect minority rights.",
-                "The corrupt establishment has betrayed the people for too long.",
-                "Political compromise is necessary to achieve sustainable solutions.",
-                "Real Americans know better than Washington elites what's good for our country.",
-                "Our democracy depends on checks and balances between branches of government.",
-                "The rigged system serves special interests instead of ordinary citizens.",
-                "Different groups in society have legitimate competing interests that must be balanced.",
-                "The voice of the people is being silenced by corrupt politicians and their cronies.",
-                
-                # Challenging Technocratic Populism
-                "We need evidence-based policies that serve the people, not the special interests that have captured our broken institutions.",                
-                # Institutional Reform Populism  
-                "The system needs structural changes to restore faith in government, but we must work within democratic processes to achieve them.",
-                # Elite Anti-Elite Rhetoric
-                "My experience in Washington taught me that real change requires challenging the establishment from within.",
-                # Inclusive Populism
-                "Our movement includes everyone - urban and rural, young and old - who believes government should work for all people, not just the privileged few.",
-                # Democratic Process Populism
-                "Real democracy means every vote counts equally, regardless of how much money special interests spend to influence outcomes.",
-                # Anti-Corruption Institutionalism
-                "We need stronger ethics rules and transparency requirements to restore public trust in our democratic institutions.",                
-                # Expertise vs. Elite Distinction
-                "We should listen to scientists and policy experts, not political consultants and lobbyists who profit from the status quo.",                
-                # Additional Edge Cases
-                "Term limits would bring fresh perspectives while preserving the wisdom of experienced legislators who understand how to get things done.",
-                "Grassroots organizing empowers local communities to work with elected officials on pragmatic solutions to shared challenges.",
-                "Citizen panels and deliberative democracy can complement representative government by giving ordinary people more input on complex policy questions.",
-                "Political parties should represent their base voters while also building coalitions that can govern effectively for everyone."
+                "We want an inclusive, non-exclusionary Spain, which treats its people well and seeks justice and well-being. A fair country that makes us proud to be Spanish."
+                "Perhaps he ordered the murder of Jaime Garzon did not govern later? Perhaps an important part of society does not applaud and is not afraid of that? If you want to feel fear, that is what you have to fear. If they want hope, what must be defended is the right to difference."
+                "Impunity, disarmament, political indications and corruption have generated and continue to fuel Brazil's biggest problems: violence, state inefficiency and unemployment. As important as doing new things is to undo this criminal structure created by the last governments!"
+                "Brazilian officials seem to be willing to prevent @LulaOficial from reaching the Planalto. @NUBrasil said that Lula has the right to be a candidate. The Brazilian government said it is a recommendation. It's law. It is an international treaty, assumed by Brazil. #MostONUGlobo"
             ]
+            
 
             analyze_batch(scorer, test_texts)
             continue
@@ -341,8 +433,18 @@ def interactive_mode(scorer):
 # ============================================================================
 
 if __name__ == "__main__":
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description="Populism-Pluralism Scorer")
+    parser.add_argument("--input", "-i", help="Input CSV file path")
+    parser.add_argument("--output", "-o", help="Output CSV file path")
+    args = parser.parse_args()
+    
     # Initialize scorer
     scorer = PopulismPluralismScorer()
     
-    # Run interactive mode
-    interactive_mode(scorer)
+    if args.input and args.output:
+        # Process CSV file
+        process_csv(scorer, args.input, args.output)
+    else:
+        # Run interactive mode
+        interactive_mode(scorer)

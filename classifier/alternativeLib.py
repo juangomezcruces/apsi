@@ -71,6 +71,13 @@ class LiberalIlliberalScorer:
         liberal_count = sum(1 for _, (_, direction) in self.liberal_illiberal_hypotheses.items() if direction == "liberal")
         illiberal_count = sum(1 for _, (_, direction) in self.liberal_illiberal_hypotheses.items() if direction == "illiberal")
         print(f"Loaded {len(self.liberal_illiberal_hypotheses)} hypotheses ({liberal_count} liberal, {illiberal_count} illiberal)")
+        
+        # Topic check configuration
+        self.topic_threshold = 0.6
+        self.topic_question = (
+            "This text is about democratic principles, freedom of speech, media freedom, "
+            "elections, assembly rights, or institutional legitimacy"
+        )
 
     def _find_entailment_index(self):
         """Auto-detect entailment index for different NLI models"""
@@ -80,6 +87,26 @@ class LiberalIlliberalScorer:
                 if label.lower() in ['entailment', 'entail']:
                     return idx
         return 0
+
+    def _get_entailment_prob(self, text, hypothesis):
+        """Get probability that text entails hypothesis"""
+        inputs = self.tokenizer(
+            text, hypothesis,
+            return_tensors="pt",
+            truncation=True,
+            max_length=512
+        )
+        
+        with torch.no_grad():
+            outputs = self.model(**inputs)
+            prob = torch.softmax(outputs.logits, dim=-1)[0, self.entailment_idx].item()
+        return prob
+
+    def is_about_democratic_principles(self, text):
+        """Check if text discusses democratic topics"""
+        prob = self._get_entailment_prob(text, self.topic_question)
+        return prob >= self.topic_threshold, prob
+
 
     def get_hypothesis_probabilities(self, text):
         """Get probabilities for all liberal-illiberal hypotheses"""
@@ -139,6 +166,19 @@ class LiberalIlliberalScorer:
 
     def score_liberal_illiberal(self, text):
         """Score text and return comprehensive results"""
+        # Check if text is about democratic principles
+        is_relevant, topic_prob = self.is_about_democratic_principles(text)
+        if not is_relevant:
+            return {
+                'text': text,
+                'score': 'NA',
+                'confidence': 0.0,
+                'contradiction_detected': False,
+                'interpretation': 'Not about democratic principles',
+                'is_relevant': False,
+                'topic_probability': topic_prob
+            }
+        
         probs = self.get_hypothesis_probabilities(text)
 
         liberal_probs = []
@@ -204,6 +244,8 @@ class LiberalIlliberalScorer:
             'illiberal_avg': illiberal_avg,
             'top_liberal_hypotheses': top_liberal,
             'top_illiberal_hypotheses': top_illiberal
+            'is_relevant': True,
+            'topic_probability': topic_prob
         }
 
     def quick_score(self, text):
@@ -223,7 +265,7 @@ def analyze_text(scorer, text):
     print(f"TEXT: {text}")
     print(f"{'='*80}")
     
-    print(f"\n📊 RESULTS:")
+    print(f"\nðŸ“Š RESULTS:")
     print(f"   LiberalAvg: {result['liberal_avg']:.2f}")
     print(f"   IliberalAvg: {result['illiberal_avg']:.2f}")
     print(f"   Score: {result['score']:.2f}/10")
@@ -231,12 +273,12 @@ def analyze_text(scorer, text):
     print(f"   Contradiction: {'YES' if result['contradiction_detected'] else 'NO'}")
     print(f"   Interpretation: {result['interpretation']}")
     
-    print(f"\n🔍 TOP LIBERAL HYPOTHESES:")
+    print(f"\nðŸ” TOP LIBERAL HYPOTHESES:")
     for i, hyp in enumerate(result['top_liberal_hypotheses']):
         short_hyp = hyp['hypothesis'][:100] + "..." if len(hyp['hypothesis']) > 100 else hyp['hypothesis']
         print(f"   {i}. {hyp['probability']:.3f} - {short_hyp}")
     
-    print(f"\n🔍 TOP ILLIBERAL HYPOTHESES:")
+    print(f"\nðŸ” TOP ILLIBERAL HYPOTHESES:")
     for i, hyp in enumerate(result['top_illiberal_hypotheses']):
         short_hyp = hyp['hypothesis'][:100] + "..." if len(hyp['hypothesis']) > 100 else hyp['hypothesis']
         print(f"   {i}. {hyp['probability']:.3f} - {short_hyp}")
@@ -266,7 +308,7 @@ def analyze_batch(scorer, texts):
     confidences = [r['confidence'] for r in results]
     contradictions = sum(1 for r in results if r['contradiction_detected'])
     
-    print(f"\n📊 SUMMARY:")
+    print(f"\nðŸ“Š SUMMARY:")
     print(f"   Score Range: {min(scores):.2f} - {max(scores):.2f}")
     print(f"   Mean Confidence: {np.mean(confidences):.3f}")
     print(f"   Contradictions: {contradictions}/{len(results)} ({contradictions/len(results)*100:.1f}%)")
@@ -294,10 +336,9 @@ def interactive_mode(scorer):
             continue
         elif text.lower() == 'batch':
             test_texts = [
-                "We must protect democratic institutions and ensure free elections.",
-                "The fake news media is the enemy of the people.",
-                "Democratic elections are essential but corrupt institutions must be bypassed.",
-                "Political elites have rigged the system against ordinary people."
+                "We want an inclusive, non-exclusionary Spain, which treats its people well and seeks justice and well-being. A fair country that makes us proud to be Spanish."
+                "Perhaps he ordered the murder of Jaime Garzon did not govern later? Perhaps an important part of society does not applaud and is not afraid of that? If you want to feel fear, that is what you have to fear. If they want hope, what must be defended is the right to difference."
+                "Impunity, disarmament, political indications and corruption have generated and continue to fuel Brazil's biggest problems: violence, state inefficiency and unemployment. As important as doing new things is to undo this criminal structure created by the last governments!"
             ]
             analyze_batch(scorer, test_texts)
             continue

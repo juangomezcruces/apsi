@@ -338,26 +338,6 @@ def classify_text(request):
                 results = {}
                 coordinates = {'x': None, 'y': None, 'z': None, 'labels': {}, 'errors': []}
                 
-                # === POLITICAL PRE-CHECK (runs for ALL approaches) ===
-                inference_service = PoliticalInferenceService.get_instance()
-                political_check_result = inference_service.is_political_text(text)
-                
-                # If text is not political, show warning and stop
-                if not political_check_result['is_political']:
-                    logger.info(f"Text rejected as non-political: {political_check_result}")
-                    context_data = {
-                        'form': form,
-                        'input_text': text,
-                        'not_political': True,
-                        'political_check': political_check_result,
-                        'message': 'Text does not appear to be about political topics. Scoring skipped.',
-                        'selected_approaches': selected_approaches,
-                    }
-                    return render(request, 'classifier/results.html', context_data)
-                
-                logger.info(f"Text passed political check: {political_check_result}")
-                # === END POLITICAL PRE-CHECK ===
-                
                 # Check if any direct regression is selected
                 direct_selected = (
                     selected_approaches.get('left_right_direct') or 
@@ -367,9 +347,11 @@ def classify_text(request):
                 
                 if direct_selected:
                     logger.info("Running direct regression models...")
-                    # Skip pre-check since we already did it above
-                    results = inference_service.predict_all(text, None, skip_precheck=True)
-                    coordinates = inference_service.get_3d_coordinates(text, None, skip_precheck=True)
+                    inference_service = PoliticalInferenceService.get_instance()
+                    results = inference_service.predict_all(text, None)
+                    
+                    
+                    coordinates = inference_service.get_3d_coordinates(text, None)
                     log_memory_usage("after direct regression")
                 else:
                     logger.info("Skipping direct regression models (not selected)")
@@ -404,7 +386,6 @@ def classify_text(request):
                     'input_text': text,
                     'coordinates_json': json.dumps(coordinates),
                     'alternative_scores': alternative_scores,
-                    'political_check': results.get('political_check'),
                     'selected_approaches': selected_approaches
                 }
                 
@@ -428,14 +409,6 @@ def classify_text(request):
             return render(request, 'classifier/index.html', {'form': form})
     else:
         return index(request)
-
-
-def privacy_notice(request):
-    return render(request, 'classifier/privacynotice.html')
-
-def imprint(request):
-    return render(request, 'classifier/imprint.html')
-
 
 @csrf_exempt
 @require_http_methods(["POST"])
@@ -472,17 +445,8 @@ def api_classify(request):
         inference_service = PoliticalInferenceService.get_instance()
         
         # Run predictions
-        results = inference_service.predict_all(text, None, skip_precheck=skip_precheck)
+        results = inference_service.predict_all(text, None)
 
-        # === NEW: Handle non-political text ===
-        if results.get('not_political'):
-            return JsonResponse({
-                'not_political': True,
-                'political_check': results.get('political_check'),
-                'message': results.get('message'),
-                'input_text': text
-            })
-        # === END NEW ===
 
         coordinates = inference_service.get_3d_coordinates(text, None)
         
