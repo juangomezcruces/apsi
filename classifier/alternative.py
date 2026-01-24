@@ -1,43 +1,25 @@
+import pandas as pd
 import numpy as np
 import torch
+import torch.nn as nn
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from .shared_model_cache import SharedModelCache
+import warnings
+warnings.filterwarnings('ignore')
 
 # ============================================================================
-# LEFT-RIGHT ECONOMIC HYPOTHESIS-BASED SCORER (SIMPLIFIED TOPIC PRECHECK)
+# LEFT-RIGHT ECONOMIC HYPOTHESIS-BASED SCORER
 # ============================================================================
 
 class LeftRightEconomicScorer:
     def __init__(self, model_name="mlburnham/Political_DEBATE_large_v1.0"):
         cache = SharedModelCache()
         self.model, self.tokenizer = cache.get_model_and_tokenizer(model_name)
-
-        # Make inference deterministic (turn off dropout, etc.)
-        self.model.eval()
-
-        # Determine device and keep it consistent
-        try:
-            self.device = next(self.model.parameters()).device
-        except StopIteration:
-            self.device = torch.device("cpu")
-
-        # Robust entailment label index detection
         self.entailment_idx = self._find_entailment_index()
 
-        # --------------------------------------------------------------------
-        # SIMPLE TOPIC PRECHECK (YOUR EXACT SCOPE DEFINITION)
-        # --------------------------------------------------------------------
-        self.topic_question = (
-            "Does this text discuss political rhetoric, governance approaches, or institutional legitimacy? "
-            "This includes references to populist rhetoric (challenging institutions, emphasizing popular will) "
-            "or pluralist rhetoric (supporting checks and balances, minority rights, compromise)."
-        )
-        self.topic_threshold = 0.50  # keep your chosen threshold
-
-        # --------------------------------------------------------------------
-        # Left-Right Economic hypotheses
-        # --------------------------------------------------------------------
+        # Left-Right Economic hypotheses - streamlined to ~15 per side
         self.left_right_hypotheses = {
-            # Left
+            # Left Economic Positions (15) - More specific and policy-focused
             "The author of this text believes corporations should pay higher taxes": (1.0, "left"),
             "The author of this text believes wealthy individuals should pay higher tax rates": (1.0, "left"),
             "The author of this text believes government should increase spending on healthcare": (1.0, "left"),
@@ -53,8 +35,8 @@ class LeftRightEconomicScorer:
             "The author of this text believes government should reduce income inequality": (1.0, "left"),
             "The author of this text believes public investment creates jobs": (1.0, "left"),
             "The author of this text believes social safety nets should be expanded": (1.0, "left"),
-
-            # Right
+            
+            # Right Economic Positions (15) - More specific and policy-focused  
             "The author of this text believes corporate tax rates should be lowered": (1.0, "right"),
             "The author of this text believes income taxes should be reduced": (1.0, "right"),
             "The author of this text believes government spending on social programs should be cut": (1.0, "right"),
@@ -72,130 +54,122 @@ class LeftRightEconomicScorer:
             "The author of this text believes social programs create dependency": (1.0, "right"),
         }
 
-    # ------------------------------------------------------------------------
-    # Label index detection (critical for correct precheck)
-    # ------------------------------------------------------------------------
-    def _find_entailment_index(self) -> int:
-        """
-        Robustly detect entailment index:
-        1) Use config.label2id/id2label if present (best)
-        2) Otherwise, assume standard 3-way MNLI ordering: contradiction=0, neutral=1, entailment=2
-        3) Fallback to last label if model is binary/odd
-        """
-        config = getattr(self.model, "config", None)
-        if config is not None:
-            # Try label2id
-            label2id = getattr(config, "label2id", None) or {}
-            for label, idx in label2id.items():
-                if isinstance(label, str) and label.lower() in ("entailment", "entails", "entail"):
-                    return int(idx)
 
-            # Try id2label
-            id2label = getattr(config, "id2label", None) or {}
-            for idx, label in id2label.items():
-                if isinstance(label, str) and label.lower() in ("entailment", "entails", "entail"):
-                    return int(idx)
+        left_count = sum(1 for _, (_, direction) in self.left_right_hypotheses.items() if direction == "left")
+        right_count = sum(1 for _, (_, direction) in self.left_right_hypotheses.items() if direction == "right")
+        print(f"Loaded {len(self.left_right_hypotheses)} hypotheses ({left_count} left, {right_count} right)")
 
-            # If 3 labels, default to MNLI ordering
-            num_labels = getattr(config, "num_labels", None)
-            if num_labels == 3:
-                return 2
+    def _find_entailment_index(self):
+        """Auto-detect entailment index for different NLI models"""
+        config = self.model.config
+        if hasattr(config, 'label2id') and config.label2id:
+            for label, idx in config.label2id.items():
+                if label.lower() in ['entailment', 'entail']:
+                    return idx
+        return 0
 
-            # If 2 labels, many models put "entailment"/"positive" at 1
-            if num_labels == 2:
-                return 1
-
-        # Absolute fallback: pick last logit
-        return -1
-
-    # ------------------------------------------------------------------------
-    # Core entailment probability helper
-    # ------------------------------------------------------------------------
-    def _entailment_prob(self, premise: str, hypothesis: str) -> float:
-        inputs = self.tokenizer(
-            premise,
-            hypothesis,
-            return_tensors="pt",
-            truncation=True,
-            max_length=512,
-        )
-
-        # Ensure tensors are on same device as model
-        inputs = {k: v.to(self.device) for k, v in inputs.items()}
-
-        with torch.no_grad():
-            outputs = self.model(**inputs)
-            probs = torch.softmax(outputs.logits, dim=-1)[0]
-
-            # Handle -1 entailment_idx fallback (last label)
-            idx = self.entailment_idx if self.entailment_idx >= 0 else (probs.shape[-1] - 1)
-            return float(probs[idx].item())
-
-    # ------------------------------------------------------------------------
-    # SIMPLE TOPIC PRECHECK (ONE QUESTION -> prob -> threshold)
-    # ------------------------------------------------------------------------
-    def topic_precheck(self, text: str) -> dict:
-        score = float(self._entailment_prob(text, self.topic_question))
-        passed = score >= float(self.topic_threshold)
-        return {
-            "passed_precheck": passed,
-            "precheck_score": score,
-            "precheck_threshold": float(self.topic_threshold),
-            "precheck_question": self.topic_question,
-            "error": None if passed else "Text did not pass the topic precheck.",
-        }
-
-    # ------------------------------------------------------------------------
-    # Hypothesis scoring (only runs AFTER precheck passes)
-    # ------------------------------------------------------------------------
-    def get_hypothesis_probabilities(self, text: str) -> np.ndarray:
+    def get_hypothesis_probabilities(self, text):
+        """Get probabilities for all left-right hypotheses"""
         probs = []
         for hypothesis in self.left_right_hypotheses.keys():
-            p = self._entailment_prob(text, hypothesis)
-            probs.append(p)
-        return np.array(probs, dtype=float)
+            inputs = self.tokenizer(
+                text, hypothesis,
+                return_tensors="pt",
+                truncation=True,
+                max_length=512
+            )
 
-    def score_left_right(self, text: str) -> dict:
-        # 1) Precheck FIRST — hard stop if it fails
-        pre = self.topic_precheck(text)
-        if not pre["passed_precheck"]:
-            return {
-                "text": text,
-                **pre,
-            }
+            with torch.no_grad():
+                outputs = self.model(**inputs)
+                prob = torch.softmax(outputs.logits, dim=-1)[0, self.entailment_idx].item()
+                probs.append(prob)
 
-        # 2) Only now run the expensive hypothesis inference
+        return np.array(probs)
+
+    def compute_combined_confidence(self, left_probs, right_probs, all_probs):
+        """Simplified confidence with Top-K contradiction detection only"""
+        
+        # Basic confidence from variance (lower variance = higher confidence)
+        left_variance = np.var(left_probs) if len(left_probs) > 1 else 0
+        right_variance = np.var(right_probs) if len(right_probs) > 1 else 0
+        
+        left_confidence = 1 / (1 + left_variance * 4)
+        right_confidence = 1 / (1 + right_variance * 4)
+        base_confidence = 0.7 * min(left_confidence, right_confidence) + 0.3 * (left_confidence + right_confidence) / 2
+        
+        # Top-K contradiction detection (only method we use)
+        k = 5
+        top_left = np.sort(left_probs)[-k:] if len(left_probs) >= k else left_probs
+        top_right = np.sort(right_probs)[-k:] if len(right_probs) >= k else right_probs
+        
+        top_left_avg = np.mean(top_left)
+        top_right_avg = np.mean(top_right)
+        
+        # Simple contradiction detection: both top-5 averages must be > 0.25
+        topk_contradiction = min(top_left_avg, top_right_avg)
+        contradiction_detected = topk_contradiction > 0.25
+        
+        # Apply penalty if contradiction detected
+        if contradiction_detected:
+            contradiction_penalty = min(1.0, topk_contradiction * 2.0)
+            final_confidence = base_confidence * (1 - contradiction_penalty * 0.8)
+        else:
+            final_confidence = base_confidence
+        
+        return {
+            'combined': final_confidence,
+            'contradiction_detected': contradiction_detected,
+            'contradiction_score': topk_contradiction if contradiction_detected else 0,
+            'top_left_avg': top_left_avg,
+            'top_right_avg': top_right_avg
+        }
+
+    def score_left_right(self, text):
+        """Score text and return comprehensive results"""
         probs = self.get_hypothesis_probabilities(text)
 
         left_probs = []
         right_probs = []
         hypothesis_results = []
-
+        
+        # Process each hypothesis
         for i, (hypothesis, (weight, direction)) in enumerate(self.left_right_hypotheses.items()):
-            prob = float(probs[i])
+            prob = probs[i]
+            
             hypothesis_results.append({
-                "hypothesis": hypothesis,
-                "probability": prob,
-                "direction": direction,
+                'hypothesis': hypothesis,
+                'probability': prob,
+                'direction': direction
             })
+            
             if direction == "left":
                 left_probs.append(prob * weight)
             else:
                 right_probs.append(prob * weight)
 
-        left_avg = float(np.mean(left_probs)) if left_probs else 0.0
-        right_avg = float(np.mean(right_probs)) if right_probs else 0.0
-
+        # Calculate averages and score
+        left_avg = np.mean(left_probs) if left_probs else 0
+        right_avg = np.mean(right_probs) if right_probs else 0
+        
         difference = left_avg - right_avg
-        final_score = 5 - (difference * 5)   # left -> low numbers; right -> high numbers
-        final_score = float(np.clip(final_score, 0, 10))
+        final_score = 5 - (difference * 5)  # Flipped: left = low numbers, right = high numbers
+        final_score = np.clip(final_score, 0, 10)
 
-        # Simple confidence (keep it simple): distance from center scaled by signal strength
-        # You can replace this with your prior confidence method if you prefer.
-        signal = float(np.mean(probs)) if len(probs) else 0.0
-        confidence = float(np.clip(signal, 0.0, 1.0))
+        # Compute confidence
+        confidence_data = self.compute_combined_confidence(
+            [p/1.0 for p in left_probs],  # Unweight for confidence calc
+            [p/1.0 for p in right_probs],
+            probs
+        )
 
-        # Interpretation
+        # Get top hypotheses from each direction
+        left_hyps = [h for h in hypothesis_results if h['direction'] == 'left']
+        right_hyps = [h for h in hypothesis_results if h['direction'] == 'right']
+        
+        top_left = sorted(left_hyps, key=lambda x: x['probability'], reverse=True)[:5]
+        top_right = sorted(right_hyps, key=lambda x: x['probability'], reverse=True)[:5]
+
+        # Interpret score (0-10 scale: 0=Far Left, 5=Center, 10=Far Right)
         if final_score < 2:
             interpretation = "Far Left"
         elif final_score < 4:
@@ -207,26 +181,140 @@ class LeftRightEconomicScorer:
         else:
             interpretation = "Far Right"
 
-        left_hyps = [h for h in hypothesis_results if h["direction"] == "left"]
-        right_hyps = [h for h in hypothesis_results if h["direction"] == "right"]
-        top_left = sorted(left_hyps, key=lambda x: x["probability"], reverse=True)[:5]
-        top_right = sorted(right_hyps, key=lambda x: x["probability"], reverse=True)[:5]
-
         return {
-            "text": text,
-            **pre,
-            "score": final_score,
-            "confidence": confidence,
-            "interpretation": interpretation,
-            "left_avg": left_avg,
-            "right_avg": right_avg,
-            "top_left_hypotheses": top_left,
-            "top_right_hypotheses": top_right,
+            'text': text,
+            'score': final_score,
+            'confidence': confidence_data['combined'],
+            'contradiction_detected': confidence_data['contradiction_detected'],
+            'interpretation': interpretation,
+            'left_avg': left_avg,
+            'right_avg': right_avg,
+            'top_left_hypotheses': top_left,
+            'top_right_hypotheses': top_right
         }
 
-    def quick_score(self, text: str) -> float:
+    def quick_score(self, text):
+        """Ultra-simple interface - just returns the numerical score"""
         result = self.score_left_right(text)
-        # If out-of-scope, you might want to return None instead; keeping float here will raise.
-        if not result.get("passed_precheck", True):
-            raise ValueError(result.get("error") or "Text did not pass the topic precheck.")
-        return float(result["score"])
+        return result['score']
+
+# ============================================================================
+# INTERACTIVE ANALYSIS FUNCTIONS
+# ============================================================================
+
+def analyze_text(scorer, text):
+    """Analyze a single text and display clean results"""
+    result = scorer.score_left_right(text)
+    
+    print(f"\n{'='*80}")
+    print(f"TEXT: {text}")
+    print(f"{'='*80}")
+    
+    print(f"\n📊 RESULTS:")
+    print(f"   LeftAvg: {result['left_avg']:.2f}")
+    print(f"   RightAvg: {result['right_avg']:.2f}")
+    print(f"   Score: {result['score']:.2f}/10 (0=Far Left, 10=Far Right)")
+    print(f"   Confidence: {result['confidence']:.3f}")
+    print(f"   Contradiction: {'YES' if result['contradiction_detected'] else 'NO'}")
+    print(f"   Interpretation: {result['interpretation']}")
+    
+    print(f"\n🔍 TOP LEFT HYPOTHESES:")
+    for i, hyp in enumerate(result['top_left_hypotheses']):
+        short_hyp = hyp['hypothesis'][:100] + "..." if len(hyp['hypothesis']) > 100 else hyp['hypothesis']
+        print(f"   {i}. {hyp['probability']:.3f} - {short_hyp}")
+    
+    print(f"\n🔍 TOP RIGHT HYPOTHESES:")
+    for i, hyp in enumerate(result['top_right_hypotheses']):
+        short_hyp = hyp['hypothesis'][:100] + "..." if len(hyp['hypothesis']) > 100 else hyp['hypothesis']
+        print(f"   {i}. {hyp['probability']:.3f} - {short_hyp}")
+    
+    return result
+
+def analyze_batch(scorer, texts):
+    """Analyze multiple texts and display summary table"""
+    print(f"\n{'='*120}")
+    print("BATCH ANALYSIS RESULTS")
+    print(f"{'='*120}")
+    
+    print(f"{'Text':<70} {'Score':<7} {'Conf':<7} {'Contr':<6} {'Interpretation'}")
+    print("-" * 120)
+    
+    results = []
+    for text in texts:
+        result = scorer.score_left_right(text)
+        text_display = text[:67] + "..." if len(text) > 70 else text
+        contradiction_status = "YES" if result['contradiction_detected'] else "NO"
+        
+        print(f"{text_display:<70} {result['score']:<7.2f} {result['confidence']:<7.3f} {contradiction_status:<6} {result['interpretation']}")
+        results.append(result)
+    
+    # Summary statistics
+    scores = [r['score'] for r in results]
+    confidences = [r['confidence'] for r in results]
+    contradictions = sum(1 for r in results if r['contradiction_detected'])
+    
+    print(f"\n📊 SUMMARY:")
+    print(f"   Score Range: {min(scores):.2f} - {max(scores):.2f}")
+    print(f"   Mean Score: {np.mean(scores):.2f}")
+    print(f"   Mean Confidence: {np.mean(confidences):.3f}")
+    print(f"   Contradictions: {contradictions}/{len(results)} ({contradictions/len(results)*100:.1f}%)")
+    
+    return results
+
+def interactive_mode(scorer):
+    """Interactive mode for testing individual texts"""
+    print(f"\n{'='*60}")
+    print("INTERACTIVE LEFT-RIGHT ECONOMIC SCORER")
+    print(f"{'='*60}")
+    print("Enter text to analyze (or 'quit' to exit)")
+    print("Commands: 'batch' for multiple texts, 'help' for guidance")
+    print("Scale: 0 = Far Left, 5 = Center, 10 = Far Right")
+    
+    while True:
+        text = input("\n> ").strip()
+        
+        if text.lower() in ['quit', 'exit', 'q']:
+            break
+        elif text.lower() == 'help':
+            print("\nCommands:")
+            print("- Enter any economic policy text to get left-right score")
+            print("- 'batch' - analyze multiple predefined test texts")
+            print("- 'quit' - exit the program")
+            print("\nScoring:")
+            print("- 0-2: Far Left (extensive government role, wealth redistribution)")
+            print("- 2-4: Left (active government, social programs)")
+            print("- 4-6: Center (mixed economy)")
+            print("- 6-8: Right (limited government role, pro-business)")
+            print("- 8-10: Far Right (minimal government, maximum market freedom)")
+            continue
+        elif text.lower() == 'batch':
+            test_texts = [
+                "We need to cut taxes and reduce government spending to boost economic growth.",
+                "The government should provide universal healthcare and free education for all.",
+                "Private companies are more efficient than government-run services.",
+                "Wealth inequality requires higher taxes on the rich and stronger social programs.",
+                "Deregulation will unleash business innovation and create jobs.",
+                "We must strengthen worker protections and raise the minimum wage.",
+                "Free markets allocate resources better than government planning.",
+                "Essential services like healthcare should be publicly owned and funded."
+            ]
+            analyze_batch(scorer, test_texts)
+            continue
+        elif not text:
+            continue
+        
+        try:
+            analyze_text(scorer, text)
+        except Exception as e:
+            print(f"Error analyzing text: {e}")
+
+# ============================================================================
+# MAIN EXECUTION
+# ============================================================================
+
+if __name__ == "__main__":
+    # Initialize scorer
+    scorer = LeftRightEconomicScorer()
+    
+    # Run interactive mode
+    interactive_mode(scorer)
