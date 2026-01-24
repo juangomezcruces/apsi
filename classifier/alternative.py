@@ -23,7 +23,7 @@ class LeftRightEconomicScorer:
             "This includes references to populist rhetoric (challenging institutions, emphasizing popular will) "
             "or pluralist rhetoric (supporting checks and balances, minority rights, compromise)."
         )
-        self.topic_threshold = 0.60
+        self.topic_threshold = 0.30
 
         # Left-Right Economic hypotheses - streamlined to ~15 per side
         self.left_right_hypotheses = {
