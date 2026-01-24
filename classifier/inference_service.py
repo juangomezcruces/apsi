@@ -109,6 +109,55 @@ class PoliticalInferenceService:
             logger.error(f"âœ— Error loading {model_description} model: {e}")
             return None, None
 
+    def _load_regression_models(self):
+        """Load all regression models."""
+        model_configs = [
+            ("left_right_regression", "lr_regression"),
+            ("liberal_illiberal_regression", "libil_regression"),
+            ("populism_regression", "pop_regression")
+        ]
+        
+        for config_key, attr_prefix in model_configs:
+            model_path = settings.MODEL_PATHS[config_key]
+            model, tokenizer = self._load_model_pair(model_path, config_key)
+            setattr(self, f"{attr_prefix}_model", model)
+            setattr(self, f"{attr_prefix}_tokenizer", tokenizer)
+
+    def _load_model_pair(self, model_path: str, model_description: str):
+        """Load a model and tokenizer pair with fallback options."""
+        if not os.path.exists(model_path):
+            logger.error(f"✗ {model_description} model not found at {model_path}")
+            return None, None
+
+        try:
+            # Try to load tokenizer from model directory first
+            try:
+                tokenizer = AutoTokenizer.from_pretrained(model_path)
+                logger.info(f"✓ Loaded {model_description} tokenizer from model directory")
+            except:
+                # Fallback tokenizers
+                for fallback in ["roberta-base", "xlm-roberta-large"]:
+                    try:
+                        tokenizer = AutoTokenizer.from_pretrained(fallback)
+                        logger.info(f"✓ Using {fallback} tokenizer for {model_description}")
+                        break
+                    except:
+                        continue
+                else:
+                    raise Exception("No suitable tokenizer found")
+            
+            # Load the model
+            model = AutoModelForSequenceClassification.from_pretrained(model_path)
+            model.to(self.device)
+            model.eval()
+            logger.info(f"✓ {model_description} model loaded successfully")
+            
+            return model, tokenizer
+            
+        except Exception as e:
+            logger.error(f"✗ Error loading {model_description} model: {e}")
+            return None, None
+
     # =========================================================================
     # POLITICAL TEXT PRE-CHECK
     # =========================================================================

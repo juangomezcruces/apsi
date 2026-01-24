@@ -18,13 +18,16 @@
                 </div>
             </div>
             <div class="col-md-4">
-                <a href="{% url 'classifier:index' %}" class="btn btn-light btn-lg w-100">
-                    â† Analyze Another Text
-                </a>
-            </div>
+    <a href="{% url 'classifier:index' %}"
+       class="btn btn-lg w-100"
+       style="background-color:#37A3B1; color:#fff;">
+        ← Analyze Another Text
+    </a>
+</div>
         </div>
     </div>
 </section>
+
 
 <!-- Political text - show full results -->
 
@@ -200,29 +203,56 @@
                 <div class="col-lg-4 col-md-6 mb-4">
                     <div class="card h-100" style="border-left: 4px solid #e83e8c;">
                         <div class="card-body text-center">
-                            <h6 class="card-title">âš–ï¸ Left-Right Hypothesis</h6>
-                            <div class="display-6 mb-2" style="color: #e83e8c;">
-                                {{ alternative_scores.left_right_hypothesis.score }}
-                            </div>
-                            <div class="mb-3">
-                                <span class="badge bg-secondary">
-                                    {{ alternative_scores.left_right_hypothesis.interpretation }}
-                                </span>
-                            </div>
-                            {% with confidence=alternative_scores.left_right_hypothesis.confidence|floatformat:1 %}
-                            <div class="progress mb-2" style="height: 8px;">
-                                <div class="progress-bar bg-info confidence-bar" 
-                                     data-confidence="{{ alternative_scores.left_right_hypothesis.confidence }}"
-                                     style="width: {{ confidence }}%">
-                                </div>
-                            </div>
-                            <small class="text-muted">
-                                Confidence: {{ confidence }}%
-                            </small>
-                            {% endwith %}
-                            <p class="card-text mt-3 small">
-                                Hypothesis-driven analysis of economic and social policy positions.
-                            </p>
+                            <h6 class="card-title">Economic Left-Right</h6>
+
+{% if alternative_scores.left_right_hypothesis.passed_precheck|default:True %}
+
+{% with score=alternative_scores.left_right_hypothesis.score confidence=alternative_scores.left_right_hypothesis.confidence %}
+  {# If your score is already 0–10, use it directly. If it's a string, you may want to ensure it's numeric in your view. #}
+
+  {# Convert score (0–10) into percentage for left position #}
+  {% with left=score|floatformat:1 %}
+    <div class="scale-wrap my-2">
+      <!-- Score above the dot -->
+      <div class="scale-score" style="left: calc({{ left }} * 10%);">
+        <span class="display-6" style="color:#e83e8c;">
+          {{ score|floatformat:1 }}
+        </span>
+      </div>
+
+      <!-- Line + dot -->
+      <div class="scale-line">
+        <div class="scale-dot" style="left: calc({{ left }} * 10%);"></div>
+      </div>
+
+      <!-- Optional labels -->
+      <div class="scale-labels">
+        <span>Left</span>
+        <span>Right</span>
+      </div>
+    </div>
+  {% endwith %}
+
+  <div class="mb-2">
+   <span class="badge bg-custom">
+      {{ alternative_scores.left_right_hypothesis.interpretation }}
+    </span>
+  </div>
+
+  <!-- Confidence as text instead of a bar -->
+  <div class="text-muted" style="font-size: 0.9rem;">
+    <strong>Confidence:</strong> {{ confidence|floatformat:1 }}%
+  </div>
+{% endwith %}
+
+{% else %}
+  <div class="alert alert-danger mt-3 mb-0" role="alert">
+    <strong>Not in scope:</strong> the text didn’t pass the political/governance topic precheck.
+    {% if alternative_scores.left_right_hypothesis.precheck_threshold %}
+      <div class="small text-muted mt-1">Precheck score: {{ alternative_scores.left_right_hypothesis.precheck_score|floatformat:3 }} (threshold {{ alternative_scores.left_right_hypothesis.precheck_threshold }})</div>
+    {% endif %}
+  </div>
+{% endif %}
                         </div>
                     </div>
                 </div>
@@ -261,41 +291,111 @@
                 </div>
                 {% endif %}
 
-                <!-- Populism-Pluralism Hypothesis -->
-                {% if alternative_scores.populism_pluralism_hypothesis %}
-                <div class="col-lg-4 col-md-6 mb-4">
-                    <div class="card h-100" style="border-left: 4px solid #ffc107;">
-                        <div class="card-body text-center">
-                            <h6 class="card-title">ðŸ’¥ Populism-Pluralism Hypothesis</h6>
-                            <div class="display-6 mb-2" style="color: #ffc107;">
-                                {{ alternative_scores.populism_pluralism_hypothesis.score }}
-                            </div>
-                            <div class="mb-3">
-                                <span class="badge bg-secondary">
-                                    {{ alternative_scores.populism_pluralism_hypothesis.interpretation }}
-                                </span>
-                            </div>
-                            {% with confidence=alternative_scores.populism_pluralism_hypothesis.confidence|floatformat:1 %}
-                            <div class="progress mb-2" style="height: 8px;">
-                                <div class="progress-bar bg-info confidence-bar" 
-                                     data-confidence="{{ alternative_scores.populism_pluralism_hypothesis.confidence }}"
-                                     style="width: {{ confidence }}%">
-                                </div>
-                            </div>
-                            <small class="text-muted">
-                                Confidence: {{ confidence }}%
-                            </small>
-                            {% endwith %}
-                            <p class="card-text mt-3 small">
-                                Hypothesis-driven analysis of people vs. elite discourse patterns.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                {% endif %}
+
+
+
+         <!-- Liberal-Illiberal Hypothesis -->
+{% if alternative_scores.liberal_illiberal_hypothesis %}
+<div class="col-lg-4 col-md-6 mb-4">
+  <div class="card h-100" style="border-left: 4px solid #20c997;">
+    <div class="card-body text-center">
+      <h6 class="card-title">Support for Liberal Democracy</h6>
+
+      {% if alternative_scores.liberal_illiberal_hypothesis.passed_precheck|default:True %}
+
+      {% with score=alternative_scores.liberal_illiberal_hypothesis.score confidence=alternative_scores.liberal_illiberal_hypothesis.confidence %}
+        {# If score is 0–10, we can use it directly for positioning #}
+        {% with liberal=score|floatformat:1 %}
+          <div class="scale-wrap my-2">
+            <!-- Score above the dot -->
+            <div class="scale-score" style="left: calc({{ liberal }} * 10%);">
+              <span class="display-6" style="color:#20c997;">
+                {{ score|floatformat:1 }}
+              </span>
             </div>
         </div>
+
+        <!-- Confidence as text instead of a bar -->
+        <div class="text-muted" style="font-size: 0.9rem;">
+          <strong>Confidence:</strong> {{ confidence|floatformat:1 }}%
+        </div>
+      {% endwith %}
+
+    {% else %}
+      <div class="alert alert-danger mt-3 mb-0" role="alert">
+        <strong>Not in scope:</strong> the text didn’t pass the political/governance topic precheck.
+        {% if alternative_scores.liberal_illiberal_hypothesis.precheck_threshold %}
+          <div class="small text-muted mt-1">Precheck score: {{ alternative_scores.liberal_illiberal_hypothesis.precheck_score|floatformat:3 }} (threshold {{ alternative_scores.liberal_illiberal_hypothesis.precheck_threshold }})</div>
         {% endif %}
+      </div>
+    {% endif %}
+
+    </div>
+  </div>
+</div>
+{% endif %}
+
+
+<!-- Populism–Pluralism Hypothesis -->
+{% if alternative_scores.populism_pluralism_hypothesis %}
+<div class="col-lg-4 col-md-6 mb-4">
+  <div class="card h-100" style="border-left: 4px solid #ffc107;">
+    <div class="card-body text-center">
+      <h6 class="card-title">Populism–Pluralism</h6>
+
+      {% if alternative_scores.populism_pluralism_hypothesis.passed_precheck|default:True %}
+
+      {% with score=alternative_scores.populism_pluralism_hypothesis.score confidence=alternative_scores.populism_pluralism_hypothesis.confidence %}
+        {# If your score is already 0–10, use it directly. If it's a string, you may want to ensure it's numeric in your view. #}
+        {% with populism=score|floatformat:1 %}
+          <div class="scale-wrap my-2">
+            <!-- Score above the dot -->
+            <div class="scale-score" style="left: calc({{ populism }} * 10%);">
+              <span class="display-6" style="color:#ffc107;">
+                {{ score|floatformat:1 }}
+              </span>
+            </div>
+
+            <!-- Line + dot -->
+            <div class="scale-line">
+              <div class="scale-dotpopplu" style="left: calc({{ populism }} * 10%); background-color: #ffc107;">                
+              </div>
+            </div>
+
+            <!-- Labels -->
+            <div class="scale-labels">
+              <span>Pluralism</span>
+              <span>Populism</span>
+            </div>
+          </div>
+        {% endwith %}
+
+        <div class="mb-2">
+          <span class="badge bg-custom">
+            {{ alternative_scores.populism_pluralism_hypothesis.interpretation }}
+          </span>
+        </div>
+
+        <!-- Confidence as text instead of a bar -->
+        <div class="text-muted" style="font-size: 0.9rem;">
+          <strong>Confidence:</strong> {{ confidence|floatformat:1 }}%
+        </div>
+      {% endwith %}
+
+    {% else %}
+      <div class="alert alert-danger mt-3 mb-0" role="alert">
+        <strong>Not in scope:</strong> the text didn’t pass the political/governance topic precheck.
+        {% if alternative_scores.populism_pluralism_hypothesis.precheck_threshold %}
+          <div class="small text-muted mt-1">Precheck score: {{ alternative_scores.populism_pluralism_hypothesis.precheck_score|floatformat:3 }} (threshold {{ alternative_scores.populism_pluralism_hypothesis.precheck_threshold }})</div>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endif %}
 
         <!-- Response-Based Approaches -->
         {% if alternative_scores.left_right_responses or alternative_scores.liberal_illiberal_responses or alternative_scores.populism_pluralism_responses %}
@@ -422,4 +522,41 @@
 </section>
 {% endif %}
 
-{% endif %}
+
+<section class="py-5 bg-light">
+  <div class="container">
+    <div class="row">
+      <div class="col-12">
+
+        <div class="disclaimer-box text-center mb-5">
+          <h3>Disclaimer</h3>
+          <p class="text-muted">
+            This tool provides automated analyses intended to approximate potential political stances expressed in text. Its assessments may be inaccurate or incomplete, and should not be treated as definitive judgments about an individual’s beliefs, affiliations, or intentions.
+          </p>
+          <p class="text-muted">
+            Political language is often nuanced, context-dependent, and influenced by cultural, historical, or rhetorical factors the tool may not fully capture. Results may also be affected by biases present in training data or model limitations.
+          </p>
+          <p class="text-muted">
+            This tool is intended for informational and research purposes only. It should not be used for decisions affecting individuals’ rights, opportunities, or access to services (including employment, housing, legal, or political participation decisions). Users are responsible for applying human review, critical judgment, and, when appropriate, expert consultation.
+          </p>
+
+          <hr class="my-4">
+
+          <h3>Haftungsausschluss</h3>
+          <p class="text-muted">
+            Dieses Tool führt automatisierte Analysen durch, um wahrscheinliche politische Haltungen in Texten zu erkennen. Die Ergebnisse können ungenau oder unvollständig sein und sollten nicht als endgültige Aussagen über die Überzeugungen, Zugehörigkeiten oder Absichten einer Person verstanden werden.
+          </p>
+          <p class="text-muted">
+            Politische Sprache ist oft nuanciert, kontextabhängig und wird von kulturellen, historischen oder rhetorischen Faktoren beeinflusst, die das Tool möglicherweise nicht vollständig erfassen kann. Die Resultate können zudem durch Bias in den Trainingsdaten oder durch Modellgrenzen verfälscht werden.
+          </p>
+          <p class="text-muted">
+            Dieses Tool dient ausschließlich Informations- und Forschungszwecken. Es darf nicht für Entscheidungen verwendet werden, die die Rechte, Chancen oder den Zugang zu Dienstleistungen von Personen betreffen (einschließlich Entscheidungen in den Bereichen Beschäftigung, Wohnen, Rechtliches oder politische Teilhabe). Nutzerinnen und Nutzer sind dafür verantwortlich, die Ergebnisse mit menschlicher Prüfung, kritischem Urteilsvermögen und gegebenenfalls fachlicher Beratung zu bewerten.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

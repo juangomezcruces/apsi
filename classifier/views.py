@@ -136,11 +136,24 @@ def generate_alternative_scores(text, scorers=None, selected_approaches=None):
                 try:
                     logger.debug("Running left-right hypothesis scoring...")
                     lr_result = scorers['left_right'].score_left_right(text)
+
+                    # If the scorer implements a topic precheck, pass through the result so the template
+                    # can show a clear error state instead of a misleading numeric score.
+                    passed_precheck = lr_result.get('passed_precheck', True)
+
                     alternative_scores['left_right_hypothesis'] = {
-                        'score': round(lr_result.get('score', 5.0), 2),
-                        'confidence': round(lr_result.get('confidence', 0.8) * 100, 1),
-                        'interpretation': lr_result.get('interpretation', 'Center')
+                        'passed_precheck': passed_precheck,
+                        'precheck_score': round(lr_result.get('precheck_score', 0.0), 3) if not passed_precheck else round(lr_result.get('precheck_score', 0.0), 3),
+                        'precheck_threshold': lr_result.get('precheck_threshold', None),
+                        'error': lr_result.get('error', None),
                     }
+
+                    if passed_precheck:
+                        alternative_scores['left_right_hypothesis'].update({
+                            'score': round(lr_result.get('score', 5.0), 2),
+                            'confidence': round(lr_result.get('confidence', 0.8) * 100, 1),
+                            'interpretation': lr_result.get('interpretation', 'Center'),
+                        })
                     logger.debug(f"âœ“ Left-right hypothesis: {lr_result.get('score', 'N/A'):.2f}")
                 except Exception as e:
                     logger.error(f"Left-Right hypothesis scoring failed: {e}")
@@ -150,11 +163,22 @@ def generate_alternative_scores(text, scorers=None, selected_approaches=None):
                 try:
                     logger.debug("Running liberal-illiberal hypothesis scoring...")
                     li_result = scorers['liberal_illiberal'].score_liberal_illiberal(text)
+
+                    passed_precheck = li_result.get('passed_precheck', True)
+
                     alternative_scores['liberal_illiberal_hypothesis'] = {
-                        'score': round(li_result.get('score', 5.0), 2),
-                        'confidence': round(li_result.get('confidence', 0.8) * 100, 1),
-                        'interpretation': li_result.get('interpretation', 'Moderate')
+                        'passed_precheck': passed_precheck,
+                        'precheck_score': round(li_result.get('precheck_score', 0.0), 3) if not passed_precheck else round(li_result.get('precheck_score', 0.0), 3),
+                        'precheck_threshold': li_result.get('precheck_threshold', None),
+                        'error': li_result.get('error', None),
                     }
+
+                    if passed_precheck:
+                        alternative_scores['liberal_illiberal_hypothesis'].update({
+                            'score': round(li_result.get('score', 5.0), 2),
+                            'confidence': round(li_result.get('confidence', 0.8) * 100, 1),
+                            'interpretation': li_result.get('interpretation', 'Moderate'),
+                        })
                     logger.debug(f"âœ“ Liberal-illiberal hypothesis: {li_result.get('score', 'N/A'):.2f}")
                 except Exception as e:
                     logger.error(f"Liberal-Illiberal hypothesis scoring failed: {e}")
@@ -164,11 +188,22 @@ def generate_alternative_scores(text, scorers=None, selected_approaches=None):
                 try:
                     logger.debug("Running populism-pluralism hypothesis scoring...")
                     pp_result = scorers['populism_pluralism'].score_populism_pluralism(text)
+
+                    passed_precheck = pp_result.get('passed_precheck', True)
+
                     alternative_scores['populism_pluralism_hypothesis'] = {
-                        'score': round(pp_result.get('score', 5.0), 2),
-                        'confidence': round(pp_result.get('confidence', 0.8) * 100, 1),
-                        'interpretation': pp_result.get('interpretation', 'Moderate')
+                        'passed_precheck': passed_precheck,
+                        'precheck_score': round(pp_result.get('precheck_score', 0.0), 3) if not passed_precheck else round(pp_result.get('precheck_score', 0.0), 3),
+                        'precheck_threshold': pp_result.get('precheck_threshold', None),
+                        'error': pp_result.get('error', None),
                     }
+
+                    if passed_precheck:
+                        alternative_scores['populism_pluralism_hypothesis'].update({
+                            'score': round(pp_result.get('score', 5.0), 2),
+                            'confidence': round(pp_result.get('confidence', 0.8) * 100, 1),
+                            'interpretation': pp_result.get('interpretation', 'Moderate'),
+                        })
                     logger.debug(f"âœ“ Populism-pluralism hypothesis: {pp_result.get('score', 'N/A'):.2f}")
                 except Exception as e:
                     logger.error(f"Populism-Pluralism hypothesis scoring failed: {e}")
@@ -337,7 +372,7 @@ def classify_text(request):
             try:
                 results = {}
                 coordinates = {'x': None, 'y': None, 'z': None, 'labels': {}, 'errors': []}
-                
+
                 # Check if any direct regression is selected
                 direct_selected = (
                     selected_approaches.get('left_right_direct') or 
@@ -347,10 +382,8 @@ def classify_text(request):
                 
                 if direct_selected:
                     logger.info("Running direct regression models...")
-                    inference_service = PoliticalInferenceService.get_instance()
+                    # Skip pre-check since we already did it above
                     results = inference_service.predict_all(text, None)
-                    
-                    
                     coordinates = inference_service.get_3d_coordinates(text, None)
                     log_memory_usage("after direct regression")
                 else:
@@ -410,6 +443,16 @@ def classify_text(request):
     else:
         return index(request)
 
+
+def privacy_notice(request):
+    return render(request, 'classifier/privacynotice.html')
+
+def imprint(request):
+    return render(request, 'classifier/imprint.html')
+
+def contact(request):
+    return render(request, 'classifier/contact.html')
+
 @csrf_exempt
 @require_http_methods(["POST"])
 def api_classify(request):
@@ -420,7 +463,6 @@ def api_classify(request):
     try:
         data = json.loads(request.body)
         text = data.get('text', '').strip()
-        skip_precheck = data.get('skip_precheck', False)  # NEW: allow skipping
         
         if not text:
             return JsonResponse({'error': 'Text is required'}, status=400)
@@ -446,7 +488,6 @@ def api_classify(request):
         
         # Run predictions
         results = inference_service.predict_all(text, None)
-
 
         coordinates = inference_service.get_3d_coordinates(text, None)
         
