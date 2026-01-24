@@ -8,7 +8,7 @@ from transformers import AutoModelForSequenceClassification, AutoTokenizer
 logger = logging.getLogger(__name__)
 
 # MOCK MODE - Set this to True to test without actual models
-MOCK_MODE = True  # Change to False when you add real models
+MOCK_MODE = False  # Change to False when you add real models
 
 
 
@@ -24,12 +24,11 @@ class PoliticalInferenceService:
         if cls._instance is None:
             cls._instance = super().__new__(cls)
         return cls._instance
-            self.political_detector_model = None
-            self.political_detector_tokenizer = None
-            self._entailment_idx = 0
-            
+
+    def __init__(self):
+        if not self._initialized:
             if MOCK_MODE:
-                logger.info("ðŸš§ Running in MOCK MODE - no real models loaded")
+                logger.info("🚧 Running in MOCK MODE - no real models loaded")
                 self._initialized = True
                 return
             

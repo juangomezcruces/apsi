@@ -238,6 +238,7 @@ class PopulismPluralismScorer:
             'pluralist_avg': pluralist_avg,
             'top_populist_hypotheses': top_populist,
             'top_pluralist_hypotheses': top_pluralist
+,
             'is_relevant': True,
             'topic_probability': topic_prob
         }

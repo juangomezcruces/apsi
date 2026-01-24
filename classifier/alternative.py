@@ -231,6 +231,7 @@ class LeftRightEconomicScorer:
             'right_avg': right_avg,
             'top_left_hypotheses': top_left,
             'top_right_hypotheses': top_right
+,
             'is_relevant': True,
             'topic_probability': topic_prob
         }
