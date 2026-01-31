@@ -74,10 +74,49 @@ class LiberalIlliberalScorer:
         
         # Topic check configuration
         self.topic_threshold = 0.6
-        self.topic_question = (
-            "This text is about democratic principles, freedom of speech, media freedom, "
-            "elections, assembly rights, or institutional legitimacy"
-        )
+        self.topic_question = [
+            # Electoral competition
+            "This text supports free and fair multiparty elections as the primary source of political authority.",
+            "This text supports accepting electoral defeat and peaceful transfers of power.",
+            "This text supports the full participation of opposition parties in electoral competition.",
+            "This text supports limiting or controlling elections to protect national interests.",
+            "This text rejects the need for competitive elections in favor of alternative forms of rule.",
+
+            # Freedom of expression and media
+            "This text supports freedom of speech as a fundamental political right.",
+            "This text supports independent media as a watchdog over those in power.",
+            "This text supports government regulation of speech to prevent harm or division.",
+            "This text supports state control of media to promote national unity.",
+            "This text portrays free expression as a threat to social or political order.",
+
+            # Assembly and participation
+            "This text supports the right of citizens to protest and organize freely.",
+            "This text supports broad political participation by citizens in public life.",
+            "This text supports requiring government approval for protests and assemblies.",
+            "This text supports restricting political participation to approved groups or elites.",
+            "This text portrays mass political participation as destabilizing or dangerous.",
+
+            # Pluralism and opposition
+            "This text supports tolerance of political opposition and dissenting views.",
+            "This text supports political disagreement as healthy for democracy.",
+            "This text supports restricting extremist or disloyal political views.",
+            "This text supports prioritizing national unity over political diversity.",
+            "This text portrays political opposition as a threat to the nation.",
+
+            # State and leadership
+            "This text supports rule of law and institutional limits on political power.",
+            "This text supports checks and balances on executive authority.",
+            "This text supports strong leadership even at the expense of institutional constraints.",
+            "This text supports concentrating power in a single leader or ruling group.",
+            "This text portrays the leader as embodying the will of the nation.",
+
+            # Authoritarian justifications
+            "This text supports limiting freedoms to ensure stability and order.",
+            "This text supports restricting rights for reasons of national security.",
+            "This text supports political authority based on culture or tradition.",
+            "This text supports emergency powers during crises.",
+            "This text portrays internal or external enemies as justification for repression."
+        ]
 
     def _find_entailment_index(self):
         """Auto-detect entailment index for different NLI models"""
@@ -102,11 +141,13 @@ class LiberalIlliberalScorer:
             prob = torch.softmax(outputs.logits, dim=-1)[0, self.entailment_idx].item()
         return prob
 
+
+
     def is_about_democratic_principles(self, text):
         """Check if text discusses democratic topics"""
-        prob = self._get_entailment_prob(text, self.topic_question)
+        probs = [self._get_entailment_prob(text, h) for h in self.topic_hypotheses]
+        prob = float(max(probs)) if probs else 0.0
         return prob >= self.topic_threshold, prob
-
 
     def get_hypothesis_probabilities(self, text):
         """Get probabilities for all liberal-illiberal hypotheses"""
