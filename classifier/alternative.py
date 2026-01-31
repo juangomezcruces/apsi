@@ -58,6 +58,53 @@ class LeftRightEconomicScorer:
         left_count = sum(1 for _, (_, direction) in self.left_right_hypotheses.items() if direction == "left")
         right_count = sum(1 for _, (_, direction) in self.left_right_hypotheses.items() if direction == "right")
         print(f"Loaded {len(self.left_right_hypotheses)} hypotheses ({left_count} left, {right_count} right)")
+        
+        # Precheck hypotheses
+        self.topic_threshold = 0.7
+        self.topic_hypotheses = [
+            # Role of government in the economy
+            "The text expresses an opinion about the role of government in the economy.",
+            "The text argues that the government should play a role in economic affairs.",
+            "The text supports or opposes government involvement in the economy.",
+            "The text expresses a stance on how much power the government should have over the economy.",
+            "The text argues for increasing or reducing the role of government in economic policy.",
+
+            # Taxation and redistribution
+            "The text expresses an opinion about taxation or tax policy.",
+            "The text argues about how wealth should be redistributed.",
+            "The text expreses a stance about higher taxes.",
+            "The text expresses a stance on income inequality or redistribution.",
+            "The text argues how taxes should be used to achieve economic goals.",
+
+            # Ownership and control
+            "The text expresses an opinion about public versus private ownership.",
+            "The text argues that industries should be publicly or privately owned.",
+            "The text supports or opposes nationalization or privatization.",
+            "The text expresses a stance on who should control major economic resources.",
+            "The text argues how ownership of businesses should be structured.",
+
+            # Regulation vs markets
+            "The text expresses a stance on market regulation.",
+            "The text argues how free markets should be regulated.",
+            "The text supports or opposes government regulation of businesses.",
+            "The text expresses a stance on market freedom",
+            "The text expreses a stance about regulation of the economy.",
+
+            # Welfare and social programs
+            "The text expresses an opinion about welfare or social programs.",
+            "The text argues that social programs should be expanded or reduced.",
+            "The text supports or opposes government-funded social services.",
+            "The text expresses a stance on healthcare, education, or social safety nets.",
+            "The text argues how social programs should be organized or funded.",
+
+            # Labor markets / wages
+            "The text expresses a stance in favor or against minimum wages.",
+            "The text argues about the minimum wage or worker protections.",
+            "The text supports or opposes labor regulations or unions.",
+            "The text expresses a stance on workers' rights or employment standards.",
+            "The text argues how labor markets should be regulated."
+        ]
+
 
     def _find_entailment_index(self):
         """Auto-detect entailment index for different NLI models"""
@@ -67,6 +114,27 @@ class LeftRightEconomicScorer:
                 if label.lower() in ['entailment', 'entail']:
                     return idx
         return 0
+
+    def _get_entailment_prob(self, text, hypothesis):
+        """Get probability that text entails hypothesis"""
+        inputs = self.tokenizer(
+            text, hypothesis,
+            return_tensors="pt",
+            truncation=True,
+            max_length=512
+        )
+        
+        with torch.no_grad():
+            outputs = self.model(**inputs)
+            prob = torch.softmax(outputs.logits, dim=-1)[0, self.entailment_idx].item()
+        return prob
+
+    def is_about_economic_policy(self, text):
+        """Check if text is relevant by max entailment over topic hypotheses"""
+        probs = [self._get_entailment_prob(text, h) for h in self.topic_hypotheses]
+        prob = float(max(probs)) if probs else 0.0
+        return prob >= self.topic_threshold, prob
+
 
     def get_hypothesis_probabilities(self, text):
         """Get probabilities for all left-right hypotheses"""
@@ -126,6 +194,19 @@ class LeftRightEconomicScorer:
 
     def score_left_right(self, text):
         """Score text and return comprehensive results"""
+        # Check if text is about economic policy
+        is_relevant, topic_prob = self.is_about_economic_policy(text)
+        if not is_relevant:
+            return {
+                'text': text,
+                'score': 'NA',
+                'confidence': 0.0,
+                'contradiction_detected': False,
+                'interpretation': 'Not about economic policy',
+                'is_relevant': False,
+                'topic_probability': topic_prob
+            }
+        
         probs = self.get_hypothesis_probabilities(text)
 
         left_probs = []
@@ -166,8 +247,8 @@ class LeftRightEconomicScorer:
         left_hyps = [h for h in hypothesis_results if h['direction'] == 'left']
         right_hyps = [h for h in hypothesis_results if h['direction'] == 'right']
         
-        top_left = sorted(left_hyps, key=lambda x: x['probability'], reverse=True)[:5]
-        top_right = sorted(right_hyps, key=lambda x: x['probability'], reverse=True)[:5]
+        top_left = sorted(left_hyps, key=lambda x: x['probability'], reverse=True)[:10]
+        top_right = sorted(right_hyps, key=lambda x: x['probability'], reverse=True)[:10]
 
         # Interpret score (0-10 scale: 0=Far Left, 5=Center, 10=Far Right)
         if final_score < 2:
@@ -191,6 +272,9 @@ class LeftRightEconomicScorer:
             'right_avg': right_avg,
             'top_left_hypotheses': top_left,
             'top_right_hypotheses': top_right
+,
+            'is_relevant': True,
+            'topic_probability': topic_prob
         }
 
     def quick_score(self, text):
@@ -210,7 +294,7 @@ def analyze_text(scorer, text):
     print(f"TEXT: {text}")
     print(f"{'='*80}")
     
-    print(f"\n📊 RESULTS:")
+    print(f"\nðŸ“Š RESULTS:")
     print(f"   LeftAvg: {result['left_avg']:.2f}")
     print(f"   RightAvg: {result['right_avg']:.2f}")
     print(f"   Score: {result['score']:.2f}/10 (0=Far Left, 10=Far Right)")
@@ -218,14 +302,14 @@ def analyze_text(scorer, text):
     print(f"   Contradiction: {'YES' if result['contradiction_detected'] else 'NO'}")
     print(f"   Interpretation: {result['interpretation']}")
     
-    print(f"\n🔍 TOP LEFT HYPOTHESES:")
+    print(f"\nðŸ” TOP LEFT HYPOTHESES:")
     for i, hyp in enumerate(result['top_left_hypotheses']):
-        short_hyp = hyp['hypothesis'][:100] + "..." if len(hyp['hypothesis']) > 100 else hyp['hypothesis']
+        short_hyp = hyp['hypothesis'][:200] + "..." if len(hyp['hypothesis']) > 200 else hyp['hypothesis']
         print(f"   {i}. {hyp['probability']:.3f} - {short_hyp}")
     
-    print(f"\n🔍 TOP RIGHT HYPOTHESES:")
+    print(f"\nðŸ” TOP RIGHT HYPOTHESES:")
     for i, hyp in enumerate(result['top_right_hypotheses']):
-        short_hyp = hyp['hypothesis'][:100] + "..." if len(hyp['hypothesis']) > 100 else hyp['hypothesis']
+        short_hyp = hyp['hypothesis'][:200] + "..." if len(hyp['hypothesis']) > 200 else hyp['hypothesis']
         print(f"   {i}. {hyp['probability']:.3f} - {short_hyp}")
     
     return result
@@ -253,7 +337,7 @@ def analyze_batch(scorer, texts):
     confidences = [r['confidence'] for r in results]
     contradictions = sum(1 for r in results if r['contradiction_detected'])
     
-    print(f"\n📊 SUMMARY:")
+    print(f"\nðŸ“Š SUMMARY:")
     print(f"   Score Range: {min(scores):.2f} - {max(scores):.2f}")
     print(f"   Mean Score: {np.mean(scores):.2f}")
     print(f"   Mean Confidence: {np.mean(confidences):.3f}")
