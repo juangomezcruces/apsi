@@ -12,5 +12,5 @@ services:
       - SECRET_KEY=docker-secret-key-change-in-production
 
     # Quick fix: Auto-restart when container crashes
-    restart: unless stopped
+    restart: unless-stopped
     command: gunicorn --bind 0.0.0.0:8000 --workers 1 --max-requests 20 --timeout 300 political_classifier.wsgi:application
