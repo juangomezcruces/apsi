@@ -68,10 +68,42 @@ class PopulismPluralismScorer:
         
         # Topic check configuration
         self.topic_threshold = 0.6
-        self.topic_question = (
-            "This text is about political rhetoric, elite versus people dynamics, "
-            "institutional trust, or governance approaches"
-        )
+        self.topic_question = [
+            # Legitimacy of Political Authority
+            "This text supports the idea that political authority is legitimate only when it follows constitutional rules and legal procedures.",
+            "This text portrays the direct will of the people as the primary source of political legitimacy.",
+            "This text suggests that elected leaders lose legitimacy when they ignore popular demands.",
+            "This text emphasizes the role of courts and independent agencies in validating political authority.",
+            "This text portrays charismatic leadership as a sufficient basis for political legitimacy.",
+
+            # Role of Institutions
+            "This text portrays political institutions as protecting citizens from arbitrary and abusive power.",
+            "This text depicts political institutions as outdated structures that primarily serve elite interests.",
+            "This text supports reforming institutions without weakening or bypassing them.",
+            "This text portrays unelected institutions as unjust obstacles to democratic decision-making.",
+            "This text emphasizes that strong institutions are more important than strong leaders.",
+
+            # Decision-Making Style
+            "This text supports political decision-making through negotiation and compromise.",
+            "This text emphasizes decisive leadership over deliberation.",
+            "This text promotes expert knowledge as a legitimate basis for policymaking, even when unpopular.",
+            "This text portrays popular opinion as superior to expert or technocratic judgment.",
+            "This text frames slow decision-making as a necessary feature of democracy.",
+
+            # View of Opposition and Elites
+            "This text portrays political opponents as legitimate actors with valid interests.",
+            "This text depicts elites as manipulating institutions for personal gain.",
+            "This text frames criticism and dissent as strengthening democracy.",
+            "This text portrays those who oppose the people’s will as enemies of democracy.",
+            "This text frames political conflict as a struggle between ordinary citizens and corrupt elites.",
+
+            # “the People”
+            "This text portrays society as composed of diverse groups with competing interests.",
+            "This text portrays the people as a unified moral community with shared goals.",
+            "This text supports limiting majority power in order to protect minority rights.",
+            "This text portrays the will of the majority as something that should not be constrained by special interests.",
+            "This text suggests that leaders can clearly identify and represent the true will of the people."
+        ]
 
     def _find_entailment_index(self):
         """Auto-detect entailment index for different NLI models"""
@@ -97,8 +129,8 @@ class PopulismPluralismScorer:
         return prob
 
     def is_about_political_rhetoric(self, text):
-        """Check if text discusses political rhetoric or governance"""
-        prob = self._get_entailment_prob(text, self.topic_question)
+        probs = [self._get_entailment_prob(text, h) for h in self.topic_hypotheses]
+        prob = float(max(probs)) if probs else 0.0
         return prob >= self.topic_threshold, prob
 
 
