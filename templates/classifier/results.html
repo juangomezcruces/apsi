@@ -164,7 +164,7 @@
 
         <div class="alert alert-danger mt-3 mb-0" role="alert">
           <strong>Not in scope:</strong>
-          {{ alternative_scores.liberal_illiberal_hypothesis.error_message|default:"Tool bla bla." }}
+          {{ alternative_scores.liberal_illiberal_hypothesis.error_message|default:"The tool cannot infer a political stance from this text." }}
 
           {% with h=alternative_scores.liberal_illiberal_hypothesis %}
             {% if h.topic_probability or h.topic_probability == 0 %}
