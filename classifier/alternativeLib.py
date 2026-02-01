@@ -215,13 +215,12 @@ class LiberalIlliberalScorer:
         if not is_relevant:
             return {
                 'text': text,
-                'score': 'NA',
-                'confidence': 'NA',
-                'passed_precheck': False,
+                'score': 0.0,
+                'confidence': 0.0,
                 'contradiction_detected': False,
-                'interpretation': 'The tool cannot infer a stance from this text.',
-                'is_relevant': False,
-                'topic_probability': topic_prob
+                'error_message': "The tool cannot infer a stance from this text.",
+                'passed_precheck': False,
+                'topic_probability': float(topic_prob)
             }
         
         probs = self.get_hypothesis_probabilities(text)
