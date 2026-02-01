@@ -210,17 +210,17 @@ class LiberalIlliberalScorer:
 
     def score_liberal_illiberal(self, text):
         """Score text and return comprehensive results"""
+        # Check if text is about democratic principles
         is_relevant, topic_prob = self.is_about_democratic_principles(text)
         if not is_relevant:
             return {
-                'passed_precheck': False,
-                'error_message': "The tool cannot infer a political stance from this text.",
-                'precheck_score': float(topic_prob),
-                'precheck_threshold': float(self.topic_threshold),
-                'score': None,
-                'confidence': None,
-                'interpretation': None,
-                'explanations': []
+                'text': text,
+                'score': 'NA',
+                'confidence': 0.0,
+                'contradiction_detected': False,
+                'interpretation': 'Not about democratic principles',
+                'is_relevant': False,
+                'topic_probability': topic_prob
             }
         
         probs = self.get_hypothesis_probabilities(text)
@@ -278,41 +278,19 @@ class LiberalIlliberalScorer:
         else:
             interpretation = "Strongly Liberal"
 
-        top_n = 6
-        explanations = []
-
-        # Add liberal evidence
-        for hyp in top_liberal[:top_n]:
-            explanations.append({
-                "direction": "liberal",
-                "hypothesis": hyp["hypothesis"],
-                "probability": float(hyp["probability"]),
-            })
-
-        # Add illiberal evidence
-        for hyp in top_illiberal[:top_n]:
-            explanations.append({
-                "direction": "illiberal",
-                "hypothesis": hyp["hypothesis"],
-                "probability": float(hyp["probability"]),
-            })
-
-        # Sort by probability descending (mixed directions)
-        explanations = sorted(explanations, key=lambda x: x["probability"], reverse=True)
-
         return {
-            'passed_precheck': True,
             'text': text,
-            'score': float(final_score),
-            'confidence': float(confidence_data['combined']),
-            'contradiction_detected': bool(confidence_data['contradiction_detected']),
+            'score': final_score,
+            'confidence': confidence_data['combined'],
+            'contradiction_detected': confidence_data['contradiction_detected'],
             'interpretation': interpretation,
-            'liberal_avg': float(liberal_avg),
-            'illiberal_avg': float(illiberal_avg),
+            'liberal_avg': liberal_avg,
+            'illiberal_avg': illiberal_avg,
             'top_liberal_hypotheses': top_liberal,
-            'top_illiberal_hypotheses': top_illiberal,
-            'explanations': explanations,
-            'passed_precheck': True,
+            'top_illiberal_hypotheses': top_illiberal
+,
+            'is_relevant': True,
+            'topic_probability': topic_prob
         }
 
     def quick_score(self, text):
