@@ -65,159 +65,173 @@
     <div class="container d-flex justify-content-center">
         <div class="w-100" style="max-width: 1100px;">
  
-            <!-- Hypothesis-Based Approaches -->
-            {% if alternative_scores.left_right_hypothesis or alternative_scores.liberal_illiberal_hypothesis or alternative_scores.populism_pluralism_hypothesis %}
-            <div class="mb-5">
-                <div class="row justify-content-center">
-                    <!-- Left-Right Hypothesis -->
-                    {% if alternative_scores.left_right_hypothesis %}
-<div class="col-lg-4 col-md-6 mb-4">
-  <div class="card h-100" style="border-left: 4px solid #e83e8c;">
-    <div class="card-body text-center">
-      <h6 class="card-title">Economic Left-Right</h6>
+<!-- Hypothesis-Based Approaches -->
+{% if alternative_scores.left_right_hypothesis or alternative_scores.liberal_illiberal_hypothesis or alternative_scores.populism_pluralism_hypothesis %}
+<div class="mb-5">
+  <div class="row justify-content-center">
 
-{% if alternative_scores.left_right_hypothesis.passed_precheck == True %}
+    <!-- Left-Right Hypothesis -->
+    {% if alternative_scores.left_right_hypothesis %}
+    <div class="col-lg-4 col-md-6 mb-4">
+      <div class="card h-100" style="border-left: 4px solid #e83e8c;">
+        <div class="card-body text-center">
+          <h6 class="card-title">Economic Left-Right</h6>
 
-    {# NORMAL CARD #}
-    {% with score=alternative_scores.left_right_hypothesis.score confidence=alternative_scores.left_right_hypothesis.confidence %}
-        <div class="scale-wrap my-2">
-            <div class="scale-score" style="left: calc({{ score }} * 10%);">
-                <span class="display-6" style="color:#e83e8c;">
+          {% if alternative_scores.left_right_hypothesis.passed_precheck == True %}
+            {% with score=alternative_scores.left_right_hypothesis.score confidence=alternative_scores.left_right_hypothesis.confidence %}
+              <div class="scale-wrap my-2">
+                <div class="scale-score" style="left: calc({{ score }} * 10%);">
+                  <span class="display-6" style="color:#e83e8c;">
                     {{ score|floatformat:1 }}
-                </span>
-            </div>
-            <div class="scale-line">
-                <div class="scale-dot" style="left: calc({{ score }} * 10%);"></div>
-            </div>
-            <div class="scale-labels">
-                <span>Left</span>
-                <span>Right</span>
-            </div>
-        </div>
-
-        <div class="mb-2">
-            <span class="badge bg-custom">
-                {{ alternative_scores.left_right_hypothesis.interpretation }}
-            </span>
-        </div>
-
-        <div class="text-muted" style="font-size: 0.9rem;">
-            <strong>Confidence:</strong> {{ confidence|floatformat:1 }}%
-        </div>
-    {% endwith %}
-
-{% else %}
-
-    {# ERROR-ONLY CARD #}
-    <div class="alert alert-danger mt-3 mb-0 text-start" role="alert">
-        <strong>Not in scope:</strong>
-        {{ alternative_scores.left_right_hypothesis.error_message }}
-
-        <div class="small text-muted mt-2">
-            Precheck score:
-            {{ alternative_scores.left_right_hypothesis.precheck_score|floatformat:3 }}
-            (threshold {{ alternative_scores.left_right_hypothesis.precheck_threshold|floatformat:2 }})
-        </div>
-    </div>
-
-{% endif %}
-
-                    <!-- Liberal-Illiberal Hypothesis -->
-                    {% if alternative_scores.liberal_illiberal_hypothesis %}
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="card h-100" style="border-left: 4px solid #20c997;">
-                            <div class="card-body text-center">
-                                <h6 class="card-title">Support for Liberal Democracy</h6>
-
-                                {% if alternative_scores.liberal_illiberal_hypothesis.passed_precheck|default:True %}
-                                    {% with score=alternative_scores.liberal_illiberal_hypothesis.score confidence=alternative_scores.liberal_illiberal_hypothesis.confidence %}
-                                    <div class="scale-wrap my-2">
-                                        <div class="scale-score" style="left: calc({{ score }} * 10%);">
-                                            <span class="display-6" style="color:#20c997;">
-                                                {{ score|floatformat:1 }}
-                                            </span>
-                                        </div>
-                                        <div class="scale-line">
-                                            <div class="scale-dotlibillib" style="left: calc({{ score }} * 10%); background-color: #20c997;"></div>
-                                        </div>
-                                        <div class="scale-labels">
-                                            <span>No Support</span>
-                                            <span>Support</span>
-                                        </div>
-                                    </div>
-
-                                    <div class="mb-2">
-                                        <span class="badge bg-custom">
-                                            {{ alternative_scores.liberal_illiberal_hypothesis.interpretation }}
-                                        </span>
-                                    </div>
-
-                                    <div class="text-muted" style="font-size: 0.9rem;">
-                                        <strong>Confidence:</strong> {{ confidence|floatformat:1 }}%
-                                    </div>
-                                    {% endwith %}
-                                {% else %}
-                                    <div class="alert alert-danger mt-3 mb-0" role="alert">
-                                        <strong>Not in scope:</strong> the text didn't pass the political/governance topic precheck.
-                                        {% if alternative_scores.liberal_illiberal_hypothesis.precheck_threshold %}
-                                        <div class="small text-muted mt-1">Precheck score: {{ alternative_scores.liberal_illiberal_hypothesis.precheck_score|floatformat:3 }} (threshold {{ alternative_scores.liberal_illiberal_hypothesis.precheck_threshold }})</div>
-                                        {% endif %}
-                                    </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                    {% endif %}
-
-                    <!-- Populism-Pluralism Hypothesis -->
-                    {% if alternative_scores.populism_pluralism_hypothesis %}
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="card h-100" style="border-left: 4px solid #ffc107;">
-                            <div class="card-body text-center">
-                                <h6 class="card-title">Populism–Pluralism</h6>
-
-                                {% if alternative_scores.populism_pluralism_hypothesis.passed_precheck|default:True %}
-                                    {% with score=alternative_scores.populism_pluralism_hypothesis.score confidence=alternative_scores.populism_pluralism_hypothesis.confidence %}
-                                    <div class="scale-wrap my-2">
-                                        <div class="scale-score" style="left: calc({{ score }} * 10%);">
-                                            <span class="display-6" style="color:#ffc107;">
-                                                {{ score|floatformat:1 }}
-                                            </span>
-                                        </div>
-                                        <div class="scale-line">
-                                            <div class="scale-dotpopplu" style="left: calc({{ score }} * 10%); background-color: #ffc107;"></div>
-                                        </div>
-                                        <div class="scale-labels">
-                                            <span>Pluralism</span>
-                                            <span>Populism</span>
-                                        </div>
-                                    </div>
-
-                                    <div class="mb-2">
-                                        <span class="badge bg-custom">
-                                            {{ alternative_scores.populism_pluralism_hypothesis.interpretation }}
-                                        </span>
-                                    </div>
-
-                                    <div class="text-muted" style="font-size: 0.9rem;">
-                                        <strong>Confidence:</strong> {{ confidence|floatformat:1 }}%
-                                    </div>
-                                    {% endwith %}
-                                {% else %}
-                                    <div class="alert alert-danger mt-3 mb-0" role="alert">
-                                        <strong>Not in scope:</strong> the text didn't pass the political/governance topic precheck.
-                                        {% if alternative_scores.populism_pluralism_hypothesis.precheck_threshold %}
-                                        <div class="small text-muted mt-1">Precheck score: {{ alternative_scores.populism_pluralism_hypothesis.precheck_score|floatformat:3 }} (threshold {{ alternative_scores.populism_pluralism_hypothesis.precheck_threshold }})</div>
-                                        {% endif %}
-                                    </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                    {% endif %}
+                  </span>
                 </div>
+                <div class="scale-line">
+                  <div class="scale-dot" style="left: calc({{ score }} * 10%);"></div>
+                </div>
+                <div class="scale-labels">
+                  <span>Left</span>
+                  <span>Right</span>
+                </div>
+              </div>
+
+              <div class="mb-2">
+                <span class="badge bg-custom">
+                  {{ alternative_scores.left_right_hypothesis.interpretation }}
+                </span>
+              </div>
+
+              <div class="text-muted" style="font-size: 0.9rem;">
+                <strong>Confidence:</strong> {{ confidence|floatformat:1 }}%
+              </div>
+            {% endwith %}
+          {% else %}
+            <div class="alert alert-danger mt-3 mb-0 text-start" role="alert">
+              <strong>Not in scope:</strong>
+              {{ alternative_scores.left_right_hypothesis.error_message|default:"The text didn't pass the economic-policy topic precheck." }}
+
+              {% if alternative_scores.left_right_hypothesis.precheck_threshold %}
+                <div class="small text-muted mt-2">
+                  Precheck score: {{ alternative_scores.left_right_hypothesis.precheck_score|floatformat:3 }}
+                  (threshold {{ alternative_scores.left_right_hypothesis.precheck_threshold|floatformat:2 }})
+                </div>
+              {% endif %}
             </div>
-            {% endif %}
+          {% endif %}
+
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Liberal-Illiberal Hypothesis -->
+    {% if alternative_scores.liberal_illiberal_hypothesis %}
+    <div class="col-lg-4 col-md-6 mb-4">
+      <div class="card h-100" style="border-left: 4px solid #20c997;">
+        <div class="card-body text-center">
+          <h6 class="card-title">Support for Liberal Democracy</h6>
+
+          {% if alternative_scores.liberal_illiberal_hypothesis.passed_precheck == True %}
+            {% with score=alternative_scores.liberal_illiberal_hypothesis.score confidence=alternative_scores.liberal_illiberal_hypothesis.confidence %}
+              <div class="scale-wrap my-2">
+                <div class="scale-score" style="left: calc({{ score }} * 10%);">
+                  <span class="display-6" style="color:#20c997;">
+                    {{ score|floatformat:1 }}
+                  </span>
+                </div>
+                <div class="scale-line">
+                  <div class="scale-dotlibillib" style="left: calc({{ score }} * 10%); background-color: #20c997;"></div>
+                </div>
+                <div class="scale-labels">
+                  <span>No Support</span>
+                  <span>Support</span>
+                </div>
+              </div>
+
+              <div class="mb-2">
+                <span class="badge bg-custom">
+                  {{ alternative_scores.liberal_illiberal_hypothesis.interpretation }}
+                </span>
+              </div>
+
+              <div class="text-muted" style="font-size: 0.9rem;">
+                <strong>Confidence:</strong> {{ confidence|floatformat:1 }}%
+              </div>
+            {% endwith %}
+          {% else %}
+            <div class="alert alert-danger mt-3 mb-0 text-start" role="alert">
+              <strong>Not in scope:</strong>
+              {{ alternative_scores.liberal_illiberal_hypothesis.error_message|default:"The text didn't pass the topic precheck." }}
+
+              {% if alternative_scores.liberal_illiberal_hypothesis.precheck_threshold %}
+                <div class="small text-muted mt-2">
+                  Precheck score: {{ alternative_scores.liberal_illiberal_hypothesis.precheck_score|floatformat:3 }}
+                  (threshold {{ alternative_scores.liberal_illiberal_hypothesis.precheck_threshold|floatformat:2 }})
+                </div>
+              {% endif %}
+            </div>
+          {% endif %}
+
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Populism-Pluralism Hypothesis -->
+    {% if alternative_scores.populism_pluralism_hypothesis %}
+    <div class="col-lg-4 col-md-6 mb-4">
+      <div class="card h-100" style="border-left: 4px solid #ffc107;">
+        <div class="card-body text-center">
+          <h6 class="card-title">Populism–Pluralism</h6>
+
+          {% if alternative_scores.populism_pluralism_hypothesis.passed_precheck == True %}
+            {% with score=alternative_scores.populism_pluralism_hypothesis.score confidence=alternative_scores.populism_pluralism_hypothesis.confidence %}
+              <div class="scale-wrap my-2">
+                <div class="scale-score" style="left: calc({{ score }} * 10%);">
+                  <span class="display-6" style="color:#ffc107;">
+                    {{ score|floatformat:1 }}
+                  </span>
+                </div>
+                <div class="scale-line">
+                  <div class="scale-dotpopplu" style="left: calc({{ score }} * 10%); background-color: #ffc107;"></div>
+                </div>
+                <div class="scale-labels">
+                  <span>Pluralism</span>
+                  <span>Populism</span>
+                </div>
+              </div>
+
+              <div class="mb-2">
+                <span class="badge bg-custom">
+                  {{ alternative_scores.populism_pluralism_hypothesis.interpretation }}
+                </span>
+              </div>
+
+              <div class="text-muted" style="font-size: 0.9rem;">
+                <strong>Confidence:</strong> {{ confidence|floatformat:1 }}%
+              </div>
+            {% endwith %}
+          {% else %}
+            <div class="alert alert-danger mt-3 mb-0 text-start" role="alert">
+              <strong>Not in scope:</strong>
+              {{ alternative_scores.populism_pluralism_hypothesis.error_message|default:"The text didn't pass the topic precheck." }}
+
+              {% if alternative_scores.populism_pluralism_hypothesis.precheck_threshold %}
+                <div class="small text-muted mt-2">
+                  Precheck score: {{ alternative_scores.populism_pluralism_hypothesis.precheck_score|floatformat:3 }}
+                  (threshold {{ alternative_scores.populism_pluralism_hypothesis.precheck_threshold|floatformat:2 }})
+                </div>
+              {% endif %}
+            </div>
+          {% endif %}
+
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+{% endif %}
 
             <!-- Response-Based Approaches -->
             {% if alternative_scores.left_right_responses or alternative_scores.liberal_illiberal_responses or alternative_scores.populism_pluralism_responses %}
