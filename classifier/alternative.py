@@ -198,18 +198,17 @@ class LeftRightEconomicScorer:
     def score_left_right(self, text):
         """Score text and return comprehensive results"""
         # Check if text is about economic policy
-
+        is_relevant, topic_prob = self.is_about_economic_policy(text)
         if not is_relevant:
-    return {
-        'passed_precheck': False,
-        'error_message': "The tool cannot infer a political stance from this text.",
-        'precheck_score': float(topic_prob),
-        'precheck_threshold': float(self.topic_threshold),
-        'score': None,
-        'confidence': None,
-        'interpretation': None
-    }
-
+            return {
+                'text': text,
+                'score': 'NA',
+                'confidence': 0.0,
+                'contradiction_detected': False,
+                'interpretation': 'Not about economic policy',
+                'is_relevant': False,
+                'topic_probability': topic_prob
+            }
         
         probs = self.get_hypothesis_probabilities(text)
 
@@ -275,9 +274,8 @@ class LeftRightEconomicScorer:
             'left_avg': left_avg,
             'right_avg': right_avg,
             'top_left_hypotheses': top_left,
-            'top_right_hypotheses': top_right,
-            'precheck_score': float(topic_prob),
-            'precheck_threshold': float(self.topic_threshold),
+            'top_right_hypotheses': top_right
+,
             'is_relevant': True,
             'topic_probability': topic_prob
         }
