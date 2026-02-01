@@ -220,52 +220,57 @@
                 <div class="row justify-content-center">
                     <!-- Left-Right Hypothesis -->
                     {% if alternative_scores.left_right_hypothesis %}
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="card h-100" style="border-left: 4px solid #e83e8c;">
-                            <div class="card-body text-center">
-                                <h6 class="card-title">Economic Left-Right</h6>
+<div class="col-lg-4 col-md-6 mb-4">
+  <div class="card h-100" style="border-left: 4px solid #e83e8c;">
+    <div class="card-body text-center">
+      <h6 class="card-title">Economic Left-Right</h6>
 
-                                {% if alternative_scores.left_right_hypothesis.passed_precheck|default:True %}
-                                    {% with score=alternative_scores.left_right_hypothesis.score confidence=alternative_scores.left_right_hypothesis.confidence %}
-                                    <div class="scale-wrap my-2">
-                                        <div class="scale-score" style="left: calc({{ score }} * 10%);">
-                                            <span class="display-6" style="color:#e83e8c;">
-                                                {{ score|floatformat:1 }}
-                                            </span>
-                                        </div>
-                                        <div class="scale-line">
-                                            <div class="scale-dot" style="left: calc({{ score }} * 10%);"></div>
-                                        </div>
-                                        <div class="scale-labels">
-                                            <span>Left</span>
-                                            <span>Right</span>
-                                        </div>
-                                    </div>
+      {% if alternative_scores.left_right_hypothesis.passed_precheck|default:True %}
+        {% with score=alternative_scores.left_right_hypothesis.score confidence=alternative_scores.left_right_hypothesis.confidence %}
+          <div class="scale-wrap my-2">
+            <div class="scale-score" style="left: calc({{ score }} * 10%);">
+              <span class="display-6" style="color:#e83e8c;">
+                {{ score|floatformat:1 }}
+              </span>
+            </div>
+            <div class="scale-line">
+              <div class="scale-dot" style="left: calc({{ score }} * 10%);"></div>
+            </div>
+            <div class="scale-labels">
+              <span>Left</span>
+              <span>Right</span>
+            </div>
+          </div>
 
-                                    <div class="mb-2">
-                                        <span class="badge bg-custom">
-                                            {{ alternative_scores.left_right_hypothesis.interpretation }}
-                                        </span>
-                                    </div>
+          <div class="mb-2">
+            <span class="badge bg-custom">
+              {{ alternative_scores.left_right_hypothesis.interpretation }}
+            </span>
+          </div>
 
-                                    <div class="text-muted" style="font-size: 0.9rem;">
-                                        <strong>Confidence:</strong> {{ confidence|floatformat:1 }}%
-                                    </div>
-                                    {% endwith %}
+          <div class="text-muted" style="font-size: 0.9rem;">
+            <strong>Confidence:</strong> {{ confidence|floatformat:1 }}%
+          </div>
+        {% endwith %}
 
-                                {% else %}
-                                  <div class="alert alert-danger mt-3 mb-0" role="alert">
-                                    <strong>Not in scope:</strong>
-                                    {{ alternative_scores.left_right_hypothesis.error_message|default:"the text didn't pass the political/governance topic precheck." }}
+      {% else %}
+        <div class="alert alert-danger mt-3 mb-0 text-start" role="alert">
+          <strong>Not in scope:</strong>
+          {{ alternative_scores.left_right_hypothesis.error_message|default:"the text didn't pass the political/governance topic precheck." }}
 
-                                    {% if alternative_scores.left_right_hypothesis.precheck_threshold %}
-                                <div class="small text-muted mt-1">
-                            Precheck score: {{ alternative_scores.left_right_hypothesis.precheck_score|floatformat:3 }}
-                            (threshold {{ alternative_scores.left_right_hypothesis.precheck_threshold }})
-                            </div>
-                        {% endif %}
-                    </div>
-                {% endif %}
+          {% if alternative_scores.left_right_hypothesis.precheck_threshold %}
+            <div class="small text-muted mt-2">
+              Precheck score: {{ alternative_scores.left_right_hypothesis.precheck_score|floatformat:3 }}
+              (threshold {{ alternative_scores.left_right_hypothesis.precheck_threshold }})
+            </div>
+          {% endif %}
+        </div>
+      {% endif %}
+
+    </div>
+  </div>
+</div>
+{% endif %}
 
                     <!-- Liberal-Illiberal Hypothesis -->
                     {% if alternative_scores.liberal_illiberal_hypothesis %}
