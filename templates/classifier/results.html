@@ -112,7 +112,7 @@
                                     {% endwith %}
                                 {% else %}
                                     <div class="alert alert-danger mt-3 mb-0" role="alert">
-                                        <strong>Not in scope:</strong> the text didn't pass the political/governance topic precheck.
+                                        <strong>Not in scope:</strong> The tool cannot infer a political stance from this text.
                                         {% if alternative_scores.left_right_hypothesis.precheck_threshold %}
                                         <div class="small text-muted mt-1">Precheck score: {{ alternative_scores.left_right_hypothesis.precheck_score|floatformat:3 }} (threshold {{ alternative_scores.left_right_hypothesis.precheck_threshold }})</div>
                                         {% endif %}
