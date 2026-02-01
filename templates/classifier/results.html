@@ -160,6 +160,20 @@
           <strong>Not in scope:</strong>
           {{ alternative_scores.liberal_illiberal_hypothesis.error_message|default:"Tool bla bla." }}
 
+
+    <!-- DEBUG BLOCK: paste exactly this here -->
+    <pre style="text-align:left; white-space:pre-wrap; font-size:12px; margin-top:8px;">
+DEBUG liberal_illiberal_hypothesis =
+{{ alternative_scores.liberal_illiberal_hypothesis }}
+    </pre>
+
+    <pre style="text-align:left; white-space:pre-wrap; font-size:12px; margin-top:8px;">
+DEBUG precheck_score = "{{ alternative_scores.liberal_illiberal_hypothesis.precheck_score }}"
+DEBUG precheck_threshold = "{{ alternative_scores.liberal_illiberal_hypothesis.precheck_threshold }}"
+DEBUG passed_precheck = "{{ alternative_scores.liberal_illiberal_hypothesis.passed_precheck }}"
+    </pre>
+    <!-- END DEBUG BLOCK -->
+
           {% with h=alternative_scores.liberal_illiberal_hypothesis %}
             {% if h.precheck_score or h.precheck_score == 0 %}
               <div class="small text-muted mt-1">
