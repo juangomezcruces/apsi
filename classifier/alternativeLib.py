@@ -287,8 +287,8 @@ class LiberalIlliberalScorer:
             'liberal_avg': liberal_avg,
             'illiberal_avg': illiberal_avg,
             'top_liberal_hypotheses': top_liberal,
-            'top_illiberal_hypotheses': top_illiberal
-,
+            'top_illiberal_hypotheses': top_illiberal,
+            'passed_precheck': True,
             'is_relevant': True,
             'topic_probability': topic_prob
         }
