@@ -160,7 +160,7 @@
           {% else %}
             <div class="alert alert-danger mt-3 mb-0 text-start" role="alert">
               <strong>Not in scope:</strong>
-              {{ alternative_scores.liberal_illiberal_hypothesis.error_message|default:"The text didn't pass the topic precheck." }}
+              {{ alternative_scores.liberal_illiberal_hypothesis.error_message|default:"The tool cannot infer a political stance from this text." }}
 
               {% if alternative_scores.liberal_illiberal_hypothesis.precheck_threshold %}
                 <div class="small text-muted mt-2">
@@ -213,7 +213,7 @@
           {% else %}
             <div class="alert alert-danger mt-3 mb-0 text-start" role="alert">
               <strong>Not in scope:</strong>
-              {{ alternative_scores.populism_pluralism_hypothesis.error_message|default:"The text didn't pass the topic precheck." }}
+              {{ alternative_scores.populism_pluralism_hypothesis.error_message|default:"The tool cannot infer a political stance from this text." }}
 
               {% if alternative_scores.populism_pluralism_hypothesis.precheck_threshold %}
                 <div class="small text-muted mt-2">
