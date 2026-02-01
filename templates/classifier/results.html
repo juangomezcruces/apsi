@@ -252,18 +252,20 @@
                                         <strong>Confidence:</strong> {{ confidence|floatformat:1 }}%
                                     </div>
                                     {% endwith %}
+
                                 {% else %}
-                                    <div class="alert alert-danger mt-3 mb-0" role="alert">
-                                        <strong>Not in scope:</strong> the text didn't pass the political/governance topic precheck.
-                                        {% if alternative_scores.left_right_hypothesis.precheck_threshold %}
-                                        <div class="small text-muted mt-1">Precheck score: {{ alternative_scores.left_right_hypothesis.precheck_score|floatformat:3 }} (threshold {{ alternative_scores.left_right_hypothesis.precheck_threshold }})</div>
-                                        {% endif %}
-                                    </div>
-                                {% endif %}
+                                  <div class="alert alert-danger mt-3 mb-0" role="alert">
+                                    <strong>Not in scope:</strong>
+                                    {{ alternative_scores.left_right_hypothesis.error_message|default:"the text didn't pass the political/governance topic precheck." }}
+
+                                    {% if alternative_scores.left_right_hypothesis.precheck_threshold %}
+                                <div class="small text-muted mt-1">
+                            Precheck score: {{ alternative_scores.left_right_hypothesis.precheck_score|floatformat:3 }}
+                            (threshold {{ alternative_scores.left_right_hypothesis.precheck_threshold }})
                             </div>
-                        </div>
+                        {% endif %}
                     </div>
-                    {% endif %}
+                {% endif %}
 
                     <!-- Liberal-Illiberal Hypothesis -->
                     {% if alternative_scores.liberal_illiberal_hypothesis %}
