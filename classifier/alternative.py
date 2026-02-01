@@ -2,10 +2,12 @@ import pandas as pd
 import numpy as np
 import torch
 import torch.nn as nn
+import logging
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from .shared_model_cache import SharedModelCache
 import warnings
 warnings.filterwarnings('ignore')
+logger = logging.getLogger(__name__)
 
 # ============================================================================
 # LEFT-RIGHT ECONOMIC HYPOTHESIS-BASED SCORER
@@ -133,6 +135,7 @@ class LeftRightEconomicScorer:
         """Check if text is relevant by max entailment over topic hypotheses"""
         probs = [self._get_entailment_prob(text, h) for h in self.topic_hypotheses]
         prob = float(max(probs)) if probs else 0.0
+        logger.info("Thesis Left Right triggered with: {prob}")
         return prob >= self.topic_threshold, prob
 
 
