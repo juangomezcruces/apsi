@@ -126,7 +126,13 @@
   <div class="card h-100" style="border-left: 4px solid #20c997;">
     <div class="card-body text-center">
       <h6 class="card-title">Support for Liberal Democracy</h6>
-
+<!-- DEBUG: if you don't see this, this template isn't being used OR the card isn't rendering -->
+<div style="border:2px dashed red; padding:6px; margin:8px 0; font-size:12px; text-align:left;">
+  DEBUG MARKER: liberal_illiberal card rendered.<br>
+  passed_precheck="{{ alternative_scores.liberal_illiberal_hypothesis.passed_precheck }}"<br>
+  precheck_score="{{ alternative_scores.liberal_illiberal_hypothesis.precheck_score }}"<br>
+  precheck_threshold="{{ alternative_scores.liberal_illiberal_hypothesis.precheck_threshold }}"<br>
+</div>
       {% if alternative_scores.liberal_illiberal_hypothesis.passed_precheck|default:True %}
         {% with score=alternative_scores.liberal_illiberal_hypothesis.score confidence=alternative_scores.liberal_illiberal_hypothesis.confidence %}
           <div class="scale-wrap my-2">
@@ -161,18 +167,7 @@
           {{ alternative_scores.liberal_illiberal_hypothesis.error_message|default:"Tool bla bla." }}
 
 
-    <!-- DEBUG BLOCK: paste exactly this here -->
-    <pre style="text-align:left; white-space:pre-wrap; font-size:12px; margin-top:8px;">
-DEBUG liberal_illiberal_hypothesis =
-{{ alternative_scores.liberal_illiberal_hypothesis }}
-    </pre>
 
-    <pre style="text-align:left; white-space:pre-wrap; font-size:12px; margin-top:8px;">
-DEBUG precheck_score = "{{ alternative_scores.liberal_illiberal_hypothesis.precheck_score }}"
-DEBUG precheck_threshold = "{{ alternative_scores.liberal_illiberal_hypothesis.precheck_threshold }}"
-DEBUG passed_precheck = "{{ alternative_scores.liberal_illiberal_hypothesis.passed_precheck }}"
-    </pre>
-    <!-- END DEBUG BLOCK -->
 
           {% with h=alternative_scores.liberal_illiberal_hypothesis %}
             {% if h.precheck_score or h.precheck_score == 0 %}
