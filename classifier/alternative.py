@@ -206,8 +206,7 @@ class LeftRightEconomicScorer:
                 'confidence': 0.0,
                 'contradiction_detected': False,
                 'interpretation': 'Not about economic policy',
-                'is_relevant': False,
-                'topic_probability': topic_prob
+                'passed_precheck': False,
             }
         
         probs = self.get_hypothesis_probabilities(text)
