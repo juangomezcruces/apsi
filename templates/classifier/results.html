@@ -77,6 +77,7 @@
         <div class="card-body text-center">
           <h6 class="card-title">Economic Left-Right</h6>
 
+
           {% if alternative_scores.left_right_hypothesis.passed_precheck == True %}
             {% with score=alternative_scores.left_right_hypothesis.score confidence=alternative_scores.left_right_hypothesis.confidence %}
               <div class="scale-wrap my-2">
@@ -130,7 +131,7 @@
     <div class="card-body text-center">
       <h6 class="card-title">Support for Liberal Democracy</h6>
 
-      {% if alternative_scores.liberal_illiberal_hypothesis.passed_precheck == True %}
+      {% if alternative_scores.liberal_illiberal_hypothesis.passed_precheck %}
 
         {# ---- NORMAL CARD (score + interpretation + confidence) ---- #}
         {% with score=alternative_scores.liberal_illiberal_hypothesis.score confidence=alternative_scores.liberal_illiberal_hypothesis.confidence %}
