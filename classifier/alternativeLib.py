@@ -217,6 +217,7 @@ class LiberalIlliberalScorer:
                 'text': text,
                 'score': 'NA',
                 'confidence': 'NA',
+                'passed_precheck': False,
                 'contradiction_detected': False,
                 'interpretation': 'The tool cannot infer a stance from this text.',
                 'is_relevant': False,
