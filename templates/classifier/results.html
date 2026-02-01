@@ -166,7 +166,6 @@
           {% with h=alternative_scores.liberal_illiberal_hypothesis %}
             {% if h.topic_probability or h.topic_probability == 0 %}
               <div class="small text-muted mt-1">
-                Topic probability: {{ h.topic_probability|floatformat:3 }}
               </div>
             {% endif %}
           {% endwith %}
