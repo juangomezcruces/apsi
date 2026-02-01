@@ -70,7 +70,7 @@ class PopulismPluralismScorer:
         
         # Topic check configuration
         self.topic_threshold = 0.6
-        self.topic_question = [
+        self.topic_hypotheses = [
             # Legitimacy of Political Authority
             "This text supports the idea that political authority is legitimate only when it follows constitutional rules and legal procedures.",
             "This text portrays the direct will of the people as the primary source of political legitimacy.",

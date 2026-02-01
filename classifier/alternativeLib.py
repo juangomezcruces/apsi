@@ -76,7 +76,7 @@ class LiberalIlliberalScorer:
         
         # Topic check configuration
         self.topic_threshold = 0.6
-        self.topic_question = [
+        self.topic_hypotheses = [
             # Electoral competition
             "This text supports free and fair multiparty elections as the primary source of political authority.",
             "This text supports accepting electoral defeat and peaceful transfers of power.",
