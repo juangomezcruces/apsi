@@ -202,7 +202,7 @@ class LeftRightEconomicScorer:
         if not is_relevant:
     return {
         'passed_precheck': False,
-        'error_message': "The text didn't pass the economic-policy topic precheck.",
+        'error_message': "The tool cannot infer a political stance from this text.",
         'precheck_score': float(topic_prob),
         'precheck_threshold': float(self.topic_threshold),
         'score': None,
