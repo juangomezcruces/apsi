@@ -216,9 +216,9 @@ class LiberalIlliberalScorer:
             return {
                 'text': text,
                 'score': 'NA',
-                'confidence': 0.0,
+                'confidence': 'NA',
                 'contradiction_detected': False,
-                'interpretation': 'Not about democratic principles',
+                'interpretation': 'The tool cannot infer a stance from this text.',
                 'is_relevant': False,
                 'topic_probability': topic_prob
             }
