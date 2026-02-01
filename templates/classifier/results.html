@@ -127,7 +127,9 @@
     <div class="card-body text-center">
       <h6 class="card-title">Support for Liberal Democracy</h6>
 
-      {% if alternative_scores.liberal_illiberal_hypothesis.passed_precheck|default:True %}
+      {# Safest check with your current payload: uses is_relevant #}
+      {% if alternative_scores.liberal_illiberal_hypothesis.is_relevant %}
+
         {% with score=alternative_scores.liberal_illiberal_hypothesis.score confidence=alternative_scores.liberal_illiberal_hypothesis.confidence %}
           <div class="scale-wrap my-2">
             <div class="scale-score" style="left: calc({{ score }} * 10%);">
@@ -156,22 +158,27 @@
         {% endwith %}
 
       {% else %}
+
         <div class="alert alert-danger mt-3 mb-0" role="alert">
           <strong>Not in scope:</strong>
           {{ alternative_scores.liberal_illiberal_hypothesis.error_message|default:"Tool bla bla." }}
 
           {% with h=alternative_scores.liberal_illiberal_hypothesis %}
-            <div class="small text-muted mt-1">
-              Topic probability: {{ h.topic_probability|default_if_none:"?"|floatformat:3 }}
-            </div>
+            {% if h.topic_probability or h.topic_probability == 0 %}
+              <div class="small text-muted mt-1">
+                Topic probability: {{ h.topic_probability|floatformat:3 }}
+              </div>
+            {% endif %}
           {% endwith %}
         </div>
+
       {% endif %}
 
     </div>
   </div>
 </div>
 {% endif %}
+
 
                     <!-- Populism-Pluralism Hypothesis -->
                     {% if alternative_scores.populism_pluralism_hypothesis %}
