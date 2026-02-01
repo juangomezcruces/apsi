@@ -135,7 +135,7 @@ class LeftRightEconomicScorer:
         """Check if text is relevant by max entailment over topic hypotheses"""
         probs = [self._get_entailment_prob(text, h) for h in self.topic_hypotheses]
         prob = float(max(probs)) if probs else 0.0
-        logger.info("Thesis Left Right triggered with: {prob}")
+        logger.info(f"Thesis Left Right triggered with: {prob}")
         return prob >= self.topic_threshold, prob
 
 

@@ -133,7 +133,7 @@ class PopulismPluralismScorer:
     def is_about_political_rhetoric(self, text):
         probs = [self._get_entailment_prob(text, h) for h in self.topic_hypotheses]
         prob = float(max(probs)) if probs else 0.0
-        logger.info("Thesis Liberal Illiberal triggered with: {prob}")
+        logger.info(f"Thesis Populist Pluralist triggered with: {prob}")
         return prob >= self.topic_threshold, prob
 
 
