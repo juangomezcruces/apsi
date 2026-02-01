@@ -273,8 +273,9 @@ class LeftRightEconomicScorer:
             'left_avg': left_avg,
             'right_avg': right_avg,
             'top_left_hypotheses': top_left,
-            'top_right_hypotheses': top_right
-,
+            'top_right_hypotheses': top_right,
+            'precheck_score': float(topic_prob),
+            'precheck_threshold': float(self.topic_threshold),
             'is_relevant': True,
             'topic_probability': topic_prob
         }
