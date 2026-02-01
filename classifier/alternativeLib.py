@@ -218,9 +218,13 @@ class LiberalIlliberalScorer:
                 'score': 0.0,
                 'confidence': 0.0,
                 'contradiction_detected': False,
-                'error_message': "The tool cannot infer a stance from this text.",
+                'interpretation': 'Not about economic policy',
+                'error_message': "The text didn't pass the economic-policy topic precheck.",
                 'passed_precheck': False,
-                'topic_probability': float(topic_prob)
+                'precheck_score': float(topic_prob),
+                'precheck_threshold': float(self.topic_threshold),
+                'is_relevant': False,
+                'topic_probability': float(topic_prob),
             }
         
         probs = self.get_hypothesis_probabilities(text)
@@ -284,13 +288,15 @@ class LiberalIlliberalScorer:
             'confidence': confidence_data['combined'],
             'contradiction_detected': confidence_data['contradiction_detected'],
             'interpretation': interpretation,
-            'liberal_avg': liberal_avg,
-            'illiberal_avg': illiberal_avg,
-            'top_liberal_hypotheses': top_liberal,
-            'top_illiberal_hypotheses': top_illiberal,
+            'left_avg': left_avg,
+            'right_avg': right_avg,
+            'top_left_hypotheses': top_left,
+            'top_right_hypotheses': top_right,
             'passed_precheck': True,
+            'precheck_score': float(topic_prob),
+            'precheck_threshold': float(self.topic_threshold),
             'is_relevant': True,
-            'topic_probability': topic_prob
+            'topic_probability': float(topic_prob),
         }
 
     def quick_score(self, text):
