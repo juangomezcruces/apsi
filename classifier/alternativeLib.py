@@ -312,6 +312,7 @@ class LiberalIlliberalScorer:
             'top_liberal_hypotheses': top_liberal,
             'top_illiberal_hypotheses': top_illiberal,
             'explanations': explanations,
+            'passed_precheck': True,
         }
 
     def quick_score(self, text):
