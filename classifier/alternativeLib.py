@@ -214,14 +214,14 @@ class LiberalIlliberalScorer:
         is_relevant, topic_prob = self.is_about_democratic_principles(text)
         if not is_relevant:
             return {
-                'text': text,
-                'score': 'NA',
-                'confidence': 0.0,
-                'contradiction_detected': False,
-                'interpretation': 'Not about democratic principles',
-                'is_relevant': False,
-                'topic_probability': topic_prob
-            }
+                'passed_precheck': False,
+                'error_message': "The text didn't pass the economic-policy topic precheck.",
+                'precheck_score': float(topic_prob),
+                'precheck_threshold': float(self.topic_threshold),
+                'score': None,
+                 'confidence': None,
+                'interpretation': None,
+         }
         
         probs = self.get_hypothesis_probabilities(text)
 
