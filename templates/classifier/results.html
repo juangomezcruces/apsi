@@ -304,13 +304,16 @@
                                         <strong>Confidence:</strong> {{ confidence|floatformat:1 }}%
                                     </div>
                                     {% endwith %}
-                                {% else %}
-                                  <div class="alert alert-danger mt-3 mb-0" role="alert">
-                                    <strong>Not in scope:</strong>
-                                    {{ alternative_scores.liberal_illiberal_hypothesis.error_message|default:"Tool bla bla." }}
 
-{% if alternative_scores.liberal_illiberal_hypothesis.precheck_threshold %}
-      <div class="small text-muted mt-1"> Precheck score: {{ alternative_scores.liberal_illiberal_hypothesis.precheck_score|floatformat:3 }}
+
+{% else %}
+  <div class="alert alert-danger mt-3 mb-0" role="alert">
+    <strong>Not in scope:</strong>
+    {{ alternative_scores.liberal_illiberal_hypothesis.error_message|default:"Tool bla bla." }}
+
+    {% if alternative_scores.liberal_illiberal_hypothesis.precheck_threshold %}
+      <div class="small text-muted mt-1">
+        Precheck score: {{ alternative_scores.liberal_illiberal_hypothesis.precheck_score|floatformat:3 }}
         (threshold {{ alternative_scores.liberal_illiberal_hypothesis.precheck_threshold }})
       </div>
     {% endif %}
