@@ -58,212 +58,68 @@
     </div>
 </section>
 
-<!-- Main Classification Results Section -->
-{% if results %}
-<section class="py-5 d-flex justify-content-center">
-    <div class="container d-flex justify-content-center">
-        <div class="w-100" style="max-width: 1100px;">
-            <h3 class="mb-4 text-center">Primary Classification Results</h3>
-            <p class="text-muted mb-4 text-center">Direct regression model predictions trained on political datasets</p>
-
-            <div class="row justify-content-center">
-                <!-- Left-Right Results -->
-                {% if results.left_right_regression %}
-                <div class="col-lg-4 col-md-6 mb-4">
-                    <div class="card h-100" style="border-left: 4px solid #e83e8c;">
-                        <div class="card-body text-center">
-                            <h6 class="card-title">Economic Left-Right</h6>
-                            {% with score=results.left_right_regression.predicted_v4_scale_score|default_if_none:results.left_right_regression.raw_score %}
-                            
-                            <div class="scale-wrap my-2">
-                                <div class="scale-score" style="left: calc({{ score }} * 10%);">
-                                    <span class="display-6" style="color:#e83e8c;">
-                                        {{ score|floatformat:1 }}
-                                    </span>
-                                </div>
-                                <div class="scale-line">
-                                    <div class="scale-dot" style="left: calc({{ score }} * 10%);"></div>
-                                </div>
-                                <div class="scale-labels">
-                                    <span>Left</span>
-                                    <span>Right</span>
-                                </div>
-                            </div>
-
-                            <div class="mb-2">
-                                <span class="badge bg-custom">
-                                    {{ results.left_right_regression.interpretation }}
-                                </span>
-                            </div>
-
-                            {% if score < 4 %}
-                            <p class="card-text small text-muted">
-                                Favors government intervention and social welfare
-                            </p>
-                            {% elif score > 6 %}
-                            <p class="card-text small text-muted">
-                                Prefers market solutions and limited government
-                            </p>
-                            {% else %}
-                            <p class="card-text small text-muted">
-                                Balanced approach to economic and social issues
-                            </p>
-                            {% endif %}
-                            {% endwith %}
-                        </div>
-                    </div>
-                </div>
-                {% endif %}
-
-                <!-- Liberal-Illiberal Results -->
-                {% if results.liberal_illiberal_regression %}
-                <div class="col-lg-4 col-md-6 mb-4">
-                    <div class="card h-100" style="border-left: 4px solid #20c997;">
-                        <div class="card-body text-center">
-                            <h6 class="card-title">Support for Liberal Democracy</h6>
-                            {% with score=results.liberal_illiberal_regression.predicted_v16_score|default_if_none:results.liberal_illiberal_regression.raw_score %}
-                            
-                            <div class="scale-wrap my-2">
-                                <div class="scale-score" style="left: calc({{ score }} * 10%);">
-                                    <span class="display-6" style="color:#20c997;">
-                                        {{ score|floatformat:1 }}
-                                    </span>
-                                </div>
-                                <div class="scale-line">
-                                    <div class="scale-dotlibillib" style="left: calc({{ score }} * 10%); background-color: #20c997;"></div>
-                                </div>
-                                <div class="scale-labels">
-                                    <span>No Support</span>
-                                    <span>Support</span>
-                                </div>
-                            </div>
-
-                            <div class="mb-2">
-                                <span class="badge bg-custom">
-                                    {{ results.liberal_illiberal_regression.interpretation }}
-                                </span>
-                            </div>
-
-                            {% if score > 5 %}
-                            <p class="card-text small text-muted">
-                                Supports democratic norms and institutional constraints
-                            </p>
-                            {% else %}
-                            <p class="card-text small text-muted">
-                                May challenge democratic institutions and norms
-                            </p>
-                            {% endif %}
-                            {% endwith %}
-                        </div>
-                    </div>
-                </div>
-                {% endif %}
-
-                <!-- Populism Results -->
-                {% if results.populism_regression %}
-                <div class="col-lg-4 col-md-6 mb-4">
-                    <div class="card h-100" style="border-left: 4px solid #ffc107;">
-                        <div class="card-body text-center">
-                            <h6 class="card-title">Populism-Pluralism</h6>
-                            {% with score=results.populism_regression.predicted_v8_scale_score|default_if_none:results.populism_regression.raw_score %}
-                            
-                            <div class="scale-wrap my-2">
-                                <div class="scale-score" style="left: calc({{ score }} * 10%);">
-                                    <span class="display-6" style="color:#ffc107;">
-                                        {{ score|floatformat:1 }}
-                                    </span>
-                                </div>
-                                <div class="scale-line">
-                                    <div class="scale-dotpopplu" style="left: calc({{ score }} * 10%); background-color: #ffc107;"></div>
-                                </div>
-                                <div class="scale-labels">
-                                    <span>Pluralism</span>
-                                    <span>Populism</span>
-                                </div>
-                            </div>
-
-                            <div class="mb-2">
-                                <span class="badge bg-custom">
-                                    {{ results.populism_regression.interpretation }}
-                                </span>
-                            </div>
-
-                            {% if score > 5 %}
-                            <p class="card-text small text-muted">
-                                Uses "people vs. elite" rhetoric
-                            </p>
-                            {% else %}
-                            <p class="card-text small text-muted">
-                                Uses conventional political discourse
-                            </p>
-                            {% endif %}
-                            {% endwith %}
-                        </div>
-                    </div>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-</section>
-{% endif %}
 
 <!-- Alternative Approaches Section -->
-{% if alternative_scores %}
-<section class="py-5 d-flex justify-content-center">
-    <div class="container d-flex justify-content-center">
-        <div class="w-100" style="max-width: 1100px;">
- 
-            <!-- Hypothesis-Based Approaches -->
-            {% if alternative_scores.left_right_hypothesis or alternative_scores.liberal_illiberal_hypothesis or alternative_scores.populism_pluralism_hypothesis %}
-            <div class="mb-5">
-                <div class="row justify-content-center">
-                    <!-- Left-Right Hypothesis -->
-                    {% if alternative_scores.left_right_hypothesis %}
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="card h-100" style="border-left: 4px solid #e83e8c;">
-                            <div class="card-body text-center">
-                                <h6 class="card-title">Economic Left-Right</h6>
+{% if alternative_scores.left_right_hypothesis %}
+  {% with lr=alternative_scores.left_right_hypothesis %}
+    <div class="col-lg-4 col-md-6 mb-4">
+      <div class="card h-100" style="border-left: 4px solid #e83e8c;">
+        <div class="card-body text-center">
+          <h6 class="card-title">Economic Left-Right</h6>
 
-                                {% if alternative_scores.left_right_hypothesis.passed_precheck|default:True %}
-                                    {% with score=alternative_scores.left_right_hypothesis.score confidence=alternative_scores.left_right_hypothesis.confidence %}
-                                    <div class="scale-wrap my-2">
-                                        <div class="scale-score" style="left: calc({{ score }} * 10%);">
-                                            <span class="display-6" style="color:#e83e8c;">
-                                                {{ score|floatformat:1 }}
-                                            </span>
-                                        </div>
-                                        <div class="scale-line">
-                                            <div class="scale-dot" style="left: calc({{ score }} * 10%);"></div>
-                                        </div>
-                                        <div class="scale-labels">
-                                            <span>Left</span>
-                                            <span>Right</span>
-                                        </div>
-                                    </div>
+          {% if lr.passed_precheck|default:True %}
+            {% with score=lr.score confidence=lr.confidence %}
+              {% with pos=score|floatformat:1 %}
+                <div class="scale-wrap my-2">
+                  <div class="scale-score" style="left: calc({{ pos }} * 10%);">
+                    <span class="display-6" style="color:#e83e8c;">
+                      {{ score|floatformat:1 }}
+                    </span>
+                  </div>
 
-                                    <div class="mb-2">
-                                        <span class="badge bg-custom">
-                                            {{ alternative_scores.left_right_hypothesis.interpretation }}
-                                        </span>
-                                    </div>
+                  <div class="scale-line">
+                    <div class="scale-dot" style="left: calc({{ pos }} * 10%);"></div>
+                  </div>
 
-                                    <div class="text-muted" style="font-size: 0.9rem;">
-                                        <strong>Confidence:</strong> {{ confidence|floatformat:1 }}%
-                                    </div>
-                                    {% endwith %}
-                                {% else %}
-                                    <div class="alert alert-danger mt-3 mb-0" role="alert">
-                                        <strong>Not in scope:</strong> the text didn't pass the political/governance topic precheck.
-                                        {% if alternative_scores.left_right_hypothesis.precheck_threshold %}
-                                        <div class="small text-muted mt-1">Precheck score: {{ alternative_scores.left_right_hypothesis.precheck_score|floatformat:3 }} (threshold {{ alternative_scores.left_right_hypothesis.precheck_threshold }})</div>
-                                        {% endif %}
-                                    </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                    {% endif %}
+                  <div class="scale-labels">
+                    <span>Left</span>
+                    <span>Right</span>
+                  </div>
+                </div>
+              {% endwith %}
+
+              <div class="mb-2">
+                <span class="badge bg-custom">
+                  {{ lr.interpretation }}
+                </span>
+              </div>
+
+              <div class="text-muted" style="font-size: 0.9rem;">
+                <strong>Confidence:</strong> {{ confidence|floatformat:1 }}%
+              </div>
+            {% endwith %}
+
+          {% else %}
+            <div class="alert alert-warning text-start mb-0" role="alert">
+              <strong>Not in scope:</strong> the text didn't pass the political/governance topic precheck.
+
+              {% if lr.precheck_score %}
+                <div class="small text-muted mt-2">
+                  Precheck score: {{ lr.precheck_score|floatformat:3 }}
+                  {% if lr.precheck_threshold %}
+                    (threshold {{ lr.precheck_threshold }})
+                  {% endif %}
+                </div>
+              {% endif %}
+            </div>
+          {% endif %}
+
+        </div>
+      </div>
+    </div>
+  {% endwith %}
+{% endif %}
+
 
                     <!-- Liberal-Illiberal Hypothesis -->
                     {% if alternative_scores.liberal_illiberal_hypothesis %}
