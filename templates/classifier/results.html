@@ -225,8 +225,9 @@
     <div class="card-body text-center">
       <h6 class="card-title">Economic Left-Right</h6>
 
-      {% if alternative_scores.left_right_hypothesis.passed_precheck|default:True %}
-        {% with score=alternative_scores.left_right_hypothesis.score confidence=alternative_scores.left_right_hypothesis.confidence %}
+
+      {% if alternative_scores.liberal_illiberal_hypothesis.is_relevant %}
+      {% with score=alternative_scores.left_right_hypothesis.score confidence=alternative_scores.left_right_hypothesis.confidence %}
           <div class="scale-wrap my-2">
             <div class="scale-score" style="left: calc({{ score }} * 10%);">
               <span class="display-6" style="color:#20c997;">
