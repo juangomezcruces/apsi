@@ -74,64 +74,61 @@ body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-.accordion {
-  --bs-accordion-border-width: 0 !important;
-  --bs-accordion-border-color: transparent !important;
-  --bs-accordion-btn-focus-box-shadow: none !important;
-  --bs-accordion-active-bg: transparent !important;
-  --bs-accordion-btn-bg: transparent !important;
+.apsi-section {
+  max-width: 980px;
+  margin: 1.25rem auto;
+  padding: 0 20px;
+  overflow: hidden; /* needed for height animation */
 }
 
-.accordion-item {
-  background: transparent !important;
+/* Summary styling (bigger header, no border) */
+.apsi-section summary {
+  list-style: none;
+  cursor: pointer;
+  font-size: 1.6rem;
+  font-weight: 500;
+  color: #111 !important;
+  padding: 0.75rem 0;
   border: 0 !important;
+  outline: none;
+  transition: opacity 200ms ease, color 200ms ease;
 }
 
-.accordion-button {
-  background: transparent !important;
-  border: 0 !important;
-  box-shadow: none !important;       /* kills the separator line */
+/* Remove default marker */
+.apsi-section summary::-webkit-details-marker { display: none; }
+
+/* Hover effect (stronger specificity + !important so it actually shows) */
+.apsi-section summary:hover {
+  color: #37A3B1 !important;
+  opacity: 0.92;
 }
 
-.accordion-button:not(.collapsed) {
-  box-shadow: none !important;       /* kills active separator line */
+/*
+  CRITICAL: Override browser default "hide everything" behavior
+  so our transitions can run.
+*/
+.apsi-section > :not(summary) {
+  display: block; /* override UA stylesheet */
 }
 
-.accordion-collapse {
-  border: 0 !important;              /* kills top border line */
-}
-
-.accordion-body {
-  border: 0 !important;
-}
-
-/* If there is still a faint line, it's usually this */
-.accordion-button::after {
-  filter: none !important;
-}
-
-/* Smooth subtle open animation */
+/* Smooth reveal container */
 .apsi-section .apsi-content {
   max-height: 0;
-  overflow: hidden;
   opacity: 0;
-  transition: max-height 0.6s ease, opacity 0.4s ease;
+  transform: translateY(-4px);
+  transition: max-height 650ms ease, opacity 450ms ease, transform 450ms ease;
+  will-change: max-height, opacity, transform;
 }
 
+/* When open */
 .apsi-section[open] .apsi-content {
-  max-height: 1000px;   /* large enough for content */
+  max-height: 2000px; /* set large enough for your longest section */
   opacity: 1;
+  transform: translateY(0);
 }
 
-.apsi-section summary {
-  cursor: pointer;
-  transition: color 0.2s ease;
-}
-
-.apsi-section summary:hover {
-  color: #555;
-}
-
-
+/* Make spacing feel like a document */
+.apsi-section .apsi-content > *:first-child { margin-top: 0.75rem; }
+.apsi-section .apsi-content > *:last-child { margin-bottom: 0; }
 
 
