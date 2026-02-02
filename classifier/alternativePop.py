@@ -203,9 +203,10 @@ class PopulismPluralismScorer:
                 'score': 'NA',
                 'confidence': 0.0,
                 'contradiction_detected': False,
-                'interpretation': 'Not about political rhetoric or governance',
+                'interpretation': 'Not about democratic principles',
+                'topic_probability': float(topic_prob),
+                'passed_precheck': False,
                 'is_relevant': False,
-                'topic_probability': topic_prob
             }
         
         probs = self.get_hypothesis_probabilities(text)
@@ -272,10 +273,11 @@ class PopulismPluralismScorer:
             'populist_avg': populist_avg,
             'pluralist_avg': pluralist_avg,
             'top_populist_hypotheses': top_populist,
-            'top_pluralist_hypotheses': top_pluralist
-,
+            'top_pluralist_hypotheses': top_pluralist,
+            'passed_precheck': True,
             'is_relevant': True,
-            'topic_probability': topic_prob
+            'topic_probability': float(topic_prob),
+
         }
 
     def quick_score(self, text):
