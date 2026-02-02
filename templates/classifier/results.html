@@ -103,7 +103,7 @@
                   </div>
                   {% endwith %}
                 {% else %}
-                  <div class="alert alert-danger mt-3 mb-0" role="alert">
+                  <div class="alert alert-warning mt-3 mb-0" role="alert">
                     <strong>Not in scope:</strong>
                     {{ alternative_scores.left_right_hypothesis.error_message|default:"The tool cannot infer a political stance from this text." }}
                   </div>
@@ -144,7 +144,7 @@
                   </div>
                   {% endwith %}
                 {% else %}
-                  <div class="alert alert-danger mt-3 mb-0" role="alert">
+                  <div class="alert alert-warning mt-3 mb-0" role="alert">
                     <strong>Not in scope:</strong>
                     {{ alternative_scores.liberal_illiberal_hypothesis.error_message|default:"The tool cannot infer a political stance from this text." }}
                   </div>
@@ -185,9 +185,9 @@
                   </div>
                   {% endwith %}
                 {% else %}
-                  <div class="alert alert-danger mt-3 mb-0" role="alert">
+                  <div class="alert alert-warning mt-3 mb-0" role="alert">
                     <strong>Not in scope:</strong>
-                    {{ alternative_scores.populism_pluralism_hypothesis.error_message|default:"The tool cannot infer a populism/pluralism stance from this text." }}
+                    {{ alternative_scores.populism_pluralism_hypothesis.error_message|default:"The tool cannot infer a political stance from this text." }}
                   </div>
                 {% endif %}
 
