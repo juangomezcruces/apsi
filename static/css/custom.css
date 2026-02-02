@@ -28,7 +28,7 @@
     overflow: hidden;
 }
 
-/* Responsive adjustments */
+
 @media (max-width: 768px) {
     .score-display {
         font-size: 2rem;
@@ -73,3 +73,31 @@
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
+
+.accordion-item {
+  border: none;
+}
+
+.accordion-button {
+  font-size: 1.4rem;
+  font-weight: 500;
+  padding: 1.25rem 0;
+  background: none;
+}
+
+.accordion-button:not(.collapsed) {
+  background: none;
+  color: #111;
+  box-shadow: none;
+}
+
+.accordion-button:focus {
+  box-shadow: none;
+  border: none;
+}
+
+.accordion-body {
+  padding-left: 0;
+  padding-right: 0;
+}
+
