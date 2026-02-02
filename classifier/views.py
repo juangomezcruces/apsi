@@ -6,7 +6,7 @@ import gc
 import torch
 import psutil
 import time
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
@@ -14,6 +14,11 @@ from django.contrib import messages
 from django.conf import settings
 from .forms import TextClassificationForm
 from .inference_service import PoliticalInferenceService
+
+
+
+
+
 
 logger = logging.getLogger(__name__)
 
@@ -281,9 +286,14 @@ def generate_mock_score(dimension_type):
     }
 
 def index(request):
-    """Main page with classification form."""
+    """Landing page (no form)."""
+    return render(request, 'classifier/index.html')
+
+def analysis(request):
+    """Analysis page with classification form."""
     form = TextClassificationForm()
-    return render(request, 'classifier/index.html', {'form': form})
+    return render(request, 'classifier/analysis.html', {'form': form})
+
 
 def classify_text(request):
     """Handle form submission and show results"""
