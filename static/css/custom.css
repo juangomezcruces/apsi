@@ -68,3 +68,7 @@
   margin-bottom: 0;
 }
 
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
