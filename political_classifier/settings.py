@@ -4,7 +4,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'your-secret-key-here-change-in-production'
-DEBUG = False
+DEBUG = True
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'apsi.sc.hpi.de', 'political-classifier.cloud.sci.hpi.de']
 
 INSTALLED_APPS = [
