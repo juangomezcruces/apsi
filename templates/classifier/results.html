@@ -183,55 +183,62 @@
 {% endif %}
 
 
-                    <!-- Populism-Pluralism Hypothesis -->
-                    {% if alternative_scores.populism_pluralism_hypothesis %}
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="card h-100" style="border-left: 4px solid #ffc107;">
-                            <div class="card-body text-center">
-                                <h6 class="card-title">Populism–Pluralism</h6>
+ <!-- Populism–Pluralism Hypothesis -->
+{% if alternative_scores.populism_pluralism_hypothesis %}
+<div class="col-lg-4 col-md-6 mb-4">
+  <div class="card h-100" style="border-left: 4px solid #ffc107;">
+    <div class="card-body text-center">
+      <h6 class="card-title">Populism–Pluralism</h6>
 
-                                {% if alternative_scores.populism_pluralism_hypothesis.passed_precheck|default:True %}
-                                    {% with score=alternative_scores.populism_pluralism_hypothesis.score confidence=alternative_scores.populism_pluralism_hypothesis.confidence %}
-                                    <div class="scale-wrap my-2">
-                                        <div class="scale-score" style="left: calc({{ score }} * 10%);">
-                                            <span class="display-6" style="color:#ffc107;">
-                                                {{ score|floatformat:1 }}
-                                            </span>
-                                        </div>
-                                        <div class="scale-line">
-                                            <div class="scale-dotpopplu" style="left: calc({{ score }} * 10%); background-color: #ffc107;"></div>
-                                        </div>
-                                        <div class="scale-labels">
-                                            <span>Pluralism</span>
-                                            <span>Populism</span>
-                                        </div>
-                                    </div>
+      {% if alternative_scores.populism_pluralism_hypothesis.is_relevant %}
 
-                                    <div class="mb-2">
-                                        <span class="badge bg-custom">
-                                            {{ alternative_scores.populism_pluralism_hypothesis.interpretation }}
-                                        </span>
-                                    </div>
-
-                                    <div class="text-muted" style="font-size: 0.9rem;">
-                                        <strong>Confidence:</strong> {{ confidence|floatformat:1 }}%
-                                    </div>
-                                    {% endwith %}
-                                {% else %}
-                                    <div class="alert alert-danger mt-3 mb-0" role="alert">
-                                        <strong>Not in scope:</strong> the text didn't pass the political/governance topic precheck.
-                                        {% if alternative_scores.populism_pluralism_hypothesis.precheck_threshold %}
-                                        <div class="small text-muted mt-1">Precheck score: {{ alternative_scores.populism_pluralism_hypothesis.precheck_score|floatformat:3 }} (threshold {{ alternative_scores.populism_pluralism_hypothesis.precheck_threshold }})</div>
-                                        {% endif %}
-                                    </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                    {% endif %}
-                </div>
+        {% with score=alternative_scores.populism_pluralism_hypothesis.score confidence=alternative_scores.populism_pluralism_hypothesis.confidence %}
+          <div class="scale-wrap my-2">
+            <div class="scale-score" style="left: calc({{ score }} * 10%);">
+              <span class="display-6" style="color:#ffc107;">
+                {{ score|floatformat:1 }}
+              </span>
             </div>
+            <div class="scale-line">
+              <div class="scale-dotpopplu" style="left: calc({{ score }} * 10%); background-color: #ffc107;"></div>
+            </div>
+            <div class="scale-labels">
+              <span>Pluralism</span>
+              <span>Populism</span>
+            </div>
+          </div>
+
+          <div class="mb-2">
+            <span class="badge bg-custom">
+              {{ alternative_scores.populism_pluralism_hypothesis.interpretation }}
+            </span>
+          </div>
+
+          <div class="text-muted" style="font-size: 0.9rem;">
+            <strong>Confidence:</strong> {{ confidence|floatformat:2 }}%
+          </div>
+        {% endwith %}
+
+      {% else %}
+
+        <div class="alert alert-danger mt-3 mb-0" role="alert">
+          <strong>Not in scope:</strong>
+          {{ alternative_scores.populism_pluralism_hypothesis.error_message|default:"The tool cannot infer a populism/pluralism stance from this text." }}
+
+          {% with h=alternative_scores.populism_pluralism_hypothesis %}
+            {% if h.topic_probability or h.topic_probability == 0 %}
+              <div class="small text-muted mt-1">
+              </div>
             {% endif %}
+          {% endwith %}
+        </div>
+
+      {% endif %}
+
+    </div>
+  </div>
+</div>
+{% endif %}
 
             <!-- Response-Based Approaches -->
             {% if alternative_scores.left_right_responses or alternative_scores.liberal_illiberal_responses or alternative_scores.populism_pluralism_responses %}
