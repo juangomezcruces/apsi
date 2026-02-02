@@ -101,3 +101,16 @@ body {
   padding-right: 0;
 }
 
+/* Kill all accordion borders */
+.accordion,
+.accordion-item,
+.accordion-header,
+.accordion-button {
+  border: none !important;
+}
+
+/* Remove the dividing lines between items */
+.accordion-item:not(:last-of-type) {
+  border-bottom: none !important;
+}
+
