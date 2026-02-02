@@ -55,6 +55,7 @@
     100% { transform: rotate(360deg); }
 }
 
+/* V-Dem style text */
 .rich-text.lead-text {
   max-width: 880px;
   margin: 2rem auto;
@@ -68,7 +69,7 @@
   margin-bottom: 0;
 }
 
-
+/* Global font */
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
