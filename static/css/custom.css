@@ -54,3 +54,17 @@
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
+.rich-text.lead-text {
+  max-width: 880px;
+  margin: 2rem auto;
+  font-size: 1.15rem;
+  line-height: 1.8;
+  color: #444;
+  font-weight: 400;
+}
+
+.rich-text.lead-text p {
+  margin-bottom: 0;
+}
+
