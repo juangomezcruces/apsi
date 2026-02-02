@@ -215,16 +215,12 @@ class LiberalIlliberalScorer:
         if not is_relevant:
             return {
                 'text': text,
-                'score': 0.0,
+                'score': 'NA',
                 'confidence': 0.0,
                 'contradiction_detected': False,
                 'interpretation': 'Not about democratic principles',
-                'error_message': "The text didn't pass the democratic-principles topic precheck.",
-                'passed_precheck': False,
-                'precheck_score': float(topic_prob),
-                'precheck_threshold': float(self.topic_threshold),
                 'is_relevant': False,
-                'topic_probability': float(topic_prob),
+                'topic_probability': topic_prob
             }
         
         probs = self.get_hypothesis_probabilities(text)
@@ -284,19 +280,17 @@ class LiberalIlliberalScorer:
 
         return {
             'text': text,
-            'score': float(final_score),
-            'confidence': float(confidence_data['combined']),
-            'contradiction_detected': bool(confidence_data['contradiction_detected']),
+            'score': final_score,
+            'confidence': confidence_data['combined'],
+            'contradiction_detected': confidence_data['contradiction_detected'],
             'interpretation': interpretation,
-            'liberal_avg': float(liberal_avg),
-            'illiberal_avg': float(illiberal_avg),
+            'liberal_avg': liberal_avg,
+            'illiberal_avg': illiberal_avg,
             'top_liberal_hypotheses': top_liberal,
-            'top_illiberal_hypotheses': top_illiberal,
-            'passed_precheck': True,
-            'precheck_score': float(topic_prob),
-            'precheck_threshold': float(self.topic_threshold),
+            'top_illiberal_hypotheses': top_illiberal
+,
             'is_relevant': True,
-            'topic_probability': float(topic_prob),
+            'topic_probability': topic_prob
         }
 
     def quick_score(self, text):
