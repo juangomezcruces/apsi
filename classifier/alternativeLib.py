@@ -222,7 +222,7 @@ class LiberalIlliberalScorer:
                 'is_relevant': False,
                 'topic_probability': float(topic_prob),
                 'passed_precheck': False,
-                'is_relevant': False,
+                'is_relevant': False
 
             }
         
@@ -293,7 +293,7 @@ class LiberalIlliberalScorer:
             'top_illiberal_hypotheses': top_illiberal
             'passed_precheck': True,
             'is_relevant': True,
-            'topic_probability': float(topic_prob),
+            'topic_probability': float(topic_prob)
 
         }
 
