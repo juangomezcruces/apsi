@@ -325,11 +325,6 @@
                 </div>
             {% endif %}
 
-                                        
-
-
-
-
 
 
                     <!-- Populism-Pluralism Hypothesis -->
@@ -339,7 +334,7 @@
                             <div class="card-body text-center">
                                 <h6 class="card-title">Populism–Pluralism</h6>
 
-                                {% if alternative_scores.populism_pluralism_hypothesis.passed_precheck|default:True %}
+                                {% if alternative_scores.populist_pluralist_hypothesis.is_relevant %}
                                     {% with score=alternative_scores.populism_pluralism_hypothesis.score confidence=alternative_scores.populism_pluralism_hypothesis.confidence %}
                                     <div class="scale-wrap my-2">
                                         <div class="scale-score" style="left: calc({{ score }} * 10%);">
@@ -363,14 +358,17 @@
                                     </div>
 
                                     <div class="text-muted" style="font-size: 0.9rem;">
-                                        <strong>Confidence:</strong> {{ confidence|floatformat:1 }}%
+                                        <strong>Confidence:</strong> {{ confidence|floatformat:2 }}%
                                     </div>
                                     {% endwith %}
                                 {% else %}
                                     <div class="alert alert-danger mt-3 mb-0" role="alert">
-                                        <strong>Not in scope:</strong> the text didn't pass the political/governance topic precheck.
-                                        {% if alternative_scores.populism_pluralism_hypothesis.precheck_threshold %}
-                                        <div class="small text-muted mt-1">Precheck score: {{ alternative_scores.populism_pluralism_hypothesis.precheck_score|floatformat:3 }} (threshold {{ alternative_scores.populism_pluralism_hypothesis.precheck_threshold }})</div>
+                                        <strong>Not in scope:</strong>
+                                        {{ alternative_scores.populist_pluralist_hypothesis.error_message|default:"Tool bla bla." }}
+                                        {% with h=alternative_scores.populist_pluralist_hypothesis %}
+                                        <div class="small text-muted mt-1">
+                                        Topic probability: {{ h.topic_probability|default_if_none:"?"|floatformat:3 }}
+                                        </div>
                                         {% endif %}
                                     </div>
                                 {% endif %}
