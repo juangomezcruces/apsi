@@ -4,7 +4,6 @@
 {% block title %}How It Works - Automated Political Stance Identifier{% endblock %}
 
 {% block content %}
-{# --- Logo header (kept from your base) --- #}
 <section class="py-5 bg-white">
   <div class="container text-center">
     <img
@@ -16,7 +15,6 @@
   </div>
 </section>
 
-{# --- Page content (dynamic + safe defaults) --- #}
 <section class="py-5 bg-white">
   <div class="container">
     <div class="row">
@@ -30,17 +28,27 @@
           {{ how_it_works_intro|default:"This page explains what the Automated Political Stance Identification Tool (APSI) does, how it produces scores, and how to interpret results." }}
         </p>
 
+        <!-- IMPORTANT BOX -->
         <div class="alert alert-info mt-4" role="alert" style="max-width: 900px;">
           <strong>Important:</strong>
           {{ how_it_works_note|default:"APSI analyzes language in text, not people. Results are probabilistic indicators, not definitive labels of beliefs or intent." }}
         </div>
 
+        <!-- CALL TO ACTION BUTTON -->
+        <div class="mt-3 mb-5" style="max-width: 900px;">
+          <a href="{% url 'classifier:index' %}"
+             class="btn btn-lg"
+             style="background-color:#37A3B1; color:#fff;">
+            Start an analysis →
+          </a>
+        </div>
+
         <hr class="my-5">
 
-        {# -------------------- 1) What it does -------------------- #}
+        <!-- 1) WHAT IT DOES -->
         <h4 class="mb-3">{{ sections.what_title|default:"1) What the tool does" }}</h4>
         <p class="text-muted" style="max-width: 900px;">
-          {{ sections.what_body|default:"APSI analyzes political language in text and estimates stance across three research-grounded dimensions: economic left–right, support for liberal democracy, and populism versus pluralism. It is designed for transparent, reproducible political text analysis." }}
+          {{ sections.what_body|default:"APSI analyzes political language in text and estimates stance across three research-grounded dimensions: economic left–right, support for liberal democracy, and populism versus pluralism." }}
         </p>
 
         <div class="row g-3" style="max-width: 1000px;">
@@ -49,13 +57,9 @@
               <div class="card-body">
                 <h6 class="card-title mb-2">Designed for</h6>
                 <ul class="text-muted mb-0">
-                  {% for item in designed_for_list %}
-                    <li>{{ item }}</li>
-                  {% empty %}
-                    <li>Research, journalism, education, exploratory analysis</li>
-                    <li>Comparing stances across texts or over time</li>
-                    <li>Understanding political rhetoric across countries</li>
-                  {% endfor %}
+                  <li>Research, journalism, education</li>
+                  <li>Comparing political texts over time</li>
+                  <li>Understanding rhetorical patterns</li>
                 </ul>
               </div>
             </div>
@@ -65,13 +69,9 @@
               <div class="card-body">
                 <h6 class="card-title mb-2">Not designed for</h6>
                 <ul class="text-muted mb-0">
-                  {% for item in not_for_list %}
-                    <li>{{ item }}</li>
-                  {% empty %}
-                    <li>Profiling individuals</li>
-                    <li>Hiring/screening/surveillance</li>
-                    <li>High-stakes decisions about people</li>
-                  {% endfor %}
+                  <li>Profiling individuals</li>
+                  <li>Hiring or screening</li>
+                  <li>Surveillance or political targeting</li>
                 </ul>
               </div>
             </div>
@@ -80,257 +80,104 @@
 
         <hr class="my-5">
 
-        {# -------------------- 2) Dimensions -------------------- #}
-        <h4 class="mb-3">{{ sections.dimensions_title|default:"2) The dimensions we measure" }}</h4>
+        <!-- 2) DIMENSIONS -->
+        <h4 class="mb-3">2) The dimensions we measure</h4>
         <p class="text-muted" style="max-width: 900px;">
-          {{ sections.dimensions_body|default:"Scores range from 0 to 10. Low and high values represent different ends of each dimension and should be interpreted as signals in the text." }}
+          Scores range from 0 to 10. Low and high values represent different ends of each dimension.
         </p>
 
         <div class="row g-3" style="max-width: 1100px;">
-          {% for d in dimensions %}
-            <div class="col-md-4">
-              <div class="card h-100">
-                <div class="card-body">
-                  <h6 class="card-title mb-2">{{ d.title }}</h6>
-                  <p class="text-muted mb-2">{{ d.description }}</p>
-                  <div class="small text-muted">
-                    <strong>0:</strong> {{ d.low }}<br>
-                    <strong>10:</strong> {{ d.high }}
-                  </div>
+          <div class="col-md-4">
+            <div class="card h-100">
+              <div class="card-body">
+                <h6 class="card-title mb-2">Economic Left–Right</h6>
+                <p class="text-muted mb-2">Role of the state and markets.</p>
+                <div class="small text-muted">
+                  <strong>0:</strong> redistribution, welfare, regulation<br>
+                  <strong>10:</strong> privatization, low taxes
                 </div>
               </div>
             </div>
-          {% empty %}
-            <div class="col-md-4">
-              <div class="card h-100">
-                <div class="card-body">
-                  <h6 class="card-title mb-2">Economic Left–Right</h6>
-                  <p class="text-muted mb-2">How the text frames the role of the state and markets.</p>
-                  <div class="small text-muted">
-                    <strong>0:</strong> redistribution, welfare, regulation<br>
-                    <strong>10:</strong> privatization, low taxes, deregulation
-                  </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card h-100">
+              <div class="card-body">
+                <h6 class="card-title mb-2">Support for Liberal Democracy</h6>
+                <p class="text-muted mb-2">Democratic institutions and rights.</p>
+                <div class="small text-muted">
+                  <strong>0:</strong> weak institutional support<br>
+                  <strong>10:</strong> strong democratic commitment
                 </div>
               </div>
             </div>
-            <div class="col-md-4">
-              <div class="card h-100">
-                <div class="card-body">
-                  <h6 class="card-title mb-2">Support for Liberal Democracy</h6>
-                  <p class="text-muted mb-2">Support for institutions, rule of law, and civil liberties.</p>
-                  <div class="small text-muted">
-                    <strong>0:</strong> weak support / critical of liberal institutions<br>
-                    <strong>10:</strong> strong support for democratic institutions and rights
-                  </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card h-100">
+              <div class="card-body">
+                <h6 class="card-title mb-2">Populism–Pluralism</h6>
+                <p class="text-muted mb-2">Rhetorical framing style.</p>
+                <div class="small text-muted">
+                  <strong>0:</strong> pluralist, institutional<br>
+                  <strong>10:</strong> populist, anti-elite
                 </div>
               </div>
             </div>
-            <div class="col-md-4">
-              <div class="card h-100">
-                <div class="card-body">
-                  <h6 class="card-title mb-2">Populism–Pluralism</h6>
-                  <p class="text-muted mb-2">People-vs-elite rhetoric versus pluralist framing.</p>
-                  <div class="small text-muted">
-                    <strong>0:</strong> pluralist, institutional, inclusive language<br>
-                    <strong>10:</strong> populist, anti-elite, “the people” framing
-                  </div>
-                </div>
-              </div>
-            </div>
-          {% endfor %}
+          </div>
         </div>
 
         <hr class="my-5">
 
-        {# -------------------- 3) How it works -------------------- #}
-        <h4 class="mb-3">{{ sections.how_title|default:"3) How the analysis works" }}</h4>
+        <!-- 3) HOW IT WORKS -->
+        <h4 class="mb-3">3) How the analysis works</h4>
         <p class="text-muted" style="max-width: 900px;">
-          {{ sections.how_body|default:"APSI uses Natural Language Inference (NLI): the model evaluates whether the text supports a set of theory-driven political statements (hypotheses). These signals are aggregated into 0–10 scores." }}
+          APSI uses Natural Language Inference (NLI). The model evaluates whether your text supports
+          a set of theory-based political statements and aggregates these signals into stance scores.
         </p>
 
         <div class="card" style="max-width: 900px;">
           <div class="card-body">
             <h6 class="card-title mb-2">In plain terms</h6>
             <p class="text-muted mb-0">
-              {{ plain_terms|default:"We ask 'Does this text imply X?' for multiple statements, then combine the answers into a stance score." }}
+              We ask “Does this text imply X?” for multiple political statements,
+              then combine the answers into a score.
             </p>
           </div>
         </div>
 
         <hr class="my-5">
 
-        {# -------------------- 4) Approaches -------------------- #}
-        <h4 class="mb-3">{{ sections.approaches_title|default:"4) The approaches you may see in results" }}</h4>
+        <!-- 4) LIMITATIONS -->
+        <h4 class="mb-3">4) Limitations</h4>
         <p class="text-muted" style="max-width: 900px;">
-          {{ sections.approaches_body|default:"Depending on the selected options, APSI may use multiple complementary methods to score your text." }}
-        </p>
-
-        <div class="row g-3" style="max-width: 1100px;">
-          {% for a in approaches %}
-            <div class="col-md-4">
-              <div class="card h-100">
-                <div class="card-body">
-                  <h6 class="card-title mb-2">{{ a.title }}</h6>
-                  <p class="text-muted mb-0">{{ a.body }}</p>
-                </div>
-              </div>
-            </div>
-          {% empty %}
-            <div class="col-md-4">
-              <div class="card h-100">
-                <div class="card-body">
-                  <h6 class="card-title mb-2">Direct classification</h6>
-                  <p class="text-muted mb-0">
-                    A single-step estimate of stance along each dimension. Useful as a quick baseline.
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="card h-100">
-                <div class="card-body">
-                  <h6 class="card-title mb-2">Hypothesis-based scoring</h6>
-                  <p class="text-muted mb-0">
-                    The model evaluates multiple left/right (or pluralist/populist) hypotheses, aggregates probabilities,
-                    and maps the difference to a 0–10 score.
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="card h-100">
-                <div class="card-body">
-                  <h6 class="card-title mb-2">Response-based scoring</h6>
-                  <p class="text-muted mb-0">
-                    The model compares the text to anchored category descriptions (e.g., Left=0, Center=5, Right=10),
-                    then computes a weighted average.
-                  </p>
-                </div>
-              </div>
-            </div>
-          {% endfor %}
-        </div>
-
-        <hr class="my-5">
-
-        {# -------------------- 5) Confidence -------------------- #}
-        <h4 class="mb-3">{{ sections.confidence_title|default:"5) What confidence means" }}</h4>
-        <p class="text-muted" style="max-width: 900px;">
-          {{ sections.confidence_body|default:"Confidence reflects how consistent the model’s signals were for the given text. It is not the same as factual correctness or 'truth'." }}
-        </p>
-
-        <div class="row g-3" style="max-width: 1000px;">
-          <div class="col-lg-6">
-            <div class="card h-100">
-              <div class="card-body">
-                <h6 class="card-title mb-2">Higher confidence</h6>
-                <p class="text-muted mb-0">
-                  {% if confidence_high %}{{ confidence_high }}{% else %}
-                  The text contains clear and consistent cues aligned with a dimension.
-                  {% endif %}
-                </p>
-              </div>
-            </div>
-          </div>
-          <div class="col-lg-6">
-            <div class="card h-100">
-              <div class="card-body">
-                <h6 class="card-title mb-2">Lower confidence</h6>
-                <p class="text-muted mb-0">
-                  {% if confidence_low %}{{ confidence_low }}{% else %}
-                  The text is short, ambiguous, balanced, sarcastic, or not strongly related to a dimension.
-                  {% endif %}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <hr class="my-5">
-
-        {# -------------------- 6) Limitations -------------------- #}
-        <h4 class="mb-3">{{ sections.limitations_title|default:"6) Limitations" }}</h4>
-        <p class="text-muted" style="max-width: 900px;">
-          {{ sections.limitations_body|default:"Political language is nuanced and context-dependent. Results can vary with domain, language, and wording. Treat scores as indicators, not definitive judgments." }}
+          Political language is nuanced and context-dependent. Results can be sensitive to wording,
+          sarcasm, and missing context.
         </p>
 
         <div class="card" style="max-width: 900px;">
           <div class="card-body">
-            <h6 class="card-title mb-2">Common failure cases</h6>
             <ul class="text-muted mb-0">
-              {% for item in limitations_list %}
-                <li>{{ item }}</li>
-              {% empty %}
-                <li>Sarcasm, irony, or quoting opponents</li>
-                <li>Very short texts (one sentence)</li>
-                <li>Missing context (who speaks, when, where)</li>
-                <li>Strategic or mixed messaging</li>
-              {% endfor %}
+              <li>Sarcasm and irony</li>
+              <li>Very short texts</li>
+              <li>Quoting opponents</li>
+              <li>Strategic political language</li>
             </ul>
           </div>
         </div>
 
         <hr class="my-5">
 
-        {# -------------------- 7) Ethical use -------------------- #}
-        <h4 class="mb-3">{{ sections.ethics_title|default:"7) Ethical use" }}</h4>
-        <p class="text-muted" style="max-width: 900px;">
-          {{ sections.ethics_body|default:"APSI is intended for research and informational purposes. It should not be used for high-stakes decisions affecting individuals’ rights or opportunities." }}
-        </p>
-
+        <!-- 5) ETHICAL USE -->
+        <h4 class="mb-3">5) Ethical use</h4>
         <div class="alert alert-warning" role="alert" style="max-width: 900px;">
-          <strong>Do not use APSI for:</strong>
-          profiling individuals, surveillance, hiring/screening, or automated decision-making that impacts people.
+          This tool is for research and informational purposes only.
+          Do not use it for profiling, surveillance, or decisions affecting individuals.
         </div>
 
-        <hr class="my-5">
-
-        {# -------------------- FAQ (dynamic details) -------------------- #}
-        <h4 class="mb-3">{{ sections.faq_title|default:"FAQ" }}</h4>
-
-        <div style="max-width: 900px;">
-          {% for f in faqs %}
-            <details class="mb-3">
-              <summary><strong>{{ f.q }}</strong></summary>
-              <p class="text-muted mt-2 mb-0">{{ f.a }}</p>
-            </details>
-          {% empty %}
-            <details class="mb-3">
-              <summary><strong>Does APSI “know” what the author believes?</strong></summary>
-              <p class="text-muted mt-2 mb-0">
-                No. APSI analyzes language in the text and estimates alignment with dimensions. It does not infer identity,
-                intent, or personal beliefs.
-              </p>
-            </details>
-
-            <details class="mb-3">
-              <summary><strong>Why do results change when I rewrite a sentence?</strong></summary>
-              <p class="text-muted mt-2 mb-0">
-                The model is sensitive to wording. Small phrasing changes can strengthen or weaken cues used for scoring.
-              </p>
-            </details>
-
-            <details class="mb-3">
-              <summary><strong>Can the tool detect sarcasm or quotes?</strong></summary>
-              <p class="text-muted mt-2 mb-0">
-                Not reliably. Irony, sarcasm, and quoted statements are common sources of misclassification.
-              </p>
-            </details>
-
-            <details class="mb-3">
-              <summary><strong>What text length works best?</strong></summary>
-              <p class="text-muted mt-2 mb-0">
-                Longer passages with clear policy or institutional language tend to yield more stable scores.
-              </p>
-            </details>
-          {% endfor %}
-        </div>
-
-        <hr class="my-5">
-
-        <div class="text-center">
-          <a href="{% url 'classifier:index' %}" class="btn btn-lg" style="background-color:#37A3B1; color:#fff;">
-            ← Back to the tool
+        <div class="text-center mt-5">
+          <a href="{% url 'classifier:index' %}"
+             class="btn btn-lg"
+             style="background-color:#37A3B1; color:#fff;">
+            Back to the analysis tool →
           </a>
         </div>
 
@@ -338,5 +185,4 @@
     </div>
   </div>
 </section>
-
 {% endblock %}
