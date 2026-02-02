@@ -334,7 +334,7 @@
                             <div class="card-body text-center">
                                 <h6 class="card-title">Populism–Pluralism</h6>
 
-                                {% if alternative_scores.populist_pluralist_hypothesis.is_relevant %}
+                                {% if alternative_scores.populism_pluralism_hypothesis.is_relevant %}
                                     {% with score=alternative_scores.populism_pluralism_hypothesis.score confidence=alternative_scores.populism_pluralism_hypothesis.confidence %}
                                     <div class="scale-wrap my-2">
                                         <div class="scale-score" style="left: calc({{ score }} * 10%);">
@@ -364,8 +364,8 @@
                                 {% else %}
                                     <div class="alert alert-danger mt-3 mb-0" role="alert">
                                         <strong>Not in scope:</strong>
-                                        {{ alternative_scores.populist_pluralist_hypothesis.error_message|default:"Tool bla bla." }}
-                                        {% with h=alternative_scores.populist_pluralist_hypothesis %}
+                                        {{ alternative_scores.populism_pluralism_hypothesis.error_message|default:"Tool bla bla." }}
+                                        {% with h=alternative_scores.populism_pluralism_hypothesis %}
                                         <div class="small text-muted mt-1">
                                         Topic probability: {{ h.topic_probability|default_if_none:"?"|floatformat:3 }}
                                         </div>
