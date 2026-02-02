@@ -289,7 +289,6 @@ def index(request):
     """Landing page."""
     return render(request, 'classifier/index.html')
 
-
 def analysis(request):
     """Analysis page with form."""
     form = TextClassificationForm()
