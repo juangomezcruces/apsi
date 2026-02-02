@@ -123,3 +123,12 @@ body {
   opacity: 1;
 }
 
+.apsi-section summary {
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.apsi-section summary:hover {
+  color: #555;
+}
+
