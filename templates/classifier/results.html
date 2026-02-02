@@ -125,8 +125,8 @@
     <div class="card-body text-center">
       <h6 class="card-title">Support for Liberal Democracy</h6>
 
-      {# Safest check with your current payload: uses is_relevant #}
-      {% if alternative_scores.liberal_illiberal_hypothesis.is_relevant %}
+
+    {alternative_scores.left_right_hypothesis.passed_precheck|default:True %}
 
         {% with score=alternative_scores.liberal_illiberal_hypothesis.score confidence=alternative_scores.liberal_illiberal_hypothesis.confidence %}
           <div class="scale-wrap my-2">
