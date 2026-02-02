@@ -286,11 +286,12 @@ def generate_mock_score(dimension_type):
     }
 
 def index(request):
-    """Landing page (no form)."""
+    """Landing page."""
     return render(request, 'classifier/index.html')
 
+
 def analysis(request):
-    """Analysis page with classification form."""
+    """Analysis page with form."""
     form = TextClassificationForm()
     return render(request, 'classifier/analysis.html', {'form': form})
 
