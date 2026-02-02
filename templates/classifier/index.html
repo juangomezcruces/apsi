@@ -75,8 +75,22 @@
 
         <hr class="my-5">
 
-        <!-- 1) WHAT IT DOES -->
-        <h4 class="mb-3">{{ sections.what_title|default:"1) What the tool does" }}</h4>
+<!-- How it works (Accordion) -->
+<div class="accordion" id="howItWorksAccordion" style="max-width: 1100px; margin: 0 auto;">
+
+  <!-- 1) WHAT IT DOES -->
+  <div class="accordion-item">
+    <h2 class="accordion-header" id="headingOne">
+      <button class="accordion-button" type="button"
+              data-bs-toggle="collapse" data-bs-target="#collapseOne"
+              aria-expanded="true" aria-controls="collapseOne">
+        {{ sections.what_title|default:"1) What the tool does" }}
+      </button>
+    </h2>
+    <div id="collapseOne" class="accordion-collapse collapse show"
+         aria-labelledby="headingOne" data-bs-parent="#howItWorksAccordion">
+      <div class="accordion-body">
+
         <p class="text-muted" style="max-width: 900px;">
           {{ sections.what_body|default:"APSI analyzes political language in text and estimates stance across three research-grounded dimensions: economic left–right, support for liberal democracy, and populism versus pluralism." }}
         </p>
@@ -108,10 +122,23 @@
           </div>
         </div>
 
-        <hr class="my-5">
+      </div>
+    </div>
+  </div>
 
-        <!-- 2) DIMENSIONS -->
-        <h4 class="mb-3">2) The dimensions we measure</h4>
+  <!-- 2) DIMENSIONS -->
+  <div class="accordion-item">
+    <h2 class="accordion-header" id="headingTwo">
+      <button class="accordion-button collapsed" type="button"
+              data-bs-toggle="collapse" data-bs-target="#collapseTwo"
+              aria-expanded="false" aria-controls="collapseTwo">
+        2) The dimensions we measure
+      </button>
+    </h2>
+    <div id="collapseTwo" class="accordion-collapse collapse"
+         aria-labelledby="headingTwo" data-bs-parent="#howItWorksAccordion">
+      <div class="accordion-body">
+
         <p class="text-muted" style="max-width: 900px;">
           Scores range from 0 to 10. Low and high values represent different ends of each dimension.
         </p>
@@ -155,10 +182,23 @@
           </div>
         </div>
 
-        <hr class="my-5">
+      </div>
+    </div>
+  </div>
 
-        <!-- 3) HOW IT WORKS -->
-        <h4 class="mb-3">3) How the analysis works</h4>
+  <!-- 3) HOW IT WORKS -->
+  <div class="accordion-item">
+    <h2 class="accordion-header" id="headingThree">
+      <button class="accordion-button collapsed" type="button"
+              data-bs-toggle="collapse" data-bs-target="#collapseThree"
+              aria-expanded="false" aria-controls="collapseThree">
+        3) How the analysis works
+      </button>
+    </h2>
+    <div id="collapseThree" class="accordion-collapse collapse"
+         aria-labelledby="headingThree" data-bs-parent="#howItWorksAccordion">
+      <div class="accordion-body">
+
         <p class="text-muted" style="max-width: 900px;">
           APSI uses Natural Language Inference (NLI). The model evaluates whether your text supports
           a set of theory-based political statements and aggregates these signals into stance scores.
@@ -174,10 +214,23 @@
           </div>
         </div>
 
-        <hr class="my-5">
+      </div>
+    </div>
+  </div>
 
-        <!-- 4) LIMITATIONS -->
-        <h4 class="mb-3">4) Limitations</h4>
+  <!-- 4) LIMITATIONS -->
+  <div class="accordion-item">
+    <h2 class="accordion-header" id="headingFour">
+      <button class="accordion-button collapsed" type="button"
+              data-bs-toggle="collapse" data-bs-target="#collapseFour"
+              aria-expanded="false" aria-controls="collapseFour">
+        4) Limitations
+      </button>
+    </h2>
+    <div id="collapseFour" class="accordion-collapse collapse"
+         aria-labelledby="headingFour" data-bs-parent="#howItWorksAccordion">
+      <div class="accordion-body">
+
         <p class="text-muted" style="max-width: 900px;">
           Political language is nuanced and context-dependent. Results can be sensitive to wording,
           sarcasm, and missing context.
@@ -194,17 +247,30 @@
           </div>
         </div>
 
-        <hr class="my-5">
+      </div>
+    </div>
+  </div>
 
-        <!-- 5) ETHICAL USE -->
-        <h4 class="mb-3">5) Ethical use</h4>
+  <!-- 5) ETHICAL USE -->
+  <div class="accordion-item">
+    <h2 class="accordion-header" id="headingFive">
+      <button class="accordion-button collapsed" type="button"
+              data-bs-toggle="collapse" data-bs-target="#collapseFive"
+              aria-expanded="false" aria-controls="collapseFive">
+        5) Ethical use
+      </button>
+    </h2>
+    <div id="collapseFive" class="accordion-collapse collapse"
+         aria-labelledby="headingFive" data-bs-parent="#howItWorksAccordion">
+      <div class="accordion-body">
+
         <div class="alert alert-warning" role="alert" style="max-width: 900px;">
           This tool is for research and informational purposes only.
           Do not use it for profiling, surveillance, or decisions affecting individuals.
         </div>
 
-        <div class="text-center mt-5">
-          <a href="{% url 'classifier:index' %}"
+        <div class="text-center mt-4">
+          <a href="{% url 'classifier:analysis' %}"
              class="btn btn-lg"
              style="background-color:#37A3B1; color:#fff;">
             Back to the analysis tool →
@@ -214,5 +280,6 @@
       </div>
     </div>
   </div>
-</section>
-{% endblock %}
+
+</div>
+
