@@ -6,516 +6,520 @@
 {% block content %}
 <!-- Results Header -->
 <section class="py-4 bg-custom" style="color: #37A3B1;">
-    <div class="container">
-        <h2 class="mb-3">Classification Results</h2>
-        <div class="row">
-            <div class="col-md-8">
-                <div class="card bg-light text-dark">
-                    <div class="card-body">
-                        <h6 class="card-title">Analyzed Text:</h6>
-                        <p class="card-text">{{ input_text|truncatechars:200 }}</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <a href="{% url 'classifier:index' %}"
-                   class="btn btn-lg w-100"
-                   style="background-color:#37A3B1; color:#fff;">
-                    ← Analyze Another Text
-                </a>
-            </div>
+  <div class="container">
+    <h2 class="mb-3">Classification Results</h2>
+    <div class="row">
+      <div class="col-md-8">
+        <div class="card bg-light text-dark">
+          <div class="card-body">
+            <h6 class="card-title">Analyzed Text:</h6>
+            <p class="card-text">{{ input_text|truncatechars:200 }}</p>
+          </div>
         </div>
+      </div>
+      <div class="col-md-4">
+        <a href="{% url 'classifier:index' %}"
+           class="btn btn-lg w-100"
+           style="background-color:#37A3B1; color:#fff;">
+          ← Analyze Another Text
+        </a>
+      </div>
     </div>
+  </div>
 </section>
 
 <!-- Selected Approaches Summary -->
 <section class="py-3 bg-white d-flex justify-content-center">
-    <div class="container d-flex justify-content-center">
-        <div class="card" style="max-width: 800px; width: 100%;">
-            <div class="card-body text-center">
-                <h6 class="card-title">Selected Analysis:</h6>
-                <div class="row justify-content-center g-2">
-                    {% if selected_approaches.left_right_direct or selected_approaches.left_right_hypothesis or selected_approaches.left_right_responses %}
-                    <div class="col-auto">
-                        <span class="badge economic-badge fs-6"><strong>Economic Left-Right</strong></span>
-                    </div>
-                    {% endif %}
-                    
-                    {% if selected_approaches.liberal_illiberal_direct or selected_approaches.liberal_illiberal_hypothesis or selected_approaches.liberal_illiberal_responses %}
-                    <div class="col-auto">
-                        <span class="badge fs-6" style="background-color:#20c997; color:#fff;"><strong>Support for Liberal Democracy</strong></span>
-                    </div>
-                    {% endif %}
-                    
-                    {% if selected_approaches.populism_direct or selected_approaches.populism_hypothesis or selected_approaches.populism_responses %}
-                    <div class="col-auto">
-                        <span class="badge bg-warning text-white fs-6"><strong>Populism-Pluralism</strong></span>
-                    </div>
-                    {% endif %}
-                </div>
+  <div class="container d-flex justify-content-center">
+    <div class="card" style="max-width: 800px; width: 100%;">
+      <div class="card-body text-center">
+        <h6 class="card-title">Selected Analysis:</h6>
+        <div class="row justify-content-center g-2">
+          {% if selected_approaches.left_right_direct or selected_approaches.left_right_hypothesis or selected_approaches.left_right_responses %}
+            <div class="col-auto">
+              <span class="badge economic-badge fs-6"><strong>Economic Left-Right</strong></span>
             </div>
+          {% endif %}
+
+          {% if selected_approaches.liberal_illiberal_direct or selected_approaches.liberal_illiberal_hypothesis or selected_approaches.liberal_illiberal_responses %}
+            <div class="col-auto">
+              <span class="badge fs-6" style="background-color:#20c997; color:#fff;"><strong>Support for Liberal Democracy</strong></span>
+            </div>
+          {% endif %}
+
+          {% if selected_approaches.populism_direct or selected_approaches.populism_hypothesis or selected_approaches.populism_responses %}
+            <div class="col-auto">
+              <span class="badge bg-warning text-white fs-6"><strong>Populism-Pluralism</strong></span>
+            </div>
+          {% endif %}
         </div>
+      </div>
     </div>
+  </div>
 </section>
 
 <!-- Main Classification Results Section -->
 {% if results %}
 <section class="py-5 d-flex justify-content-center">
-    <div class="container d-flex justify-content-center">
-        <div class="w-100" style="max-width: 1100px;">
-            <h3 class="mb-4 text-center">Primary Classification Results</h3>
-            <p class="text-muted mb-4 text-center">Direct regression model predictions trained on political datasets</p>
+  <div class="container d-flex justify-content-center">
+    <div class="w-100" style="max-width: 1100px;">
+      <h3 class="mb-4 text-center">Primary Classification Results</h3>
+      <p class="text-muted mb-4 text-center">Direct regression model predictions trained on political datasets</p>
 
-            <div class="row justify-content-center">
-                <!-- Left-Right Results -->
-                {% if results.left_right_regression %}
-                <div class="col-lg-4 col-md-6 mb-4">
-                    <div class="card h-100" style="border-left: 4px solid #e83e8c;">
-                        <div class="card-body text-center">
-                            <h6 class="card-title">Economic Left-Right</h6>
-                            {% with score=results.left_right_regression.predicted_v4_scale_score|default_if_none:results.left_right_regression.raw_score %}
-                            
-                            <div class="scale-wrap my-2">
-                                <div class="scale-score" style="left: calc({{ score }} * 10%);">
-                                    <span class="display-6" style="color:#e83e8c;">
-                                        {{ score|floatformat:1 }}
-                                    </span>
-                                </div>
-                                <div class="scale-line">
-                                    <div class="scale-dot" style="left: calc({{ score }} * 10%);"></div>
-                                </div>
-                                <div class="scale-labels">
-                                    <span>Left</span>
-                                    <span>Right</span>
-                                </div>
-                            </div>
+      <div class="row justify-content-center">
+        <!-- Left-Right Results -->
+        {% if results.left_right_regression %}
+        <div class="col-lg-4 col-md-6 mb-4">
+          <div class="card h-100" style="border-left: 4px solid #e83e8c;">
+            <div class="card-body text-center">
+              <h6 class="card-title">Economic Left-Right</h6>
+              {% with score=results.left_right_regression.predicted_v4_scale_score|default_if_none:results.left_right_regression.raw_score %}
 
-                            <div class="mb-2">
-                                <span class="badge bg-custom">
-                                    {{ results.left_right_regression.interpretation }}
-                                </span>
-                            </div>
-
-                            {% if score < 4 %}
-                            <p class="card-text small text-muted">
-                                Favors government intervention and social welfare
-                            </p>
-                            {% elif score > 6 %}
-                            <p class="card-text small text-muted">
-                                Prefers market solutions and limited government
-                            </p>
-                            {% else %}
-                            <p class="card-text small text-muted">
-                                Balanced approach to economic and social issues
-                            </p>
-                            {% endif %}
-                            {% endwith %}
-                        </div>
-                    </div>
+              <div class="scale-wrap my-2">
+                <div class="scale-score" style="left: calc({{ score }} * 10%);">
+                  <span class="display-6" style="color:#e83e8c;">
+                    {{ score|floatformat:1 }}
+                  </span>
                 </div>
-                {% endif %}
-
-                <!-- Liberal-Illiberal Results -->
-                {% if results.liberal_illiberal_regression %}
-                <div class="col-lg-4 col-md-6 mb-4">
-                    <div class="card h-100" style="border-left: 4px solid #20c997;">
-                        <div class="card-body text-center">
-                            <h6 class="card-title">Support for Liberal Democracy</h6>
-                            {% with score=results.liberal_illiberal_regression.predicted_v16_score|default_if_none:results.liberal_illiberal_regression.raw_score %}
-                            
-                            <div class="scale-wrap my-2">
-                                <div class="scale-score" style="left: calc({{ score }} * 10%);">
-                                    <span class="display-6" style="color:#20c997;">
-                                        {{ score|floatformat:1 }}
-                                    </span>
-                                </div>
-                                <div class="scale-line">
-                                    <div class="scale-dotlibillib" style="left: calc({{ score }} * 10%); background-color: #20c997;"></div>
-                                </div>
-                                <div class="scale-labels">
-                                    <span>No Support</span>
-                                    <span>Support</span>
-                                </div>
-                            </div>
-
-                            <div class="mb-2">
-                                <span class="badge bg-custom">
-                                    {{ results.liberal_illiberal_regression.interpretation }}
-                                </span>
-                            </div>
-
-                            {% if score > 5 %}
-                            <p class="card-text small text-muted">
-                                Supports democratic norms and institutional constraints
-                            </p>
-                            {% else %}
-                            <p class="card-text small text-muted">
-                                May challenge democratic institutions and norms
-                            </p>
-                            {% endif %}
-                            {% endwith %}
-                        </div>
-                    </div>
+                <div class="scale-line">
+                  <div class="scale-dot" style="left: calc({{ score }} * 10%);"></div>
                 </div>
-                {% endif %}
-
-                <!-- Populism Results -->
-                {% if results.populism_regression %}
-                <div class="col-lg-4 col-md-6 mb-4">
-                    <div class="card h-100" style="border-left: 4px solid #ffc107;">
-                        <div class="card-body text-center">
-                            <h6 class="card-title">Populism-Pluralism</h6>
-                            {% with score=results.populism_regression.predicted_v8_scale_score|default_if_none:results.populism_regression.raw_score %}
-                            
-                            <div class="scale-wrap my-2">
-                                <div class="scale-score" style="left: calc({{ score }} * 10%);">
-                                    <span class="display-6" style="color:#ffc107;">
-                                        {{ score|floatformat:1 }}
-                                    </span>
-                                </div>
-                                <div class="scale-line">
-                                    <div class="scale-dotpopplu" style="left: calc({{ score }} * 10%); background-color: #ffc107;"></div>
-                                </div>
-                                <div class="scale-labels">
-                                    <span>Pluralism</span>
-                                    <span>Populism</span>
-                                </div>
-                            </div>
-
-                            <div class="mb-2">
-                                <span class="badge bg-custom">
-                                    {{ results.populism_regression.interpretation }}
-                                </span>
-                            </div>
-
-                            {% if score > 5 %}
-                            <p class="card-text small text-muted">
-                                Uses "people vs. elite" rhetoric
-                            </p>
-                            {% else %}
-                            <p class="card-text small text-muted">
-                                Uses conventional political discourse
-                            </p>
-                            {% endif %}
-                            {% endwith %}
-                        </div>
-                    </div>
+                <div class="scale-labels">
+                  <span>Left</span>
+                  <span>Right</span>
                 </div>
-                {% endif %}
+              </div>
+
+              <div class="mb-2">
+                <span class="badge bg-custom">
+                  {{ results.left_right_regression.interpretation }}
+                </span>
+              </div>
+
+              {% if score < 4 %}
+                <p class="card-text small text-muted">
+                  Favors government intervention and social welfare
+                </p>
+              {% elif score > 6 %}
+                <p class="card-text small text-muted">
+                  Prefers market solutions and limited government
+                </p>
+              {% else %}
+                <p class="card-text small text-muted">
+                  Balanced approach to economic and social issues
+                </p>
+              {% endif %}
+
+              {% endwith %}
             </div>
+          </div>
         </div>
+        {% endif %}
+
+        <!-- Liberal-Illiberal Results -->
+        {% if results.liberal_illiberal_regression %}
+        <div class="col-lg-4 col-md-6 mb-4">
+          <div class="card h-100" style="border-left: 4px solid #20c997;">
+            <div class="card-body text-center">
+              <h6 class="card-title">Support for Liberal Democracy</h6>
+              {% with score=results.liberal_illiberal_regression.predicted_v16_score|default_if_none:results.liberal_illiberal_regression.raw_score %}
+
+              <div class="scale-wrap my-2">
+                <div class="scale-score" style="left: calc({{ score }} * 10%);">
+                  <span class="display-6" style="color:#20c997;">
+                    {{ score|floatformat:1 }}
+                  </span>
+                </div>
+                <div class="scale-line">
+                  <div class="scale-dotlibillib" style="left: calc({{ score }} * 10%); background-color: #20c997;"></div>
+                </div>
+                <div class="scale-labels">
+                  <span>No Support</span>
+                  <span>Support</span>
+                </div>
+              </div>
+
+              <div class="mb-2">
+                <span class="badge bg-custom">
+                  {{ results.liberal_illiberal_regression.interpretation }}
+                </span>
+              </div>
+
+              {% if score > 5 %}
+                <p class="card-text small text-muted">
+                  Supports democratic norms and institutional constraints
+                </p>
+              {% else %}
+                <p class="card-text small text-muted">
+                  May challenge democratic institutions and norms
+                </p>
+              {% endif %}
+
+              {% endwith %}
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Populism Results -->
+        {% if results.populism_regression %}
+        <div class="col-lg-4 col-md-6 mb-4">
+          <div class="card h-100" style="border-left: 4px solid #ffc107;">
+            <div class="card-body text-center">
+              <h6 class="card-title">Populism-Pluralism</h6>
+              {% with score=results.populism_regression.predicted_v8_scale_score|default_if_none:results.populism_regression.raw_score %}
+
+              <div class="scale-wrap my-2">
+                <div class="scale-score" style="left: calc({{ score }} * 10%);">
+                  <span class="display-6" style="color:#ffc107;">
+                    {{ score|floatformat:1 }}
+                  </span>
+                </div>
+                <div class="scale-line">
+                  <div class="scale-dotpopplu" style="left: calc({{ score }} * 10%); background-color: #ffc107;"></div>
+                </div>
+                <div class="scale-labels">
+                  <span>Pluralism</span>
+                  <span>Populism</span>
+                </div>
+              </div>
+
+              <div class="mb-2">
+                <span class="badge bg-custom">
+                  {{ results.populism_regression.interpretation }}
+                </span>
+              </div>
+
+              {% if score > 5 %}
+                <p class="card-text small text-muted">
+                  Uses "people vs. elite" rhetoric
+                </p>
+              {% else %}
+                <p class="card-text small text-muted">
+                  Uses conventional political discourse
+                </p>
+              {% endif %}
+
+              {% endwith %}
+            </div>
+          </div>
+        </div>
+        {% endif %}
+      </div>
     </div>
+  </div>
 </section>
 {% endif %}
-
-
 
 <!-- Alternative Approaches Section -->
 {% if alternative_scores %}
 <section class="py-5 d-flex justify-content-center">
-    <div class="container d-flex justify-content-center">
-        <div class="w-100" style="max-width: 1100px;">
- 
-            <!-- Hypothesis-Based Approaches -->
-            {% if alternative_scores.left_right_hypothesis or alternative_scores.liberal_illiberal_hypothesis or alternative_scores.populism_pluralism_hypothesis %}
-            <div class="mb-5">
-                <div class="row justify-content-center">
-                    <!-- Left-Right Hypothesis -->
-                    {% if alternative_scores.left_right_hypothesis %}
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="card h-100" style="border-left: 4px solid #20c997;">
-                            <div class="card-body text-center">
-                                <h6 class="card-title">Economic Left-Right</h6>
+  <div class="container d-flex justify-content-center">
+    <div class="w-100" style="max-width: 1100px;">
 
-                                {% if alternative_scores.left_right_hypothesis.is_relevant %}
-                                    {% with score=alternative_scores.left_right_hypothesis.score confidence=alternative_scores.left_right_hypothesis.confidence %}
-                                        <div class="scale-wrap my-2">
-                                            <div class="scale-score" style="left: calc({{ score }} * 10%);">
-                                                <span class="display-6" style="color:#20c997;">
-                                                    {{ score|floatformat:1 }}
-                                                </span>
-                                            </div>
-                                            <div class="scale-line">
-                                                <div class="scale-dotlibillib" style="left: calc({{ score }} * 10%); background-color: #20c997;"></div>
-                                            </div>
-                                            <div class="scale-labels">
-                                                <span>Left</span>
-                                                <span>Right</span>
-                                            </div>
-                                        </div>
+      <!-- Hypothesis-Based Approaches -->
+      {% if alternative_scores.left_right_hypothesis or alternative_scores.liberal_illiberal_hypothesis or alternative_scores.populism_pluralism_hypothesis %}
+      <div class="mb-5">
+        <div class="row justify-content-center">
 
-                                        <div class="mb-2">
-                                            <span class="badge bg-custom">
-                                                {{ alternative_scores.left_right_hypothesis.interpretation }}
-                                            </span>
-                                        </div>
+          <!-- Left-Right Hypothesis -->
+          {% if alternative_scores.left_right_hypothesis %}
+          <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card h-100" style="border-left: 4px solid #20c997;">
+              <div class="card-body text-center">
+                <h6 class="card-title">Economic Left-Right</h6>
 
-                                        <div class="text-muted" style="font-size: 0.9rem;">
-                                            <strong>Confidence:</strong> {{ confidence|floatformat:2 }}
-                                        </div>
-                                    {% endwith %}
-                                {% else %}
-                                    <div class="alert alert-danger mt-3 mb-0" role="alert">
-                                        <strong>Not in scope:</strong>
-                                        {{ alternative_scores.left_right_hypothesis.error_message|default:"Tool bla bla." }}
-
-                                        {% with h=alternative_scores.left_right_hypothesis %}
-                                            <div class="small text-muted mt-1">
-                                                Topic probability: {{ h.topic_probability|default_if_none:"?"|floatformat:3 }}
-                                            </div>
-                                        {% endwith %}
-                                    </div>
-                                {% endif %}
-                            </div>
-                        </div>
+                {% if alternative_scores.left_right_hypothesis.is_relevant %}
+                  {% with score=alternative_scores.left_right_hypothesis.score confidence=alternative_scores.left_right_hypothesis.confidence %}
+                  <div class="scale-wrap my-2">
+                    <div class="scale-score" style="left: calc({{ score }} * 10%);">
+                      <span class="display-6" style="color:#20c997;">
+                        {{ score|floatformat:1 }}
+                      </span>
                     </div>
-                    {% endif %}
-
-                    <!-- Liberal-Illiberal Hypothesis -->
-                    {% if alternative_scores.liberal_illiberal_hypothesis %}
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="card h-100" style="border-left: 4px solid #20c997;">
-                            <div class="card-body text-center">
-                                <h6 class="card-title">Support for Liberal Democracy</h6>
-
-                                {% if alternative_scores.liberal_illiberal_hypothesis.is_relevant %}
-                                    {% with score=alternative_scores.liberal_illiberal_hypothesis.score confidence=alternative_scores.liberal_illiberal_hypothesis.confidence %}
-                                        <div class="scale-wrap my-2">
-                                            <div class="scale-score" style="left: calc({{ score }} * 10%);">
-                                                <span class="display-6" style="color:#20c997;">
-                                                    {{ score|floatformat:1 }}
-                                                </span>
-                                            </div>
-                                            <div class="scale-line">
-                                                <div class="scale-dotlibillib" style="left: calc({{ score }} * 10%); background-color: #20c997;"></div>
-                                            </div>
-                                            <div class="scale-labels">
-                                                <span>No Support</span>
-                                                <span>Support</span>
-                                            </div>
-                                        </div>
-
-                                        <div class="mb-2">
-                                            <span class="badge bg-custom">
-                                                {{ alternative_scores.liberal_illiberal_hypothesis.interpretation }}
-                                            </span>
-                                        </div>
-
-                                        <div class="text-muted" style="font-size: 0.9rem;">
-                                            <strong>Confidence:</strong> {{ confidence|floatformat:2 }}%
-                                        </div>
-                                    {% endwith %}
-                                {% else %}
-                                    <div class="alert alert-danger mt-3 mb-0" role="alert">
-                                        <strong>Not in scope:</strong>
-                                        {{ alternative_scores.liberal_illiberal_hypothesis.error_message|default:"Tool bla bla." }}
-                                        
-                                        {% with h=alternative_scores.liberal_illiberal_hypothesis %}
-                                            <div class="small text-muted mt-1">
-                                                Topic probability: {{ h.topic_probability|default_if_none:"?"|floatformat:3 }}
-                                            </div>
-                                        {% endwith %}
-                                    </div>
-                                {% endif %}
-                            </div>
-                        </div>
+                    <div class="scale-line">
+                      <div class="scale-dotlibillib" style="left: calc({{ score }} * 10%); background-color: #20c997;"></div>
                     </div>
-                    {% endif %}
-
-                    <!-- Populism-Pluralism Hypothesis -->
-                    {% if alternative_scores.populism_pluralism_hypothesis %}
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="card h-100" style="border-left: 4px solid #ffc107;">
-                            <div class="card-body text-center">
-                                <h6 class="card-title">Populism–Pluralism</h6>
-
-                                {% if alternative_scores.populism_pluralism_hypothesis.is_relevant %}
-                                    {% with score=alternative_scores.populism_pluralism_hypothesis.score confidence=alternative_scores.populism_pluralism_hypothesis.confidence %}
-                                        <div class="scale-wrap my-2">
-                                            <div class="scale-score" style="left: calc({{ score }} * 10%);">
-                                                <span class="display-6" style="color:#ffc107;">
-                                                    {{ score|floatformat:1 }}
-                                                </span>
-                                            </div>
-                                            <div class="scale-line">
-                                                <div class="scale-dotpopplu" style="left: calc({{ score }} * 10%); background-color: #ffc107;"></div>
-                                            </div>
-                                            <div class="scale-labels">
-                                                <span>Pluralism</span>
-                                                <span>Populism</span>
-                                            </div>
-                                        </div>
-
-                                        <div class="mb-2">
-                                            <span class="badge bg-custom">
-                                                {{ alternative_scores.populism_pluralism_hypothesis.interpretation }}
-                                            </span>
-                                        </div>
-
-                                        <div class="text-muted" style="font-size: 0.9rem;">
-                                            <strong>Confidence:</strong> {{ confidence|floatformat:2 }}%
-                                        </div>
-                                    {% endwith %}
-                                {% else %}
-                                    <div class="alert alert-danger mt-3 mb-0" role="alert">
-                                        <strong>Not in scope:</strong>
-                                        {{ alternative_scores.populism_pluralism_hypothesis.error_message|default:"Tool bla bla." }}
-                                        {% with h=alternative_scores.populism_pluralism_hypothesis %}
-                                            <div class="small text-muted mt-1">
-                                                Topic probability: {{ h.topic_probability|default_if_none:"?"|floatformat:3 }}
-                                            </div>
-                                        {% endwith %}
-                                    </div>
-                                {% endif %}
-                            </div>
-                        </div>
+                    <div class="scale-labels">
+                      <span>Left</span>
+                      <span>Right</span>
                     </div>
-                    {% endif %}
-                </div> 
-            </div> 
-            {% endif %} 
-        </div> 
-    </div> 
-</section> 
-{% endif %} 
+                  </div>
 
+                  <div class="mb-2">
+                    <span class="badge bg-custom">
+                      {{ alternative_scores.left_right_hypothesis.interpretation }}
+                    </span>
+                  </div>
 
+                  <div class="text-muted" style="font-size: 0.9rem;">
+                    <strong>Confidence:</strong> {{ confidence|floatformat:2 }}
+                  </div>
+                  {% endwith %}
+                {% else %}
+                  <div class="alert alert-danger mt-3 mb-0" role="alert">
+                    <strong>Not in scope:</strong>
+                    {{ alternative_scores.left_right_hypothesis.error_message|default:"Tool bla bla." }}
 
-            <!-- Response-Based Approaches -->
-            {% if alternative_scores.left_right_responses or alternative_scores.liberal_illiberal_responses or alternative_scores.populism_pluralism_responses %}
-            <div class="mb-5">
-                <h5 class="mb-3 text-center">Response-Based Models</h5>
-                <p class="text-muted mb-4 text-center small">Using structured response patterns to evaluate political positions</p>
+                    {% with h=alternative_scores.left_right_hypothesis %}
+                      <div class="small text-muted mt-1">
+                        Topic probability: {{ h.topic_probability|default_if_none:"?"|floatformat:3 }}
+                      </div>
+                    {% endwith %}
+                  </div>
+                {% endif %}
 
-                <div class="row justify-content-center">
-                    <!-- Left-Right Response-Based -->
-                    {% if alternative_scores.left_right_responses %}
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="card h-100" style="border-left: 4px solid #e83e8c; border-style: dashed;">
-                            <div class="card-body text-center">
-                                <h6 class="card-title">Left-Right Responses</h6>
-                                <div class="display-6 mb-2" style="color: #e83e8c;">
-                                    {{ alternative_scores.left_right_responses.score }}
-                                </div>
-                                <div class="mb-3">
-                                    <span class="badge bg-custom">
-                                        {{ alternative_scores.left_right_responses.interpretation }}
-                                    </span>
-                                </div>
-                                <div class="text-muted" style="font-size: 0.9rem;">
-                                    <strong>Confidence:</strong> {{ alternative_scores.left_right_responses.confidence|floatformat:1 }}%
-                                </div>
-                                <p class="card-text mt-3 small text-muted">
-                                    Response-pattern analysis of economic policy stances and government intervention.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    {% endif %}
-
-                    <!-- Liberal-Illiberal Response-Based -->
-                    {% if alternative_scores.liberal_illiberal_responses %}
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="card h-100" style="border-left: 4px solid #20c997; border-style: dashed;">
-                            <div class="card-body text-center">
-                                <h6 class="card-title">Liberal-Illiberal Responses</h6>
-                                <div class="display-6 mb-2" style="color: #20c997;">
-                                    {{ alternative_scores.liberal_illiberal_responses.score }}
-                                </div>
-                                <div class="mb-3">
-                                    <span class="badge bg-custom">
-                                        {{ alternative_scores.liberal_illiberal_responses.interpretation }}
-                                    </span>
-                                </div>
-                                <div class="text-muted" style="font-size: 0.9rem;">
-                                    <strong>Confidence:</strong> {{ alternative_scores.liberal_illiberal_responses.confidence|floatformat:1 }}%
-                                </div>
-                                <p class="card-text mt-3 small text-muted">
-                                    Response-pattern evaluation of democratic commitment and institutional support.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    {% endif %}
-
-                    <!-- Populism-Pluralism Response-Based -->
-                    {% if alternative_scores.populism_pluralism_responses %}
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="card h-100" style="border-left: 4px solid #ffc107; border-style: dashed;">
-                            <div class="card-body text-center">
-                                <h6 class="card-title">Populism-Pluralism Responses</h6>
-                                <div class="display-6 mb-2" style="color: #ffc107;">
-                                    {{ alternative_scores.populism_pluralism_responses.score }}
-                                </div>
-                                <div class="mb-3">
-                                    <span class="badge bg-custom">
-                                        {{ alternative_scores.populism_pluralism_responses.interpretation }}
-                                    </span>
-                                </div>
-                                <div class="text-muted" style="font-size: 0.9rem;">
-                                    <strong>Confidence:</strong> {{ alternative_scores.populism_pluralism_responses.confidence|floatformat:1 }}%
-                                </div>
-                                <p class="card-text mt-3 small text-muted">
-                                    Response-pattern analysis of people-centered vs. pluralist political rhetoric.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    {% endif %}
-                </div>
+              </div>
             </div>
-            {% endif %}
+          </div>
+          {% endif %}
+
+          <!-- Liberal-Illiberal Hypothesis -->
+          {% if alternative_scores.liberal_illiberal_hypothesis %}
+          <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card h-100" style="border-left: 4px solid #20c997;">
+              <div class="card-body text-center">
+                <h6 class="card-title">Support for Liberal Democracy</h6>
+
+                {% if alternative_scores.liberal_illiberal_hypothesis.is_relevant %}
+                  {% with score=alternative_scores.liberal_illiberal_hypothesis.score confidence=alternative_scores.liberal_illiberal_hypothesis.confidence %}
+                  <div class="scale-wrap my-2">
+                    <div class="scale-score" style="left: calc({{ score }} * 10%);">
+                      <span class="display-6" style="color:#20c997;">
+                        {{ score|floatformat:1 }}
+                      </span>
+                    </div>
+                    <div class="scale-line">
+                      <div class="scale-dotlibillib" style="left: calc({{ score }} * 10%); background-color: #20c997;"></div>
+                    </div>
+                    <div class="scale-labels">
+                      <span>No Support</span>
+                      <span>Support</span>
+                    </div>
+                  </div>
+
+                  <div class="mb-2">
+                    <span class="badge bg-custom">
+                      {{ alternative_scores.liberal_illiberal_hypothesis.interpretation }}
+                    </span>
+                  </div>
+
+                  <div class="text-muted" style="font-size: 0.9rem;">
+                    <strong>Confidence:</strong> {{ confidence|floatformat:2 }}%
+                  </div>
+                  {% endwith %}
+                {% else %}
+                  <div class="alert alert-danger mt-3 mb-0" role="alert">
+                    <strong>Not in scope:</strong>
+                    {{ alternative_scores.liberal_illiberal_hypothesis.error_message|default:"Tool bla bla." }}
+
+                    {% with h=alternative_scores.liberal_illiberal_hypothesis %}
+                      <div class="small text-muted mt-1">
+                        Topic probability: {{ h.topic_probability|default_if_none:"?"|floatformat:3 }}
+                      </div>
+                    {% endwith %}
+                  </div>
+                {% endif %}
+
+              </div>
+            </div>
+          </div>
+          {% endif %}
+
+          <!-- Populism-Pluralism Hypothesis -->
+          {% if alternative_scores.populism_pluralism_hypothesis %}
+          <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card h-100" style="border-left: 4px solid #ffc107;">
+              <div class="card-body text-center">
+                <h6 class="card-title">Populism–Pluralism</h6>
+
+                {% if alternative_scores.populism_pluralism_hypothesis.is_relevant %}
+                  {% with score=alternative_scores.populism_pluralism_hypothesis.score confidence=alternative_scores.populism_pluralism_hypothesis.confidence %}
+                  <div class="scale-wrap my-2">
+                    <div class="scale-score" style="left: calc({{ score }} * 10%);">
+                      <span class="display-6" style="color:#ffc107;">
+                        {{ score|floatformat:1 }}
+                      </span>
+                    </div>
+                    <div class="scale-line">
+                      <div class="scale-dotpopplu" style="left: calc({{ score }} * 10%); background-color: #ffc107;"></div>
+                    </div>
+                    <div class="scale-labels">
+                      <span>Pluralism</span>
+                      <span>Populism</span>
+                    </div>
+                  </div>
+
+                  <div class="mb-2">
+                    <span class="badge bg-custom">
+                      {{ alternative_scores.populism_pluralism_hypothesis.interpretation }}
+                    </span>
+                  </div>
+
+                  <div class="text-muted" style="font-size: 0.9rem;">
+                    <strong>Confidence:</strong> {{ confidence|floatformat:2 }}%
+                  </div>
+                  {% endwith %}
+                {% else %}
+                  <div class="alert alert-danger mt-3 mb-0" role="alert">
+                    <strong>Not in scope:</strong>
+                    {{ alternative_scores.populism_pluralism_hypothesis.error_message|default:"Tool bla bla." }}
+
+                    {% with h=alternative_scores.populism_pluralism_hypothesis %}
+                      <div class="small text-muted mt-1">
+                        Topic probability: {{ h.topic_probability|default_if_none:"?"|floatformat:3 }}
+                      </div>
+                    {% endwith %}
+                  </div>
+                {% endif %}
+
+              </div>
+            </div>
+          </div>
+          {% endif %}
+
         </div>
+      </div>
+      {% endif %}
+
+      <!-- Response-Based Approaches -->
+      {% if alternative_scores.left_right_responses or alternative_scores.liberal_illiberal_responses or alternative_scores.populism_pluralism_responses %}
+      <div class="mb-5">
+        <h5 class="mb-3 text-center">Response-Based Models</h5>
+        <p class="text-muted mb-4 text-center small">Using structured response patterns to evaluate political positions</p>
+
+        <div class="row justify-content-center">
+
+          <!-- Left-Right Response-Based -->
+          {% if alternative_scores.left_right_responses %}
+          <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card h-100" style="border-left: 4px solid #e83e8c; border-style: dashed;">
+              <div class="card-body text-center">
+                <h6 class="card-title">Left-Right Responses</h6>
+                <div class="display-6 mb-2" style="color: #e83e8c;">
+                  {{ alternative_scores.left_right_responses.score }}
+                </div>
+                <div class="mb-3">
+                  <span class="badge bg-custom">
+                    {{ alternative_scores.left_right_responses.interpretation }}
+                  </span>
+                </div>
+                <div class="text-muted" style="font-size: 0.9rem;">
+                  <strong>Confidence:</strong> {{ alternative_scores.left_right_responses.confidence|floatformat:1 }}%
+                </div>
+                <p class="card-text mt-3 small text-muted">
+                  Response-pattern analysis of economic policy stances and government intervention.
+                </p>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+
+          <!-- Liberal-Illiberal Response-Based -->
+          {% if alternative_scores.liberal_illiberal_responses %}
+          <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card h-100" style="border-left: 4px solid #20c997; border-style: dashed;">
+              <div class="card-body text-center">
+                <h6 class="card-title">Liberal-Illiberal Responses</h6>
+                <div class="display-6 mb-2" style="color: #20c997;">
+                  {{ alternative_scores.liberal_illiberal_responses.score }}
+                </div>
+                <div class="mb-3">
+                  <span class="badge bg-custom">
+                    {{ alternative_scores.liberal_illiberal_responses.interpretation }}
+                  </span>
+                </div>
+                <div class="text-muted" style="font-size: 0.9rem;">
+                  <strong>Confidence:</strong> {{ alternative_scores.liberal_illiberal_responses.confidence|floatformat:1 }}%
+                </div>
+                <p class="card-text mt-3 small text-muted">
+                  Response-pattern evaluation of democratic commitment and institutional support.
+                </p>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+
+          <!-- Populism-Pluralism Response-Based -->
+          {% if alternative_scores.populism_pluralism_responses %}
+          <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card h-100" style="border-left: 4px solid #ffc107; border-style: dashed;">
+              <div class="card-body text-center">
+                <h6 class="card-title">Populism-Pluralism Responses</h6>
+                <div class="display-6 mb-2" style="color: #ffc107;">
+                  {{ alternative_scores.populism_pluralism_responses.score }}
+                </div>
+                <div class="mb-3">
+                  <span class="badge bg-custom">
+                    {{ alternative_scores.populism_pluralism_responses.interpretation }}
+                  </span>
+                </div>
+                <div class="text-muted" style="font-size: 0.9rem;">
+                  <strong>Confidence:</strong> {{ alternative_scores.populism_pluralism_responses.confidence|floatformat:1 }}%
+                </div>
+                <p class="card-text mt-3 small text-muted">
+                  Response-pattern analysis of people-centered vs. pluralist political rhetoric.
+                </p>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+
+        </div>
+      </div>
+      {% endif %}
+
     </div>
+  </div>
 </section>
 {% endif %}
 
 <!-- No Results Message -->
 {% if not results and not alternative_scores %}
 <section class="py-5">
-    <div class="container text-center">
-        <div class="alert alert-info">
-            <h4>No Results Available</h4>
-            <p>No analysis approaches were selected or no results could be generated.</p>
-            <a href="{% url 'classifier:index' %}" class="btn btn-primary">Try Again</a>
-        </div>
+  <div class="container text-center">
+    <div class="alert alert-info">
+      <h4>No Results Available</h4>
+      <p>No analysis approaches were selected or no results could be generated.</p>
+      <a href="{% url 'classifier:index' %}" class="btn btn-primary">Try Again</a>
     </div>
+  </div>
 </section>
 {% endif %}
 
 <!-- Disclaimer Section -->
 <section class="py-5 bg-light">
-    <div class="container">
-        <div class="row">
-            <div class="col-12">
-                <div class="disclaimer-box text-center mb-5">
-                    <h3>Disclaimer</h3>
-                    <p class="text-muted">
-                        This tool provides automated analyses intended to approximate potential political stances expressed in text. Its assessments may be inaccurate or incomplete, and should not be treated as definitive judgments about an individual's beliefs, affiliations, or intentions.
-                    </p>
-                    <p class="text-muted">
-                        Political language is often nuanced, context-dependent, and influenced by cultural, historical, or rhetorical factors the tool may not fully capture. Results may also be affected by biases present in training data or model limitations.
-                    </p>
-                    <p class="text-muted">
-                        This tool is intended for informational and research purposes only. It should not be used for decisions affecting individuals' rights, opportunities, or access to services (including employment, housing, legal, or political participation decisions). Users are responsible for applying human review, critical judgment, and, when appropriate, expert consultation.
-                    </p>
+  <div class="container">
+    <div class="row">
+      <div class="col-12">
+        <div class="disclaimer-box text-center mb-5">
+          <h3>Disclaimer</h3>
+          <p class="text-muted">
+            This tool provides automated analyses intended to approximate potential political stances expressed in text. Its assessments may be inaccurate or incomplete, and should not be treated as definitive judgments about an individual's beliefs, affiliations, or intentions.
+          </p>
+          <p class="text-muted">
+            Political language is often nuanced, context-dependent, and influenced by cultural, historical, or rhetorical factors the tool may not fully capture. Results may also be affected by biases present in training data or model limitations.
+          </p>
+          <p class="text-muted">
+            This tool is intended for informational and research purposes only. It should not be used for decisions affecting individuals' rights, opportunities, or access to services (including employment, housing, legal, or political participation decisions). Users are responsible for applying human review, critical judgment, and, when appropriate, expert consultation.
+          </p>
 
-                    <hr class="my-4">
+          <hr class="my-4">
 
-                    <h3>Haftungsausschluss</h3>
-                    <p class="text-muted">
-                        Dieses Tool führt automatisierte Analysen durch, um wahrscheinliche politische Haltungen in Texten zu erkennen. Die Ergebnisse können ungenau oder unvollständig sein und sollten nicht als endgültige Aussagen über die Überzeugungen, Zugehörigkeiten oder Absichten einer Person verstanden werden.
-                    </p>
-                    <p class="text-muted">
-                        Politische Sprache ist oft nuanciert, kontextabhängig und wird von kulturellen, historischen oder rhetorischen Faktoren beeinflusst, die das Tool möglicherweise nicht vollständig erfassen kann. Die Resultate können zudem durch Bias in den Trainingsdaten oder durch Modellgrenzen verfälscht werden.
-                    </p>
-                    <p class="text-muted">
-                        Dieses Tool dient ausschließlich Informations- und Forschungszwecken. Es darf nicht für Entscheidungen verwendet werden, die die Rechte, Chancen oder den Zugang zu Dienstleistungen von Personen betreffen (einschließlich Entscheidungen in den Bereichen Beschäftigung, Wohnen, Rechtliches oder politische Teilhabe). Nutzerinnen und Nutzer sind dafür verantwortlich, die Ergebnisse mit menschlicher Prüfung, kritischem Urteilsvermögen und gegebenenfalls fachlicher Beratung zu bewerten.
-                    </p>
-                </div>
-            </div>
+          <h3>Haftungsausschluss</h3>
+          <p class="text-muted">
+            Dieses Tool führt automatisierte Analysen durch, um wahrscheinliche politische Haltungen in Texten zu erkennen. Die Ergebnisse können ungenau oder unvollständig sein und sollten nicht als endgültige Aussagen über die Überzeugungen, Zugehörigkeiten oder Absichten einer Person verstanden werden.
+          </p>
+          <p class="text-muted">
+            Politische Sprache ist oft nuanciert, kontextabhängig und wird von kulturellen, historischen oder rhetorischen Faktoren beeinflusst, die das Tool möglicherweise nicht vollständig erfassen kann. Die Resultate können zudem durch Bias in den Trainingsdaten oder durch Modellgrenzen verfälscht werden.
+          </p>
+          <p class="text-muted">
+            Dieses Tool dient ausschließlich Informations- und Forschungszwecken. Es darf nicht für Entscheidungen verwendet werden, die die Rechte, Chancen oder den Zugang zu Dienstleistungen von Personen betreffen (einschließlich Entscheidungen in den Bereichen Beschäftigung, Wohnen, Rechtliches oder politische Teilhabe). Nutzerinnen und Nutzer sind dafür verantwortlich, die Ergebnisse mit menschlicher Prüfung, kritischem Urteilsvermögen und gegebenenfalls fachlicher Beratung zu bewerten.
+          </p>
         </div>
+      </div>
     </div>
+  </div>
 </section>
 
 {% endblock %}
