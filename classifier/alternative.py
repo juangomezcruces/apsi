@@ -201,17 +201,13 @@ class LeftRightEconomicScorer:
         is_relevant, topic_prob = self.is_about_economic_policy(text)
         if not is_relevant:
             return {
-            'text': text,
-            'score': 0.0,
-            'confidence': 0.0,
-            'contradiction_detected': False,
-            'interpretation': 'Not about economic policies',
-            'error_message': "The text didn't pass the democratic-principles topic precheck.",
-            'passed_precheck': False,
-            'precheck_score': float(topic_prob),
-            'precheck_threshold': float(self.topic_threshold),
-            'is_relevant': False,
-            'topic_probability': float(topic_prob),
+                'text': text,
+                'score': 'NA',
+                'confidence': 0.0,
+                'contradiction_detected': False,
+                'interpretation': 'Not about economic policy',
+                'is_relevant': False,
+                'topic_probability': topic_prob
             }
         
         probs = self.get_hypothesis_probabilities(text)
@@ -271,19 +267,17 @@ class LeftRightEconomicScorer:
 
         return {
             'text': text,
-            'score': float(final_score),
-            'confidence': float(confidence_data['combined']),
-            'contradiction_detected': bool(confidence_data['contradiction_detected']),
+            'score': final_score,
+            'confidence': confidence_data['combined'],
+            'contradiction_detected': confidence_data['contradiction_detected'],
             'interpretation': interpretation,
-            'left_avg': float(left_avg),
-            'right_avg': float(right_avg),
+            'left_avg': left_avg,
+            'right_avg': right_avg,
             'top_left_hypotheses': top_left,
-            'top_right_hypotheses': top_right,
-            'passed_precheck': True,
-            'precheck_score': float(topic_prob),
-            'precheck_threshold': float(self.topic_threshold),
+            'top_right_hypotheses': top_right
+,
             'is_relevant': True,
-            'topic_probability': float(topic_prob),
+            'topic_probability': topic_prob
         }
 
     def quick_score(self, text):
