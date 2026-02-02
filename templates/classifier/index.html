@@ -34,9 +34,10 @@
           {{ how_it_works_note|default:"APSI analyzes language in text, not people. Results are probabilistic indicators, not definitive labels of beliefs or intent." }}
         </div>
 
+
         <!-- CALL TO ACTION BUTTON -->
         <div class="mt-3 mb-5" style="max-width: 900px;">
-          <a href="{% url 'analysis' %}"
+          <a href="{% url 'classifier:analysis' %}"
              class="btn btn-lg"
              style="background-color:#37A3B1; color:#fff;">
             Start an analysis →
