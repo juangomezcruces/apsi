@@ -220,7 +220,10 @@ class LiberalIlliberalScorer:
                 'contradiction_detected': False,
                 'interpretation': 'Not about democratic principles',
                 'is_relevant': False,
-                'topic_probability': topic_prob
+                'topic_probability': float(topic_prob),
+                'passed_precheck': False,
+                'is_relevant': False,
+
             }
         
         probs = self.get_hypothesis_probabilities(text)
@@ -288,9 +291,10 @@ class LiberalIlliberalScorer:
             'illiberal_avg': illiberal_avg,
             'top_liberal_hypotheses': top_liberal,
             'top_illiberal_hypotheses': top_illiberal
-,
+            'passed_precheck': True,
             'is_relevant': True,
-            'topic_probability': topic_prob
+            'topic_probability': float(topic_prob),
+
         }
 
     def quick_score(self, text):
