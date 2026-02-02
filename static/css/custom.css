@@ -109,3 +109,17 @@ body {
 .accordion-button::after {
   filter: none !important;
 }
+
+/* Smooth subtle open animation */
+.apsi-section .apsi-content {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 0.6s ease, opacity 0.4s ease;
+}
+
+.apsi-section[open] .apsi-content {
+  max-height: 1000px;   /* large enough for content */
+  opacity: 1;
+}
+
