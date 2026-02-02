@@ -207,7 +207,9 @@ class LeftRightEconomicScorer:
                 'contradiction_detected': False,
                 'interpretation': 'Not about economic policy',
                 'is_relevant': False,
-                'topic_probability': float(topic_prob)
+                'topic_probability': float(topic_prob),
+                'passed_precheck': False,
+                'is_relevant': False,
             }
         
         probs = self.get_hypothesis_probabilities(text)
@@ -274,10 +276,11 @@ class LeftRightEconomicScorer:
             'left_avg': left_avg,
             'right_avg': right_avg,
             'top_left_hypotheses': top_left,
-            'top_right_hypotheses': top_right
-,
+            'top_right_hypotheses': top_right,
+            'passed_precheck': True,
             'is_relevant': True,
-            'topic_probability': topic_prob
+            'topic_probability': float(topic_prob),
+            
         }
 
     def quick_score(self, text):
