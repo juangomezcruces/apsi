@@ -195,7 +195,565 @@
       </div>
     </div>
   </div>
-</section>
+</section>{% extends "base.html" %}
+{% load static %}
+
+{% block title %}How It Works - APSI Tool{% endblock %}
+
+{% block content %}
+<style>
+  :root{
+    --brand: #37A3B1;         /* close to your existing accent */
+    --brand-dark: #2d8793;
+    --ink: #0f172a;
+    --muted: #475569;
+    --bg: #f6f8fb;
+    --card: #ffffff;
+    --border: rgba(15, 23, 42, .10);
+    --shadow: 0 10px 25px rgba(15, 23, 42, .08);
+    --radius: 16px;
+  }
+
+  .apsi-wrap { background: var(--bg); }
+
+  /* Hero */
+  .apsi-hero{
+    background: radial-gradient(1200px 500px at 15% 0%, rgba(55,163,177,.18), transparent 60%),
+                radial-gradient(900px 500px at 90% 20%, rgba(55,163,177,.12), transparent 55%),
+                #fff;
+    border-bottom: 1px solid var(--border);
+  }
+  .apsi-container{
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+  .apsi-hero-inner{
+    padding: 3.25rem 0 2.5rem;
+    display: grid;
+    gap: 1.25rem;
+    grid-template-columns: 1.2fr .8fr;
+    align-items: center;
+  }
+  @media (max-width: 992px){
+    .apsi-hero-inner{ grid-template-columns: 1fr; padding: 2.5rem 0 2rem; }
+  }
+  .apsi-kicker{
+    display:inline-flex;
+    align-items:center;
+    gap:.5rem;
+    padding:.35rem .65rem;
+    border: 1px solid rgba(55,163,177,.35);
+    background: rgba(55,163,177,.08);
+    color: var(--brand-dark);
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: .9rem;
+    letter-spacing:.2px;
+  }
+  .apsi-title{
+    font-size: clamp(1.75rem, 3vw, 2.6rem);
+    line-height: 1.15;
+    margin: .35rem 0 .25rem;
+    color: var(--ink);
+    font-weight: 800;
+  }
+  .apsi-lead{
+    color: var(--muted);
+    font-size: 1.05rem;
+    line-height: 1.65;
+    margin: 0;
+    max-width: 64ch;
+  }
+  .apsi-hero-card{
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 1.25rem;
+  }
+  .apsi-hero-card h3{
+    font-size: 1.05rem;
+    margin: 0 0 .35rem;
+    color: var(--ink);
+    font-weight: 750;
+  }
+  .apsi-hero-card p{
+    margin: 0 0 .85rem;
+    color: var(--muted);
+    line-height: 1.55;
+    font-size: .95rem;
+  }
+  .apsi-btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:.5rem;
+    padding: .7rem 1rem;
+    border-radius: 12px;
+    border: 1px solid rgba(55,163,177,.35);
+    background: var(--brand);
+    color: #fff;
+    text-decoration: none;
+    font-weight: 700;
+    transition: transform .08s ease, background .15s ease;
+  }
+  .apsi-btn:hover{ background: var(--brand-dark); transform: translateY(-1px); color:#fff; }
+  .apsi-btn.secondary{
+    background: #fff;
+    color: var(--brand-dark);
+  }
+  .apsi-btn.secondary:hover{
+    background: rgba(55,163,177,.08);
+    color: var(--brand-dark);
+  }
+
+  /* Sections */
+  .apsi-section{ padding: 2.5rem 0; }
+  .apsi-section .apsi-h2{
+    font-size: 1.55rem;
+    color: var(--ink);
+    font-weight: 800;
+    margin: 0 0 .35rem;
+  }
+  .apsi-section .apsi-sub{
+    color: var(--muted);
+    line-height: 1.65;
+    margin: 0 0 1.25rem;
+    max-width: 85ch;
+  }
+
+  /* Cards grid */
+  .apsi-grid{
+    display:grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 1rem;
+  }
+  .apsi-card{
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 6px 18px rgba(15, 23, 42, .06);
+    padding: 1.1rem 1.1rem 1rem;
+  }
+  .apsi-card h3{
+    margin: 0 0 .35rem;
+    color: var(--ink);
+    font-size: 1.05rem;
+    font-weight: 800;
+  }
+  .apsi-card p{
+    margin: 0;
+    color: var(--muted);
+    line-height: 1.6;
+    font-size: .95rem;
+  }
+  .apsi-card .apsi-tag{
+    display:inline-flex;
+    align-items:center;
+    gap:.45rem;
+    padding:.25rem .55rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: rgba(15,23,42,.02);
+    font-size: .82rem;
+    font-weight: 650;
+    color: var(--ink);
+    margin-bottom: .7rem;
+  }
+
+  .col-4{ grid-column: span 4; }
+  .col-6{ grid-column: span 6; }
+  .col-8{ grid-column: span 8; }
+  .col-12{ grid-column: span 12; }
+
+  @media (max-width: 992px){
+    .col-4,.col-6,.col-8{ grid-column: span 12; }
+  }
+
+  /* Callouts */
+  .apsi-callout{
+    border-left: 4px solid var(--brand);
+    background: rgba(55,163,177,.08);
+    border-radius: var(--radius);
+    padding: 1rem 1rem;
+    color: var(--ink);
+  }
+  .apsi-callout strong{ color: var(--brand-dark); }
+  .apsi-list{
+    margin: .75rem 0 0;
+    padding-left: 1.1rem;
+    color: var(--muted);
+    line-height: 1.75;
+  }
+  .apsi-list li{ margin: .25rem 0; }
+
+  /* FAQ (details/summary) */
+  .apsi-faq details{
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: .85rem 1rem;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, .05);
+  }
+  .apsi-faq details + details{ margin-top: .75rem; }
+  .apsi-faq summary{
+    cursor: pointer;
+    list-style: none;
+    font-weight: 750;
+    color: var(--ink);
+  }
+  .apsi-faq summary::-webkit-details-marker{ display:none; }
+  .apsi-faq p{
+    margin: .65rem 0 0;
+    color: var(--muted);
+    line-height: 1.65;
+  }
+
+  /* Footer CTA */
+  .apsi-cta{
+    background: linear-gradient(180deg, rgba(55,163,177,.10), rgba(55,163,177,.05));
+    border-top: 1px solid var(--border);
+  }
+</style>
+
+<div class="apsi-wrap">
+  <!-- HERO -->
+  <header class="apsi-hero">
+    <div class="apsi-container">
+      <div class="apsi-hero-inner">
+        <div>
+          <span class="apsi-kicker">How it works</span>
+          <h1 class="apsi-title">Automated Political Stance Identification (APSI)</h1>
+          <p class="apsi-lead">
+            APSI analyzes political language in text and estimates stance across three research-grounded dimensions:
+            economic left–right, support for liberal democracy, and populism versus pluralism.
+          </p>
+        </div>
+
+        <aside class="apsi-hero-card">
+          <h3>Quick summary</h3>
+          <p>
+            This tool evaluates whether your text entails (supports) a set of theory-driven political statements,
+            then aggregates these signals into 0–10 scores with confidence estimates.
+          </p>
+          <div style="display:flex; gap:.6rem; flex-wrap:wrap;">
+            <a class="apsi-btn" href="{% url 'classifier:index' %}">Analyze a text</a>
+            <a class="apsi-btn secondary" href="#faq">FAQ</a>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </header>
+
+  <!-- 1. What the tool does -->
+  <section class="apsi-section">
+    <div class="apsi-container">
+      <h2 class="apsi-h2">What the tool does</h2>
+      <p class="apsi-sub">
+        APSI is designed for transparent, reproducible political text analysis. It outputs quantitative stance scores
+        for texts, not labels for people. The results are probabilistic signals based on patterns in political language.
+      </p>
+
+      <div class="apsi-grid">
+        <div class="apsi-card col-8">
+          <span class="apsi-tag">✅ Designed for</span>
+          <p>
+            Research, journalism, education, and exploratory analysis of political communication (e.g., speeches,
+            manifestos, posts, articles).
+          </p>
+          <ul class="apsi-list">
+            <li>Compare stances across texts or time</li>
+            <li>Inspect rhetoric across countries or actors</li>
+            <li>Support transparent measurement with theory-based categories</li>
+          </ul>
+        </div>
+
+        <div class="apsi-card col-4">
+          <span class="apsi-tag">🚫 Not designed for</span>
+          <ul class="apsi-list" style="margin-top:.2rem;">
+            <li>Profiling individuals</li>
+            <li>Hiring, screening, or surveillance</li>
+            <li>Determining “true beliefs” or intent</li>
+            <li>High-stakes decisions</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Dimensions -->
+  <section class="apsi-section">
+    <div class="apsi-container">
+      <h2 class="apsi-h2">The dimensions we measure</h2>
+      <p class="apsi-sub">
+        Scores range from <strong>0 to 10</strong>. Low and high values represent different ends of each dimension.
+        Interpret them as signals in the text—not definitive judgments.
+      </p>
+
+      <div class="apsi-grid">
+        <div class="apsi-card col-4">
+          <span class="apsi-tag">Economic ideology</span>
+          <h3>Economic Left–Right</h3>
+          <p><strong>0 (Left):</strong> more redistribution, regulation, welfare, public services.</p>
+          <p style="margin-top:.45rem;"><strong>10 (Right):</strong> lower taxes, privatization, deregulation, smaller state.</p>
+        </div>
+
+        <div class="apsi-card col-4">
+          <span class="apsi-tag">Democratic values</span>
+          <h3>Support for Liberal Democracy</h3>
+          <p><strong>0:</strong> weak support for democratic institutions, rule of law, civil liberties.</p>
+          <p style="margin-top:.45rem;"><strong>10:</strong> strong support for pluralism, constitutional checks, rights and liberties.</p>
+        </div>
+
+        <div class="apsi-card col-4">
+          <span class="apsi-tag">Rhetorical style</span>
+          <h3>Populism–Pluralism</h3>
+          <p><strong>0 (Pluralism):</strong> inclusive, institutional, consensus-oriented framing.</p>
+          <p style="margin-top:.45rem;"><strong>10 (Populism):</strong> “the people vs. the elite”, anti-establishment rhetoric.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. How it works -->
+  <section class="apsi-section">
+    <div class="apsi-container">
+      <h2 class="apsi-h2">How the analysis works</h2>
+      <p class="apsi-sub">
+        APSI uses a Natural Language Inference (NLI) approach. In practice, the model checks whether your text
+        supports a set of political statements (hypotheses) derived from expert-validated political frameworks.
+      </p>
+
+      <div class="apsi-callout">
+        <strong>In plain terms:</strong> we ask “Does this text imply X?” for multiple theory-based statements, then
+        aggregate the answers into scores.
+      </div>
+
+      <div class="apsi-grid" style="margin-top: 1rem;">
+        <div class="apsi-card col-6">
+          <span class="apsi-tag">Step 1</span>
+          <h3>Turn theory into hypotheses</h3>
+          <p>
+            Each dimension is represented by multiple short statements (e.g., left vs. right economic positions),
+            grounded in established codebooks and expert survey frameworks.
+          </p>
+        </div>
+
+        <div class="apsi-card col-6">
+          <span class="apsi-tag">Step 2</span>
+          <h3>Compute entailment probabilities</h3>
+          <p>
+            For each hypothesis, the model estimates how strongly the input text entails (supports) that statement.
+            These probabilities are then combined to form an overall stance score.
+          </p>
+        </div>
+
+        <div class="apsi-card col-12">
+          <span class="apsi-tag">Step 3</span>
+          <h3>Transform signals into 0–10 scores</h3>
+          <p>
+            Scores are normalized to a 0–10 scale to make dimensions comparable and easy to interpret.
+            This supports cross-text and cross-country comparisons.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Approaches -->
+  <section class="apsi-section">
+    <div class="apsi-container">
+      <h2 class="apsi-h2">The three approaches you may see in results</h2>
+      <p class="apsi-sub">
+        Depending on selected options, APSI can score your text using complementary methods.
+        These help triangulate results and make assumptions visible.
+      </p>
+
+      <div class="apsi-grid">
+        <div class="apsi-card col-4">
+          <span class="apsi-tag">Approach A</span>
+          <h3>Direct classification</h3>
+          <p>
+            A single-step estimate of stance along each dimension. Useful for quick signals and baseline comparison.
+          </p>
+        </div>
+
+        <div class="apsi-card col-4">
+          <span class="apsi-tag">Approach B</span>
+          <h3>Hypothesis-based scoring</h3>
+          <p>
+            The model evaluates multiple “left” and “right” (or “pluralist” and “populist”) hypotheses,
+            averages them, takes differences, and maps them onto a 0–10 scale.
+          </p>
+        </div>
+
+        <div class="apsi-card col-4">
+          <span class="apsi-tag">Approach C</span>
+          <h3>Response-based scoring</h3>
+          <p>
+            The model compares the text to anchored category descriptions (e.g., Left = 0, Center = 5, Right = 10),
+            normalizes probabilities, and computes a weighted average score.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. Confidence -->
+  <section class="apsi-section">
+    <div class="apsi-container">
+      <h2 class="apsi-h2">What confidence means</h2>
+      <p class="apsi-sub">
+        Confidence reflects how internally consistent the model’s signals were for the given text.
+        It is <strong>not</strong> the same as “accuracy” or “truth.”
+      </p>
+
+      <div class="apsi-grid">
+        <div class="apsi-card col-6">
+          <span class="apsi-tag">High confidence</span>
+          <h3>Clear signals detected</h3>
+          <p>
+            The text contains strong, consistent cues aligned with the hypotheses or category anchors.
+          </p>
+        </div>
+        <div class="apsi-card col-6">
+          <span class="apsi-tag">Low confidence</span>
+          <h3>Ambiguous or mixed signals</h3>
+          <p>
+            The text is short, balanced, context-dependent, sarcastic, or not strongly related to the dimension.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. Validation -->
+  <section class="apsi-section">
+    <div class="apsi-container">
+      <h2 class="apsi-h2">Validation and reliability</h2>
+      <p class="apsi-sub">
+        APSI is designed to be validated against human-coded political texts (e.g., manifestos and political leaders’ communication),
+        and continuously improved through expert review and refinement of hypotheses.
+      </p>
+
+      <div class="apsi-callout">
+        <strong>Important:</strong> like all text-based stance detection, results can vary with domain, language, and wording.
+        Validation is an ongoing process—especially for multilingual use.
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. Limitations -->
+  <section class="apsi-section">
+    <div class="apsi-container">
+      <h2 class="apsi-h2">Limitations</h2>
+      <p class="apsi-sub">
+        Political language is nuanced and context-dependent. The tool may misread rhetorical strategies and indirect cues.
+        Treat outputs as indicators, not final judgments.
+      </p>
+
+      <div class="apsi-grid">
+        <div class="apsi-card col-6">
+          <h3>Common failure cases</h3>
+          <ul class="apsi-list">
+            <li>Sarcasm, irony, quoting opponents</li>
+            <li>Very short or highly technical texts</li>
+            <li>Context missing (who speaks, when, where)</li>
+            <li>Mixed or strategic language</li>
+          </ul>
+        </div>
+        <div class="apsi-card col-6">
+          <h3>Bias and generalization</h3>
+          <ul class="apsi-list">
+            <li>Training data may encode historical or regional biases</li>
+            <li>Performance may vary across countries and languages</li>
+            <li>Small wording changes can shift model signals</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. Ethical use -->
+  <section class="apsi-section">
+    <div class="apsi-container">
+      <h2 class="apsi-h2">Ethical use</h2>
+      <p class="apsi-sub">
+        APSI is intended for informational and research purposes. It should not be used for high-stakes decisions
+        that affect individuals’ rights, opportunities, or access to services.
+      </p>
+
+      <div class="apsi-callout">
+        <strong>Do not use APSI for:</strong> profiling people, surveillance, hiring or screening, or any automated decision-making
+        that impacts individuals.
+      </div>
+    </div>
+  </section>
+
+  <!-- 9. FAQ -->
+  <section class="apsi-section" id="faq">
+    <div class="apsi-container">
+      <h2 class="apsi-h2">FAQ</h2>
+      <p class="apsi-sub">Quick answers to common questions about interpretation and reliability.</p>
+
+      <div class="apsi-faq">
+        <details>
+          <summary>Does APSI “know” what the author believes?</summary>
+          <p>
+            No. APSI analyzes the language in the text and estimates how strongly it aligns with certain political dimensions.
+            It does not infer personal beliefs, intentions, or identity.
+          </p>
+        </details>
+
+        <details>
+          <summary>Why do results change when I rewrite a sentence?</summary>
+          <p>
+            Stance detection is sensitive to wording. Small changes can strengthen or weaken cues that the model uses
+            to evaluate hypotheses or category anchors.
+          </p>
+        </details>
+
+        <details>
+          <summary>Can the tool detect sarcasm or quotes?</summary>
+          <p>
+            Sometimes, but not reliably. Irony, sarcasm, and quoted statements are common sources of misclassification.
+            If the text quotes opponents, consider analyzing only the author’s own statements.
+          </p>
+        </details>
+
+        <details>
+          <summary>What text length works best?</summary>
+          <p>
+            Longer passages with clear policy or institutional language tend to yield more stable scores. Very short texts
+            (one sentence) are more uncertain.
+          </p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10. Footer CTA -->
+  <section class="apsi-section aps i-cta aps i-cta aps i-cta"></section>
+  <section class="apsi-section aps i-cta" style="padding:2.25rem 0;">
+    <div class="apsi-container">
+      <div class="apsi-grid">
+        <div class="apsi-card col-12" style="display:flex; gap:1rem; align-items:center; justify-content:space-between; flex-wrap:wrap;">
+          <div>
+            <h3 style="margin:0; font-size:1.15rem; font-weight:850; color:var(--ink);">Ready to try it?</h3>
+            <p style="margin:.2rem 0 0; color:var(--muted);">Analyze a text and view stance scores across the three dimensions.</p>
+          </div>
+          <div style="display:flex; gap:.6rem; flex-wrap:wrap;">
+            <a class="apsi-btn" href="{% url 'classifier:index' %}">Analyze a text</a>
+            <a class="apsi-btn secondary" href="{% url 'classifier:index' %}">Back to tool</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}
+
 
 
 <!-- Example Texts Section -->
