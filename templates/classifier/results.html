@@ -75,7 +75,7 @@
           <!-- Left-Right Hypothesis -->
           {% if alternative_scores.left_right_hypothesis %}
           <div class="col-lg-4 col-md-6 mb-4">
-            <div class="card h-100" style="border-left: 4px solid #20c997;">
+            <div class="card h-100" style="border-left: 4px solid #c9207a;">
               <div class="card-body text-center">
                 <h6 class="card-title">Economic Left-Right</h6>
 
@@ -83,12 +83,12 @@
                   {% with score=alternative_scores.left_right_hypothesis.score confidence=alternative_scores.left_right_hypothesis.confidence %}
                   <div class="scale-wrap my-2">
                     <div class="scale-score" style="left: calc({{ score }} * 10%);">
-                      <span class="display-6" style="color:#20c997;">
+                      <span class="display-6" style="color:#c9207a;">
                         {{ score|floatformat:1 }}
                       </span>
                     </div>
                     <div class="scale-line">
-                      <div class="scale-dotlibillib" style="left: calc({{ score }} * 10%); background-color: #20c997;"></div>
+                      <div class="scale-dotlibillib" style="left: calc({{ score }} * 10%); background-color: #c9207a;"></div>
                     </div>
                     <div class="scale-labels">
                       <span>Left</span>
@@ -109,7 +109,7 @@
                 {% else %}
                   <div class="alert alert-warning mt-3 mb-0" role="alert">
                     <strong>Not in scope:</strong>
-                    {{ alternative_scores.left_right_hypothesis.error_message|default:"Tool bla bla." }}
+                    {{ alternative_scores.left_right_hypothesis.error_message|default:"The tool cannot infer a political stance from this text." }}
 
                     {% with h=alternative_scores.left_right_hypothesis %}
                     {% endwith %}
@@ -158,7 +158,7 @@
                 {% else %}
                   <div class="alert alert-warning mt-3 mb-0" role="alert">
                     <strong>Not in scope:</strong>
-                    {{ alternative_scores.liberal_illiberal_hypothesis.error_message|default:"Tool bla bla." }}
+                    {{ alternative_scores.liberal_illiberal_hypothesis.error_message|default:"The tool cannot infer a political stance from this text." }}
 
                     {% with h=alternative_scores.liberal_illiberal_hypothesis %}
                     {% endwith %}
@@ -207,7 +207,7 @@
                 {% else %}
                   <div class="alert alert-warning mt-3 mb-0" role="alert">
                     <strong>Not in scope:</strong>
-                    {{ alternative_scores.populism_pluralism_hypothesis.error_message|default:"Tool bla bla." }}
+                    {{ alternative_scores.populism_pluralism_hypothesis.error_message|default:"The tool cannot infer a political stance from this text." }}
 
                     {% with h=alternative_scores.populism_pluralism_hypothesis %}
                     {% endwith %}
