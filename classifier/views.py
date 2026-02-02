@@ -364,12 +364,12 @@ def classify_text(request):
                 logger.error(f"Full traceback: {traceback.format_exc()}")
 
                 messages.error(request, f"An error occurred during classification: {str(e)}")
-                return render(request, 'classifier/index.html', {'form': form})
+                return render(request, 'classifier/analysis.html', {'form': form})
         else:
             logger.warning(f"Form validation failed: {form.errors}")
-            return render(request, 'classifier/index.html', {'form': form})
+            return render(request, 'classifier/analysis.html', {'form': form})
     else:
-        return index(request)
+        return analysis(request)
 
 
 def privacy_notice(request):
