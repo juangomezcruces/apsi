@@ -5,6 +5,7 @@
 
 {% block content %}
 
+
 <!-- Google font (best in base.html <head>, but safe here too) -->
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
 
@@ -67,7 +68,7 @@
             font-weight: 500;
             color: #111;
             padding: 0.75rem 0;
-            border: none !important;
+            border: bottom;
             outline: none;
           }
 
@@ -94,7 +95,7 @@
 
           .apsi-section .apsi-content {
             max-height: 0;
-            overflow: hidden;
+            overflow: visible;
             opacity: 0;
             transform: translateY(-4px);
             transition: max-height 650ms ease, opacity 450ms ease, transform 450ms ease;
