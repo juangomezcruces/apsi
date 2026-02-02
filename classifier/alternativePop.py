@@ -200,16 +200,12 @@ class PopulismPluralismScorer:
         if not is_relevant:
             return {
                 'text': text,
-                'score': 0.0,
+                'score': 'NA',
                 'confidence': 0.0,
                 'contradiction_detected': False,
                 'interpretation': 'Not about political rhetoric or governance',
                 'is_relevant': False,
-                'topic_probability': float(topic_prob)
-                'error_message': "The text didn't pass the democratic-principles topic precheck.",
-                'passed_precheck': False,
-                'precheck_score': float(topic_prob),
-                'precheck_threshold': float(self.topic_threshold),
+                'topic_probability': topic_prob
             }
         
         probs = self.get_hypothesis_probabilities(text)
@@ -269,21 +265,17 @@ class PopulismPluralismScorer:
 
         return {
             'text': text,
-            'score': float(final_score),
-            'confidence': float(confidence_data['combined']),
-            
-            
-            'contradiction_detected': bool(confidence_data['contradiction_detected']),
+            'score': final_score,
+            'confidence': confidence_data['combined'],
+            'contradiction_detected': confidence_data['contradiction_detected'],
             'interpretation': interpretation,
-            'populist_avg': float(populist_avg),
-            'pluralist_avg': float(pluralist_avg),
+            'populist_avg': populist_avg,
+            'pluralist_avg': pluralist_avg,
             'top_populist_hypotheses': top_populist,
-            'top_pluralist_hypotheses': top_pluralist,
-            'passed_precheck': True,
-            'precheck_score': float(topic_prob),
-            'precheck_threshold': float(self.topic_threshold),
+            'top_pluralist_hypotheses': top_pluralist
+,
             'is_relevant': True,
-            'topic_probability': float(topic_prob)
+            'topic_probability': topic_prob
         }
 
     def quick_score(self, text):
