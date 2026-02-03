@@ -290,4 +290,71 @@
   </div>
 </section>
 
+<script>
+  (function () {
+    const DURATION = 420; // ms (increase to 600 for slower)
+    const EASING = "cubic-bezier(.25,.8,.25,1)";
+
+    document.querySelectorAll("details.apsi-section").forEach((details) => {
+      const summary = details.querySelector("summary");
+      const content = details.querySelector(".apsi-content");
+      if (!summary || !content) return;
+
+      // Make sure we start clean
+      content.style.willChange = "height, opacity, transform";
+
+      summary.addEventListener("click", (e) => {
+        e.preventDefault(); // we'll toggle manually
+
+        const isOpen = details.hasAttribute("open");
+
+        // Measure start/end heights
+        const startHeight = details.offsetHeight;
+        if (!isOpen) details.setAttribute("open", "");
+        const endHeight = details.offsetHeight;
+
+        // Prepare content visuals
+        content.style.overflow = "hidden";
+
+        // If closing, we need open=true during animation so it can measure height
+        if (isOpen) details.setAttribute("open", "");
+
+        // Animate the <details> height itself
+        details.style.height = startHeight + "px";
+        details.style.overflow = "hidden";
+
+        // Optional subtle fade/slide
+        content.style.opacity = isOpen ? "1" : "0";
+        content.style.transform = isOpen ? "translateY(0)" : "translateY(-6px)";
+
+        requestAnimationFrame(() => {
+          // toggle visuals
+          content.style.transition = `opacity ${DURATION}ms ease, transform ${DURATION}ms ease`;
+          content.style.opacity = isOpen ? "0" : "1";
+          content.style.transform = isOpen ? "translateY(-6px)" : "translateY(0)";
+
+          // height animation
+          details.animate(
+            [{ height: startHeight + "px" }, { height: endHeight + "px" }],
+            { duration: DURATION, easing: EASING }
+          ).onfinish = () => {
+            // End state: actually toggle open attribute
+            if (isOpen) details.removeAttribute("open");
+            else details.setAttribute("open", "");
+
+            // Cleanup inline styles
+            details.style.height = "";
+            details.style.overflow = "";
+            content.style.overflow = "";
+            content.style.transition = "";
+            content.style.opacity = "";
+            content.style.transform = "";
+          };
+        });
+      });
+    });
+  })();
+</script>
+
+
 {% endblock %}
