@@ -6,7 +6,7 @@
 {% block content %}
 
 
-<!-- Google font (best in base.html <head>, but safe here too) -->
+
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
 
 <section class="py-5 bg-white">
@@ -290,84 +290,86 @@
   </div>
 </section>
 
+
+
+
 <script>
-  (function () {
-    const DURATION = 700;
-    const EASING = "cubic-bezier(.4,0,.2,1)";
+(function () {
+  const OPEN_DURATION = 700;
+  const CLOSE_DURATION = 700;
+  const EASING = "cubic-bezier(.4,0,.2,1)";
 
-    document.querySelectorAll("details.apsi-section").forEach((details) => {
-      const summary = details.querySelector("summary");
-      const content = details.querySelector(".apsi-content");
-      if (!summary || !content) return;
+  document.querySelectorAll("details.apsi-section").forEach((details) => {
+    const summary = details.querySelector("summary");
+    const content = details.querySelector(".apsi-content");
+    if (!summary || !content) return;
 
-      // Make sure we start clean
-      content.style.willChange = "height, opacity, transform";
+    summary.addEventListener("click", (e) => {
+      e.preventDefault();
 
-      summary.addEventListener("click", (e) => {
-        e.preventDefault(); // we'll toggle manually
+      const isOpen = details.hasAttribute("open");
+      const DURATION = isOpen ? CLOSE_DURATION : OPEN_DURATION;
 
-        const isOpen = details.hasAttribute("open");
+      // Measure start height
+      const startHeight = details.offsetHeight;
 
-        // Measure start/end heights
-        const startHeight = details.offsetHeight;
-        if (!isOpen) details.setAttribute("open", "");
-        const endHeight = details.offsetHeight;
+      // Ensure we can measure end height
+      if (!details.hasAttribute("open")) details.setAttribute("open", "");
 
-        // Prepare content visuals
-        content.style.overflow = "hidden";
+      // Measure end height
+      const endHeight = details.offsetHeight;
 
-        // If closing, we need open=true during animation so it can measure height
-        if (isOpen) details.setAttribute("open", "");
+      // If closing: we want to animate, then remove open at the end
+      // Keep it open while animating
+      if (isOpen) details.setAttribute("open", "");
 
-        // Animate the <details> height itself
-        details.style.height = startHeight + "px";
-        details.style.overflow = "hidden";
+      // Lock current height for animation
+      details.style.height = startHeight + "px";
+      details.style.overflow = "hidden";
 
-        // Optional subtle fade/slide
-        content.style.opacity = "1";
-        content.style.transform = isOpen ? "translateY(0)" : "translateY(-6px)";
+      // Prepare content animation
+      content.style.willChange = "opacity, transform";
+      content.style.overflow = "hidden";
 
-        requestAnimationFrame(() => {
-          // toggle visuals
-         const fadeDelay = isOpen ? Math.round(DURATION * 0.65) : 0; // delay fade-out on close
-const fadeDuration = isOpen ? Math.round(DURATION * 0.35) : DURATION;
+      // Height animation (details element)
+      const heightAnim = details.animate(
+        [{ height: startHeight + "px" }, { height: endHeight + "px" }],
+        { duration: DURATION, easing: EASING }
+      );
 
-content.animate(
-  isOpen
-    ? [
-        { opacity: 1, transform: "translateY(0)" },
-        { opacity: 1, transform: "translateY(0)", offset: 0.65 }, // hold
-        { opacity: 0, transform: "translateY(-6px)" }             // then fade
-      ]
-    : [
-        { opacity: 0, transform: "translateY(-6px)" },
-        { opacity: 1, transform: "translateY(0)" }
-      ],
-  { duration: DURATION, easing: "ease", fill: "forwards" }
-);
+      // Content animation:
+      // - Opening: fade/slide in immediately
+      // - Closing: hold visible, then fade late to avoid "white flash"
+      const hold = isOpen ? 0.8 : 0; // keep visible for 80% of closing
+      const contentAnim = content.animate(
+        isOpen
+          ? [
+              { opacity: 1, transform: "translateY(0)" },
+              { opacity: 1, transform: "translateY(0)", offset: hold },
+              { opacity: 0, transform: "translateY(-6px)" }
+            ]
+          : [
+              { opacity: 0, transform: "translateY(-6px)" },
+              { opacity: 1, transform: "translateY(0)" }
+            ],
+        { duration: DURATION, easing: "ease", fill: "forwards" }
+      );
 
-          // height animation
-          details.animate(
-            [{ height: startHeight + "px" }, { height: endHeight + "px" }],
-            { duration: DURATION, easing: EASING }
-          ).onfinish = () => {
-            // End state: actually toggle open attribute
-            if (isOpen) details.removeAttribute("open");
-            else details.setAttribute("open", "");
+      Promise.all([heightAnim.finished, contentAnim.finished]).then(() => {
+        if (isOpen) details.removeAttribute("open");
+        else details.setAttribute("open", "");
 
-            // Cleanup inline styles
-            details.style.height = "";
-            details.style.overflow = "";
-            content.style.overflow = "";
-            content.style.transition = "";
-            content.style.opacity = "";
-            content.style.transform = "";
-          };
-        });
+        // Cleanup
+        details.style.height = "";
+        details.style.overflow = "";
+        content.style.overflow = "";
+        content.style.willChange = "";
       });
     });
-  })();
+  });
+})();
 </script>
+
 
 
 {% endblock %}
