@@ -39,7 +39,7 @@
     }
 }
 
-/* Loading animation */
+
 .loading-spinner {
     border: 4px solid #f3f3f3;
     border-top: 4px solid #007bff;
@@ -55,7 +55,7 @@
     100% { transform: rotate(360deg); }
 }
 
-/* V-Dem style text */
+
 .rich-text.lead-text {
   max-width: 880px;
   margin: 2rem auto;
@@ -69,7 +69,7 @@
   margin-bottom: 0;
 }
 
-/* Global font */
+
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
@@ -81,7 +81,7 @@ body {
   overflow: hidden; /* needed for height animation */
 }
 
-/* Summary styling (bigger header, no border) */
+
 .apsi-section summary {
   list-style: none;
   cursor: pointer;
@@ -116,13 +116,16 @@ body {
   max-height: 0;
   opacity: 0;
   transform: translateY(-4px);
-  transition: max-height 650ms ease, opacity 450ms ease, transform 450ms ease;
+  transition:
+    max-height 1.2s cubic-bezier(.25,.8,.25,1),
+    opacity 0.7s ease 0.15s,
+    transform 0.7s ease 0.15s;
   will-change: max-height, opacity, transform;
 }
 
 /* When open */
 .apsi-section[open] .apsi-content {
-  max-height: 2000px; /* set large enough for your longest section */
+  max-height: 900px;   /* adjust if one section is taller */
   opacity: 1;
   transform: translateY(0);
 }
