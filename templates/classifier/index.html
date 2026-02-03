@@ -329,9 +329,22 @@
 
         requestAnimationFrame(() => {
           // toggle visuals
-          content.style.transition = `opacity ${DURATION}ms ease, transform ${DURATION}ms ease`;
-          content.style.opacity = isOpen ? "0" : "1";
-          content.style.transform = isOpen ? "translateY(-6px)" : "translateY(0)";
+         const fadeDelay = isOpen ? Math.round(DURATION * 0.65) : 0; // delay fade-out on close
+const fadeDuration = isOpen ? Math.round(DURATION * 0.35) : DURATION;
+
+content.animate(
+  isOpen
+    ? [
+        { opacity: 1, transform: "translateY(0)" },
+        { opacity: 1, transform: "translateY(0)", offset: 0.65 }, // hold
+        { opacity: 0, transform: "translateY(-6px)" }             // then fade
+      ]
+    : [
+        { opacity: 0, transform: "translateY(-6px)" },
+        { opacity: 1, transform: "translateY(0)" }
+      ],
+  { duration: DURATION, easing: "ease", fill: "forwards" }
+);
 
           // height animation
           details.animate(
