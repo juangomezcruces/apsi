@@ -130,6 +130,10 @@ body {
   transform: translateY(0);
 }
 
+.apsi-section summary::after {
+  transition: transform 350ms ease, opacity 350ms ease;
+}
+
 /* Make spacing feel like a document */
 .apsi-section .apsi-content > *:first-child { margin-top: 0.75rem; }
 .apsi-section .apsi-content > *:last-child { margin-bottom: 0; }
