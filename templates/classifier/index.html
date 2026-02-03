@@ -98,12 +98,12 @@
             overflow: visible;
             opacity: 0;
             transform: translateY(-4px);
-            transition: max-height 650ms ease, opacity 450ms ease, transform 450ms ease;
+            transition: max-height 1.4s ease, opacity 0.9s ease, transform 0.9s ease;
             will-change: max-height, opacity, transform;
           }
 
           .apsi-section[open] .apsi-content {
-            max-height: 2000px;
+            max-height: 2500px;
             opacity: 1;
             transform: translateY(0);
           }
@@ -114,23 +114,7 @@
             opacity: 0.92;
           }
 
-          .apsi-section .apsi-content {
-            max-height: 0 !important;
-            overflow: hidden !important;
-            opacity: 2 !important;
-            transform: translateY(-8px) !important;
 
-          transition:
-            max-height 1.4s ease !important,
-            opacity 1.9s ease 1.15s !important,
-            transform 1.9s ease 1.15s !important;
-          }
-
-          .apsi-section[open] .apsi-content {
-            max-height: 2500px 
-            opacity: 2 !important;
-            transform: translateY(0) !important;
-          }
           
         </style>
 
