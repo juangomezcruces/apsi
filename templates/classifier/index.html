@@ -103,7 +103,7 @@
           }
 
           .apsi-section[open] .apsi-content {
-            max-height: 2500px;
+            max-height: 2800px;
             opacity: 1;
             transform: translateY(0);
           }
@@ -296,7 +296,7 @@
 <script>
 (function () {
   const OPEN_DURATION = 700;
-  const CLOSE_DURATION = 800;
+  const CLOSE_DURATION = 700;
   const EASING = "cubic-bezier(.4,0,.2,1)";
 
   document.querySelectorAll("details.apsi-section").forEach((details) => {
@@ -319,8 +319,7 @@
       // Measure end height
       const endHeight = details.offsetHeight;
 
-      // If closing: we want to animate, then remove open at the end
-      // Keep it open while animating
+
       if (isOpen) details.setAttribute("open", "");
 
       // Lock current height for animation
@@ -331,15 +330,12 @@
       content.style.willChange = "opacity, transform";
       content.style.overflow = "hidden";
 
-      // Height animation (details element)
       const heightAnim = details.animate(
         [{ height: startHeight + "px" }, { height: endHeight + "px" }],
         { duration: DURATION, easing: EASING }
       );
 
-      // Content animation:
-      // - Opening: fade/slide in immediately
-      // - Closing: hold visible, then fade late to avoid "white flash"
+
       const hold = isOpen ? 0.8 : 0; // keep visible for 80% of closing
       const contentAnim = content.animate(
         isOpen
