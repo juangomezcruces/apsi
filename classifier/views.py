@@ -197,7 +197,10 @@ def generate_alternative_scores(text, scorers=None, selected_approaches=None):
                             'confidence': round(pp_result.get('confidence', 0.8) * 100, 1),
                             'interpretation': pp_result.get('interpretation', 'Moderate'),
                             'is_relevant': True,
-                            'topic_probability': round(pp_result.get('topic_probability', 1.0), 3)
+                            'topic_probability': round(pp_result.get('topic_probability', 1.0), 3),
+                            'top_populism_hypotheses': pp_result.get('top_populism_hypotheses', []),
+                            'top_pluralism_hypotheses': pp_result.get('top_pluralism_hypotheses', []),
+
                         }
                         logger.debug(f"✓ Populism-pluralism hypothesis: {score:.2f}")
                     else:
