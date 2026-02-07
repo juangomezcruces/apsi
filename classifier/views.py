@@ -339,6 +339,45 @@ def classify_text(request):
                 cleanup_memory()
                 log_memory_usage("after cleanup")
 
+
+                hypothesis_summary = []
+                if alternative_scores:
+                    label_map = {
+                        "left_right_hypothesis": "Economic Left–Right",
+                        "liberal_illiberal_hypothesis": "Support for Liberal Democracy",
+                        "populism_pluralism_hypothesis": "Populism–Pluralism",
+                }
+
+            for key, v in alternative_scores.items():
+                if not v:
+                    continue
+
+                if v.get("is_relevant") is False:
+                    continue
+
+            name = label_map.get(key, key.replace("_", " ").title())
+
+            conf = float(v.get("confidence", 0.0) or 0.0)
+            stance_score = v.get("score", "NA")
+            interp = v.get("interpretation", "")
+            topic_p = v.get("topic_probability", None)
+
+            desc_bits = []
+            if interp:
+                desc_bits.append(f"Interpretation: {interp}")
+            if stance_score != "NA":
+                desc_bits.append(f"Stance score: {stance_score}/10")
+            if topic_p is not None:
+                desc_bits.append(f"Topic relevance: {topic_p}")
+
+            hypothesis_summary.append({
+                "name": name,
+                "description": " · ".join(desc_bits) if desc_bits else "Triggered by detected cues in the text.",
+                "score": conf,  # confidence %
+            })
+
+        hypothesis_summary.sort(key=lambda x: x.get("score", 0), reverse=True)
+
                 context_data = {
                     'form': form,
                     'results': results,
@@ -346,7 +385,8 @@ def classify_text(request):
                     'input_text': text,
                     'coordinates_json': json.dumps(coordinates),
                     'alternative_scores': alternative_scores,
-                    'selected_approaches': selected_approaches
+                    'selected_approaches': selected_approaches,
+                    'hypothesis_summary': hypothesis_summary 
                 }
 
                 processing_time = time.time() - start_time
