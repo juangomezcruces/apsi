@@ -295,53 +295,65 @@ def analysis(request):
     return render(request, 'classifier/analysis.html', {'form': form})
 
 
+
+
+
+
+
+
+
+
+
+
+
 def classify_text(request):
     """Handle form submission and show results"""
     start_time = time.time()
     log_memory_usage("start of request")
 
-    if request.method == 'POST':
-        form = TextClassificationForm(request.POST)
-        if form.is_valid():
-            text = form.cleaned_data['text']
+    if request.method != 'POST':
+        return analysis(request)
 
-            # Extract selected approaches
-            selected_approaches = {
-                # Hypothesis-based approaches only
-                'left_right_hypothesis': form.cleaned_data.get('left_right_hypothesis', False),
-                'liberal_illiberal_hypothesis': form.cleaned_data.get('liberal_illiberal_hypothesis', False),
-                'populism_hypothesis': form.cleaned_data.get('populism_hypothesis', False),
-            }
+    form = TextClassificationForm(request.POST)
+    if not form.is_valid():
+        logger.warning(f"Form validation failed: {form.errors}")
+        return render(request, 'classifier/analysis.html', {'form': form})
 
-            logger.info(f"Selected approaches: {[k for k, v in selected_approaches.items() if v]}")
+    text = form.cleaned_data['text']
 
-            try:
-                results = {}
-                coordinates = {'x': None, 'y': None, 'z': None, 'labels': {}, 'errors': []}
+    selected_approaches = {
+        'left_right_hypothesis': form.cleaned_data.get('left_right_hypothesis', False),
+        'liberal_illiberal_hypothesis': form.cleaned_data.get('liberal_illiberal_hypothesis', False),
+        'populism_hypothesis': form.cleaned_data.get('populism_hypothesis', False),
+    }
 
-                # Only run hypothesis approaches if any are selected
-                alternative_scores = None
-                
-                hypothesis_approaches_selected = any([
-                    selected_approaches.get('left_right_hypothesis'),
-                    selected_approaches.get('liberal_illiberal_hypothesis'),
-                    selected_approaches.get('populism_hypothesis'),
-                ])
+    logger.info(f"Selected approaches: {[k for k, v in selected_approaches.items() if v]}")
 
-                if hypothesis_approaches_selected:
-                    logger.info("Loading and running selected hypothesis approaches...")
-                    alternative_scorers = get_alternative_scorers(selected_approaches)
-                    alternative_scores = generate_alternative_scores(text, alternative_scorers, selected_approaches)
-                    log_memory_usage("after hypothesis approaches")
-                else:
-                    logger.info("No hypothesis approaches selected")
+    try:
+        results = {}
+        coordinates = {'x': None, 'y': None, 'z': None, 'labels': {}, 'errors': []}
 
-                # Clean up memory after operations
-                cleanup_memory()
-                log_memory_usage("after cleanup")
+        alternative_scores = None
+        hypothesis_summary = []  # always defined
 
+        hypothesis_approaches_selected = any([
+            selected_approaches.get('left_right_hypothesis'),
+            selected_approaches.get('liberal_illiberal_hypothesis'),
+            selected_approaches.get('populism_hypothesis'),
+        ])
 
-        hypothesis_summary = []
+        if hypothesis_approaches_selected:
+            logger.info("Loading and running selected hypothesis approaches...")
+            alternative_scorers = get_alternative_scorers(selected_approaches)
+            alternative_scores = generate_alternative_scores(text, alternative_scorers, selected_approaches)
+            log_memory_usage("after hypothesis approaches")
+        else:
+            logger.info("No hypothesis approaches selected")
+
+        cleanup_memory()
+        log_memory_usage("after cleanup")
+
+        # ---- Build "Why these results?" hypothesis summary ----
         if alternative_scores:
             label_map = {
                 "left_right_hypothesis": "Economic Left–Right",
@@ -353,7 +365,7 @@ def classify_text(request):
                 if not v:
                     continue
 
-                # keep only relevant (optional)
+                # Optional filter: keep only relevant
                 if v.get("is_relevant") is False:
                     continue
 
@@ -379,33 +391,34 @@ def classify_text(request):
                 })
 
             hypothesis_summary.sort(key=lambda x: x.get("score", 0), reverse=True)
+        # ---- end summary ----
 
-                context_data = {
-                    'form': form,
-                    'results': results,
-                    'coordinates': coordinates,
-                    'input_text': text,
-                    'coordinates_json': json.dumps(coordinates),
-                    'alternative_scores': alternative_scores,
-                    'selected_approaches': selected_approaches,
-                    'hypothesis_summary': hypothesis_summary 
-                }
+        context_data = {
+            'form': form,
+            'results': results,
+            'coordinates': coordinates,
+            'input_text': text,
+            'coordinates_json': json.dumps(coordinates),
+            'alternative_scores': alternative_scores,
+            'selected_approaches': selected_approaches,
+            'hypothesis_summary': hypothesis_summary,
+        }
 
-                processing_time = time.time() - start_time
-                logger.info(f"Request completed in {processing_time:.2f} seconds")
+        processing_time = time.time() - start_time
+        logger.info(f"Request completed in {processing_time:.2f} seconds")
 
-                return render(request, 'classifier/results.html', context_data)
+        return render(request, 'classifier/results.html', context_data)
 
-            except Exception as e:
-                processing_time = time.time() - start_time
-                log_memory_usage("after error")
-                logger.error(f"Classification error after {processing_time:.2f}s: {str(e)}")
-                logger.error(f"Error type: {type(e).__name__}")
-                import traceback
-                logger.error(f"Full traceback: {traceback.format_exc()}")
+    except Exception as e:
+        processing_time = time.time() - start_time
+        log_memory_usage("after error")
+        logger.error(f"Classification error after {processing_time:.2f}s: {str(e)}")
+        logger.error(f"Error type: {type(e).__name__}")
+        import traceback
+        logger.error(f"Full traceback: {traceback.format_exc()}")
 
-                messages.error(request, f"An error occurred during classification: {str(e)}")
-                return render(request, 'classifier/analysis.html', {'form': form})
+        messages.error(request, f"An error occurred during classification: {str(e)}")
+        return render(request, 'classifier/analysis.html', {'form': form})
         else:
             logger.warning(f"Form validation failed: {form.errors}")
             return render(request, 'classifier/analysis.html', {'form': form})
