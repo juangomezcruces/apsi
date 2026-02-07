@@ -217,6 +217,51 @@
 </section>
 {% endif %}
 
+
+<!-- Why These Results Toggle -->
+<section class="py-3 bg-white">
+  <div class="container text-center">
+
+    <button class="btn btn-outline-secondary"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#whyResults"
+            aria-expanded="false"
+            aria-controls="whyResults">
+
+      Why these results?
+    </button>
+
+    <div class="collapse mt-3 text-start" id="whyResults">
+      <div class="card card-body">
+
+        <h6>Top triggered hypotheses</h6>
+
+        {% if hypothesis_summary %}
+          <ul class="mb-0">
+            {% for h in hypothesis_summary %}
+              <li>
+                <strong>{{ h.name }}</strong> —
+                {{ h.description }}
+                {% if h.score %}
+                  <span class="text-muted">(score: {{ h.score|floatformat:2 }})</span>
+                {% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="text-muted mb-0">
+            No hypothesis-level explanation available.
+          </p>
+        {% endif %}
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
 <!-- No Results Message -->
 {% if not results and not alternative_scores %}
 <section class="py-5">
