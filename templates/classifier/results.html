@@ -252,36 +252,56 @@
                       <ul class="mb-0 list-unstyled">
 
                         {% for it in items %}
-                          <li class="mb-2">
 
-                            <div>
-                              "{{ it.text }}"
-                            </div>
+                      <li class="mb-2">
 
-                            <div class="text-muted small mb-1">
-                              Probability: {{ it.p }}%
-                            </div>
+                        <!-- Hypothesis text -->
+                        <div class="small">
+                          "{{ it.text }}"
+                        </div>
 
-                            <!-- Probability Bar -->
-                          {% widthratio it.p 1 120 as hue %}
+                        <!-- Probability label -->
+                        <div class="text-muted small mb-1">
+                          Probability: {{ it.p }}%
+                        </div>
 
-                          <div style="width:50%;">
-                            <div class="progress" style="height:8px;">
-                              <div class="progress-bar"
-                                  role="progressbar"
-                                  style="
-                                      width: {{ it.p }}%;
-                                      background: linear-gradient(90deg, #dc3545, #ffc107, #198754);
-                                      transition: width 0.6s ease;
-                                  "
-                                  aria-valuenow="{{ it.p }}"
-                                  aria-valuemin="0"
-                                  aria-valuemax="100">
+                        {# --- Normalize probability for safe numeric comparisons --- #}
+                        {% with p=it.p|floatformat:0|add:"0" %}
+
+                          {# --- Battery-style color thresholds --- #}
+                          {% if p < 25 %}
+                              {% with bar_color="#dc3545" %}   {# RED #}
+                          {% elif p < 50 %}
+                              {% with bar_color="#fd7e14" %}   {# ORANGE #}
+                          {% elif p < 75 %}
+                              {% with bar_color="#ffc107" %}   {# YELLOW #}
+                          {% else %}
+                              {% with bar_color="#198754" %}   {# GREEN #}
+                          {% endif %}
+
+                              <!-- Probability Bar -->
+                              <div style="width:50%;">
+                                <div class="progress" style="height:8px; border-radius:6px;">
+                                  <div class="progress-bar"
+                                      role="progressbar"
+                                      style="
+                                          width: {{ p }}%;
+                                          background-color: {{ bar_color }} !important;
+                                          border-radius:6px;
+                                          transition: width 0.6s ease;
+                                      "
+                                      aria-valuenow="{{ p }}"
+                                      aria-valuemin="0"
+                                      aria-valuemax="100">
+                                  </div>
+                                </div>
                               </div>
-                            </div>
-                          </div>
 
-                          </li>
+                              {% endwith %}
+                          {% endwith %}
+
+                      </li>
+
                         {% endfor %}
 
                       </ul>
