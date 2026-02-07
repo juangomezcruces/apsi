@@ -271,7 +271,7 @@
                                   role="progressbar"
                                   style="
                                       width: {{ it.p }}%;
-                                      background-color: hsl({{ hue }}, 85%, 45%);
+                                      background: linear-gradient(90deg, #dc3545, #ffc107, #198754);
                                       transition: width 0.6s ease;
                                   "
                                   aria-valuenow="{{ it.p }}"
@@ -280,7 +280,6 @@
                               </div>
                             </div>
                           </div>
-
 
                           </li>
                         {% endfor %}
