@@ -296,16 +296,6 @@ def analysis(request):
 
 
 
-
-
-
-
-
-
-
-
-
-
 def classify_text(request):
     """Handle form submission and show results"""
     start_time = time.time()
@@ -419,12 +409,6 @@ def classify_text(request):
 
         messages.error(request, f"An error occurred during classification: {str(e)}")
         return render(request, 'classifier/analysis.html', {'form': form})
-        else:
-            logger.warning(f"Form validation failed: {form.errors}")
-            return render(request, 'classifier/analysis.html', {'form': form})
-    else:
-        return analysis(request)
-
 
 def privacy_notice(request):
     return render(request, 'classifier/privacynotice.html')
