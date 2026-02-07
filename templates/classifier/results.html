@@ -263,15 +263,24 @@
                             </div>
 
                             <!-- Probability Bar -->
+                          {% widthratio it.p 1 120 as hue %}
+
+                          <div style="width:50%;">
                             <div class="progress" style="height:6px;">
                               <div class="progress-bar"
-                                   role="progressbar"
-                                   style="width: {{ it.p }}%;"
-                                   aria-valuenow="{{ it.p }}"
-                                   aria-valuemin="0"
-                                   aria-valuemax="100">
+                                  role="progressbar"
+                                  style="
+                                      width: {{ it.p }}%;
+                                      background-color: hsl({{ hue }}, 85%, 45%);
+                                      transition: width 0.6s ease;
+                                  "
+                                  aria-valuenow="{{ it.p }}"
+                                  aria-valuemin="0"
+                                  aria-valuemax="100">
                               </div>
                             </div>
+                          </div>
+
 
                           </li>
                         {% endfor %}
