@@ -321,6 +321,8 @@ def classify_text(request):
 
                 # Only run hypothesis approaches if any are selected
                 alternative_scores = None
+                hypothesis_summary = []
+                
                 hypothesis_approaches_selected = any([
                     selected_approaches.get('left_right_hypothesis'),
                     selected_approaches.get('liberal_illiberal_hypothesis'),
