@@ -234,37 +234,63 @@
     <div class="collapse mt-3 text-start" id="whyResults">
       <div class="card card-body">
 
-        <h6 class="mb-3">Top triggered hypotheses</h6>
+        <h6 class="mb-3 small">What influenced these results</h6>
 
         {% if why_these_results %}
           {% for dimension, sides in why_these_results.items %}
-            <div class="mb-4">
+            <div class="mb-4 small">
+
               <div class="fw-semibold mb-2">{{ dimension }}</div>
 
               <div class="row g-3">
                 {% for side_name, items in sides.items %}
                   <div class="col-md-6">
+
                     <div class="mb-1"><strong>{{ side_name }}:</strong></div>
 
                     {% if items %}
-                      <ul class="mb-0">
+                      <ul class="mb-0 list-unstyled">
+
                         {% for it in items %}
-                          <li>
-                            "{{ it.text }}" — <span class="text-muted">Probability {{ it.p }}%</span>
+                          <li class="mb-2">
+
+                            <div>
+                              "{{ it.text }}"
+                            </div>
+
+                            <div class="text-muted small mb-1">
+                              Probability: {{ it.p }}%
+                            </div>
+
+                            <!-- Probability Bar -->
+                            <div class="progress" style="height:6px;">
+                              <div class="progress-bar"
+                                   role="progressbar"
+                                   style="width: {{ it.p }}%;"
+                                   aria-valuenow="{{ it.p }}"
+                                   aria-valuemin="0"
+                                   aria-valuemax="100">
+                              </div>
+                            </div>
+
                           </li>
                         {% endfor %}
+
                       </ul>
                     {% else %}
-                      <div class="text-muted">No strong hypotheses detected.</div>
+                      <div class="text-muted small">
+                        No strong indicators detected.
+                      </div>
                     {% endif %}
+
                   </div>
                 {% endfor %}
               </div>
             </div>
           {% endfor %}
         {% else %}
-          <p class="text-muted mb-0">
-            No hypothesis-level explanation available.
+          <p class="text-muted small mb-0">
+            No detailed explanation available for this analysis.
           </p>
         {% endif %}
 
@@ -273,8 +299,6 @@
 
   </div>
 </section>
-
-
 
 <!-- No Results Message -->
 {% if not results and not alternative_scores %}
