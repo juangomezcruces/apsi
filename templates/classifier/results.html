@@ -228,27 +228,40 @@
             data-bs-target="#whyResults"
             aria-expanded="false"
             aria-controls="whyResults">
-
       Why these results?
     </button>
 
     <div class="collapse mt-3 text-start" id="whyResults">
       <div class="card card-body">
 
-        <h6>Top triggered hypotheses</h6>
+        <h6 class="mb-3">Top triggered hypotheses</h6>
 
-        {% if hypothesis_summary %}
-          <ul class="mb-0">
-            {% for h in hypothesis_summary %}
-              <li>
-                <strong>{{ h.name }}</strong> —
-                {{ h.description }}
-                {% if h.score %}
-                  <span class="text-muted">(score: {{ h.score|floatformat:2 }})</span>
-                {% endif %}
-              </li>
-            {% endfor %}
-          </ul>
+        {% if why_these_results %}
+          {% for dimension, sides in why_these_results.items %}
+            <div class="mb-4">
+              <div class="fw-semibold mb-2">{{ dimension }}</div>
+
+              <div class="row g-3">
+                {% for side_name, items in sides.items %}
+                  <div class="col-md-6">
+                    <div class="mb-1"><strong>{{ side_name }}:</strong></div>
+
+                    {% if items %}
+                      <ul class="mb-0">
+                        {% for it in items %}
+                          <li>
+                            "{{ it.text }}" — <span class="text-muted">Probability {{ it.p }}%</span>
+                          </li>
+                        {% endfor %}
+                      </ul>
+                    {% else %}
+                      <div class="text-muted">No strong hypotheses detected.</div>
+                    {% endif %}
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+          {% endfor %}
         {% else %}
           <p class="text-muted mb-0">
             No hypothesis-level explanation available.
@@ -260,6 +273,7 @@
 
   </div>
 </section>
+
 
 
 <!-- No Results Message -->
