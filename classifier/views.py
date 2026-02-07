@@ -351,10 +351,6 @@ def classify_text(request):
         cleanup_memory()
         log_memory_usage("after cleanup")
 
-        # ------------------------------------------------------------
-        # Build "Why these results?" as SIDE -> hypothesis -> probability
-        # (Requires alternative_scores to include top_*_hypotheses lists)
-        # ------------------------------------------------------------
         why_these_results = {}
 
         def _fmt_items(items, limit=5, min_prob_pct=1):
