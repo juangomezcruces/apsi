@@ -1,4 +1,4 @@
-import json
+xfimport json
 import logging
 import random
 import numpy as np
@@ -207,8 +207,8 @@ def generate_alternative_scores(text, scorers=None, selected_approaches=None):
                             'interpretation': pp_result.get('interpretation', 'Not about political rhetoric'),
                             'is_relevant': False,
                             'topic_probability': round(pp_result.get('topic_probability', 0.0), 3),
-                            'top_populist_hypotheses': pp_result.get('top_populist_hypotheses', []),
-                            'top_pluralist_hypotheses': pp_result.get('top_pluralist_hypotheses', []),
+                            'top_populism_hypotheses': pp_result.get('top_populism_hypotheses', []),
+                            'top_pluralism_hypotheses': pp_result.get('top_pluralism_hypotheses', []),
                         }
                         logger.debug(f"✓ Populism-pluralism hypothesis: NA (not relevant)")
                 except Exception as e:
@@ -395,8 +395,8 @@ def classify_text(request):
             # Populism–Pluralism
             pp = alternative_scores.get("populism_pluralism_hypothesis")
             if pp and pp.get("is_relevant") is not False:
-                pluralism_items = _fmt_items(pp.get("top_pluralist_hypotheses", []), limit=5, min_prob_pct=1)
-                populism_items = _fmt_items(pp.get("top_populist_hypotheses", []), limit=5, min_prob_pct=1)
+                pluralism_items = _fmt_items(pp.get("top_pluralism_hypotheses", []), limit=5, min_prob_pct=1)
+                populism_items = _fmt_items(pp.get("top_populism_hypotheses", []), limit=5, min_prob_pct=1)
                 if pluralism_items or populism_items:
                     why_these_results["Populism–Pluralism"] = {
                         "Pluralism": pluralism_items,
