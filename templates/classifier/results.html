@@ -218,89 +218,111 @@
 {% endif %}
 
 
-<!-- Why These Results Toggle -->
-<section class="py-3 bg-white">
-  <div class="container text-center">
+                    <!-- Why These Results Toggle -->
+                    <section class="py-3 bg-white">
+                      <div class="container text-center">
 
-    <button class="btn btn-outline-secondary"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#whyResults"
-            aria-expanded="false"
-            aria-controls="whyResults">
-      Why these results?
-    </button>
+                        <button class="btn btn-outline-secondary"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#whyResults"
+                                aria-expanded="false"
+                                aria-controls="whyResults">
+                          Why these results?
+                        </button>
 
-    <div class="collapse mt-3 text-start" id="whyResults">
-      <div class="card card-body">
+                        <div class="collapse mt-3 text-start" id="whyResults">
+                          <div class="card card-body">
 
-        <h6 class="mb-3 small">What influenced these results</h6>
+                            <h6 class="mb-3 small">What influenced these results</h6>
 
-        {% if why_these_results %}
-          {% for dimension, sides in why_these_results.items %}
-            <div class="mb-4 small">
+                            {% if why_these_results %}
+                              {% for dimension, sides in why_these_results.items %}
+                                <div class="mb-4 small">
 
-              <div class="fw-semibold mb-2">{{ dimension }}</div>
+                                  <div class="fw-semibold mb-2">{{ dimension }}</div>
 
-              <div class="row g-3">
-                {% for side_name, items in sides.items %}
-                  <div class="col-md-6">
+                                  <div class="row g-3">
+                                    {% for side_name, items in sides.items %}
+                                      <div class="col-md-6">
 
-                    <div class="mb-1"><strong>{{ side_name }}:</strong></div>
+                                        <div class="mb-1"><strong>{{ side_name }}:</strong></div>
 
-                    {% if items %}
-                      <ul class="mb-0 list-unstyled">
+                                        {% if items %}
+                                          <ul class="mb-0 list-unstyled">
 
-                        {% for it in items %}
+                                            {% for it in items %}
 
-                      <li class="mb-2">
+                                          <li class="mb-2">
 
-                        <!-- Hypothesis text -->
-                        <div class="small">
-                          "{{ it.text }}"
-                        </div>
+                      <div class="small">
+                        "{{ it.text }}"
+                      </div>
 
-                        <!-- Probability label -->
-                        <div class="text-muted small mb-1">
-                          Probability: {{ it.p }}%
-                        </div>
+                      <div class="text-muted small mb-1">
+                        Probability: {{ it.p }}%
+                      </div>
 
-                        {# --- Normalize probability for safe numeric comparisons --- #}
-                        {% with p=it.p|floatformat:0|add:"0" %}
+                      <div style="width:50%;">
+                        <div class="progress" style="height:8px; border-radius:6px;">
 
-                          {# --- Battery-style color thresholds --- #}
-                          {% if p < 25 %}
-                              {% with bar_color="#dc3545" %}   {# RED #}
-                          {% elif p < 50 %}
-                              {% with bar_color="#fd7e14" %}   {# ORANGE #}
-                          {% elif p < 75 %}
-                              {% with bar_color="#ffc107" %}   {# YELLOW #}
+                          {% if it.p < 25 %}
+                            <div class="progress-bar"
+                                role="progressbar"
+                                style="
+                                    width: {{ it.p }}%;
+                                    background-color: #dc3545 !important;  /* red */
+                                    border-radius:6px;
+                                    transition: width 0.6s ease;
+                                "
+                                aria-valuenow="{{ it.p }}"
+                                aria-valuemin="0"
+                                aria-valuemax="100"></div>
+
+                          {% elif it.p < 50 %}
+                            <div class="progress-bar"
+                                role="progressbar"
+                                style="
+                                    width: {{ it.p }}%;
+                                    background-color: #fd7e14 !important;  /* orange */
+                                    border-radius:6px;
+                                    transition: width 0.6s ease;
+                                "
+                                aria-valuenow="{{ it.p }}"
+                                aria-valuemin="0"
+                                aria-valuemax="100"></div>
+
+                          {% elif it.p < 75 %}
+                            <div class="progress-bar"
+                                role="progressbar"
+                                style="
+                                    width: {{ it.p }}%;
+                                    background-color: #ffc107 !important;  /* yellow */
+                                    border-radius:6px;
+                                    transition: width 0.6s ease;
+                                "
+                                aria-valuenow="{{ it.p }}"
+                                aria-valuemin="0"
+                                aria-valuemax="100"></div>
+
                           {% else %}
-                              {% with bar_color="#198754" %}   {# GREEN #}
+                            <div class="progress-bar"
+                                role="progressbar"
+                                style="
+                                    width: {{ it.p }}%;
+                                    background-color: #198754 !important;  /* green */
+                                    border-radius:6px;
+                                    transition: width 0.6s ease;
+                                "
+                                aria-valuenow="{{ it.p }}"
+                                aria-valuemin="0"
+                                aria-valuemax="100"></div>
                           {% endif %}
 
-                              <!-- Probability Bar -->
-                              <div style="width:50%;">
-                                <div class="progress" style="height:8px; border-radius:6px;">
-                                  <div class="progress-bar"
-                                      role="progressbar"
-                                      style="
-                                          width: {{ p }}%;
-                                          background-color: {{ bar_color }} !important;
-                                          border-radius:6px;
-                                          transition: width 0.6s ease;
-                                      "
-                                      aria-valuenow="{{ p }}"
-                                      aria-valuemin="0"
-                                      aria-valuemax="100">
-                                  </div>
-                                </div>
-                              </div>
+                        </div>
+                      </div>
 
-                              {% endwith %}
-                          {% endwith %}
-
-                      </li>
+                    </li>
 
                         {% endfor %}
 
