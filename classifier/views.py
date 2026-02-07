@@ -131,7 +131,9 @@ def generate_alternative_scores(text, scorers=None, selected_approaches=None):
                             'confidence': round(lr_result.get('confidence', 0.8) * 100, 1),
                             'interpretation': lr_result.get('interpretation', 'Center'),
                             'is_relevant': True,
-                            'topic_probability': round(lr_result.get('topic_probability', 1.0), 3)
+                            'topic_probability': round(lr_result.get('topic_probability', 1.0), 3),
+                            'top_left_hypotheses': lr_result.get('top_left_hypotheses', []),
+                            'top_right_hypotheses': lr_result.get('top_right_hypotheses', []),
                         }
                         logger.debug(f"✓ Left-right hypothesis: {score:.2f}")
                     else:
@@ -162,7 +164,9 @@ def generate_alternative_scores(text, scorers=None, selected_approaches=None):
                             'confidence': round(li_result.get('confidence', 0.8) * 100, 1),
                             'interpretation': li_result.get('interpretation', 'Moderate'),
                             'is_relevant': True,
-                            'topic_probability': round(li_result.get('topic_probability', 1.0), 3)
+                            'topic_probability': round(li_result.get('topic_probability', 1.0), 3),
+                            'top_liberal_hypotheses': li_result.get('top_liberal_hypotheses', []),
+                            'top_illiberal_hypotheses': li_result.get('top_illiberal_hypotheses', []),
                         }
                         logger.debug(f"✓ Liberal-illiberal hypothesis: {score:.2f}")
                     else:
@@ -202,7 +206,9 @@ def generate_alternative_scores(text, scorers=None, selected_approaches=None):
                             'confidence': 0.0,
                             'interpretation': pp_result.get('interpretation', 'Not about political rhetoric'),
                             'is_relevant': False,
-                            'topic_probability': round(pp_result.get('topic_probability', 0.0), 3)
+                            'topic_probability': round(pp_result.get('topic_probability', 0.0), 3),
+                            'top_populist_hypotheses': pp_result.get('top_populist_hypotheses', []),
+                            'top_pluralist_hypotheses': pp_result.get('top_pluralist_hypotheses', []),
                         }
                         logger.debug(f"✓ Populism-pluralism hypothesis: NA (not relevant)")
                 except Exception as e:
@@ -324,7 +330,6 @@ def classify_text(request):
         coordinates = {'x': None, 'y': None, 'z': None, 'labels': {}, 'errors': []}
 
         alternative_scores = None
-        hypothesis_summary = []  # always defined
 
         hypothesis_approaches_selected = any([
             selected_approaches.get('left_right_hypothesis'),
@@ -343,45 +348,60 @@ def classify_text(request):
         cleanup_memory()
         log_memory_usage("after cleanup")
 
-        # ---- Build "Why these results?" hypothesis summary ----
+        # ------------------------------------------------------------
+        # Build "Why these results?" as SIDE -> hypothesis -> probability
+        # (Requires alternative_scores to include top_*_hypotheses lists)
+        # ------------------------------------------------------------
+        why_these_results = {}
+
+        def _fmt_items(items, limit=5, min_prob_pct=1):
+            """items: list of dicts with keys: 'hypothesis' and 'probability' (0..1)"""
+            out = []
+            for it in (items or [])[:limit]:
+                hyp = it.get("hypothesis") or it.get("text") or ""
+                p = it.get("probability", 0.0)
+                try:
+                    p_pct = float(p) * 100.0
+                except Exception:
+                    p_pct = 0.0
+                p_pct = round(p_pct, 0)
+                if hyp and p_pct >= min_prob_pct:
+                    out.append({"text": hyp, "p": int(p_pct)})
+            return out
+
         if alternative_scores:
-            label_map = {
-                "left_right_hypothesis": "Economic Left–Right",
-                "liberal_illiberal_hypothesis": "Support for Liberal Democracy",
-                "populism_pluralism_hypothesis": "Populism–Pluralism",
-            }
+            # Economic Left–Right
+            lr = alternative_scores.get("left_right_hypothesis")
+            if lr and lr.get("is_relevant") is not False:
+                left_items = _fmt_items(lr.get("top_left_hypotheses", []), limit=5, min_prob_pct=1)
+                right_items = _fmt_items(lr.get("top_right_hypotheses", []), limit=5, min_prob_pct=1)
+                if left_items or right_items:
+                    why_these_results["Economic Left–Right"] = {
+                        "Left": left_items,
+                        "Right": right_items,
+                    }
 
-            for key, v in alternative_scores.items():
-                if not v:
-                    continue
+            # Support for Liberal Democracy
+            li = alternative_scores.get("liberal_illiberal_hypothesis")
+            if li and li.get("is_relevant") is not False:
+                liberal_items = _fmt_items(li.get("top_liberal_hypotheses", []), limit=5, min_prob_pct=1)
+                illiberal_items = _fmt_items(li.get("top_illiberal_hypotheses", []), limit=5, min_prob_pct=1)
+                if liberal_items or illiberal_items:
+                    why_these_results["Support for Liberal Democracy"] = {
+                        "Liberal": liberal_items,
+                        "Illiberal": illiberal_items,
+                    }
 
-                # Optional filter: keep only relevant
-                if v.get("is_relevant") is False:
-                    continue
-
-                name = label_map.get(key, key.replace("_", " ").title())
-
-                conf = float(v.get("confidence", 0.0) or 0.0)
-                stance_score = v.get("score", "NA")
-                interp = v.get("interpretation", "")
-                topic_p = v.get("topic_probability", None)
-
-                desc_bits = []
-                if interp:
-                    desc_bits.append(f"Interpretation: {interp}")
-                if stance_score != "NA":
-                    desc_bits.append(f"Stance score: {stance_score}/10")
-                if topic_p is not None:
-                    desc_bits.append(f"Topic relevance: {topic_p}")
-
-                hypothesis_summary.append({
-                    "name": name,
-                    "description": " · ".join(desc_bits) if desc_bits else "Triggered by detected cues in the text.",
-                    "score": conf,  # confidence %
-                })
-
-            hypothesis_summary.sort(key=lambda x: x.get("score", 0), reverse=True)
-        # ---- end summary ----
+            # Populism–Pluralism
+            pp = alternative_scores.get("populism_pluralism_hypothesis")
+            if pp and pp.get("is_relevant") is not False:
+                pluralism_items = _fmt_items(pp.get("top_pluralist_hypotheses", []), limit=5, min_prob_pct=1)
+                populism_items = _fmt_items(pp.get("top_populist_hypotheses", []), limit=5, min_prob_pct=1)
+                if pluralism_items or populism_items:
+                    why_these_results["Populism–Pluralism"] = {
+                        "Pluralism": pluralism_items,
+                        "Populism": populism_items,
+                    }
 
         context_data = {
             'form': form,
@@ -391,7 +411,7 @@ def classify_text(request):
             'coordinates_json': json.dumps(coordinates),
             'alternative_scores': alternative_scores,
             'selected_approaches': selected_approaches,
-            'hypothesis_summary': hypothesis_summary,
+            'why_these_results': why_these_results,
         }
 
         processing_time = time.time() - start_time
@@ -409,6 +429,11 @@ def classify_text(request):
 
         messages.error(request, f"An error occurred during classification: {str(e)}")
         return render(request, 'classifier/analysis.html', {'form': form})
+
+
+
+
+
 
 def privacy_notice(request):
     return render(request, 'classifier/privacynotice.html')
