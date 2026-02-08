@@ -262,45 +262,62 @@
 }
 
 
-/* Smooth trail spinner */
+
+/* Smooth spinner — comet properties applied */
 .smooth-spinner {
-    width: 48px;
-    height: 48px;
+    width: 56px;                 /* match comet sizing */
+    height: 56px;
     border-radius: 50%;
     position: relative;
-    animation: spin 1s linear infinite;
+
+    /* Comet-style fading trail */
+    background: conic-gradient(
+        from 0deg,
+        rgba(55,163,177,1) 0deg,
+        rgba(55,163,177,.85) 22deg,
+        rgba(55,163,177,.55) 55deg,
+        rgba(55,163,177,.22) 95deg,
+        rgba(55,163,177,0) 150deg,
+        rgba(55,163,177,0) 360deg
+    );
+
+    /* Ring cutout (instead of border trick) */
+    -webkit-mask: radial-gradient(
+        farthest-side,
+        transparent calc(100% - 6px),
+        #000 0
+    );
+    mask: radial-gradient(
+        farthest-side,
+        transparent calc(100% - 6px),
+        #000 0
+    );
+
+    /* Comet motion speed */
+    animation: spin 0.9s linear infinite;
+
+    /* Glow transferred */
+    filter: drop-shadow(0 0 6px rgba(55,163,177,.25));
 }
 
-.smooth-spinner::before,
+/* Optional subtle aura layer retained */
 .smooth-spinner::after {
     content: "";
     position: absolute;
     inset: 0;
     border-radius: 50%;
-    border: 4px solid transparent;
-}
-
-/* Trail gradient ring */
-.smooth-spinner::before {
-    border-top-color: #37A3B1;
-    border-right-color: rgba(55,163,177,0.6);
-    border-bottom-color: rgba(55,163,177,0.3);
-    border-left-color: rgba(55,163,177,0.1);
-}
-
-/* Soft glow layer */
-.smooth-spinner::after {
-    border: 4px solid rgba(55,163,177,0.15);
-    filter: blur(2px);
+    background: inherit;
+    filter: blur(3px);
+    opacity: 0.35;
 }
 
 /* Rotation */
 @keyframes spin {
     to { transform: rotate(360deg); }
 }
+
     </style>
     {% block extra_css %}{% endblock %}
-
 
 
 </head>
