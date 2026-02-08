@@ -296,20 +296,6 @@
   to { transform: rotate(360deg); }
 }
 
-/* Center spinner perfectly */
-.spinner-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 14px;
-}
-
-/* Match spinner color */
-.loading-text {
-    color: #37A3B1;
-    font-weight: 500;
-}
-
 </style>
 
 </head>
@@ -375,11 +361,11 @@
 
 <!-- Loading Overlay -->
 <div id="loading-overlay" class="loading-overlay d-none">
-        <div class="spinner-wrapper">
-            <div class="comet-ring" aria-label="Loading"></div>
-        </div>
-    
-       <p id="loading-message" class="mb-0 loading-text">
+    <div class="loading-box text-center">
+
+        <div class="comet-ring mb-3" aria-label="Loading"></div>
+
+        <p id="loading-message" class="mb-0">
             Analyzing text…
         </p>
     </div>
@@ -421,3 +407,4 @@ document.addEventListener("DOMContentLoaded", function () {
     {% block extra_js %}{% endblock %}
 </body>
 </html>
+
