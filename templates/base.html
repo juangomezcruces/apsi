@@ -263,49 +263,37 @@
 }
 
 
-.dust-spinner {
-    width: 52px;
-    height: 52px;
-    position: relative;
-    animation: spinDust 1.1s linear infinite;
+/* Comet ring spinner: ring + fading tail */
+.comet-ring{
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  position: relative;
+
+  /* The “comet tail” lives in the conic gradient:
+     solid head -> fading tail -> fully transparent gap */
+  background: conic-gradient(
+    from 0deg,
+    rgba(55,163,177,1) 0deg,
+    rgba(55,163,177,.85) 22deg,
+    rgba(55,163,177,.55) 55deg,
+    rgba(55,163,177,.22) 95deg,
+    rgba(55,163,177,0) 150deg,
+    rgba(55,163,177,0) 360deg
+  );
+
+  /* Cut out the center so it becomes a ring (stroke) */
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 0);
+          mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 0);
+
+  animation: cometSpin .9s linear infinite;
+
+  /* soft glow like your original */
+  filter: drop-shadow(0 0 6px rgba(55,163,177,.25));
 }
 
-.dust-spinner::before {
-    content:"";
-    position:absolute;
-    top:0;
-    left:50%;
-    transform:translateX(-50%);
-    width:10px;
-    height:10px;
-    background:#37A3B1;
-    border-radius:50%;
-    box-shadow:
-        0 0 6px rgba(55,163,177,.9),
-        0 0 12px rgba(55,163,177,.6),
-        0 0 18px rgba(55,163,177,.3);
-}
-
-.dust-spinner::after {
-    content:"";
-    position:absolute;
-    inset:0;
-    border-radius:50%;
-    background:
-        radial-gradient(circle at top,
-            rgba(55,163,177,0.45) 2px,
-            transparent 3px),
-        radial-gradient(circle at 20% 15%,
-            rgba(55,163,177,0.25) 2px,
-            transparent 3px),
-        radial-gradient(circle at 80% 18%,
-            rgba(55,163,177,0.18) 2px,
-            transparent 3px);
-    filter: blur(1px);
-}
-
-@keyframes spinDust {
-    to { transform: rotate(360deg); }
+@keyframes cometSpin {
+  to { transform: rotate(360deg); }
 }
 
 </style>
@@ -375,7 +363,7 @@
 <div id="loading-overlay" class="loading-overlay d-none">
     <div class="loading-box text-center">
 
-        <div class="dust-spinner mb-3"></div>
+        <<div class="comet-ring mb-3" aria-label="Loading"></div>
 
         <p id="loading-message" class="mb-0">
             Analyzing text…
