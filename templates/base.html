@@ -235,20 +235,12 @@
 .loading-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(255,255,255,0.65);
-    backdrop-filter: blur(3px);
-    z-index: 9999;
-
+    background: translarent;
+    color: #37A3B1;
     display: flex;
     align-items: center;
     justify-content: center;
-}
-
-.loading-box {
-    background: #ffffff;
-    padding: 36px 44px;
-    border-radius: 18px;
-    box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+    z-index: 1050;
 }
 
 .loading-overlay .spinner-border {
@@ -257,46 +249,59 @@
     color: #37A3B1;
 }
 
+.loading-box {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 1.25rem 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.15);
+    color: #37A3B1;
+}
 
 .loading-box .spinner-border {
     color: #37A3B1;
 }
 
 
-/* Comet ring spinner: ring + fading tail */
-.comet-ring{
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  position: relative;
-
-  /* The “comet tail” lives in the conic gradient:
-     solid head -> fading tail -> fully transparent gap */
-  background: conic-gradient(
-    from 0deg,
-    rgba(55,163,177,1) 0deg,
-    rgba(55,163,177,.85) 22deg,
-    rgba(55,163,177,.55) 55deg,
-    rgba(55,163,177,.22) 95deg,
-    rgba(55,163,177,0) 150deg,
-    rgba(55,163,177,0) 360deg
-  );
-
-  /* Cut out the center so it becomes a ring (stroke) */
-  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 0);
-          mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 0);
-
-  animation: cometSpin .9s linear infinite;
-
-  /* soft glow like your original */
-  filter: drop-shadow(0 0 6px rgba(55,163,177,.25));
+/* Smooth trail spinner */
+.smooth-spinner {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    position: relative;
+    animation: spin 1s linear infinite;
 }
 
-@keyframes cometSpin {
-  to { transform: rotate(360deg); }
+.smooth-spinner::before,
+.smooth-spinner::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 4px solid transparent;
 }
 
-</style>
+/* Trail gradient ring */
+.smooth-spinner::before {
+    border-top-color: #37A3B1;
+    border-right-color: rgba(55,163,177,0.6);
+    border-bottom-color: rgba(55,163,177,0.3);
+    border-left-color: rgba(55,163,177,0.1);
+}
+
+/* Soft glow layer */
+.smooth-spinner::after {
+    border: 4px solid rgba(55,163,177,0.15);
+    filter: blur(2px);
+}
+
+/* Rotation */
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+    </style>
+    {% block extra_css %}{% endblock %}
+
+
 
 </head>
 
@@ -362,9 +367,7 @@
 <!-- Loading Overlay -->
 <div id="loading-overlay" class="loading-overlay d-none">
     <div class="loading-box text-center">
-
-        <div class="comet-ring mb-3" aria-label="Loading"></div>
-
+        <div class="smooth-spinner mb-3"></div>
         <p id="loading-message" class="mb-0">
             Analyzing text…
         </p>
