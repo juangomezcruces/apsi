@@ -133,43 +133,35 @@
 
         <div class="apsi-sections">
 
-          <details class="apsi-section">
-            <summary>"How to use the APSI"</summary>
-            <div class="apsi-clip">
-            <div class="apsi-content">
-              <p class="text-muted">
-                {{ sections.what_body|default:"APSI analyzes political language in text and estimates stance across three research-grounded dimensions: economic left–right, support for liberal democracy, and populism versus pluralism." }}
-              </p>
+<details class="apsi-section">
+  <summary>How to use the APSI</summary>
 
-              <div class="row g-3">
-                <div class="col-lg-6">
-                  <div class="card h-100">
-                    <div class="card-body">
-                      <h6 class="card-title mb-2">Designed for</h6>
-                      <ul class="text-muted mb-0">
-                        <li>Text 1</li>
-                        <li>Text 2</li>
-                        <li>Text 3</li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-lg-6">
-                  <div class="card h-100 border-danger">
-                    <div class="card-body">
-                      <h6 class="card-title mb-2">Not designed for</h6>
-                      <ul class="text-muted mb-0">
-                        <li>Text 1</li>
-                        <li>Tet 2</li>
-                        <li>Text 3</li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              </div>
-            </div>
-          </details>
+  <div class="apsi-clip">
+    <div class="apsi-content">
+
+      <p class="text-muted">
+        {{ sections.what_body|default:"APSI analyzes political language in text and estimates stance across three research-grounded dimensions: economic left–right, support for liberal democracy, and populism versus pluralism." }}
+      </p>
+
+      <!-- PDF actions -->
+      <div class="pdf-actions">
+
+        <!-- Open in new tab -->
+        <a href="/static/files/apsi-guide.pdf" target="_blank" class="pdf-open">
+          Open Guide
+        </a>
+
+        <!-- Download icon -->
+        <a href="/static/files/apsi-guide.pdf" download class="pdf-download" title="Download PDF">
+          ⬇️
+        </a>
+
+      </div>
+
+    </div>
+  </div>
+</details>
+
 
         <hr class="my-5" style="max-width: 980px; margin: 3rem auto;">
 
