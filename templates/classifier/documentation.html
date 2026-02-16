@@ -143,22 +143,18 @@
         {{ sections.what_body|default:"APSI analyzes political language in text and estimates stance across three research-grounded dimensions: economic left–right, support for liberal democracy, and populism versus pluralism." }}
       </p>
 
-      <!-- PDF actions -->
       <div class="pdf-actions">
 
         <!-- Open in new tab -->
         <a href="{% static 'files/apsi-guide.pdf' %}" target="_blank">Open Guide</a>
-
-          Open Guide
         </a>
-
-        <!-- Download icon -->
-        <a href="{% static 'files/apsi-guide.pdf' %}" download>      <img
-      src="{% static 'APSIlogo.png' %}"
-      alt="APSI Logo"
-      class="img-fluid mx-auto d-block"
-      style="max-height: 20px;"
-    >  </a>
+        <a href="{% static 'files/apsi-guide.pdf' %}" download>
+        <img
+          src="{% static 'APSIlogo.png' %}"
+          alt="Download file"
+          style="max-height: 20px;"
+        >
+        </a>
 
       </div>
 
