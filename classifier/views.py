@@ -432,7 +432,8 @@ def classify_text(request):
 
 
 
-
+def documentation(request)
+    return render(request, 'classifier/documentation.html')
 
 def privacy_notice(request):
     return render(request, 'classifier/privacynotice.html')
