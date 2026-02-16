@@ -64,3 +64,315 @@
 
 
 {% endblock %}
+
+
+
+
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Automated Political Stance Identifier{% endblock %}
+
+{% block content %}
+
+
+
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+
+<section class="py-5 bg-white">
+  <div class="container text-center">
+    <img
+      src="{% static 'APSIlogo.png' %}"
+      alt="APSI Logo"
+      class="img-fluid mx-auto d-block"
+      style="max-height: 200px;"
+    >
+  </div>
+</section>
+
+<section class="py-5 bg-white">
+  <div class="container">
+    <div class="row">
+      <div class="col-12">
+
+        <h3 style="margin: 0 auto 24px auto; max-width: 980px; text-align: center;">
+          Welcome to APSI — the Automated Political Stance Identification Tool.
+        </h3>
+
+        <style>
+          /* Match the V-Dem rules you saw */
+          .rich-text { margin-bottom: 1.5rem; }
+          .rich-text:last-child { margin-bottom: 0; }
+
+          .lead-text {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            font-family: "Open Sans", sans-serif;
+            font-weight: 300;
+            line-height: 1.65;
+            color: #5f6672;
+          }
+
+          .rich-text.lead-text {
+            max-width: 980px;
+            margin: 2rem auto;
+            padding: 0 20px;
+          }
+
+          .rich-text.lead-text p { margin: 0; }
+
+          .apsi-sections {
+            max-width: 980px;
+            margin: 2.5rem auto;
+            padding: 0 20px;
+          }
+
+          .apsi-section {
+            margin: 1.25rem 0;
+          }
+
+          .apsi-section summary {
+            list-style: none;
+            cursor: pointer;
+            font-size: 1.6rem;
+            font-weight: 500;
+            color: #111;
+            padding: 0.75rem 0;
+            border: bottom;
+            outline: none;
+          }
+
+          .apsi-section summary::-webkit-details-marker { display: none; }
+
+          .apsi-section summary::after {
+            content: "›";
+            float: right;
+            transform: rotate(90deg);
+            opacity: 0.35;
+            transition: transform 250ms ease, opacity 250ms ease;
+            margin-left: 12px;
+          }
+
+          .apsi-section[open] summary::after {
+            transform: rotate(-90deg);
+            opacity: 0.5;
+          }
+
+          /* IMPORTANT: animation needs the content wrapper to be .apsi-content */
+          .apsi-section > :not(summary) {
+            display: block; /* override UA stylesheet so transitions can run */
+          }
+
+          .apsi-section .apsi-content {
+            max-height: 0;
+            overflow: visible;
+            opacity: 0;
+            transform: translateY(-4px);
+            transition: max-height 1.4s ease, opacity 0.9s ease, transform 0.9s ease;
+            will-change: max-height, opacity, transform;
+          }
+
+          .apsi-section[open] .apsi-content {
+            max-height: 2800px;
+            opacity: 1;
+            transform: translateY(0);
+          }
+
+          /* Hover feedback */
+          .apsi-section summary:hover {
+            color: #37A3B1;
+            opacity: 0.92;
+          }
+
+
+
+          .apsi-clip {
+            overflow: hidden;
+            padding: 18px;        
+            margin: -18px; 
+          }
+
+        .apsi-content {
+          overflow: visible !important;
+          }
+
+
+          
+        </style>
+
+
+        <hr class="my-5" style="max-width: 980px; margin: 3rem auto;">
+
+        <div class="apsi-sections">
+
+          <details class="apsi-section">
+            <summary>{{ sections.what_title|default:"What the tool does" }}</summary>
+            <div class="apsi-clip">
+            <div class="apsi-content">
+              <p class="text-muted">
+                {{ sections.what_body|default:"APSI analyzes political language in text and estimates stance across three research-grounded dimensions: economic left–right, support for liberal democracy, and populism versus pluralism." }}
+              </p>
+
+              <div class="row g-3">
+                <div class="col-lg-6">
+                  <div class="card h-100">
+                    <div class="card-body">
+                      <h6 class="card-title mb-2">Designed for</h6>
+                      <ul class="text-muted mb-0">
+                        <li>Text 1</li>
+                        <li>Text 2</li>
+                        <li>Text 3</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-lg-6">
+                  <div class="card h-100 border-danger">
+                    <div class="card-body">
+                      <h6 class="card-title mb-2">Not designed for</h6>
+                      <ul class="text-muted mb-0">
+                        <li>Text 1</li>
+                        <li>Tet 2</li>
+                        <li>Text 3</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              </div>
+            </div>
+          </details>
+
+        <hr class="my-5" style="max-width: 980px; margin: 3rem auto;">
+
+          <details class="apsi-section">
+            <summary>The dimensions we measure</summary>
+            <div class="apsi-clip">            
+            <div class="apsi-content">
+              <p class="text-muted">Scores range from 0 to 10. Low and high values represent different ends of each dimension.</p>
+
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <div class="card h-100">
+                    <div class="card-body">
+                      <h6 class="card-title mb-2">Economic Left–Right</h6>
+                      <p class="text-muted mb-2">Role of the state and markets.</p>
+                      <div class="small text-muted">
+                        <strong>0:</strong> redistribution, welfare, regulation<br>
+                        <strong>10:</strong> privatization, low taxes
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="card h-100">
+                    <div class="card-body">
+                      <h6 class="card-title mb-2">Support for Liberal Democracy</h6>
+                      <p class="text-muted mb-2">Democratic institutions and rights.</p>
+                      <div class="small text-muted">
+                        <strong>0:</strong> No support for liberal democratic values<br>
+                        <strong>10:</strong> Strong support for liberal democratic values.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="card h-100">
+                    <div class="card-body">
+                      <h6 class="card-title mb-2">Populism–Pluralism</h6>
+                      <p class="text-muted mb-2">Rhetorical framing style.</p>
+                      <div class="small text-muted">
+                        <strong>0:</strong> pluralist, institutional<br>
+                        <strong>10:</strong> populist, anti-elite
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                </div>
+              </div>
+            </div>
+          </details>
+
+        <hr class="my-5" style="max-width: 980px; margin: 3rem auto;">
+
+
+          <details class="apsi-section">
+            <summary>How the analysis works</summary>
+            <div class="apsi-clip">
+            <div class="apsi-content">
+              <p class="text-muted">
+                APSI uses Natural Language Inference (NLI). The model evaluates whether your text supports
+                a set of theory-based political statements and aggregates these signals into stance scores.
+              </p>
+
+              <div class="card">
+                <div class="card-body">
+                  <h6 class="card-title mb-2">In plain terms</h6>
+                  <p class="text-muted mb-0">
+                    We ask “Does this text imply X?” for multiple political statements, then combine the answers into a score.
+                  </p>
+                </div>
+              </div>
+              </div>
+            </div>
+          </details>
+
+        <hr class="my-5" style="max-width: 980px; margin: 3rem auto;">
+
+
+          <details class="apsi-section">
+            <summary>Limitations</summary>
+            <div class="apsi-content">
+             <div class="apsi-clip">
+              <p class="text-muted">
+                Political language is nuanced and context-dependent. Results can be sensitive to wording,
+                sarcasm, and missing context.
+              </p>
+
+              <div class="card">
+                <div class="card-body">
+                  <ul class="text-muted mb-0">
+                    <li>Sarcasm and irony</li>
+                    <li>Very short texts</li>
+                    <li>Quoting opponents</li>
+                    <li>Strategic political language</li>
+                  </ul>
+                </div>
+              </div>
+             </div>
+            </div>
+          </details>
+
+
+        <hr class="my-5" style="max-width: 980px; margin: 3rem auto;">
+
+
+          <details class="apsi-section">
+            <summary>Ethical considerations</summary>
+           <div class="apsi-clip">
+            <div class="apsi-content">
+              <div class="alert alert-warning" role="alert">
+                This tool is for research and information only. Like any AI system, it can be biased due to its training data and how it is designed. 
+                It should not be used for profiling, surveillance, or making decisions about people.
+              </div>
+
+              <div class="text-center mt-4">
+                <a href="{% url 'classifier:analysis' %}"
+                   class="btn btn-lg"
+                   style="background-color:#37A3B1; color:#fff;">
+                  Start an analysis →
+                </a>
+              </div>
+            </div>
+          </details>
+
+        </div>
+
+      </div>
+    </div>
+    </div>
+  </div>
+</section>
+
+
