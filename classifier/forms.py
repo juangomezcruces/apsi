@@ -6,10 +6,12 @@ class TextClassificationForm(forms.Form):
             'class': 'form-control',
             'rows': 6,
             'placeholder': 'Enter political text to analyze...',
-            'maxlength': 2000
+            'maxlength': 2000,
+            'minlength': 20
         }),
+        min_length=20,
         max_length=2000,
-        help_text='Enter up to 2000 characters of political text for analysis.'
+        help_text='Enter between 20 and up to 2000 characters of political text for analysis.'
     )
     
     # Only hypothesis-based approaches
