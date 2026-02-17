@@ -5,11 +5,13 @@ class TextClassificationForm(forms.Form):
         widget=forms.Textarea(attrs={
             'class': 'form-control',
             'rows': 6,
-            'placeholder': 'Enter political text to analyze...',
+            'placeholder': 'Enter  text to analyze...',
+            'maxlength': 20
             'maxlength': 2000
         }),
+        min_length=20,
         max_length=2000,
-        help_text='Enter up to 2000 characters of political text for analysis.'
+        help_text='Enter a text between 20 and up to 2000 characters.'
         <div class="alert alert-info mt-4" role="alert" style="max-width: 980px; margin: 0 auto;">
           <strong>Important:</strong> "Users are solely responsible for the content they submit, including ensuring compliance with copyright and other applicable legal requirements."
         </div>
