@@ -8,7 +8,7 @@ services:
       - ./models:/app/models
     #TODO
     environment:
-      - DEBUG=False
+      - DEBUG=false
       - SECRET_KEY=docker-secret-key-change-in-production
 
     # Quick fix: Auto-restart when container crashes
