@@ -10,6 +10,10 @@ class TextClassificationForm(forms.Form):
         }),
         max_length=2000,
         help_text='Enter up to 2000 characters of political text for analysis.'
+        <div class="alert alert-info mt-4" role="alert" style="max-width: 980px; margin: 0 auto;">
+          <strong>Important:</strong> "Users are solely responsible for the content they submit, including ensuring compliance with copyright and other applicable legal requirements."
+        </div>
+
     )
     
     # Only hypothesis-based approaches
