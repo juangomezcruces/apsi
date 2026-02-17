@@ -13,4 +13,4 @@ services:
 
     # Quick fix: Auto-restart when container crashes
     restart: unless-stopped
-    command: gunicorn --bind 0.0.0.0:8000 --workers 1 --max-requests 20 --timeout 300 political_classifier.wsgi:application
+    command: gunicorn --bind 0.0.0.0:8000 --workers 4 --max-requests 20 --timeout 300 political_classifier.wsgi:application
