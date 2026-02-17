@@ -5,13 +5,13 @@ class TextClassificationForm(forms.Form):
         widget=forms.Textarea(attrs={
             'class': 'form-control',
             'rows': 6,
-            'placeholder': 'Enter political text to analyze...',
+            'placeholder': 'Enter text to analyze...',
             'maxlength': 2000,
             'minlength': 20
         }),
         min_length=20,
         max_length=2000,
-        help_text='Enter between 20 and up to 2000 characters of political text for analysis.'
+        help_text='Enter between 20 and up to 2000 characters of text for analysis.'
     )
     
     # Only hypothesis-based approaches
