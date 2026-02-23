@@ -46,6 +46,8 @@ TEMPLATES = [
     },
 ]
 
+CSRF_TRUSTED_ORIGINS = ['https://apsi.sc.hpi.de']
+
 WSGI_APPLICATION = 'political_classifier.wsgi.application'
 
 DATABASES = {
