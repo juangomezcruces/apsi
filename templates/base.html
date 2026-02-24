@@ -336,11 +336,12 @@
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #000;">
 	<div class="container">
-        	<img 
+      <a class="nav-link" href="{% url 'classifier:index' %}"
+      <img 
     	src="{% static 'APSIblack.png' %}"
     	alt="APSI Logo" 
     	class="img-fluid"
-    	style="max-height: 35px;">
+    	style="max-height: 35px;"></a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
