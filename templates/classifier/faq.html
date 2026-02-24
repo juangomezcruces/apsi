@@ -1,0 +1,570 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}FAQ - Automated Political Stance Identifier{% endblock %}
+
+{% block content %}
+
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+
+<section class="py-5 bg-white">
+  <div class="container text-center">
+    <img
+      src="{% static 'APSIlogo.png' %}"
+      alt="APSI Logo"
+      class="img-fluid mx-auto d-block"
+      style="max-height: 200px;"
+    >
+  </div>
+</section>
+
+<section class="py-5 bg-white">
+  <div class="container">
+    <div class="row">
+      <div class="col-12">
+
+        <h3 style="margin: 0 auto 24px auto; max-width: 980px; text-align: center;">
+          Frequently Asked Questions (FAQ)
+        </h3>
+
+        <style>
+          .rich-text { margin-bottom: 1.5rem; }
+          .rich-text:last-child { margin-bottom: 0; }
+
+          .lead-text {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            font-family: "Open Sans", sans-serif;
+            font-weight: 300;
+            line-height: 1.65;
+            color: #5f6672;
+          }
+
+          .rich-text.lead-text {
+            max-width: 980px;
+            margin: 2rem auto;
+            padding: 0 20px;
+          }
+
+          .rich-text.lead-text p { margin: 0; }
+
+          .apsi-sections {
+            max-width: 980px;
+            margin: 2.5rem auto;
+            padding: 0 20px;
+          }
+
+          .apsi-section {
+            margin: 1.25rem 0;
+          }
+
+          .apsi-section summary {
+            list-style: none;
+            cursor: pointer;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #111;
+            padding: 0.75rem 0;
+            outline: none;
+          }
+
+          .apsi-section summary::-webkit-details-marker { display: none; }
+
+          .apsi-section summary::after {
+            content: "›";
+            float: right;
+            transform: rotate(90deg);
+            opacity: 0.35;
+            transition: transform 250ms ease, opacity 250ms ease;
+            margin-left: 12px;
+          }
+
+          .apsi-section[open] summary::after {
+            transform: rotate(-90deg);
+            opacity: 0.5;
+          }
+
+          .apsi-section > :not(summary) {
+            display: block;
+          }
+
+          .apsi-section .apsi-content {
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(-4px);
+            transition: max-height 1.0s ease, opacity 0.5s ease, transform 0.5s ease;
+            will-change: max-height, opacity, transform;
+          }
+
+          .apsi-section[open] .apsi-content {
+            max-height: 1200px;
+            opacity: 1;
+            transform: translateY(0);
+          }
+
+          .apsi-section summary:hover {
+            color: #37A3B1;
+            opacity: 0.92;
+          }
+
+          .apsi-clip {
+            overflow: hidden;
+            padding: 18px;
+            margin: -18px;
+          }
+
+          .answer {
+            color: #5f6672;
+            font-family: "Open Sans", sans-serif;
+            font-weight: 300;
+            line-height: 1.65;
+            margin: 0;
+          }
+        </style>
+
+        <div class="rich-text lead-text">
+          <p>
+            Answers to common questions about APSI: what it measures, how it works, how to interpret outputs,
+            and key limitations and ethical guidance.
+          </p>
+        </div>
+
+        <hr class="my-5" style="max-width: 980px; margin: 3rem auto;">
+
+        <div class="apsi-sections">
+
+          <!-- 1 -->
+          <details class="apsi-section">
+            <summary>1. What is APSI?</summary>
+            <div class="apsi-clip">
+              <div class="apsi-content">
+                <p class="answer">
+                  APSI (Automated Political Stance Identification) is a theory-driven text analysis tool that estimates
+                  political positions expressed in text using Natural Language Inference (NLI).
+                </p>
+              </div>
+            </div>
+          </details>
+
+          <hr class="my-5" style="max-width: 980px; margin: 2rem auto;">
+
+          <!-- 2 -->
+          <details class="apsi-section">
+            <summary>2. What does APSI measure?</summary>
+            <div class="apsi-clip">
+              <div class="apsi-content">
+                <p class="answer">
+                  APSI analyzes text across three dimensions: Economic Left–Right ideology, Support for Liberal Democratic values,
+                  and Populist vs. Pluralist rhetoric.
+                </p>
+              </div>
+            </div>
+          </details>
+
+          <hr class="my-5" style="max-width: 980px; margin: 2rem auto;">
+
+          <!-- 3 -->
+          <details class="apsi-section">
+            <summary>3. How does APSI differ from traditional classifiers?</summary>
+            <div class="apsi-clip">
+              <div class="apsi-content">
+                <p class="answer">
+                  APSI does not train a supervised classifier on labeled stance datasets. Instead, it uses a hypothesis-based scoring
+                  framework with a pretrained political NLI model, enabling zero-shot and interpretable results.
+                </p>
+              </div>
+            </div>
+          </details>
+
+          <hr class="my-5" style="max-width: 980px; margin: 2rem auto;">
+
+          <!-- 4 -->
+          <details class="apsi-section">
+            <summary>4. What model does APSI use?</summary>
+            <div class="apsi-clip">
+              <div class="apsi-content">
+                <p class="answer">
+                  APSI uses the Political DEBATE model (Burnham et al.), which is specialized for political discourse analysis.
+                </p>
+              </div>
+            </div>
+          </details>
+
+          <hr class="my-5" style="max-width: 980px; margin: 2rem auto;">
+
+          <!-- 5 -->
+          <details class="apsi-section">
+            <summary>5. What is the Political DEBATE model built on?</summary>
+            <div class="apsi-clip">
+              <div class="apsi-content">
+                <p class="answer">
+                  It is built on a multilingual transformer base (mDeBERTa-v3 NLI) and then fine-tuned on political NLI data.
+                </p>
+              </div>
+            </div>
+          </details>
+
+          <hr class="my-5" style="max-width: 980px; margin: 2rem auto;">
+
+          <!-- 6 -->
+          <details class="apsi-section">
+            <summary>6. What is Natural Language Inference (NLI)?</summary>
+            <div class="apsi-clip">
+              <div class="apsi-content">
+                <p class="answer">
+                  NLI is a method where a model estimates whether a text supports (entails) a hypothesis statement, rather than relying
+                  on keywords alone.
+                </p>
+              </div>
+            </div>
+          </details>
+
+          <hr class="my-5" style="max-width: 980px; margin: 2rem auto;">
+
+          <!-- 7 -->
+          <details class="apsi-section">
+            <summary>7. What does “zero-shot” mean in APSI?</summary>
+            <div class="apsi-clip">
+              <div class="apsi-content">
+                <p class="answer">
+                  Zero-shot means APSI can estimate political stances without training on a labeled stance dataset for your specific task.
+                </p>
+              </div>
+            </div>
+          </details>
+
+          <hr class="my-5" style="max-width: 980px; margin: 2rem auto;">
+
+          <!-- 8 -->
+          <details class="apsi-section">
+            <summary>8. How does APSI decide whether a text is politically relevant?</summary>
+            <div class="apsi-clip">
+              <div class="apsi-content">
+                <p class="answer">
+                  APSI runs a topic relevance pre-check. If the text does not strongly match political topic hypotheses (threshold 0.6),
+                  it returns no score.
+                </p>
+              </div>
+            </div>
+          </details>
+
+          <hr class="my-5" style="max-width: 980px; margin: 2rem auto;">
+
+          <!-- 9 -->
+          <details class="apsi-section">
+            <summary>9. What happens if a text is not politically relevant?</summary>
+            <div class="apsi-clip">
+              <div class="apsi-content">
+                <p class="answer">
+                  The tool returns score = NA and an explanation that it cannot infer a political stance from the text.
+                </p>
+              </div>
+            </div>
+          </details>
+
+          <hr class="my-5" style="max-width: 980px; margin: 2rem auto;">
+
+          <!-- 10 -->
+          <details class="apsi-section">
+            <summary>10. How are hypotheses created?</summary>
+            <div class="apsi-clip">
+              <div class="apsi-content">
+                <p class="answer">
+                  Hypotheses are derived from political theory and expert survey codebooks, then written as natural-language statements
+                  suitable for NLI scoring.
+                </p>
+              </div>
+            </div>
+          </details>
+
+          <hr class="my-5" style="max-width: 980px; margin: 2rem auto;">
+
+          <!-- 11 -->
+          <details class="apsi-section">
+            <summary>11. How is the final score calculated?</summary>
+            <div class="apsi-clip">
+              <div class="apsi-content">
+                <p class="answer">
+                  APSI averages entailment probabilities for each side of a dimension, takes the difference, and scales it to a 0–10 score
+                  (clipped to stay within bounds).
+                </p>
+              </div>
+            </div>
+          </details>
+
+          <hr class="my-5" style="max-width: 980px; margin: 2rem auto;">
+
+          <!-- 12 -->
+          <details class="apsi-section">
+            <summary>12. How do I interpret Populism–Pluralism scores?</summary>
+            <div class="apsi-clip">
+              <div class="apsi-content">
+                <p class="answer">
+                  Lower values indicate more pluralist rhetoric; higher values indicate more populist rhetoric. The tool maps score ranges
+                  to labels like “Pluralist”, “Moderate”, “Populist”, etc.
+                </p>
+              </div>
+            </div>
+          </details>
+
+          <hr class="my-5" style="max-width: 980px; margin: 2rem auto;">
+
+          <!-- 13 -->
+          <details class="apsi-section">
+            <summary>13. How do I interpret Economic Left–Right scores?</summary>
+            <div class="apsi-clip">
+              <div class="apsi-content">
+                <p class="answer">
+                  Lower scores indicate more economically left-leaning language; higher scores indicate more economically right-leaning language.
+                </p>
+              </div>
+            </div>
+          </details>
+
+          <hr class="my-5" style="max-width: 980px; margin: 2rem auto;">
+
+          <!-- 14 -->
+          <details class="apsi-section">
+            <summary>14. How do I interpret Liberal Democracy scores?</summary>
+            <div class="apsi-clip">
+              <div class="apsi-content">
+                <p class="answer">
+                  Lower scores indicate weaker support for liberal democratic values; higher scores indicate stronger support for liberal democratic values.
+                </p>
+              </div>
+            </div>
+          </details>
+
+          <hr class="my-5" style="max-width: 980px; margin: 2rem auto;">
+
+          <!-- 15 -->
+          <details class="apsi-section">
+            <summary>15. What is the confidence score?</summary>
+            <div class="apsi-clip">
+              <div class="apsi-content">
+                <p class="answer">
+                  Confidence reflects internal consistency of the model’s hypothesis probabilities (e.g., lower variance means higher consistency).
+                </p>
+              </div>
+            </div>
+          </details>
+
+          <hr class="my-5" style="max-width: 980px; margin: 2rem auto;">
+
+          <!-- 16 -->
+          <details class="apsi-section">
+            <summary>16. What is contradiction detection?</summary>
+            <div class="apsi-clip">
+              <div class="apsi-content">
+                <p class="answer">
+                  Contradiction is flagged when both sides of a dimension receive comparatively strong support, suggesting mixed or conflicting signals in the text.
+                </p>
+              </div>
+            </div>
+          </details>
+
+          <hr class="my-5" style="max-width: 980px; margin: 2rem auto;">
+
+          <!-- 17 -->
+          <details class="apsi-section">
+            <summary>17. What does APSI output?</summary>
+            <div class="apsi-clip">
+              <div class="apsi-content">
+                <p class="answer">
+                  APSI outputs a score, interpretation label, confidence level, contradiction status, and indicators of which hypotheses influenced the score.
+                </p>
+              </div>
+            </div>
+          </details>
+
+          <hr class="my-5" style="max-width: 980px; margin: 2rem auto;">
+
+          <!-- 18 -->
+          <details class="apsi-section">
+            <summary>18. What kinds of texts can I analyze?</summary>
+            <div class="apsi-clip">
+              <div class="apsi-content">
+                <p class="answer">
+                  You can analyze speeches, articles, social media posts, policy statements, interviews, and transcripts—any text where political language might appear.
+                </p>
+              </div>
+            </div>
+          </details>
+
+          <hr class="my-5" style="max-width: 980px; margin: 2rem auto;">
+
+          <!-- 19 -->
+          <details class="apsi-section">
+            <summary>19. Does APSI use any contextual information?</summary>
+            <div class="apsi-clip">
+              <div class="apsi-content">
+                <p class="answer">
+                  No. APSI analyzes only the text provided and does not know the author, audience, or circumstances surrounding the text.
+                </p>
+              </div>
+            </div>
+          </details>
+
+          <hr class="my-5" style="max-width: 980px; margin: 2rem auto;">
+
+          <!-- 20 -->
+          <details class="apsi-section">
+            <summary>20. Does APSI measure beliefs or rhetoric?</summary>
+            <div class="apsi-clip">
+              <div class="apsi-content">
+                <p class="answer">
+                  APSI measures rhetorical framing in language, not verified beliefs, intent, or factual truth.
+                </p>
+              </div>
+            </div>
+          </details>
+
+          <hr class="my-5" style="max-width: 980px; margin: 2rem auto;">
+
+          <!-- 21 -->
+          <details class="apsi-section">
+            <summary>21. How was APSI validated?</summary>
+            <div class="apsi-clip">
+              <div class="apsi-content">
+                <p class="answer">
+                  APSI was evaluated by comparing its scores to political science expert ratings on a validation set of political texts (20 texts per dimension).
+                </p>
+              </div>
+            </div>
+          </details>
+
+          <hr class="my-5" style="max-width: 980px; margin: 2rem auto;">
+
+          <!-- 22 -->
+          <details class="apsi-section">
+            <summary>22. How many expert responses were collected?</summary>
+            <div class="apsi-clip">
+              <div class="apsi-content">
+                <p class="answer">
+                  A total of 147 expert responses were collected across the three dimensions.
+                </p>
+              </div>
+            </div>
+          </details>
+
+          <hr class="my-5" style="max-width: 980px; margin: 2rem auto;">
+
+          <!-- 23 -->
+          <details class="apsi-section">
+            <summary>23. What data was the base model trained on?</summary>
+            <div class="apsi-clip">
+              <div class="apsi-content">
+                <p class="answer">
+                  The base multilingual NLI model uses millions of hypothesis–premise training pairs (2.73M) spanning 26 languages.
+                </p>
+              </div>
+            </div>
+          </details>
+
+          <hr class="my-5" style="max-width: 980px; margin: 2rem auto;">
+
+          <!-- 24 -->
+          <details class="apsi-section">
+            <summary>24. What is the PolNLI dataset?</summary>
+            <div class="apsi-clip">
+              <div class="apsi-content">
+                <p class="answer">
+                  PolNLI is a political natural language inference dataset (200k hypothesis–premise pairs) used to fine-tune the Political DEBATE model.
+                </p>
+              </div>
+            </div>
+          </details>
+
+          <hr class="my-5" style="max-width: 980px; margin: 2rem auto;">
+
+          <!-- 25 -->
+          <details class="apsi-section">
+            <summary>25. What tasks does the fine-tuned model support?</summary>
+            <div class="apsi-clip">
+              <div class="apsi-content">
+                <p class="answer">
+                  The political fine-tuning supports multiple political NLP tasks such as stance detection, topic classification, and related text classification tasks.
+                </p>
+              </div>
+            </div>
+          </details>
+
+          <hr class="my-5" style="max-width: 980px; margin: 2rem auto;">
+
+          <!-- 26 -->
+          <details class="apsi-section">
+            <summary>26. What are the main design principles of APSI?</summary>
+            <div class="apsi-clip">
+              <div class="apsi-content">
+                <p class="answer">
+                  APSI is theory-driven, transparent, interpretable, reproducible, and scalable—designed to enable auditing of how scores are produced.
+                </p>
+              </div>
+            </div>
+          </details>
+
+          <hr class="my-5" style="max-width: 980px; margin: 2rem auto;">
+
+          <!-- 27 -->
+          <details class="apsi-section">
+            <summary>27. Can APSI make mistakes?</summary>
+            <div class="apsi-clip">
+              <div class="apsi-content">
+                <p class="answer">
+                  Yes. Outputs are approximate and can be inaccurate or incomplete due to complex political language, model limitations, or bias.
+                </p>
+              </div>
+            </div>
+          </details>
+
+          <hr class="my-5" style="max-width: 980px; margin: 2rem auto;">
+
+          <!-- 28 -->
+          <details class="apsi-section">
+            <summary>28. Should APSI be used to make decisions about individuals?</summary>
+            <div class="apsi-clip">
+              <div class="apsi-content">
+                <p class="answer">
+                  No. APSI should not be used for legal, employment, or automated decision-making affecting people. Human interpretation is required.
+                </p>
+              </div>
+            </div>
+          </details>
+
+          <hr class="my-5" style="max-width: 980px; margin: 2rem auto;">
+
+          <!-- 29 -->
+          <details class="apsi-section">
+            <summary>29. Who is APSI designed for?</summary>
+            <div class="apsi-clip">
+              <div class="apsi-content">
+                <p class="answer">
+                  APSI is intended for research, journalism, think tanks, civil society organizations, and critical analysis of political discourse.
+                </p>
+              </div>
+            </div>
+          </details>
+
+          <hr class="my-5" style="max-width: 980px; margin: 2rem auto;">
+
+          <!-- 30 -->
+          <details class="apsi-section">
+            <summary>30. What are the main limitations of APSI?</summary>
+            <div class="apsi-clip">
+              <div class="apsi-content">
+                <p class="answer">
+                  APSI depends on hypothesis design, can reflect training-data bias, measures rhetoric rather than intent, and lacks real-world context.
+                </p>
+              </div>
+            </div>
+          </details>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
