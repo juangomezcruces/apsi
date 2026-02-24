@@ -443,6 +443,10 @@ def imprint(request):
 def contact(request):
     return render(request, 'classifier/contact.html')
 
+def faq(request):
+    return render(request, 'classifier/faq.html')
+
+
 @csrf_exempt
 @require_http_methods(["POST"])
 def api_classify(request):
