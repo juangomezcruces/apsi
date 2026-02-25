@@ -93,19 +93,9 @@
             display: block; /* override UA stylesheet so transitions can run */
           }
 
-          .apsi-section .apsi-content {
-            max-height: 0;
-            overflow: visible;
-            opacity: 0;
-            transform: translateY(-4px);
-            transition: max-height 1.4s ease, opacity 0.9s ease, transform 0.9s ease;
-            will-change: max-height, opacity, transform;
-          }
 
-          .apsi-section[open] .apsi-content {
-            max-height: 2800px;
-            opacity: 1;
-            transform: translateY(0);
+          .apsi-section .apsi-content {
+            overflow: hidden;
           }
 
           /* Hover feedback */
@@ -328,8 +318,7 @@
 
 <script>
 (function () {
-  const OPEN_DURATION = 700;
-  const CLOSE_DURATION = 700;
+  const DURATION = 420;
   const EASING = "cubic-bezier(.4,0,.2,1)";
 
   document.querySelectorAll("details.apsi-section").forEach((details) => {
@@ -337,68 +326,81 @@
     const content = details.querySelector(".apsi-content");
     if (!summary || !content) return;
 
+    // Track running animations so we can cancel them mid-flight
+    let currentAnim = null;
+
     summary.addEventListener("click", (e) => {
       e.preventDefault();
 
-      const isOpen = details.hasAttribute("open");
-      const DURATION = isOpen ? CLOSE_DURATION : OPEN_DURATION;
-
-      // Measure start height
-      const startHeight = details.offsetHeight;
-
-      // Ensure we can measure end height
-      if (!details.hasAttribute("open")) details.setAttribute("open", "");
-
-      // Measure end height
-      const endHeight = details.offsetHeight;
-
-
-      if (isOpen) details.setAttribute("open", "");
-
-      // Lock current height for animation
-      details.style.height = startHeight + "px";
-      details.style.overflow = "hidden";
-
-      // Prepare content animation
-      content.style.willChange = "opacity, transform";
-      content.style.overflow = "hidden";
-
-      const heightAnim = details.animate(
-        [{ height: startHeight + "px" }, { height: endHeight + "px" }],
-        { duration: DURATION, easing: EASING }
-      );
-
-
-      const hold = isOpen ? 0.8 : 0; // keep visible for 80% of closing
-      const contentAnim = content.animate(
-        isOpen
-          ? [
-              { opacity: 1, transform: "translateY(0)" },
-              { opacity: 1, transform: "translateY(0)", offset: hold },
-              { opacity: 0, transform: "translateY(-6px)" }
-            ]
-          : [
-              { opacity: 0, transform: "translateY(-6px)" },
-              { opacity: 1, transform: "translateY(0)" }
-            ],
-        { duration: DURATION, easing: "ease", fill: "forwards" }
-      );
-
-      Promise.all([heightAnim.finished, contentAnim.finished]).then(() => {
-        if (isOpen) details.removeAttribute("open");
-        else details.setAttribute("open", "");
-
-        // Cleanup
+      // Cancel any in-progress animation
+      if (currentAnim) {
+        currentAnim.forEach(a => a.cancel());
+        currentAnim = null;
         details.style.height = "";
         details.style.overflow = "";
-        content.style.overflow = "";
-        content.style.willChange = "";
-      });
+      }
+
+      const isOpen = details.hasAttribute("open");
+
+      if (isOpen) {
+        // --- CLOSING ---
+        const startH = details.offsetHeight;
+
+        // Temporarily force open so we can still read content height
+        details.style.height = startH + "px";
+        details.style.overflow = "hidden";
+
+        const heightAnim = details.animate(
+          [{ height: startH + "px" }, { height: summary.offsetHeight + "px" }],
+          { duration: DURATION, easing: EASING }
+        );
+        const contentAnim = content.animate(
+          [{ opacity: 1, transform: "translateY(0)" }, { opacity: 0, transform: "translateY(-5px)" }],
+          { duration: DURATION * 0.7, easing: "ease", fill: "forwards" }
+        );
+
+        currentAnim = [heightAnim, contentAnim];
+
+        heightAnim.finished.then(() => {
+          details.removeAttribute("open");
+          details.style.height = "";
+          details.style.overflow = "";
+          content.getAnimations().forEach(a => a.cancel());
+          currentAnim = null;
+        });
+
+      } else {
+        // --- OPENING ---
+        // Temporarily open to measure full height
+        details.setAttribute("open", "");
+        const endH = details.offsetHeight;
+        const startH = summary.offsetHeight;
+
+        details.style.height = startH + "px";
+        details.style.overflow = "hidden";
+
+        const heightAnim = details.animate(
+          [{ height: startH + "px" }, { height: endH + "px" }],
+          { duration: DURATION, easing: EASING }
+        );
+        const contentAnim = content.animate(
+          [{ opacity: 0, transform: "translateY(-5px)" }, { opacity: 1, transform: "translateY(0)" }],
+          { duration: DURATION, easing: "ease", fill: "forwards" }
+        );
+
+        currentAnim = [heightAnim, contentAnim];
+
+        heightAnim.finished.then(() => {
+          details.style.height = "";
+          details.style.overflow = "";
+          content.getAnimations().forEach(a => a.cancel());
+          currentAnim = null;
+        });
+      }
     });
   });
 })();
 </script>
-
 
 
 {% endblock %}
