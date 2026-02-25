@@ -370,35 +370,39 @@
         });
 
       } else {
-        // --- OPENING ---
-        // Temporarily open to measure full height
-        content.style.opacity = "0";
-        details.setAttribute("open", "");
-        const endH = details.offsetHeight;
-        const startH = summary.offsetHeight;
-        content.style.opacity = "";
+          // --- OPENING ---
+          // Measure content height without triggering a visual flash
+          details.setAttribute("open", "");
+          content.style.visibility = "hidden";
+          content.style.position = "absolute";
+          const contentH = content.scrollHeight;
+          content.style.visibility = "";
+          content.style.position = "";
 
-        details.style.height = startH + "px";
-        details.style.overflow = "hidden";
+          const startH = summary.offsetHeight;
+          const endH = startH + contentH;
 
-        const heightAnim = details.animate(
-          [{ height: startH + "px" }, { height: endH + "px" }],
-          { duration: DURATION, easing: EASING }
-        );
-        const contentAnim = content.animate(
-          [{ opacity: 0, transform: "translateY(-5px)" }, { opacity: 1, transform: "translateY(0)" }],
-          { duration: DURATION, easing: "ease", fill: "forwards" }
-        );
+          details.style.height = startH + "px";
+          details.style.overflow = "hidden";
 
-        currentAnim = [heightAnim, contentAnim];
+          const heightAnim = details.animate(
+            [{ height: startH + "px" }, { height: endH + "px" }],
+            { duration: DURATION, easing: EASING }
+          );
+          const contentAnim = content.animate(
+            [{ opacity: 0, transform: "translateY(-5px)" }, { opacity: 1, transform: "translateY(0)" }],
+            { duration: DURATION, easing: "ease", fill: "forwards" }
+          );
 
-        heightAnim.finished.then(() => {
-          details.style.height = "";
-          details.style.overflow = "";
-          content.getAnimations().forEach(a => a.cancel());
-          currentAnim = null;
-        });
-      }
+          currentAnim = [heightAnim, contentAnim];
+
+          heightAnim.finished.then(() => {
+            details.style.height = "";
+            details.style.overflow = "";
+            content.getAnimations().forEach(a => a.cancel());
+            currentAnim = null;
+          });
+        }
     });
   });
 })();
