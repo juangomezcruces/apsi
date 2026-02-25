@@ -127,6 +127,71 @@
           }
 
 
+
+.dimensions-grid{
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+@media (min-width: 768px){
+  .dimensions-grid{
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.dim-card{
+  background: #fff;
+  border-radius: 22px;
+  overflow: hidden;                  
+  box-shadow: 0 6px 16px rgba(0,0,0,.08);
+  border: 1px solid rgba(17,24,39,.06);
+}
+
+.dim-card__header{
+  background: #1F2A6D;              /* deep navy like your screenshot */
+  color: #fff;
+  text-align: center;
+  padding: 18px 16px;
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1.2;
+}
+
+.dim-card__body{
+  padding: 22px 22px 18px 22px;
+}
+
+.dim-card__sub{
+  color: #6c757d;
+  font-size: 0.85rem;
+  margin: 0 0 10px 0;
+}
+
+    .dim-card__scale{
+      color: #6c757d;
+      font-size: 0.85rem;
+      line-height: 1.55;
+    }
+
+    .dim-card__scale strong{
+      color: #111827;
+    }
+
+    .dim-card__footer{
+      padding: 0 22px 20px 22px;
+    }
+
+    .dim-card__link{
+      color: #0E256B;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .dim-card__link:hover{
+      text-decoration: underline;
+    }
+
           
         </style>
 
