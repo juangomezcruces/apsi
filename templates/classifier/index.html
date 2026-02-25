@@ -318,7 +318,7 @@
 
 <script>
 (function () {
-  const DURATION = 700;
+  const DURATION = 675;
   const EASING = "cubic-bezier(.4,0,.2,1)";
 
   document.querySelectorAll("details.apsi-section").forEach((details) => {
@@ -372,9 +372,11 @@
       } else {
         // --- OPENING ---
         // Temporarily open to measure full height
+        content.style.opacity = "0";
         details.setAttribute("open", "");
         const endH = details.offsetHeight;
         const startH = summary.offsetHeight;
+        content.style.opacity = "";
 
         details.style.height = startH + "px";
         details.style.overflow = "hidden";
