@@ -21,44 +21,37 @@ class LiberalIlliberalScorer:
 
         # Enhanced Liberal-Illiberal hypotheses using recommended format
         self.liberal_illiberal_hypotheses = {
-            # 1) Elections as source of authority
-            "The text supports free and fair elections as the primary basis of legitimate political authority.": (1.0, "liberal"),
-            "The text rejects elections as necessary for legitimacy and supports non-electoral sources of political authority.": (1.0, "illiberal"),
+            "The text expresses support for free and fair elections as the basis of political authority.": (1.0, "liberal"),
+            "The text expresses acceptance of political competition among multiple parties.": (1.0, "liberal"),
+            "The text expresses willingness to accept electoral defeat in free and fair elections.": (1.0, "liberal"),
+            "The text expresses support for freedom of speech as a fundamental right.": (1.0, "liberal"),
+            "The text expresses support for independent and uncensored media.": (1.0, "liberal"),
+            "The text expresses the right of citizens to criticize the government without repression.": (1.0, "liberal"),
+            "The text expresses support for freedom of peaceful assembly and protest.": (1.0, "liberal"),
+            "The text expresses support for freedom of association, including political parties and civic groups.": (1.0, "liberal"),
+            "The text expresses recognition of political opposition as legitimate.": (1.0, "liberal"),
+            "The text expresses commitment to limiting political power through democratic institutions.": (1.0, "liberal"),
+            "The text expresses that political legitimacy derives from the consent of the governed.": (1.0, "liberal"),
+            "The text expresses protection of minority opinions and dissenting views.": (1.0, "liberal"),
+            "The text expresses preference for democratic procedures over extra-legal or revolutionary change.": (1.0, "liberal"),
+            "The text expresses accountability of leaders to citizens through elections.": (1.0, "liberal"),
+            "The text expresses that democratic rights apply equally to all citizens.": (1.0, "liberal"),
 
-            # 2) Multi-party competition and pluralism
-            "The text supports multi-party competition and treats political opposition as legitimate.": (1.0, "liberal"),
-            "The text opposes political pluralism and supports enforced unity or one-party dominance.": (1.0, "illiberal"),
-
-            # 3) Accepting electoral outcomes / peaceful alternation
-            "The text affirms that winners and losers should accept electoral outcomes and allow peaceful transfer of power.": (1.0, "liberal"),
-            "The text refuses to accept electoral defeat or justifies overturning election results to keep power.": (1.0, "illiberal"),
-
-            # 4) Speech and dissent
-            "The text supports freedom of speech and the right to criticize the government without repression.": (1.0, "liberal"),
-            "The text justifies restricting speech or condemns political criticism as dangerous, disloyal, or illegitimate.": (1.0, "illiberal"),
-
-            # 5) Media independence
-            "The text supports independent media and opposes censorship or state control of information.": (1.0, "liberal"),
-            "The text supports censorship or state control of media to shape information and suppress criticism.": (1.0, "illiberal"),
-
-            # 6) Assembly and protest
-            "The text supports freedom of peaceful assembly and protest as legitimate democratic activity.": (1.0, "liberal"),
-            "The text rejects or criminalizes protest and justifies restricting assembly in the name of order or stability.": (1.0, "illiberal"),
-
-            # 7) Civil society and association
-            "The text supports freedom of association, including independent civic groups, unions, and political organizations.": (1.0, "liberal"),
-            "The text opposes independent civil society and supports restricting or controlling civic and political organizations.": (1.0, "illiberal"),
-
-            # 8) Limits on power / institutional constraints / equal rights
-            "The text supports limits on executive power through institutions, rule-bound procedures, and equal rights for all citizens.": (1.0, "liberal"),
-            "The text supports concentrating power in a single authority and treating political rights as conditional on loyalty or ideology.": (1.0, "illiberal"),
-            # 9) Legitimacy of political opponents
-            "The text treats political opponents as legitimate competitors who have the right to participate in governance.": (1.0, "liberal"),
-            "The text portrays political opponents as enemies, traitors, or illegitimate actors who should be excluded from power.": (1.0, "illiberal"),
-
-            # 10) Pluralism vs enforced ideological unity
-            "The text affirms that democratic politics requires coexistence of diverse viewpoints and organized disagreement.": (1.0, "liberal"),
-            "The text rejects political pluralism and supports ideological, religious, or national unity as overriding democratic disagreement.": (1.0, "illiberal"),
+            "The text expresses rejection of free and fair elections as necessary for governance.": (1.0, "illiberal"),
+            "The text expresses support for concentration of political power in a single authority.": (1.0, "illiberal"),
+            "The text expresses opposition to multi-party political competition.": (1.0, "illiberal"),
+            "The text expresses justification for restricting freedom of speech.": (1.0, "illiberal"),
+            "The text expresses support for state control or censorship of the media.": (1.0, "illiberal"),
+            "The text expresses condemnation of political criticism as illegitimate or dangerous.": (1.0, "illiberal"),
+            "The text expresses rejection of freedom of peaceful assembly or protest.": (1.0, "illiberal"),
+            "The text expresses opposition to independent civic or political organizations.": (1.0, "illiberal"),
+            "The text expresses that political legitimacy comes from ideology, religion, or revolution rather than elections.": (1.0, "illiberal"),
+            "The text expresses refusal to accept defeat in competitive elections.": (1.0, "illiberal"),
+            "The text expresses portrayal of political opponents as enemies rather than legitimate actors.": (1.0, "illiberal"),
+            "The text expresses rejection of political pluralism in favor of enforced unity.": (1.0, "illiberal"),
+            "The text expresses that political rights are conditional on loyalty to the regime or ideology.": (1.0, "illiberal"),
+            "The text expresses depiction of democracy as harmful, weak, or corrupt.": (1.0, "illiberal"),
+            "The text expresses justification for suppressing dissent to maintain order or stability.": (1.0, "illiberal"),
         }
 
         liberal_count = sum(1 for _, (_, direction) in self.liberal_illiberal_hypotheses.items() if direction == "liberal")
