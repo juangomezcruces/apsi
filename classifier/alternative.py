@@ -197,7 +197,7 @@ class LeftRightEconomicScorer:
             'top_right_avg': top_right_avg
         }
 
-    def score_left_right(self, text):
+    def score_left_right(self, text, thr=0.15):
         """Score text and return comprehensive results"""
         # Check if text is about economic policy
         is_relevant, topic_prob = self.is_about_economic_policy(text)
@@ -236,8 +236,17 @@ class LeftRightEconomicScorer:
                 right_probs.append(prob * weight)
 
         # Calculate averages and score
-        left_avg = np.mean(left_probs) if left_probs else 0
-        right_avg = np.mean(right_probs) if right_probs else 0
+        # === ADAPTIVE K (based on ALL hypotheses above threshold) ===
+         k_score = int(np.sum(probs > thr)) + 1
+         k_score = max(3, k_score)
+
+         # Use top-k per side for averaging (adaptive probability logic)
+         top_left_probs = sorted(left_probs, reverse=True)[:k_score]
+         top_right_probs = sorted(right_probs, reverse=True)[:k_score]
+
+         left_avg = float(np.mean(top_left_probs)) if top_left_probs else 0.0
+         right_avg = float(np.mean(top_right_probs)) if top_right_probs else 0.0
+          
         
         difference = left_avg - right_avg
         final_score = 5 - (difference * 5)  # Flipped: left = low numbers, right = high numbers
@@ -285,9 +294,9 @@ class LeftRightEconomicScorer:
             
         }
 
-    def quick_score(self, text):
+    def quick_score(self, text, thr=0.15):
         """Ultra-simple interface - just returns the numerical score"""
-        result = self.score_left_right(text)
+        result = self.score_left_right(text, thr=thr)
         return result['score']
 
 # ============================================================================
