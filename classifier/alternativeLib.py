@@ -21,53 +21,37 @@ class LiberalIlliberalScorer:
 
         # Enhanced Liberal-Illiberal hypotheses using recommended format
         self.liberal_illiberal_hypotheses = {
-            # Electoral Democracy & Competition
-            "The author of this text believes in competitive multi-party elections": (1.0, "liberal"),
-            "The author of this text believes in fair electoral processes": (1.0, "liberal"),
-            "The author of this text believes electoral competition is beneficial": (1.0, "liberal"),
-            "The author of this text believes in single-party dominance": (1.0, "illiberal"),
-            "The author of this text believes electoral competition should be opposed": (1.0, "illiberal"),
-            "The author of this text believes election results are illegitimate without providing evidence": (1.0, "illiberal"),
-        
-            # Freedom of Speech
-            "The author of this text believes in freedom of speech and expression": (1.0, "liberal"),
-            "The author of this text believes in the right to free expression": (1.0, "liberal"),
-            "The author of this text believes speech and expression should be restricted": (1.0, "illiberal"),
-            "The author of this text believes political criticism should be censored": (1.0, "illiberal"),
-        
-            # Media Freedom
-            "The author of this text believes in media independence": (1.0, "liberal"),
-            "The author of this text believes in press freedom": (1.0, "liberal"),
-            "The author of this text believes in media accountability": (1.0, "liberal"),
-            "The author of this text believes media freedom should be restricted": (1.0, "illiberal"),
-            "The author of this text believes media content should be controlled": (1.0, "illiberal"),
-            "The author of this text believes traditional media is fake or dishonest": (1.0, "illiberal"),
-        
-            # Freedom of Assembly
-            "The author of this text believes in freedom of assembly": (1.0, "liberal"),
-            "The author of this text believes in the right to peaceful protest": (1.0, "liberal"),
-            "The author of this text believes freedom of assembly should be restricted": (1.0, "illiberal"),
-            "The author of this text believes peaceful protests should be limited": (1.0, "illiberal"),
-        
-            # Freedom of Association
-            "The author of this text believes in freedom of association": (1.0, "liberal"),
-            "The author of this text believes in independent civil society groups": (1.0, "liberal"),
-            "The author of this text believes freedom of association should be restricted": (1.0, "illiberal"),
-            "The author of this text believes civil society should be limited": (1.0, "illiberal"),
-        
-            # Democratic Acceptance
-            "The author of this text believes in accepting democratic electoral outcomes": (1.0, "liberal"),
-            "The author of this text believes political opposition is legitimate": (1.0, "liberal"),
-            "The author of this text believes electoral defeats are illegitimate": (1.0, "illiberal"),
-            "The author of this text believes political opponents should be delegitimized": (1.0, "illiberal"),
-        
-            # Institutional Democratic Norms
-            "The author of this text believes in supporting democratic institutions": (1.0, "liberal"),
-            "The author of this text believes in the rule of law": (1.0, "liberal"),
-            "The author of this text believes institutions should only be changed through democratic procedures": (1.0, "liberal"),
-            "The author of this text believes democratic institutions should be bypassed": (1.0, "illiberal"),
-            "The author of this text believes executive power should be concentrated in a strong leader": (1.0, "illiberal"),
-            "The author of this text believes institutions are fundamentally corrupt": (1.0, "illiberal"),
+            # 1) Elections as source of authority
+            "The text supports free and fair elections as the primary basis of legitimate political authority.": (1.0, "liberal"),
+            "The text rejects elections as necessary for legitimacy and supports non-electoral sources of political authority.": (1.0, "illiberal"),
+
+            # 2) Multi-party competition and pluralism
+            "The text supports multi-party competition and treats political opposition as legitimate.": (1.0, "liberal"),
+            "The text opposes political pluralism and supports enforced unity or one-party dominance.": (1.0, "illiberal"),
+
+            # 3) Accepting electoral outcomes / peaceful alternation
+            "The text affirms that winners and losers should accept electoral outcomes and allow peaceful transfer of power.": (1.0, "liberal"),
+            "The text refuses to accept electoral defeat or justifies overturning election results to keep power.": (1.0, "illiberal"),
+
+            # 4) Speech and dissent
+            "The text supports freedom of speech and the right to criticize the government without repression.": (1.0, "liberal"),
+            "The text justifies restricting speech or condemns political criticism as dangerous, disloyal, or illegitimate.": (1.0, "illiberal"),
+
+            # 5) Media independence
+            "The text supports independent media and opposes censorship or state control of information.": (1.0, "liberal"),
+            "The text supports censorship or state control of media to shape information and suppress criticism.": (1.0, "illiberal"),
+
+            # 6) Assembly and protest
+            "The text supports freedom of peaceful assembly and protest as legitimate democratic activity.": (1.0, "liberal"),
+            "The text rejects or criminalizes protest and justifies restricting assembly in the name of order or stability.": (1.0, "illiberal"),
+
+            # 7) Civil society and association
+            "The text supports freedom of association, including independent civic groups, unions, and political organizations.": (1.0, "liberal"),
+            "The text opposes independent civil society and supports restricting or controlling civic and political organizations.": (1.0, "illiberal"),
+
+            # 8) Limits on power / institutional constraints / equal rights
+            "The text supports limits on executive power through institutions, rule-bound procedures, and equal rights for all citizens.": (1.0, "liberal"),
+            "The text supports concentrating power in a single authority and treating political rights as conditional on loyalty or ideology.": (1.0, "illiberal"),
         }
 
         liberal_count = sum(1 for _, (_, direction) in self.liberal_illiberal_hypotheses.items() if direction == "liberal")
