@@ -229,8 +229,8 @@ class PopulismPluralismScorer:
 
         # Calculate averages and score
         # === ADAPTIVE K (based on ALL hypotheses above threshold) ===
-        k_score = int(np.sum(probs > thr)) + 1
-        k_score = max(3, k_score)
+        k_score = int(np.sum(probs > thr)) + 2
+        k_score = max(4, k_score)
 
         # Use top-k per side for averaging (adaptive probability logic)
         top_populist_probs = sorted(populist_probs, reverse=True)[:k_score]
