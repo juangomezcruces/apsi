@@ -44,7 +44,7 @@ class LeftRightEconomicScorer:
             "The text expresses that income taxes should be reduced": (1.0, "right"),
             "The text expresses that government spending on social programs should be cut": (1.0, "right"),
             "The text expresses that welfare programs should be reduced": (1.0, "right"),
-             "The text expresses that healthcare should be privatized": (1.0, "right"),
+            "The text expresses that healthcare should be privatized": (1.0, "right"),
             "The text expresses that education should be privatized": (1.0, "right"),
             "The text expresses that financial regulations should be eliminated": (1.0, "right"),
             "The text expresses that environmental regulations hurt business competitiveness": (1.0, "right"),
