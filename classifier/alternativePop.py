@@ -32,7 +32,7 @@ class PopulismPluralismScorer:
             "The text argues that institutional checks and safeguards prevent abuses and protect democratic stability.": (1.0, "pluralist"),
 
             # 3) Direct popular rule vs mediated democracy
-            "The text supports direct rule by the people (e.g., referendums) and rejects reliance on political intermediaries.": (1.0, "populist"),
+            "The text explicitly advocates replacing representative institutions with direct popular decision-making (e.g., referendums instead of legislatures).": (1.0, "populist"),
             "The text supports mediated democracy where deliberation, committees, and representative bargaining are necessary.": (1.0, "pluralist"),
 
             # 4) Homogeneous 'people' vs plural society
@@ -56,7 +56,7 @@ class PopulismPluralismScorer:
             "The text argues that courts and constitutional protections should defend minority rights against majority overreach.": (1.0, "pluralist"),
 
             # 9) Outsider savior / dramatic overhaul vs incremental compromise
-            "The text argues that only outsiders can fix problems created by entrenched elites and calls for sweeping change.": (1.0, "populist"),
+            "The text explicitly blames entrenched elites for problems and claims only political outsiders can solve them.": (1.0, "populist"),
             "The text argues that negotiation, coalition-building, and incremental reform produce more sustainable outcomes.": (1.0, "pluralist"),
         }
 
