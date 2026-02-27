@@ -189,7 +189,8 @@ class PopulismPluralismScorer:
             'top_pluralist_avg': top_pluralist_avg
         }
 
-    def score_left_right(self, text, thr=0.15):
+    
+    def score_populism_pluralism(self, text, thr=0.15):
         """Score text and return comprehensive results"""
         # Check if text is about political rhetoric or governance
         is_relevant, topic_prob = self.is_about_political_rhetoric(text)
@@ -287,7 +288,7 @@ class PopulismPluralismScorer:
 
     def quick_score(self, text, thr=0.15):
         """Ultra-simple interface - just returns the numerical score"""
-        result = self.score_left_right(text, thr=thr)
+        result = self.score_populism_pluralism(text, thr=thr) 
         return result['score']
 
 
