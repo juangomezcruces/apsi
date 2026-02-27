@@ -189,7 +189,7 @@ class PopulismPluralismScorer:
             'top_pluralist_avg': top_pluralist_avg
         }
 
-    def score_populism_pluralism(self, text):
+    def score_left_right(self, text, thr=0.15):
         """Score text and return comprehensive results"""
         # Check if text is about political rhetoric or governance
         is_relevant, topic_prob = self.is_about_political_rhetoric(text)
@@ -227,8 +227,17 @@ class PopulismPluralismScorer:
                 pluralist_probs.append(prob * weight)
 
         # Calculate averages and score
-        populist_avg = np.mean(populist_probs) if populist_probs else 0
-        pluralist_avg = np.mean(pluralist_probs) if pluralist_probs else 0
+        # === ADAPTIVE K (based on ALL hypotheses above threshold) ===
+        k_score = int(np.sum(probs > thr)) + 1
+        k_score = max(3, k_score)
+
+        # Use top-k per side for averaging (adaptive probability logic)
+        top_populist_probs = sorted(populist_probs, reverse=True)[:k_score]
+        top_pluralist_probs = sorted(pluralist_probs, reverse=True)[:k_score]
+
+        populist_avg = float(np.mean(top_populist_probs)) if top_populist_probs else 0.0
+        pluralist_avg = float(np.mean(top_pluralist_probs)) if top_pluralist_probs else 0.0
+
         
         difference = populist_avg - pluralist_avg
         final_score = 5 + (difference * 5)  # Higher scores = more populist
@@ -276,9 +285,9 @@ class PopulismPluralismScorer:
 
         }
 
-    def quick_score(self, text):
+    def quick_score(self, text, thr=0.15):
         """Ultra-simple interface - just returns the numerical score"""
-        result = self.score_populism_pluralism(text)
+        result = self.score_left_right(text, thr=thr)
         return result['score']
 
 
