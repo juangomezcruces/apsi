@@ -22,8 +22,8 @@ class LiberalIlliberalScorer:
         # Enhanced Liberal-Illiberal hypotheses using recommended format
         self.liberal_illiberal_hypotheses = {
             # 1) Elections as source of authority
-            "The text supports free and fair elections as the primary basis of legitimate political authority.": (1.0, "liberal"),
-            "The text explicitly argues that political authority should not depend on competitive elections or voter choice.": (1.0, "illiberal"),
+            "The text explicitly states that political authority must derive from competitive elections and voter choice.": (1.0, "liberal"),
+            "The text explicitly argues that political authority should derive from religion, ideology, or national destiny rather than competitive elections.": (1.0, "illiberal"),
 
             # 2) Multi-party competition and pluralism
             "The text supports multi-party competition and treats political opposition as legitimate.": (1.0, "liberal"),
