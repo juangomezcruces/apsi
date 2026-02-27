@@ -23,45 +23,41 @@ class PopulismPluralismScorer:
         # Populism-Pluralism hypotheses based on GPS and V-Party definitions
         # Populism-Pluralism hypotheses - refined for specificity
         self.populism_hypotheses = {
-            # Populist Positions (18) - Much more specific
-            "The author of this text believes corrupt politicians have betrayed ordinary working people": (1.0, "populist"),
-            "The author of this text believes citizens should vote directly on major issues instead of trusting representatives": (1.0, "populist"),
-            "The author of this text believes elites are out of touch with regular voters": (1.0, "populist"),
-            "The author of this text believes the political system is rigged to benefit wealthy donors": (1.0, "populist"),
-            "The author of this text believes ordinary citizens have more common sense than political experts": (1.0, "populist"),
-            "The author of this text believes career politicians care more about donors than ordinary voters": (1.0, "populist"),
-            "The author of this text believes the media and establishment work together against the people": (1.0, "populist"),
-            "The author of this text believes voters share the same basic values and priorities": (1.0, "populist"),
-            "The author of this text believes government bureaucrats obstruct the will of the people": (1.0, "populist"),
-            "The author of this text believes outsiders can fix problems that elites have created": (1.0, "populist"),
-            "The author of this text believes mainstream media suppresses the voices of regular people": (1.0, "populist"),
-            "The author of this text believes the government serves only the interest of corporations and wealthy individuals": (1.0, "populist"),
-            "The author of this text believes hard-working families are ignored by self-serving politicians": (1.0, "populist"),
-            "The author of this text believes common people understand what's best for the country": (1.0, "populist"),
-            "The author of this text believes political insiders resist giving power back to working families": (1.0, "populist"),
-            "The author of this text believes the political class has formed a conspiracy against ordinary citizens": (1.0, "populist"),
-            "The author of this text believes the majority should decide without being blocked by courts or elites": (1.0, "populist"),
-            "The author of this text believes wealthy special interests have corrupted the entire political system": (1.0, "populist"),            
-            
-            # Pluralist Positions (18) - Much more specific
-            "The author of this text believes different communities have legitimate but conflicting needs": (1.0, "pluralist"),
-            "The author of this text believes political negotiations and compromises are a core democratic principle": (1.0, "pluralist"),
-            "The author of this text believes constitutional courts should protect minority rights from majority rule": (1.0, "pluralist"),
-            "The author of this text believes policy experts provide valuable technical knowledge to lawmakers": (1.0, "pluralist"),
-            "The author of this text believes legislative committees should carefully review proposed laws": (1.0, "pluralist"),
-            "The author of this text believes business associations and labor unions both deserve seats at the policy table": (1.0, "pluralist"),
-            "The author of this text believes complex problems require nuanced solutions and careful implementation": (1.0, "pluralist"),
-            "The author of this text believes democratic institutions have evolved to serve important functions": (1.0, "pluralist"),
-            "The author of this text believes elected representatives should balance constituent demands with broader considerations": (1.0, "pluralist"),
-            "The author of this text believes federal systems allow different regions to have different approaches": (1.0, "pluralist"),
-            "The author of this text believes specialized agencies should make technical decisions based on expertise": (1.0, "pluralist"),
-            "The author of this text believes incremental policy changes are more sustainable than dramatic overhauls": (1.0, "pluralist"),
-            "The author of this text believes professional civil servants provide continuity across administrations": (1.0, "pluralist"),
-            "The author of this text believes political opposition helps improve government policies through debate": (1.0, "pluralist"),
-            "The author of this text believes coalition-building requires acknowledging different viewpoints": (1.0, "pluralist"),
-            "The author of this text believes democratic decisions should balance majority preferences with minority protections": (1.0, "pluralist"),
-            "The author of this text believes competing interests can find mutually beneficial solutions through negotiation": (1.0, "pluralist"),
-            "The author of this text believes institutional safeguards prevent dangerous concentration of power": (1.0, "pluralist"),
+            # 1) Anti-elite vs legitimate representation
+            "The text argues that corrupt elites or establishment insiders have betrayed ordinary people.": (1.0, "populist"),
+            "The text argues that representatives and institutions can legitimately govern by balancing diverse interests.": (1.0, "pluralist"),
+
+            # 2) System is rigged vs institutions have safeguards
+            "The text claims the political system is rigged to serve wealthy donors, corporations, or special interests over the public.": (1.0, "populist"),
+            "The text argues that institutional checks and safeguards prevent abuses and protect democratic stability.": (1.0, "pluralist"),
+
+            # 3) Direct popular rule vs mediated democracy
+            "The text supports direct rule by the people (e.g., referendums) and rejects reliance on political intermediaries.": (1.0, "populist"),
+            "The text supports mediated democracy where deliberation, committees, and representative bargaining are necessary.": (1.0, "pluralist"),
+
+            # 4) Homogeneous 'people' vs plural society
+            "The text portrays 'the people' as a unified majority with shared values opposed by a small elite.": (1.0, "populist"),
+            "The text emphasizes that society contains different groups with legitimate but competing needs.": (1.0, "pluralist"),
+
+            # 5) Anti-expertise / common sense vs expertise and complexity
+            "The text argues that ordinary people’s common sense is more trustworthy than experts or technocrats.": (1.0, "populist"),
+            "The text argues that experts and specialized agencies provide valuable knowledge for complex policy decisions.": (1.0, "pluralist"),
+
+            # 6) Anti-bureaucracy / obstruction vs professional administration
+            "The text claims bureaucrats or the 'deep state' obstruct the will of the people and must be overridden.": (1.0, "populist"),
+            "The text argues that professional civil servants and administrative processes provide continuity and competence.": (1.0, "pluralist"),
+
+            # 7) Anti-media establishment vs legitimate public discourse
+            "The text claims mainstream media and establishment networks suppress ordinary people’s voices or coordinate against them.": (1.0, "populist"),
+            "The text argues that open debate, opposition, and institutionalized contestation improve policy and accountability.": (1.0, "pluralist"),
+
+            # 8) Majority unconstrained vs minority rights and courts
+            "The text argues that the majority should decide without being blocked by courts, minorities, or institutional vetoes.": (1.0, "populist"),
+            "The text argues that courts and constitutional protections should defend minority rights against majority overreach.": (1.0, "pluralist"),
+
+            # 9) Outsider savior / dramatic overhaul vs incremental compromise
+            "The text argues that only outsiders can fix problems created by entrenched elites and calls for sweeping change.": (1.0, "populist"),
+            "The text argues that negotiation, coalition-building, and incremental reform produce more sustainable outcomes.": (1.0, "pluralist"),
         }
 
         populist_count = sum(1 for _, (_, direction) in self.populism_hypotheses.items() if direction == "populist")
