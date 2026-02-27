@@ -192,7 +192,7 @@ class LiberalIlliberalScorer:
             'top_illiberal_avg': top_illiberal_avg
         }
 
-    def score_liberal_illiberal(self, text):
+    def score_liberal_illiberal(self, text, thr=0.15):
         """Score text and return comprehensive results"""
         # Check if text is about democratic principles
         is_relevant, topic_prob = self.is_about_democratic_principles(text)
@@ -230,10 +230,19 @@ class LiberalIlliberalScorer:
             else:
                 illiberal_probs.append(prob * weight)
 
-        # Calculate averages and score
-        liberal_avg = np.mean(liberal_probs) if liberal_probs else 0
-        illiberal_avg = np.mean(illiberal_probs) if illiberal_probs else 0
         
+        # === ADAPTIVE K (based on ALL hypotheses above threshold) ===
+        k_score = int(np.sum(probs > thr)) + 1
+        k_score = max(3, k_score)
+
+        # Use top-k per side for averaging (adaptive probability logic)
+        top_liberal_probs = sorted(liberal_probs, reverse=True)[:k_score]
+        top_illiberal_probs = sorted(illiberal_probs, reverse=True)[:k_score]
+
+        liberal_avg = float(np.mean(top_liberal_probs)) if top_liberal_probs else 0.0
+        illiberal_avg = float(np.mean(top_illiberal_probs)) if top_illiberal_probs else 0.0
+
+
         difference = liberal_avg - illiberal_avg
         final_score = 5 + (difference * 5)
         final_score = np.clip(final_score, 0, 10)
@@ -280,9 +289,9 @@ class LiberalIlliberalScorer:
 
         }
 
-    def quick_score(self, text):
+    def quick_score(self, text, thr=0.15):
         """Ultra-simple interface - just returns the numerical score"""
-        result = self.score_liberal_illiberal(text)
+        result = self.score_liberal_illiberal(text, thr=thr)
         return result['score']
 
 # ============================================================================
