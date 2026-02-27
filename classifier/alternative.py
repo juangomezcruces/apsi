@@ -237,15 +237,15 @@ class LeftRightEconomicScorer:
 
         # Calculate averages and score
         # === ADAPTIVE K (based on ALL hypotheses above threshold) ===
-         k_score = int(np.sum(probs > thr)) + 1
-         k_score = max(3, k_score)
+        k_score = int(np.sum(probs > thr)) + 1
+        k_score = max(3, k_score)
 
-         # Use top-k per side for averaging (adaptive probability logic)
-         top_left_probs = sorted(left_probs, reverse=True)[:k_score]
-         top_right_probs = sorted(right_probs, reverse=True)[:k_score]
+        # Use top-k per side for averaging (adaptive probability logic)
+        top_left_probs = sorted(left_probs, reverse=True)[:k_score]
+        top_right_probs = sorted(right_probs, reverse=True)[:k_score]
 
-         left_avg = float(np.mean(top_left_probs)) if top_left_probs else 0.0
-         right_avg = float(np.mean(top_right_probs)) if top_right_probs else 0.0
+        left_avg = float(np.mean(top_left_probs)) if top_left_probs else 0.0
+        right_avg = float(np.mean(top_right_probs)) if top_right_probs else 0.0
           
         
         difference = left_avg - right_avg
