@@ -36,8 +36,8 @@ class PopulismPluralismScorer:
             "The text supports mediated democracy where deliberation, committees, and representative bargaining are necessary.": (1.0, "pluralist"),
 
             # 4) Homogeneous 'people' vs plural society
-            "The text portrays 'the people' as a unified majority with shared values opposed by a small elite.": (1.0, "populist"),
-            "The text emphasizes that society contains different groups with legitimate but competing needs.": (1.0, "pluralist"),
+            "The text explicitly claims that a single unified majority shares the same political will and is opposed by corrupt elites.": (1.0, "populist"),
+            "The text explicitly acknowledges that different social groups have conflicting interests that require negotiation and compromise.": (1.0, "pluralist"),
 
             # 5) Anti-expertise / common sense vs expertise and complexity
             "The text argues that ordinary people’s common sense is more trustworthy than experts or technocrats.": (1.0, "populist"),
