@@ -21,6 +21,7 @@ class LeftRightEconomicScorer:
 
         # Left-Right Economic hypotheses - streamlined to ~15 per side
         self.left_right_hypotheses = {
+            # Redistribution & taxation
             "The text supports progressive taxation and redistributing wealth to reduce inequality.": (1.0, "left"),
             "The text supports lowering taxes and opposes redistributive taxation as unfair or harmful.": (1.0, "right"),
 
@@ -54,7 +55,6 @@ class LeftRightEconomicScorer:
         }
 
 
-
         left_count = sum(1 for _, (_, direction) in self.left_right_hypotheses.items() if direction == "left")
         right_count = sum(1 for _, (_, direction) in self.left_right_hypotheses.items() if direction == "right")
         print(f"Loaded {len(self.left_right_hypotheses)} hypotheses ({left_count} left, {right_count} right)")
@@ -63,36 +63,46 @@ class LeftRightEconomicScorer:
         self.topic_threshold = 0.7
         self.topic_hypotheses = [
             # Role of government in the economy
-    "The text supports progressive taxation and redistributing wealth to reduce inequality.": (1.0, "left"),
-    "The text supports lowering taxes and opposes redistributive taxation as unfair or harmful.": (1.0, "right"),
+            "The text expresses an opinion about the role of government in the economy.",
+            "The text argues that the government should play a role in economic affairs.",
+            "The text supports or opposes government involvement in the economy.",
+            "The text expresses a stance on how much power the government should have over the economy.",
+            "The text argues for increasing or reducing the role of government in economic policy.",
 
-    # Size of government / public spending
-    "The text supports expanding government spending and public services to improve welfare.": (1.0, "left"),
-    "The text supports reducing government spending and limiting the welfare state.": (1.0, "right"),
+            # Taxation and redistribution
+            "The text expresses an opinion about taxation or tax policy.",
+            "The text argues about how wealth should be redistributed.",
+            "The text expreses a stance about higher taxes.",
+            "The text expresses a stance on income inequality or redistribution.",
+            "The text argues how taxes should be used to achieve economic goals.",
 
-    # Welfare & social safety net (framing)
-    "The text portrays social programs as necessary protections that should be expanded.": (1.0, "left"),
-    "The text portrays social programs as creating dependency and argues they should be reduced.": (1.0, "right"),
+            # Ownership and control
+            "The text expresses an opinion about public versus private ownership.",
+            "The text argues that industries should be publicly or privately owned.",
+            "The text supports or opposes nationalization or privatization.",
+            "The text expresses a stance on who should control major economic resources.",
+            "The text argues how ownership of businesses should be structured.",
 
-    # Markets vs regulation (general)
-    "The text supports stronger regulation of markets and businesses to protect the public interest.": (1.0, "left"),
-    "The text supports deregulation and argues regulation harms efficiency, growth, or competitiveness.": (1.0, "right"),
+            # Regulation vs markets
+            "The text expresses a stance on market regulation.",
+            "The text argues how free markets should be regulated.",
+            "The text supports or opposes government regulation of businesses.",
+            "The text expresses a stance on market freedom",
+            "The text expreses a stance about regulation of the economy.",
 
-    # Ownership & privatization
-    "The text supports public ownership or nationalization of essential services or key industries.": (1.0, "left"),
-    "The text supports privatization and argues private ownership is more efficient than public ownership.": (1.0, "right"),
+            # Welfare and social programs
+            "The text expresses an opinion about welfare or social programs.",
+            "The text argues that social programs should be expanded or reduced.",
+            "The text supports or opposes government-funded social services.",
+            "The text expresses a stance on healthcare, education, or social safety nets.",
+            "The text argues how social programs should be organized or funded.",
 
-    # Labor & bargaining power
-    "The text supports strengthening labor protections, unions, and higher minimum wages.": (1.0, "left"),
-    "The text argues unions and higher minimum wages harm jobs or competitiveness.": (1.0, "right"),
-
-    # Corporate power / antitrust
-    "The text argues large corporations have too much power and should be restrained through antitrust or regulation.": (1.0, "left"),
-    "The text argues large corporations drive innovation and growth and should not be constrained by government.": (1.0, "right"),
-
-    # Public vs private provision in health/education
-    "The text supports publicly funded or universal provision of healthcare and education.": (1.0, "left"),
-    "The text supports market-based or privatized provision of healthcare and education.": (1.0, "right"),
+            # Labor markets / wages
+            "The text expresses a stance in favor or against minimum wages.",
+            "The text argues about the minimum wage or worker protections.",
+            "The text supports or opposes labor regulations or unions.",
+            "The text expresses a stance on workers' rights or employment standards.",
+            "The text argues how labor markets should be regulated."
         ]
 
 
