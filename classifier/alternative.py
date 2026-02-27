@@ -1,3 +1,4 @@
+import pandas as pd
 import numpy as np
 import torch
 import torch.nn as nn
@@ -196,7 +197,30 @@ class LeftRightEconomicScorer:
             'top_right_avg': top_right_avg
         }
 
-# Process each hypothesis
+    def score_left_right(self, text):
+        """Score text and return comprehensive results"""
+        # Check if text is about economic policy
+        is_relevant, topic_prob = self.is_about_economic_policy(text)
+        if not is_relevant:
+            return {
+                'text': text,
+                'score': 'NA',
+                'confidence': 0.0,
+                'contradiction_detected': False,
+                'interpretation': 'Not about economic policy',
+                'is_relevant': False,
+                'topic_probability': float(topic_prob),
+                'passed_precheck': False,
+                'is_relevant': False,
+            }
+        
+        probs = self.get_hypothesis_probabilities(text)
+
+        left_probs = []
+        right_probs = []
+        hypothesis_results = []
+        
+        # Process each hypothesis
         for i, (hypothesis, (weight, direction)) in enumerate(self.left_right_hypotheses.items()):
             prob = probs[i]
             
@@ -211,16 +235,9 @@ class LeftRightEconomicScorer:
             else:
                 right_probs.append(prob * weight)
 
-        # === adaptive k based on ALL hypotheses above threshold ===  <-- added
-        k_score = int(np.sum(probs > thr)) + 1                        # <-- added
-        k_score = max(3, k_score)                                      # <-- added
-
-        # top-k per side                                               <-- changed
-        top_left_probs = sorted(left_probs, reverse=True)[:k_score]   # <-- changed
-        top_right_probs = sorted(right_probs, reverse=True)[:k_score] # <-- changed
-
-        left_avg = float(np.mean(top_left_probs)) if top_left_probs else 0.0  # <-- changed
-        right_avg = float(np.mean(top_right_probs)) if top_right_probs else 0.0  # <-- changed
+        # Calculate averages and score
+        left_avg = np.mean(left_probs) if left_probs else 0
+        right_avg = np.mean(right_probs) if right_probs else 0
         
         difference = left_avg - right_avg
         final_score = 5 - (difference * 5)  # Flipped: left = low numbers, right = high numbers
@@ -265,8 +282,8 @@ class LeftRightEconomicScorer:
             'passed_precheck': True,
             'is_relevant': True,
             'topic_probability': float(topic_prob),
+            
         }
-
 
     def quick_score(self, text):
         """Ultra-simple interface - just returns the numerical score"""
