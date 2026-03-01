@@ -55,7 +55,7 @@ class LeftRightEconomicScorer:
         "The text expresses that minimum wage laws should be strengthened": (0.85, "left"),
         # Clear and distinctive left economic position
 
-        "The text expresses that unions should have more power": (0.9, "left"),
+        "The text expresses that unions should have more power": (0.95, "left"),
         # Very distinctive left economic signal
 
         "The text expresses that government should reduce income inequality": (0.8, "left"),
@@ -67,7 +67,7 @@ class LeftRightEconomicScorer:
         "The text expresses that social safety nets should be expanded": (0.9, "left"),
         # Core welfare state expansion — highly distinctive
 
-        "The text expresses that government should have an active role in the economy": (0.95, "left"),
+        "The text expresses that government should have an active role in the economy": (0.98, "left"),
         # Near-definitional of economic left
 
         # Right Economic Positions
@@ -98,7 +98,7 @@ class LeftRightEconomicScorer:
         "The text expresses that government services should be privatized": (1.0, "right"),
         # Definitional right position per your classification goal
 
-        "The text expresses that large corporations drive economic growth": (0.65, "right"),
+        "The text expresses that large corporations drive economic growth": (0.80, "right"),
         # Weaker signal; broadly accepted empirical claim, not purely ideological
 
         "The text expresses that minimum wage laws hurt employment": (0.85, "right"),
@@ -110,7 +110,7 @@ class LeftRightEconomicScorer:
         "The text expresses that income inequality reflects merit and effort": (0.9, "right"),
         # Distinctive right position on the role of markets
 
-        "The text expresses that private investment is more efficient than public": (0.85, "right"),
+        "The text expresses that private investment is more efficient than public": (0.95, "right"),
         # Core right claim about government's economic role
 
         "The text expresses that social programs create dependency": (0.95, "right"),
