@@ -301,16 +301,20 @@ class LeftRightEconomicScorer:
         top_right = sorted(right_hyps, key=lambda x: x['probability'], reverse=True)[:10]
 
         # Interpret score (0-10 scale: 0=Far Left, 5=Center, 10=Far Right)
-        if final_score < 2:
-            interpretation = "Far Left"
-        elif final_score < 4:
-            interpretation = "Left"
-        elif final_score < 6:
-            interpretation = "Center"
-        elif final_score < 8:
-            interpretation = "Right"
-        else:
-            interpretation = "Far Right"
+            if final_score < 1.43:
+                interpretation = "Strong Left"
+            elif final_score < 2.86:
+                interpretation = "Left"
+            elif final_score < 4.29:
+                interpretation = "Center Left"
+            elif final_score <= 5.71:
+                interpretation = "Center"
+            elif final_score < 7.14:
+                interpretation = "Center Right"
+            elif final_score < 8.57:
+                interpretation = "Right"
+            else:
+                interpretation = "Strong Right"
 
         return {
             'text': text,
