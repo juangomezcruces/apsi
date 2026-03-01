@@ -170,7 +170,7 @@ class PoliticalInferenceService:
         mock_score = random.uniform(1, 9)  # Random score between 1-9
         
         interpretations = {
-            "Left-Right": ["Strongly Left", "Left", "Center", "Right", "Strongly Right"],
+            "Left-Right": ["Strong Left", "Left", "Center", "Right", "Strong Right"],
             "Liberal-Illiberal": ["Strongly Illiberal", "Illiberal", "Moderate", "Liberal", "Strongly Liberal"],
             "Populism": ["Strongly Anti-Populist", "Anti-Populist", "Moderate", "Populist", "Strongly Populist"]
         }
@@ -216,13 +216,17 @@ class PoliticalInferenceService:
     def _interpret_score(self, score: float, dimension: str) -> str:
         """Interpret regression scores based on dimension."""
         if dimension == "Left-Right":
-            if score <= 2.5:
-                return "Strongly Left"
-            elif score <= 4.0:
+            if score <= 1.43:
+                return "Strong Left"
+            elif score <= 2.86:
                 return "Left"
-            elif score <= 6.0:
+            elif score <= 4.29:
+                return "Center Left"
+            elif score <= 5.71:
                 return "Center"
-            elif score <= 7.5:
+            elif score <= 7.14:
+                return "Center Right"
+            elif score <= 8.57:
                 return "Right"
             else:
                 return "Strongly Right"
