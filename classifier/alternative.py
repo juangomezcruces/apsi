@@ -21,53 +21,103 @@ class LeftRightEconomicScorer:
 
         # Left-Right Economic hypotheses - streamlined to ~15 per side
         self.left_right_hypotheses = {
-              # --- LEFT: Core Structural Changes (High Weight) ---
-            "The text expresses that utilities should be publicly owned": (2.0, "left"), # Direct nationalization, strongest left signal.
-            "The text expresses that government should break up large corporations": (1.8, "left"), # Anti-monopoly/trust busting is a core left structural position.
-            "The text expresses that government should provide universal healthcare": (1.7, "left"), # Single-payer is a flagship left policy.
+        # Left Economic Positions
+        "The text expresses that corporations should pay higher taxes": (0.8, "left"),
+        # Clear left signal, but tax specifics can be centrist too
 
-            # --- LEFT: Strong Intervention (Medium-High Weight) ---
-            "The text expresses that banks and financial institutions should be heavily regulated": (1.5, "left"), # Strong intervention in finance.
-            "The text expresses that unions should have more power": (1.5, "left"), # Pro-union stance is a core identity marker.
-            "The text expresses that environmental regulations on business are necessary": (1.3, "left"), # Strong signal, though sometimes also center/green.
-            "The text expresses that government should have an active role in the economy": (1.3, "left"), # Broad but fundamental statement of philosophy.
-            "The text expresses that minimum wage laws should be strengthened": (1.2, "left"), # Standard left policy.
+        "The text expresses that wealthy individuals should pay higher tax rates": (0.85, "left"),
+        # Strong and fairly distinctive left signal
 
-            # --- LEFT: Spending & Redistribution (Medium Weight) ---
-            "The text expresses that government should increase spending on healthcare": (1.0, "left"), # Standard policy, less radical than universal.
-            "The text expresses that government should increase spending on education": (1.0, "left"), # Standard policy.
-            "The text expresses that unemployment benefits should be expanded": (1.0, "left"), # Standard safety net expansion.
-            "The text expresses that social safety nets should be expanded": (1.0, "left"), # Standard safety net expansion.
-            "The text expresses that government should reduce income inequality": (1.0, "left"), # Goal-based statement.
-            "The text expresses that corporations should pay higher taxes": (1.0, "left"), # Standard tax policy.
-            "The text expresses that wealthy individuals should pay higher tax rates": (1.0, "left"), # Standard tax policy.
+        "The text expresses that government should increase spending on healthcare": (0.75, "left"),
+        # Common left position but moderate versions exist across spectrum
 
-            # --- LEFT: Justifications/Outcomes (Lower Weight) ---
-            "The text expresses that public investment creates jobs": (0.7, "left"), # A justification for spending.
+        "The text expresses that government should increase spending on education": (0.7, "left"),
+        # Somewhat bipartisan; centrists often support this too
 
-            # --- RIGHT: Core Structural Changes (High Weight) ---
-            "The text expresses that public assets and state-owned enterprises should be privatized": (2.0, "right"), # Direct privatization, strongest right signal.
-            "The text expresses that healthcare should be privatized": (1.8, "right"), # Direct assault on welfare state.
-            "The text expresses that education should be privatized": (1.8, "right"), # Direct assault on public services (vouchers/charters).
-            "The text expresses that financial regulations should be eliminated": (1.7, "right"), # Deregulation (dismantling, not just reducing).
-            "The text expresses that government services should be privatized": (1.5, "right"), # Broad privatization agenda.
+        "The text expresses that unemployment benefits should be expanded": (0.8, "left"),
+        # Clear left signal on welfare state expansion
 
-            # --- RIGHT: Tax Cuts & Spending Cuts (Medium-High Weight) ---
-            "The text expresses that government spending on social programs should be cut": (1.5, "right"), # Austerity, a core right policy.
-            "The text expresses that welfare programs should be reduced": (1.5, "right"), # Specific welfare retrenchment.
-            "The text expresses that corporate tax rates should be lowered": (1.2, "right"), # Standard tax policy.
-            "The text expresses that income taxes should be reduced": (1.2, "right"), # Standard tax policy.
+        "The text expresses that government should provide universal healthcare": (1.0, "left"),
+        # Highly distinctive, core left economic position
 
-            # --- RIGHT: Deregulation & Pro-Business (Medium Weight) ---
-            "The text expresses that environmental regulations hurt business competitiveness": (1.3, "right"), # Specific anti-regulation stance.
-            "The text expresses that minimum wage laws hurt employment": (1.2, "right"), # Classic economic argument against intervention.
-            "The text expresses that large corporations drive economic growth": (1.0, "right"), # Pro-corporate stance.
-            "The text expresses that unions hurt economic competitiveness": (1.2, "right"), # Anti-union stance.
+        "The text expresses that banks and financial institutions should be heavily regulated": (0.85, "left"),
+        # Strong left signal; directly about government role in economy
 
-            # --- RIGHT: Justifications/Outcomes (Lower Weight) ---
-            "The text expresses that private investment is more efficient than public": (0.8, "right"), # Philosophical justification for privatization.
-            "The text expresses that social programs create dependency": (0.8, "right"), # Cultural/conservative justification for cuts.
-            "The text expresses that income inequality reflects merit and effort": (0.7, "right"), # Justification for inequality (libertarian/social conservative).
+        "The text expresses that environmental regulations on business are necessary": (0.65, "left"),
+        # Weaker signal; broad mainstream acceptance dilutes distinctiveness
+
+        "The text expresses that utilities should be publicly owned": (1.0, "left"),
+        # Highly distinctive; directly about public vs private ownership
+
+        "The text expresses that government should break up large corporations": (0.85, "left"),
+        # Strong signal, though some libertarian-right overlap exists
+
+        "The text expresses that minimum wage laws should be strengthened": (0.85, "left"),
+        # Clear and distinctive left economic position
+
+        "The text expresses that unions should have more power": (0.9, "left"),
+        # Very distinctive left economic signal
+
+        "The text expresses that government should reduce income inequality": (0.8, "left"),
+        # Strong left signal, though framing matters
+
+        "The text expresses that public investment creates jobs": (0.75, "left"),
+        # Good signal but can appear in centrist/Keynesian framing
+
+        "The text expresses that social safety nets should be expanded": (0.9, "left"),
+        # Core welfare state expansion — highly distinctive
+
+        "The text expresses that government should have an active role in the economy": (0.85, "left"),
+        # Near-definitional of economic left
+
+        # Right Economic Positions
+        "The text expresses that corporate tax rates should be lowered": (0.85, "right"),
+        # Strong and distinctive right signal
+
+        "The text expresses that income taxes should be reduced": (0.75, "right"),
+        # Common right position but centrists sometimes agree
+
+        "The text expresses that government spending on social programs should be cut": (0.9, "right"),
+        # Core right signal on welfare state reduction
+
+        "The text expresses that welfare programs should be reduced": (0.95, "right"),
+        # Highly distinctive; directly maps to welfare state reduction
+
+        "The text expresses that healthcare should be privatized": (1.0, "right"),
+        # Definitional right position; strong and distinctive
+
+        "The text expresses that education should be privatized": (0.9, "right"),
+        # Strong right signal on privatization
+
+        "The text expresses that financial regulations should be eliminated": (0.95, "right"),
+        # Very distinctive; deregulation is core right economic stance
+
+        "The text expresses that environmental regulations hurt business competitiveness": (0.85, "right"),
+        # Right signal, but framing is indirect (about cost, not ideology)
+
+        "The text expresses that government services should be privatized": (1.0, "right"),
+        # Definitional right position per your classification goal
+
+        "The text expresses that large corporations drive economic growth": (0.65, "right"),
+        # Weaker signal; broadly accepted empirical claim, not purely ideological
+
+        "The text expresses that minimum wage laws hurt employment": (0.85, "right"),
+        # Distinctive right economic position
+
+        "The text expresses that unions hurt economic competitiveness": (0.9, "right"),
+        # Strong and distinctive right signal
+
+        "The text expresses that income inequality reflects merit and effort": (0.9, "right"),
+        # Distinctive right position on the role of markets
+
+        "The text expresses that private investment is more efficient than public": (0.75, "right"),
+        # Core right claim about government's economic role
+
+        "The text expresses that social programs create dependency": (0.95, "right"),
+        # Highly distinctive right framing of welfare state
+
+        "The text expresses that public assets and state-owned enterprises should be privatized": (1.0, "right"),
+        # Definitional right position; directly about privatization
         }
 
 
