@@ -22,9 +22,9 @@ class LeftRightEconomicScorer:
         # Left-Right Economic hypotheses - streamlined to ~15 per side
         self.left_right_hypotheses = {
             # left wing hypotheses
-            "The text expresses that the state should own and control the means of production and major industries": (1.0, "left"),
+            "The text expresses that the state should own and control the means of production and major industries": (1.5, "left"),
 
-            "The text expresses that market mechanisms should be replaced by central state planning and allocation": (1.0, "left"),
+            "The text expresses that market mechanisms should be replaced by central state planning and allocation": (1.5, "left"),
 
             "The text expresses that corporations should pay higher taxes": (0.8, "left"),
     
@@ -59,9 +59,9 @@ class LeftRightEconomicScorer:
             "The text expresses that government should have a very active role in the economy": (0.95, "left"),
     
             # Right Economic Positions
-            "The text expresses that the means of production and major industries should be privately owned and free from state control": (1.0, "right"),
+            "The text expresses that the means of production and major industries should be privately owned and free from state control": (1.5, "right"),
 
-            "The text expresses that free market mechanisms should replace state planning and allocation": (1.0, "right"),
+            "The text expresses that free market mechanisms should replace state planning and allocation": (1.5, "right"),
 
             "The text expresses that corporate tax rates should be lowered": (0.85, "right"),
     
