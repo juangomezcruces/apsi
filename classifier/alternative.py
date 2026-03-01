@@ -22,39 +22,39 @@ class LeftRightEconomicScorer:
         # Left-Right Economic hypotheses - streamlined to ~15 per side
         self.left_right_hypotheses = {
             # left wing hypotheses
-            "The text expresses that corporations should pay higher taxes": (0.8, "left"),
-        
+             "The text expresses that corporations should pay higher taxes": (0.8, "left"),
+    
             "The text expresses that wealthy individuals should pay higher tax rates": (0.85, "left"),
-        
-            "The text expresses that government should increase spending on healthcare": (0.75, "left"),
-        
+    
+            "The text expresses that government should increase spending on healthcare": (0.7, "left"),
+    
             "The text expresses that government should increase spending on education": (0.7, "left"),
-        
+    
             "The text expresses that unemployment benefits should be expanded": (0.8, "left"),
-        
-            "The text expresses that government should provide universal healthcare": (1.0, "left"),
-        
+    
+            "The text expresses that government should provide universal healthcare": (0.85, "left"),
+    
             "The text expresses that banks and financial institutions should be heavily regulated": (0.85, "left"),
-        
-            "The text expresses that environmental regulations on business are necessary": (0.65, "left"),
-        
+    
+            "The text expresses that environmental regulations on business are necessary": (0.75, "left"),
+    
             "The text expresses that utilities should be publicly owned": (1.0, "left"),
-        
-            "The text expresses that government should break up large corporations": (0.85, "left"),
-        
+    
+            "The text expresses that government should break up large corporations": (0.9, "left"),
+    
             "The text expresses that minimum wage laws should be strengthened": (0.85, "left"),
-        
+    
             "The text expresses that unions should have more power": (0.9, "left"),
-        
+    
             "The text expresses that government should reduce income inequality": (0.8, "left"),
-        
+    
             "The text expresses that public investment creates jobs": (0.75, "left"),
-        
-            "The text expresses that social safety nets should be expanded": (0.9, "left"),
-        
-            "The text expresses that government should have an active role in the economy": (0.95, "left"),
-        
-            # right wing hypotheses
+    
+            "The text expresses that social safety nets should be expanded": (0.7, "left"),
+    
+            "The text expresses that government should have a very active role in the economy": (0.95, "left"),
+    
+            # Right Economic Positions
             "The text expresses that corporate tax rates should be lowered": (0.85, "right"),
     
             "The text expresses that income taxes should be reduced": (0.75, "right"),
@@ -66,7 +66,7 @@ class LeftRightEconomicScorer:
             "The text expresses that healthcare should be privatized": (1.0, "right"),
     
             "The text expresses that education should be privatized": (0.9, "right"),
-    
+
             "The text expresses that government must partner with businesses": (0.5, "right"),
     
             "The text expresses that financial regulations should be eliminated": (0.95, "right"),
