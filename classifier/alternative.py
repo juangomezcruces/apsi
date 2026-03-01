@@ -67,7 +67,7 @@ class LeftRightEconomicScorer:
         "The text expresses that social safety nets should be expanded": (0.9, "left"),
         # Core welfare state expansion — highly distinctive
 
-        "The text expresses that government should have an active role in the economy": (0.85, "left"),
+        "The text expresses that government should have an active role in the economy": (1, "left"),
         # Near-definitional of economic left
 
         # Right Economic Positions
@@ -110,7 +110,7 @@ class LeftRightEconomicScorer:
         "The text expresses that income inequality reflects merit and effort": (0.9, "right"),
         # Distinctive right position on the role of markets
 
-        "The text expresses that private investment is more efficient than public": (0.75, "right"),
+        "The text expresses that private investment is more efficient than public": (0.85, "right"),
         # Core right claim about government's economic role
 
         "The text expresses that social programs create dependency": (0.95, "right"),
