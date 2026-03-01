@@ -67,7 +67,7 @@ class LeftRightEconomicScorer:
         "The text expresses that social safety nets should be expanded": (0.9, "left"),
         # Core welfare state expansion — highly distinctive
 
-        "The text expresses that government should have an active role in the economy": (1, "left"),
+        "The text expresses that government should have an active role in the economy": (0.95, "left"),
         # Near-definitional of economic left
 
         # Right Economic Positions
@@ -92,7 +92,7 @@ class LeftRightEconomicScorer:
         "The text expresses that financial regulations should be eliminated": (0.95, "right"),
         # Very distinctive; deregulation is core right economic stance
 
-        "The text expresses that environmental regulations hurt business competitiveness": (0.85, "right"),
+        "The text expresses that environmental regulations hurt business competitiveness": (0.75, "right"),
         # Right signal, but framing is indirect (about cost, not ideology)
 
         "The text expresses that government services should be privatized": (1.0, "right"),
