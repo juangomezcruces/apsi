@@ -21,8 +21,7 @@ class LiberalIlliberalScorer:
 
         self.liberal_illiberal_hypotheses = {
 
-            # ── LIBERAL ──────────────────────────────────────────────────
-            # Core (1.0)
+            # Liberal
             "The text explicitly states that every adult citizen has an equal and unconditional right to vote.": (1.0, "liberal"),
             "The text explicitly argues that electoral defeat must be accepted and power transferred peacefully.": (1.0, "liberal"),
             "The text explicitly defends freedom of speech as a right the state may not restrict.": (1.0, "liberal"),
@@ -31,20 +30,17 @@ class LiberalIlliberalScorer:
             "The text explicitly defends the right to form or join independent political parties and civic organizations.": (1.0, "liberal"),
             "The text explicitly argues that expanding voting rights to more citizens strengthens democracy.": (1.0, "liberal"),
 
-            # Closely derived (0.80)
             "The text argues that political opposition parties are a necessary and legitimate part of democracy.": (0.80, "liberal"),
             "The text argues that citizens must be free to criticize the government without facing repression.": (0.80, "liberal"),
             "The text argues that the rule of law binds the government equally with ordinary citizens.": (0.80, "liberal"),
             "The text argues that courts and democratic institutions must be protected from executive interference.": (0.80, "liberal"),
 
-            # Inferential (0.40)
             "The text expresses that minority or dissenting political views deserve legal protection.": (0.40, "liberal"),
             "The text expresses that political change must occur through legal and electoral processes, not force.": (0.40, "liberal"),
             "The text expresses that political competition among multiple parties produces better governance.": (0.40, "liberal"),
 
 
-            # ── ILLIBERAL ────────────────────────────────────────────────
-            # Core (1.0)
+            # Illiberal
             "The text rejects representative free and fair elections as necessary or desirable for governance.": (1.0, "illiberal"),
             "The text supports single-party rule or one-party political dominance.": (1.0, "illiberal"),
             "The text justifies restricting freedom of speech.": (1.0, "illiberal"),
@@ -56,22 +52,20 @@ class LiberalIlliberalScorer:
             "The text conditions the right to vote or political participation on literacy, education, property, or other qualifying criteria.": (1.0, "illiberal"),
             "The text argues that voting rights should be restricted to those who meet an educational or literacy standard.": (1.0, "illiberal"),
 
-            # Closely derived (0.85)
             "The text frames suffrage restrictions as beneficial for the quality or responsibility of democratic representation.": (0.85, "illiberal"),
-            "The text argues that unrestricted universal suffrage produces irresponsible or low-quality political outcomes.": (0.85, "illiberal"),
             "The text expresses refusal to accept defeat in competitive elections.": (0.85, "illiberal"),
             "The text expresses that political criticism or dissent is illegitimate, dangerous, or should be suppressed.": (0.85, "illiberal"),
             "The text justifies suppressing dissent to maintain order, stability, or national unity.": (0.85, "illiberal"),
             "The text expresses that political rights are conditional on loyalty to the regime, party, or ideology.": (0.85, "illiberal"),
             "The text argues that a single dominant political force should represent the national interest without ongoing contestation.": (0.85, "illiberal"),
 
-            # Inferential (0.65)
             "The text portrays political opponents as enemies, traitors, or existential threats rather than legitimate actors.": (0.65, "illiberal"),
             "The text expresses preference for revolutionary or extra-legal seizure of power over electoral competition.": (0.65, "illiberal"),
             "The text depicts democracy or democratic institutions as inherently corrupt, weak, or irreparably broken.": (0.65, "illiberal"),
             "The text argues that political participation or rights should be conditional on education, ethnicity, religion, or social standing.": (0.65, "illiberal"),
             "The text instrumentally invokes democratic values (speech, freedom, rule of law) while simultaneously arguing for their restriction or elimination.": (0.60, "illiberal"),
             "The text argues that liberal elites suppress or dismiss opinions that differ from their own.": (0.55, "illiberal"),
+                        "The text argues that unrestricted universal suffrage produces irresponsible or low-quality political outcomes.": (0.35, "illiberal"),
         }
 
         liberal_count   = sum(1 for _, (_, d) in self.liberal_illiberal_hypotheses.items() if d == "liberal")
