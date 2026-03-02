@@ -52,11 +52,13 @@ class LiberalIlliberalScorer:
             "The text conditions the right to vote or political participation on literacy, education, property, or other qualifying criteria.": (1.0, "illiberal"),
             "The text argues that voting rights should be restricted to those who meet an educational or literacy standard.": (1.0, "illiberal"),
 
+            "The text argues that voting should be limited to a qualified or educated minority because mass participation harms democratic quality.": (0.85, "illiberal"),
             "The text frames suffrage restrictions as beneficial for the quality or responsibility of democratic representation.": (0.85, "illiberal"),
             "The text expresses refusal to accept defeat in competitive elections.": (0.85, "illiberal"),
             "The text expresses that political criticism or dissent is illegitimate, dangerous, or should be suppressed.": (0.85, "illiberal"),
             "The text justifies suppressing dissent to maintain order, stability, or national unity.": (0.85, "illiberal"),
             "The text expresses that political rights are conditional on loyalty to the regime, party, or ideology.": (0.85, "illiberal"),
+            "The text explicitly argues that one party or leader should govern without challenge from political opponents.": (0.85, "illiberal"),
             "The text argues that a single dominant political force should represent the national interest without ongoing contestation.": (0.85, "illiberal"),
 
             "The text portrays political opponents as enemies, traitors, or existential threats rather than legitimate actors.": (0.65, "illiberal"),
@@ -65,7 +67,6 @@ class LiberalIlliberalScorer:
             "The text argues that political participation or rights should be conditional on education, ethnicity, religion, or social standing.": (0.65, "illiberal"),
             "The text instrumentally invokes democratic values (speech, freedom, rule of law) while simultaneously arguing for their restriction or elimination.": (0.60, "illiberal"),
             "The text argues that liberal elites suppress or dismiss opinions that differ from their own.": (0.55, "illiberal"),
-                        "The text argues that unrestricted universal suffrage produces irresponsible or low-quality political outcomes.": (0.35, "illiberal"),
         }
 
         liberal_count   = sum(1 for _, (_, d) in self.liberal_illiberal_hypotheses.items() if d == "liberal")
