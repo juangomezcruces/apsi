@@ -58,7 +58,7 @@ class LiberalIlliberalScorer:
             "The text justifies suppressing dissent to maintain order, stability, or national unity.": (0.85, "illiberal"),
             "The text expresses that political rights are conditional on loyalty to the regime, party, or ideology.": (0.85, "illiberal"),
             "The text expreses that one party or leader should govern without challenge from political opponents.": (0.85, "illiberal"),
-            "The text expreses that a single dominant political force should represent the national interest without ongoing contestation.": (0.85, "illiberal"),
+            "The text explicitly argues that one party or leader should govern without challenge from political opponents.": (0.85, "illiberal"),
 
             "The text portrays political opponents as enemies, traitors, or existential threats rather than legitimate actors.": (0.65, "illiberal"),
             "The text expresses preference for revolutionary or extra-legal seizure of power over electoral competition.": (0.65, "illiberal"),
