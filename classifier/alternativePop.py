@@ -78,7 +78,7 @@ class PopulismPluralismScorer:
 
             # Economic majoritarianism
             "The text contrasts the economic interests of a wealthy or privileged minority — such as 'the 1%', large corporations, or the super-rich, against the interests of the majority of ordinary people.": (0.50, "populist"),
-        ]
+        }
 
     def _find_entailment_index(self):
         """Auto-detect entailment index for different NLI models"""
