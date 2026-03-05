@@ -23,41 +23,7 @@ class PopulismPluralismScorer:
         # Populism-Pluralism hypotheses based on GPS and V-Party definitions
         # Populism-Pluralism hypotheses - refined for specificity
         self.populism_hypotheses = {
-            # 1) Anti-elite vs legitimate representation
-            "The text argues that corrupt elites or establishment insiders have betrayed ordinary people.": (1.0, "populist"),
-            "The text argues that representatives and institutions can legitimately govern by balancing diverse interests.": (1.0, "pluralist"),
-
-            # 2) System is rigged vs institutions have safeguards
-            "The text claims the political system is rigged to serve wealthy donors, corporations, or special interests over the public.": (1.0, "populist"),
-            "The text argues that institutional checks and safeguards prevent abuses and protect democratic stability.": (1.0, "pluralist"),
-
-            # 3) Direct popular rule vs mediated democracy
-            "The text explicitly advocates replacing representative institutions with direct popular decision-making (e.g., referendums instead of legislatures).": (1.0, "populist"),
-            "The text supports mediated democracy where deliberation, committees, and representative bargaining are necessary.": (1.0, "pluralist"),
-
-            # 4) Homogeneous 'people' vs plural society
-            "The text explicitly claims that a single unified majority shares the same political will and is opposed by corrupt elites.": (1.0, "populist"),
-            "The text explicitly acknowledges that different social groups have conflicting interests that require negotiation and compromise.": (1.0, "pluralist"),
-
-            # 5) Anti-expertise / common sense vs expertise and complexity
-            "The text argues that ordinary people’s common sense is more trustworthy than experts or technocrats.": (1.0, "populist"),
-            "The text argues that experts and specialized agencies provide valuable knowledge for complex policy decisions.": (1.0, "pluralist"),
-
-            # 6) Anti-bureaucracy / obstruction vs professional administration
-            "The text claims bureaucrats or the 'deep state' obstruct the will of the people and must be overridden.": (1.0, "populist"),
-            "The text argues that professional civil servants and administrative processes provide continuity and competence.": (1.0, "pluralist"),
-
-            # 7) Anti-media establishment vs legitimate public discourse
-            "The text claims mainstream media and establishment networks suppress ordinary people’s voices or coordinate against them.": (1.0, "populist"),
-            "The text argues that open debate, opposition, and institutionalized contestation improve policy and accountability.": (1.0, "pluralist"),
-
-            # 8) Majority unconstrained vs minority rights and courts
-            "The text argues that the majority should decide without being blocked by courts, minorities, or institutional vetoes.": (1.0, "populist"),
-            "The text argues that courts and constitutional protections should defend minority rights against majority overreach.": (1.0, "pluralist"),
-
-            # 9) Outsider savior / dramatic overhaul vs incremental compromise
-            "The text explicitly blames entrenched elites for problems and claims only political outsiders can solve them.": (1.0, "populist"),
-            "The text argues that negotiation, coalition-building, and incremental reform produce more sustainable outcomes.": (1.0, "pluralist"),
+        
         }
 
         populist_count = sum(1 for _, (_, direction) in self.populism_hypotheses.items() if direction == "populist")
@@ -67,40 +33,57 @@ class PopulismPluralismScorer:
         # Topic check configuration
         self.topic_threshold = 0.6
         self.topic_hypotheses = [
-            # Legitimacy of Political Authority
-            "This text supports the idea that political authority is legitimate only when it follows constitutional rules and legal procedures.",
-            "This text portrays the direct will of the people as the primary source of political legitimacy.",
-            "This text suggests that elected leaders lose legitimacy when they ignore popular demands.",
-            "This text emphasizes the role of courts and independent agencies in validating political authority.",
-            "This text portrays charismatic leadership as a sufficient basis for political legitimacy.",
+            # Anti-elite vs. legitimate representation
+            "The text argues that corrupt elites or establishment insiders have betrayed ordinary people.": (1.0, "populist"),
+        
+            "The text argues that representative institutions and elected officials can legitimately govern on behalf of citizens without requiring direct popular mandates on every issue.": (0.60, "pluralist"),
+        
+            # System is rigged vs. institutional safeguards
+            "The text claims that electoral or legislative processes are systematically manipulated by wealthy donors, corporations, or lobbyists at the expense of ordinary voters.": (0.80, "populist"),        
+            "The text defends institutional checks, oversight mechanisms, or procedural rules as necessary safeguards against corruption or abuse of power.": (0.85, "pluralist"),
+        
+            # Skepticism of representation vs. mediated democracy
+            "The text explicitly questions or dismisses the legitimacy of legislatures, political parties, or elected representatives, suggesting that direct popular participation should replace them.": (0.75, "populist"),
+            "The text explicitly argues that political decisions must go through formal institutional procedures, such as parliamentary debate, judicial review, or constitutional process — and rejects shortcuts that bypass these.": (0.65, "pluralist"),
+        
+            # Homogeneous 'people' vs. plural society
+            "The text invokes 'the people' as a unified, virtuous whole whose collective will or welfare is being actively frustrated or betrayed by a corrupt or self-serving minority.": (1.0, "populist"),        
+            "The text acknowledges that society contains diverse groups with legitimately different interests that must be negotiated through political compromise.": (0.90, "pluralist"),
+        
+            # Anti-expertise vs. expertise
+            "The text argues that ordinary people's common sense is more trustworthy than experts or technocrats.": (0.90, "populist"),
+            "The text argues that expert knowledge, evidence-based policy, or specialized institutions contribute valuable input to political decision-making.": (0.75, "pluralist"),
+        
+            # Anti-bureaucracy vs. professional administration
+            "The text portrays civil servants, bureaucrats, or administrative agencies as self-interested obstructors of the popular will who should be removed or overridden.": (0.95, "populist"),        
+            "The text argues that professional civil servants and administrative processes provide continuity and competence in governance.": (0.80, "pluralist"),
+        
+            # Anti-media vs. press freedom / open debate
+            "The text claims mainstream media and establishment networks suppress ordinary people's voices or coordinate against them.": (1.0, "populist"),
+            "The text supports freedom of the press, diverse media, or institutionalized public debate as essential to democratic accountability.": (0.85, "pluralist"),
+        
+            # Majority unconstrained vs. minority rights and courts
+            "The text explicitly calls for overriding, ignoring, or abolishing judicial review, constitutional courts, or legal constraints that limit what elected majorities can do.": (0.40, "populist"),
+            "The text argues that courts and constitutional protections should defend minority rights against majority overreach.": (1.0, "pluralist"),
+        
+            # Outsider savior
+            "The text claims that established political parties, career politicians, or the governing class are incapable of solving the country's core problems.": (0.80, "populist"),
+            "The text argues that an outsider candidate or anti-establishment movement, explicitly positioned against the existing political class, is the only legitimate path to genuine change.": (0.85, "populist"),
+            "The text explicitly warns against or rejects sudden, revolutionary, or disruptive political change, arguing instead for gradual and negotiated reform.": (0.70, "pluralist"),
+        
+            # Legal/institutional norms defended vs. circumvented
+            "The text defends the application of legal norms, international treaties, or "
+            "constitutional rules against attempts by officials or governments to "
+            "circumvent them.": (0.90, "pluralist"),
+        
+            # Institutional anti-corruption vs. elite-betrayal framing
+            "The text explicitly states that corruption, bribery, or abuse of office "
+            "should be prosecuted or sanctioned through existing legal institutions, "
+            "not addressed by removing or replacing the entire political "
+            "class.": (0.65, "pluralist"),
 
-            # Role of Institutions
-            "This text portrays political institutions as protecting citizens from arbitrary and abusive power.",
-            "This text depicts political institutions as outdated structures that primarily serve elite interests.",
-            "This text supports reforming institutions without weakening or bypassing them.",
-            "This text portrays unelected institutions as unjust obstacles to democratic decision-making.",
-            "This text emphasizes that strong institutions are more important than strong leaders.",
-
-            # Decision-Making Style
-            "This text supports political decision-making through negotiation and compromise.",
-            "This text emphasizes decisive leadership over deliberation.",
-            "This text promotes expert knowledge as a legitimate basis for policymaking, even when unpopular.",
-            "This text portrays popular opinion as superior to expert or technocratic judgment.",
-            "This text frames slow decision-making as a necessary feature of democracy.",
-
-            # View of Opposition and Elites
-            "This text portrays political opponents as legitimate actors with valid interests.",
-            "This text depicts elites as manipulating institutions for personal gain.",
-            "This text frames criticism and dissent as strengthening democracy.",
-            "This text portrays those who oppose the people’s will as enemies of democracy.",
-            "This text frames political conflict as a struggle between ordinary citizens and corrupt elites.",
-
-            # “the People”
-            "This text portrays society as composed of diverse groups with competing interests.",
-            "This text portrays the people as a unified moral community with shared goals.",
-            "This text supports limiting majority power in order to protect minority rights.",
-            "This text portrays the will of the majority as something that should not be constrained by special interests.",
-            "This text suggests that leaders can clearly identify and represent the true will of the people."
+            # Economic majoritarianism
+            "The text contrasts the economic interests of a wealthy or privileged minority — such as 'the 1%', large corporations, or the super-rich, against the interests of the majority of ordinary people.": (0.50, "populist"),
         ]
 
     def _find_entailment_index(self):
