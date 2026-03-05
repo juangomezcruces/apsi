@@ -32,7 +32,7 @@ class PopulismPluralismScorer:
         
         # Topic check configuration
         self.topic_threshold = 0.6
-        self.topic_hypotheses = [
+        self.topic_hypotheses = {
             # Anti-elite vs. legitimate representation
             "The text argues that corrupt elites or establishment insiders have betrayed ordinary people.": (1.0, "populist"),
             "The text argues that representative institutions and elected officials can legitimately govern on behalf of citizens without requiring direct popular mandates on every issue.": (0.60, "pluralist"),
