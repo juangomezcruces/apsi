@@ -20,20 +20,8 @@ class PopulismPluralismScorer:
         self.model, self.tokenizer = cache.get_model_and_tokenizer(model_name)
         self.entailment_idx = self._find_entailment_index()
 
-        # Populism-Pluralism hypotheses based on GPS and V-Party definitions
-        # Populism-Pluralism hypotheses - refined for specificity
         self.populism_hypotheses = {
-        
-        }
-
-        populist_count = sum(1 for _, (_, direction) in self.populism_hypotheses.items() if direction == "populist")
-        pluralist_count = sum(1 for _, (_, direction) in self.populism_hypotheses.items() if direction == "pluralist")
-        print(f"Loaded {len(self.populism_hypotheses)} hypotheses ({populist_count} populist, {pluralist_count} pluralist)")
-        
-        # Topic check configuration
-        self.topic_threshold = 0.6
-        self.topic_hypotheses = {
-            # Anti-elite vs. legitimate representation
+      # Anti-elite vs. legitimate representation
             "The text argues that corrupt elites or establishment insiders have betrayed ordinary people.": (1.0, "populist"),
             "The text argues that representative institutions and elected officials can legitimately govern on behalf of citizens without requiring direct popular mandates on every issue.": (0.60, "pluralist"),
         
@@ -79,6 +67,49 @@ class PopulismPluralismScorer:
             # Economic majoritarianism
             "The text contrasts the economic interests of a wealthy or privileged minority — such as 'the 1%', large corporations, or the super-rich, against the interests of the majority of ordinary people.": (0.50, "populist"),
         }
+
+        populist_count = sum(1 for _, (_, direction) in self.populism_hypotheses.items() if direction == "populist")
+        pluralist_count = sum(1 for _, (_, direction) in self.populism_hypotheses.items() if direction == "pluralist")
+        print(f"Loaded {len(self.populism_hypotheses)} hypotheses ({populist_count} populist, {pluralist_count} pluralist)")
+        
+        # Topic check configuration
+        self.topic_threshold = 0.6
+        self.topic_hypotheses = [
+            # Legitimacy of Political Authority
+            "This text supports the idea that political authority is legitimate only when it follows constitutional rules and legal procedures.",
+            "This text portrays the direct will of the people as the primary source of political legitimacy.",
+            "This text suggests that elected leaders lose legitimacy when they ignore popular demands.",
+            "This text emphasizes the role of courts and independent agencies in validating political authority.",
+            "This text portrays charismatic leadership as a sufficient basis for political legitimacy.",
+
+            # Role of Institutions
+            "This text portrays political institutions as protecting citizens from arbitrary and abusive power.",
+            "This text depicts political institutions as outdated structures that primarily serve elite interests.",
+            "This text supports reforming institutions without weakening or bypassing them.",
+            "This text portrays unelected institutions as unjust obstacles to democratic decision-making.",
+            "This text emphasizes that strong institutions are more important than strong leaders.",
+
+            # Decision-Making Style
+            "This text supports political decision-making through negotiation and compromise.",
+            "This text emphasizes decisive leadership over deliberation.",
+            "This text promotes expert knowledge as a legitimate basis for policymaking, even when unpopular.",
+            "This text portrays popular opinion as superior to expert or technocratic judgment.",
+            "This text frames slow decision-making as a necessary feature of democracy.",
+
+            # View of Opposition and Elites
+            "This text portrays political opponents as legitimate actors with valid interests.",
+            "This text depicts elites as manipulating institutions for personal gain.",
+            "This text frames criticism and dissent as strengthening democracy.",
+            "This text portrays those who oppose the people’s will as enemies of democracy.",
+            "This text frames political conflict as a struggle between ordinary citizens and corrupt elites.",
+
+            # “the People”
+            "This text portrays society as composed of diverse groups with competing interests.",
+            "This text portrays the people as a unified moral community with shared goals.",
+            "This text supports limiting majority power in order to protect minority rights.",
+            "This text portrays the will of the majority as something that should not be constrained by special interests.",
+            "This text suggests that leaders can clearly identify and represent the true will of the people."
+        ]
 
     def _find_entailment_index(self):
         """Auto-detect entailment index for different NLI models"""
