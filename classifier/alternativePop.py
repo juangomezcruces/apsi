@@ -35,7 +35,6 @@ class PopulismPluralismScorer:
         self.topic_hypotheses = [
             # Anti-elite vs. legitimate representation
             "The text argues that corrupt elites or establishment insiders have betrayed ordinary people.": (1.0, "populist"),
-        
             "The text argues that representative institutions and elected officials can legitimately govern on behalf of citizens without requiring direct popular mandates on every issue.": (0.60, "pluralist"),
         
             # System is rigged vs. institutional safeguards
@@ -72,15 +71,10 @@ class PopulismPluralismScorer:
             "The text explicitly warns against or rejects sudden, revolutionary, or disruptive political change, arguing instead for gradual and negotiated reform.": (0.70, "pluralist"),
         
             # Legal/institutional norms defended vs. circumvented
-            "The text defends the application of legal norms, international treaties, or "
-            "constitutional rules against attempts by officials or governments to "
-            "circumvent them.": (0.90, "pluralist"),
+            "The text defends the application of legal norms, international treaties, or constitutional rules against attempts by officials or governments to circumvent them.": (0.90, "pluralist"),
         
             # Institutional anti-corruption vs. elite-betrayal framing
-            "The text explicitly states that corruption, bribery, or abuse of office "
-            "should be prosecuted or sanctioned through existing legal institutions, "
-            "not addressed by removing or replacing the entire political "
-            "class.": (0.65, "pluralist"),
+            "The text explicitly states that corruption, bribery, or abuse of office should be prosecuted or sanctioned through existing legal institutions, not addressed by removing or replacing the entire political class.": (0.65, "pluralist"),
 
             # Economic majoritarianism
             "The text contrasts the economic interests of a wealthy or privileged minority — such as 'the 1%', large corporations, or the super-rich, against the interests of the majority of ordinary people.": (0.50, "populist"),
