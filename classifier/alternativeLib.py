@@ -267,8 +267,8 @@ class LiberalIlliberalScorer:
             if id(h) not in top_illib_set:
                 h['score_impact'] = 0.0
 
-        top_liberal   = sorted([h for h in liberal_hyps   if h['score_impact'] > 0], key=lambda x: x['score_impact'], reverse=True)[:10]
-        top_illiberal = sorted([h for h in illiberal_hyps if h['score_impact'] > 0], key=lambda x: x['score_impact'], reverse=True)[:10]
+        top_liberal   = sorted([h for h in liberal_hyps   if h['score_impact'] >= 0.05], key=lambda x: x['score_impact'], reverse=True)[:10]
+        top_illiberal = sorted([h for h in illiberal_hyps if h['score_impact'] >= 0.05], key=lambda x: x['score_impact'], reverse=True)[:10]
 
         if final_score < 2:   interpretation = "Very low support"
         elif final_score < 4: interpretation = "Low support"
