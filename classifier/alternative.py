@@ -56,7 +56,7 @@ class LeftRightEconomicScorer:
     
             "The text expresses that social safety nets should be expanded": (0.7, "left"),
     
-            "The text expresses that the government should directly fund and provide essential services like healthcare, education, and housing rather than leaving them to the market": (0.95, "left"),
+            "The text expresses that government should have a very active role in the economy": (0.95, "left"),
     
             # Right Economic Positions
             "The text expresses that the means of production and major industries should be privately owned and free from state control": (1.5, "right"),
@@ -75,9 +75,7 @@ class LeftRightEconomicScorer:
     
             "The text expresses that education should be privatized": (0.9, "right"),
 
-            "The text expresses that government must not interfere with how businesses operate or set prices": (0.85, "right"),
-
-            "The text expresses that cutting taxes on businesses and investors is the best way to grow the economy": (0.9, "right"),
+            "The text expresses that government must partner with businesses": (0.5, "right"),
     
             "The text expresses that financial regulations should be eliminated": (0.95, "right"),
     
@@ -91,7 +89,7 @@ class LeftRightEconomicScorer:
     
             "The text expresses that unions hurt economic competitiveness": (0.9, "right"),
 
-            "The text expresses that government should reduce spending and let the private sector drive economic growth": (0.9, "right"),
+            "The text expresses that government intervention in the economy should be focused on helping businesses": (0.9, "right"),
     
             "The text expresses that income inequality reflects merit and effort": (0.9, "right"),
     
@@ -222,19 +220,8 @@ class LeftRightEconomicScorer:
 
     def score_left_right(self, text, thr=0.15):
         """Score text and return comprehensive results"""
-        # Run precheck and scoring hypotheses in a single batched call
-        n_topic = len(self.topic_hypotheses)
-        scoring_hypotheses = list(self.left_right_hypotheses.keys())
-        all_hypotheses = self.topic_hypotheses + scoring_hypotheses
-
-        all_probs_combined = self._batch_entailment_probs(text, all_hypotheses)
-
-        # Precheck: max over topic slice
-        topic_probs = all_probs_combined[:n_topic]
-        topic_prob = float(max(topic_probs)) if topic_probs else 0.0
-        logger.info(f"Thesis Left Right triggered with: {topic_prob}")
-        is_relevant = topic_prob >= self.topic_threshold
-
+        # Check if text is about economic policy
+        is_relevant, topic_prob = self.is_about_economic_policy(text)
         if not is_relevant:
             return {
                 'text': text,
@@ -243,12 +230,12 @@ class LeftRightEconomicScorer:
                 'contradiction_detected': False,
                 'interpretation': 'Not about economic policy',
                 'is_relevant': False,
-                'topic_probability': topic_prob,
+                'topic_probability': float(topic_prob),
                 'passed_precheck': False,
+                'is_relevant': False,
             }
-
-        # Scoring: remaining slice
-        probs = np.array(all_probs_combined[n_topic:])
+        
+        probs = self.get_hypothesis_probabilities(text)
 
         left_probs = []
         right_probs = []
@@ -305,12 +292,10 @@ class LeftRightEconomicScorer:
         top_left_weighted = sorted([(h['probability'] * h['weight'], h) for h in left_hyps], key=lambda x: x[0], reverse=True)[:k_score]
         top_right_weighted = sorted([(h['probability'] * h['weight'], h) for h in right_hyps], key=lambda x: x[0], reverse=True)[:k_score]
 
-        n_left = len(top_left_weighted) or 1
-        n_right = len(top_right_weighted) or 1
         for weighted_val, h in top_left_weighted:
-            h['score_impact'] = round((weighted_val / n_left) * 5, 3)
+            h['score_impact'] = round((weighted_val / k_score) * 5, 3)
         for weighted_val, h in top_right_weighted:
-            h['score_impact'] = round((weighted_val / n_right) * 5, 3)
+            h['score_impact'] = round((weighted_val / k_score) * 5, 3)
         # Hypotheses outside the top-k got no weight in the average
         top_left_set = {id(h) for _, h in top_left_weighted}
         top_right_set = {id(h) for _, h in top_right_weighted}
