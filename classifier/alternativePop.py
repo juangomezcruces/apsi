@@ -272,8 +272,8 @@ class PopulismPluralismScorer:
             if id(h) not in top_plu_set:
                 h['score_impact'] = 0.0
 
-        top_populist = sorted(populist_hyps, key=lambda x: x['probability'], reverse=True)[:10]
-        top_pluralist = sorted(pluralist_hyps, key=lambda x: x['probability'], reverse=True)[:10]
+        top_populist  = sorted([h for h in populist_hyps  if h['score_impact'] > 0], key=lambda x: x['score_impact'], reverse=True)[:10]
+        top_pluralist = sorted([h for h in pluralist_hyps if h['score_impact'] > 0], key=lambda x: x['score_impact'], reverse=True)[:10]
 
         # Interpret score (0-10 scale: 0=Strong Pluralist, 5=Moderate, 10=Strong Populist)
         if final_score < 2:
