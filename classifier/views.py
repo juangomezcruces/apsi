@@ -353,7 +353,7 @@ def classify_text(request):
 
         why_these_results = {}
 
-        def _fmt_items(items, limit=5, min_prob_pct=1):
+        def _fmt_items(items, limit=5, min_prob_pct=155):
             """
             items: list of dicts with 'hypothesis', 'probability' (0..1), 'weight', 'score_impact' (points on 0-10 scale).
             Displays score_impact as the primary metric and derives bar width + hue from it.
@@ -386,8 +386,8 @@ def classify_text(request):
             # Economic Left–Right
             lr = alternative_scores.get("left_right_hypothesis")
             if lr and lr.get("is_relevant") is not False:
-                left_items = _fmt_items(lr.get("top_left_hypotheses", []), limit=5, min_prob_pct=1)
-                right_items = _fmt_items(lr.get("top_right_hypotheses", []), limit=5, min_prob_pct=1)
+                left_items = _fmt_items(lr.get("top_left_hypotheses", []), limit=5, min_prob_pct=15)
+                right_items = _fmt_items(lr.get("top_right_hypotheses", []), limit=5, min_prob_pct=15)
                 if left_items or right_items:
                     why_these_results["Economic Left–Right"] = {
                         "Left": left_items,
@@ -397,8 +397,8 @@ def classify_text(request):
             # Support for Liberal Democracy
             li = alternative_scores.get("liberal_illiberal_hypothesis")
             if li and li.get("is_relevant") is not False:
-                liberal_items = _fmt_items(li.get("top_liberal_hypotheses", []), limit=5, min_prob_pct=1)
-                illiberal_items = _fmt_items(li.get("top_illiberal_hypotheses", []), limit=5, min_prob_pct=1)
+                liberal_items = _fmt_items(li.get("top_liberal_hypotheses", []), limit=5, min_prob_pct=15)
+                illiberal_items = _fmt_items(li.get("top_illiberal_hypotheses", []), limit=5, min_prob_pct=15)
                 if liberal_items or illiberal_items:
                     why_these_results["Support for Liberal Democracy"] = {
                         "Liberal": liberal_items,
@@ -408,8 +408,8 @@ def classify_text(request):
             # Populism–Pluralism
             pp = alternative_scores.get("populism_pluralism_hypothesis")
             if pp and pp.get("is_relevant") is not False:
-                pluralism_items = _fmt_items(pp.get("top_pluralism_hypotheses", []), limit=5, min_prob_pct=1)
-                populism_items = _fmt_items(pp.get("top_populism_hypotheses", []), limit=5, min_prob_pct=1)
+                pluralism_items = _fmt_items(pp.get("top_pluralism_hypotheses", []), limit=5, min_prob_pct=15)
+                populism_items = _fmt_items(pp.get("top_populism_hypotheses", []), limit=5, min_prob_pct=15)
                 if pluralism_items or populism_items:
                     why_these_results["Populism–Pluralism"] = {
                         "Pluralism": pluralism_items,
