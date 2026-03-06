@@ -252,24 +252,10 @@
                           <div class="mb-2">
                             <div class="d-flex justify-content-between align-items-baseline mb-1" style="gap: 0.5rem;">
                               <small class="text-dark" style="flex: 1; min-width: 0;">{{ it.text }}</small>
-                              <small class="text-muted text-nowrap fw-semibold">{{ it.contribution }}%</small>
+                              <small class="text-muted text-nowrap fw-semibold">+{{ it.score_impact }} pts</small>
                             </div>
                             <div style="background:#e9ecef; border-radius: 4px; height: 8px; width: 100%;">
-                              {% if side_name == "Left" %}
-                                <div style="background:#c9207a; height:8px; border-radius:4px; width:{{ it.contribution }}%;"></div>
-                              {% elif side_name == "Right" %}
-                                <div style="background:#6f42c1; height:8px; border-radius:4px; width:{{ it.contribution }}%;"></div>
-                              {% elif side_name == "Liberal" %}
-                                <div style="background:#20c997; height:8px; border-radius:4px; width:{{ it.contribution }}%;"></div>
-                              {% elif side_name == "Illiberal" %}
-                                <div style="background:#dc3545; height:8px; border-radius:4px; width:{{ it.contribution }}%;"></div>
-                              {% elif side_name == "Populism" %}
-                                <div style="background:#ffc107; height:8px; border-radius:4px; width:{{ it.contribution }}%;"></div>
-                              {% elif side_name == "Pluralism" %}
-                                <div style="background:#0dcaf0; height:8px; border-radius:4px; width:{{ it.contribution }}%;"></div>
-                              {% else %}
-                                <div style="background:#6c757d; height:8px; border-radius:4px; width:{{ it.contribution }}%;"></div>
-                              {% endif %}
+                              <div style="background: hsl({{ it.hue }}, 80%, 42%); height:8px; border-radius:4px; width:{{ it.bar_width }}%;"></div>
                             </div>
                           </div>
                         {% endfor %}
