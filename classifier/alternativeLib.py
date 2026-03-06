@@ -216,6 +216,7 @@ class LiberalIlliberalScorer:
             hypothesis_results.append({
                 'hypothesis':  hypothesis,
                 'probability': prob,
+                'weight':      weight,
                 'direction':   direction,
             })
             if direction == "liberal":
