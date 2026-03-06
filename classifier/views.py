@@ -353,41 +353,50 @@ def classify_text(request):
 
         why_these_results = {}
 
-        def _fmt_items(items, limit=5, min_prob_pct=155):
+        def _fmt_items_pair(side_a_items, side_b_items, limit=5, min_prob_pct=15):
             """
-            items: list of dicts with 'hypothesis', 'probability' (0..1), 'weight', 'score_impact' (points on 0-10 scale).
-            Displays score_impact as the primary metric and derives bar width + hue from it.
-            Max expected single-hypothesis impact is ~2.5 pts (one hyp driving half a 5-pt swing).
+            Process both sides of a dimension together so percentages are relative
+            to the total impact across both sides combined.
+            Each hypothesis's share = its score_impact / sum(all impacts, both sides) * 100.
+            Bar width and hue follow that percentage.
             """
-            MAX_IMPACT = 2.5  # points — used to normalise bar width to 100%
-            out = []
-            for it in (items or [])[:limit]:
-                hyp = it.get("hypothesis") or it.get("text") or ""
-                p = it.get("probability", 0.0)
-                impact = it.get("score_impact", 0.0)
-                try:
-                    p_pct = float(p) * 100.0
-                    impact = float(impact)
-                except Exception:
-                    p_pct, impact = 0.0, 0.0
-                if hyp and round(p_pct, 0) >= min_prob_pct:
-                    bar_width = round(min(impact / MAX_IMPACT * 100, 100), 1)
-                    hue = round(bar_width * 1.2)  # 0% → hue 0 (red), 100% → hue 120 (green)
-                    out.append({
-                        "text": hyp,
-                        "p": int(round(p_pct, 0)),
-                        "score_impact": round(impact, 2),
-                        "bar_width": bar_width,
-                        "hue": hue,
-                    })
-            return out
+            def _eligible(items):
+                out = []
+                for it in (items or [])[:limit]:
+                    hyp = it.get("hypothesis") or it.get("text") or ""
+                    p = it.get("probability", 0.0)
+                    impact = it.get("score_impact", 0.0)
+                    try:
+                        p_pct = float(p) * 100.0
+                        impact = float(impact)
+                    except Exception:
+                        p_pct, impact = 0.0, 0.0
+                    if hyp and round(p_pct, 0) >= min_prob_pct:
+                        out.append({"text": hyp, "impact": impact})
+                return out
+
+            a = _eligible(side_a_items)
+            b = _eligible(side_b_items)
+            total = sum(x["impact"] for x in a + b) or 1.0
+
+            def _enrich(items):
+                out = []
+                for it in items:
+                    pct = round(it["impact"] / total * 100, 1)
+                    hue = round(min(pct * 1.2, 120))  # 0% → red, 100% → green
+                    out.append({"text": it["text"], "pct": pct, "hue": hue})
+                return out
+
+            return _enrich(a), _enrich(b)
 
         if alternative_scores:
             # Economic Left–Right
             lr = alternative_scores.get("left_right_hypothesis")
             if lr and lr.get("is_relevant") is not False:
-                left_items = _fmt_items(lr.get("top_left_hypotheses", []), limit=5, min_prob_pct=15)
-                right_items = _fmt_items(lr.get("top_right_hypotheses", []), limit=5, min_prob_pct=15)
+                left_items, right_items = _fmt_items_pair(
+                    lr.get("top_left_hypotheses", []),
+                    lr.get("top_right_hypotheses", []),
+                )
                 if left_items or right_items:
                     why_these_results["Economic Left–Right"] = {
                         "Left": left_items,
@@ -397,8 +406,10 @@ def classify_text(request):
             # Support for Liberal Democracy
             li = alternative_scores.get("liberal_illiberal_hypothesis")
             if li and li.get("is_relevant") is not False:
-                liberal_items = _fmt_items(li.get("top_liberal_hypotheses", []), limit=5, min_prob_pct=15)
-                illiberal_items = _fmt_items(li.get("top_illiberal_hypotheses", []), limit=5, min_prob_pct=15)
+                liberal_items, illiberal_items = _fmt_items_pair(
+                    li.get("top_liberal_hypotheses", []),
+                    li.get("top_illiberal_hypotheses", []),
+                )
                 if liberal_items or illiberal_items:
                     why_these_results["Support for Liberal Democracy"] = {
                         "Liberal": liberal_items,
@@ -408,8 +419,10 @@ def classify_text(request):
             # Populism–Pluralism
             pp = alternative_scores.get("populism_pluralism_hypothesis")
             if pp and pp.get("is_relevant") is not False:
-                pluralism_items = _fmt_items(pp.get("top_pluralism_hypotheses", []), limit=5, min_prob_pct=15)
-                populism_items = _fmt_items(pp.get("top_populism_hypotheses", []), limit=5, min_prob_pct=15)
+                pluralism_items, populism_items = _fmt_items_pair(
+                    pp.get("top_pluralism_hypotheses", []),
+                    pp.get("top_populism_hypotheses", []),
+                )
                 if pluralism_items or populism_items:
                     why_these_results["Populism–Pluralism"] = {
                         "Pluralism": pluralism_items,
