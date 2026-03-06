@@ -257,8 +257,8 @@ class PopulismPluralismScorer:
         pluralist_hyps = [h for h in hypothesis_results if h['direction'] == 'pluralist']
 
         # Annotate with score_impact: (prob*weight / k_score) * 5 points for those in top-k
-        top_pop_weighted = sorted([(h['probability'] * h['weight'], h) for h in populist_hyps], reverse=True)[:k_score]
-        top_plu_weighted = sorted([(h['probability'] * h['weight'], h) for h in pluralist_hyps], reverse=True)[:k_score]
+        top_pop_weighted = sorted([(h['probability'] * h['weight'], h) for h in populist_hyps], key=lambda x: x[0], reverse=True)[:k_score]
+        top_plu_weighted = sorted([(h['probability'] * h['weight'], h) for h in pluralist_hyps], key=lambda x: x[0], reverse=True)[:k_score]
         for weighted_val, h in top_pop_weighted:
             h['score_impact'] = round((weighted_val / k_score) * 5, 3)
         for weighted_val, h in top_plu_weighted:
