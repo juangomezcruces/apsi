@@ -297,7 +297,28 @@ class LeftRightEconomicScorer:
         # Get top hypotheses from each direction
         left_hyps = [h for h in hypothesis_results if h['direction'] == 'left']
         right_hyps = [h for h in hypothesis_results if h['direction'] == 'right']
-        
+
+        # Annotate each hypothesis with its score impact (points on 0-10 scale).
+        # Each hypothesis in the top-k contributes (prob*weight / k_score) to its side's avg,
+        # which maps to (contrib_to_avg * 5) points of score movement.
+        # Left pulls score down, right pulls score up — we store absolute impact.
+        top_left_weighted = sorted([(h['probability'] * h['weight'], h) for h in left_hyps], reverse=True)[:k_score]
+        top_right_weighted = sorted([(h['probability'] * h['weight'], h) for h in right_hyps], reverse=True)[:k_score]
+
+        for weighted_val, h in top_left_weighted:
+            h['score_impact'] = round((weighted_val / k_score) * 5, 3)
+        for weighted_val, h in top_right_weighted:
+            h['score_impact'] = round((weighted_val / k_score) * 5, 3)
+        # Hypotheses outside the top-k got no weight in the average
+        top_left_set = {id(h) for _, h in top_left_weighted}
+        top_right_set = {id(h) for _, h in top_right_weighted}
+        for h in left_hyps:
+            if id(h) not in top_left_set:
+                h['score_impact'] = 0.0
+        for h in right_hyps:
+            if id(h) not in top_right_set:
+                h['score_impact'] = 0.0
+
         top_left = sorted(left_hyps, key=lambda x: x['probability'], reverse=True)[:10]
         top_right = sorted(right_hyps, key=lambda x: x['probability'], reverse=True)[:10]
 
