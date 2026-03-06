@@ -120,43 +120,35 @@ class PopulismPluralismScorer:
                     return idx
         return 0
 
-    def _get_entailment_prob(self, text, hypothesis):
-        """Get probability that text entails hypothesis"""
-        inputs = self.tokenizer(
-            text, hypothesis,
-            return_tensors="pt",
-            truncation=True,
-            max_length=512
-        )
-        
-        with torch.no_grad():
-            outputs = self.model(**inputs)
-            prob = torch.softmax(outputs.logits, dim=-1)[0, self.entailment_idx].item()
-        return prob
+    def _batch_entailment_probs(self, text, hypotheses, batch_size=16):
+        """Get entailment probabilities for multiple hypotheses in batched forward passes."""
+        all_probs = []
+        for i in range(0, len(hypotheses), batch_size):
+            batch_hyps = hypotheses[i:i + batch_size]
+            inputs = self.tokenizer(
+                [text] * len(batch_hyps),
+                batch_hyps,
+                return_tensors="pt",
+                truncation=True,
+                padding=True,
+                max_length=512,
+            )
+            with torch.inference_mode():
+                outputs = self.model(**inputs)
+                probs = torch.softmax(outputs.logits, dim=-1)[:, self.entailment_idx]
+                all_probs.extend(probs.tolist())
+        return all_probs
 
     def is_about_political_rhetoric(self, text):
-        probs = [self._get_entailment_prob(text, h) for h in self.topic_hypotheses]
+        probs = self._batch_entailment_probs(text, self.topic_hypotheses)
         prob = float(max(probs)) if probs else 0.0
         logger.info(f"Thesis Populist Pluralist triggered with: {prob}")
         return prob >= self.topic_threshold, prob
 
-
     def get_hypothesis_probabilities(self, text):
-        """Get probabilities for all populism-pluralism hypotheses"""
-        probs = []
-        for hypothesis in self.populism_hypotheses.keys():
-            inputs = self.tokenizer(
-                text, hypothesis,
-                return_tensors="pt",
-                truncation=True,
-                max_length=512
-            )
-
-            with torch.no_grad():
-                outputs = self.model(**inputs)
-                prob = torch.softmax(outputs.logits, dim=-1)[0, self.entailment_idx].item()
-                probs.append(prob)
-
+        """Get probabilities for all populism-pluralism hypotheses (batched)"""
+        hypotheses = list(self.populism_hypotheses.keys())
+        probs = self._batch_entailment_probs(text, hypotheses)
         return np.array(probs)
 
     def compute_combined_confidence(self, populist_probs, pluralist_probs, all_probs):
