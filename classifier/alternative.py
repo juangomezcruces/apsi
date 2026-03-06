@@ -106,49 +106,36 @@ class LeftRightEconomicScorer:
         print(f"Loaded {len(self.left_right_hypotheses)} hypotheses ({left_count} left, {right_count} right)")
         
         # Precheck hypotheses
-        self.topic_threshold = 0.7
+        self.topic_threshold = 0.6
         self.topic_hypotheses = [
+            # Taxation
+            "The text argues that taxes on the wealthy or corporations should be higher.",
+            "The text argues that taxes should be cut or reduced.",
+            "The text argues about how the government should tax people or businesses.",
+            "The text supports or opposes redistribution of wealth through taxation.",
+
+            # Public spending and social programs
+            "The text argues that the government should spend more on healthcare or education.",
+            "The text argues that social programs or welfare should be expanded or cut.",
+            "The text supports or opposes universal healthcare or public education.",
+            "The text argues about funding social safety nets or public services.",
+
             # Role of government in the economy
-            "The text expresses an opinion about the role of government in the economy.",
-            "The text argues that the government should play a role in economic affairs.",
-            "The text supports or opposes government involvement in the economy.",
-            "The text expresses a stance on how much power the government should have over the economy.",
-            "The text argues for increasing or reducing the role of government in economic policy.",
+            "The text argues that the government should have a larger or smaller role in the economy.",
+            "The text argues about government intervention in markets or industries.",
+            "The text supports or opposes privatization or nationalization.",
+            "The text argues that the free market should be regulated more or less.",
 
-            # Taxation and redistribution
-            "The text expresses an opinion about taxation or tax policy.",
-            "The text argues about how wealth should be redistributed.",
-            "The text expreses a stance about higher taxes.",
-            "The text expresses a stance on income inequality or redistribution.",
-            "The text argues how taxes should be used to achieve economic goals.",
+            # Ownership and business
+            "The text argues about public versus private ownership of services or industries.",
+            "The text supports or opposes breaking up large corporations or regulating banks.",
+            "The text argues that public investment or private investment drives economic growth.",
 
-            # Ownership and control
-            "The text expresses an opinion about public versus private ownership.",
-            "The text argues that industries should be publicly or privately owned.",
-            "The text supports or opposes nationalization or privatization.",
-            "The text expresses a stance on who should control major economic resources.",
-            "The text argues how ownership of businesses should be structured.",
-
-            # Regulation vs markets
-            "The text expresses a stance on market regulation.",
-            "The text argues how free markets should be regulated.",
-            "The text supports or opposes government regulation of businesses.",
-            "The text expresses a stance on market freedom",
-            "The text expreses a stance about regulation of the economy.",
-
-            # Welfare and social programs
-            "The text expresses an opinion about welfare or social programs.",
-            "The text argues that social programs should be expanded or reduced.",
-            "The text supports or opposes government-funded social services.",
-            "The text expresses a stance on healthcare, education, or social safety nets.",
-            "The text argues how social programs should be organized or funded.",
-
-            # Labor markets / wages
-            "The text expresses a stance in favor or against minimum wages.",
-            "The text argues about the minimum wage or worker protections.",
-            "The text supports or opposes labor regulations or unions.",
-            "The text expresses a stance on workers' rights or employment standards.",
-            "The text argues how labor markets should be regulated."
+            # Labor and inequality
+            "The text argues about income inequality or the gap between rich and poor.",
+            "The text supports or opposes minimum wage laws or workers' rights.",
+            "The text argues that unions should have more or less power.",
+            "The text argues about workers' pay, conditions, or protections.",
         ]
 
 
@@ -302,8 +289,8 @@ class LeftRightEconomicScorer:
         # Each hypothesis in the top-k contributes (prob*weight / k_score) to its side's avg,
         # which maps to (contrib_to_avg * 5) points of score movement.
         # Left pulls score down, right pulls score up — we store absolute impact.
-        top_left_weighted = sorted([(h['probability'] * h['weight'], h) for h in left_hyps], reverse=True)[:k_score]
-        top_right_weighted = sorted([(h['probability'] * h['weight'], h) for h in right_hyps], reverse=True)[:k_score]
+        top_left_weighted = sorted([(h['probability'] * h['weight'], h) for h in left_hyps], key=lambda x: x[0], reverse=True)[:k_score]
+        top_right_weighted = sorted([(h['probability'] * h['weight'], h) for h in right_hyps], key=lambda x: x[0], reverse=True)[:k_score]
 
         for weighted_val, h in top_left_weighted:
             h['score_impact'] = round((weighted_val / k_score) * 5, 3)
