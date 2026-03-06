@@ -255,7 +255,23 @@ class PopulismPluralismScorer:
         # Get top hypotheses from each direction
         populist_hyps = [h for h in hypothesis_results if h['direction'] == 'populist']
         pluralist_hyps = [h for h in hypothesis_results if h['direction'] == 'pluralist']
-        
+
+        # Annotate with score_impact: (prob*weight / k_score) * 5 points for those in top-k
+        top_pop_weighted = sorted([(h['probability'] * h['weight'], h) for h in populist_hyps], reverse=True)[:k_score]
+        top_plu_weighted = sorted([(h['probability'] * h['weight'], h) for h in pluralist_hyps], reverse=True)[:k_score]
+        for weighted_val, h in top_pop_weighted:
+            h['score_impact'] = round((weighted_val / k_score) * 5, 3)
+        for weighted_val, h in top_plu_weighted:
+            h['score_impact'] = round((weighted_val / k_score) * 5, 3)
+        top_pop_set = {id(h) for _, h in top_pop_weighted}
+        top_plu_set = {id(h) for _, h in top_plu_weighted}
+        for h in populist_hyps:
+            if id(h) not in top_pop_set:
+                h['score_impact'] = 0.0
+        for h in pluralist_hyps:
+            if id(h) not in top_plu_set:
+                h['score_impact'] = 0.0
+
         top_populist = sorted(populist_hyps, key=lambda x: x['probability'], reverse=True)[:10]
         top_pluralist = sorted(pluralist_hyps, key=lambda x: x['probability'], reverse=True)[:10]
 
