@@ -252,11 +252,11 @@ class LiberalIlliberalScorer:
         top_liberal   = sorted(liberal_hyps,   key=lambda x: x['probability'], reverse=True)[:k_score]
         top_illiberal = sorted(illiberal_hyps, key=lambda x: x['probability'], reverse=True)[:k_score]
 
-        if final_score < 2:   interpretation = "Strongly Illiberal"
-        elif final_score < 4: interpretation = "Illiberal"
-        elif final_score < 6: interpretation = "Moderate"
-        elif final_score < 8: interpretation = "Liberal"
-        else:                 interpretation = "Strongly Liberal"
+        if final_score < 2:   interpretation = "Very low support"
+        elif final_score < 4: interpretation = "Low support"
+        elif final_score < 6: interpretation = "Support"
+        elif final_score < 8: interpretation = "Strong Support"
+        else:                 interpretation = "Very Strong Liberal"
 
         return {
             'text':                     text,
