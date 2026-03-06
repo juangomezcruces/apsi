@@ -14,7 +14,7 @@
           <div class="card-body">
             <h6 class="card-title">Analyzed Text:</h6>
             {# truncatechars needs an argument #}
-            <p class="card-text">{{ input_text}}</p>
+            <p class="card-text">{{ input_text|truncatechars:500 }}</p>
           </div>
         </div>
       </div>
@@ -86,7 +86,7 @@
                       </span>
                     </div>
                     <div class="scale-line">
-                      <div class="scale-dot" style="left: calc({{ score }} * 10%); background-color: #c9207a;"></div>
+                      <div class="scale-dotlibillib" style="left: calc({{ score }} * 10%); background-color: #c9207a;"></div>
                     </div>
                     <div class="scale-labels">
                       <span>Left</span>
@@ -218,132 +218,57 @@
 {% endif %}
 
 
+<!-- Why These Results Toggle -->
+<section class="py-3 bg-white">
+  <div class="container text-center">
 
+    <button class="btn btn-outline-secondary"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#whyResults"
+            aria-expanded="false"
+            aria-controls="whyResults">
+      Why these results?
+    </button>
 
-                    <!-- Why These Results Toggle -->
-                    <section class="py-1 bg-white">
-                      <div class="container text-center">
+    <div class="collapse mt-3 text-start" id="whyResults">
+      <div class="card card-body">
 
-                      <button class="btn btn-outline-secondary"
-                              style="margin-top:-100px;"
-                              type="button"
-                              data-bs-toggle="collapse"
-                              data-bs-target="#whyResults"
-                              aria-expanded="false"
-                              aria-controls="whyResults">
-                        Why these results?
-                      </button>
+        <h6 class="mb-3">Top triggered hypotheses</h6>
 
-                        <div class="collapse mt-3 text-start" id="whyResults">
-                          <div class="card card-body">
+        {% if why_these_results %}
+          {% for dimension, sides in why_these_results.items %}
+            <div class="mb-4">
+              <div class="fw-semibold mb-2">{{ dimension }}</div>
 
-                            <h6 class="mb-3 small">What influenced these results</h6>
+              <div class="row g-3">
+                {% for side_name, items in sides.items %}
+                  <div class="col-md-6">
+                    <div class="mb-1"><strong>{{ side_name }}:</strong></div>
 
-                            {% if why_these_results %}
-                              {% for dimension, sides in why_these_results.items %}
-                                <div class="mb-4 small">
-
-                                  <div class="fw-semibold mb-2">{{ dimension }}</div>
-
-                                  <div class="row g-3">
-                                    {% for side_name, items in sides.items %}
-                                      <div class="col-md-6">
-
-                                        <div class="mb-1"><strong>{{ side_name }}:</strong></div>
-
-                                        {% if items %}
-                                          <ul class="mb-0 list-unstyled">
-
-                                            {% for it in items %}
-
-                                          <li class="mb-2">
-
-                      <div class="small">
-                        "{{ it.text }}"
-                      </div>
-
-                      <div class="text-muted small mb-1">
-                        Probability: {{ it.p }}%
-                      </div>
-
-                      <div style="width:50%;">
-                        <div class="progress" style="height:8px; border-radius:6px;">
-
-                          {% if it.p < 25 %}
-                            <div class="progress-bar"
-                                role="progressbar"
-                                style="
-                                    width: {{ it.p }}%;
-                                    background-color: #dc3545 !important;  /* red */
-                                    border-radius:6px;
-                                    transition: width 0.6s ease;
-                                "
-                                aria-valuenow="{{ it.p }}"
-                                aria-valuemin="0"
-                                aria-valuemax="100"></div>
-
-                          {% elif it.p < 50 %}
-                            <div class="progress-bar"
-                                role="progressbar"
-                                style="
-                                    width: {{ it.p }}%;
-                                    background-color: #fd7e14 !important;  /* orange */
-                                    border-radius:6px;
-                                    transition: width 0.6s ease;
-                                "
-                                aria-valuenow="{{ it.p }}"
-                                aria-valuemin="0"
-                                aria-valuemax="100"></div>
-
-                          {% elif it.p < 75 %}
-                            <div class="progress-bar"
-                                role="progressbar"
-                                style="
-                                    width: {{ it.p }}%;
-                                    background-color: #ffc107 !important;  /* yellow */
-                                    border-radius:6px;
-                                    transition: width 0.6s ease;
-                                "
-                                aria-valuenow="{{ it.p }}"
-                                aria-valuemin="0"
-                                aria-valuemax="100"></div>
-
-                          {% else %}
-                            <div class="progress-bar"
-                                role="progressbar"
-                                style="
-                                    width: {{ it.p }}%;
-                                    background-color: #198754 !important;  /* green */
-                                    border-radius:6px;
-                                    transition: width 0.6s ease;
-                                "
-                                aria-valuenow="{{ it.p }}"
-                                aria-valuemin="0"
-                                aria-valuemax="100"></div>
-                          {% endif %}
-
-                        </div>
-                      </div>
-
-                    </li>
-
+                    {% if items %}
+                      <ul class="mb-0">
+                        {% for it in items %}
+                          <li>
+                            "{{ it.text }}"
+                            <span class="text-muted">
+                              — <strong>{{ it.contribution }}%</strong> contribution
+                              <span class="ms-1">(probability: {{ it.p }}%, weight: {{ it.weight }})</span>
+                            </span>
+                          </li>
                         {% endfor %}
-
                       </ul>
                     {% else %}
-                      <div class="text-muted small">
-                        No strong indicators detected.
-                      </div>
+                      <div class="text-muted">No strong hypotheses detected.</div>
                     {% endif %}
-
                   </div>
                 {% endfor %}
               </div>
             </div>
           {% endfor %}
         {% else %}
-          <p class="text-muted small mb-0">
-            No detailed explanation available for this analysis.
+          <p class="text-muted mb-0">
+            No hypothesis-level explanation available.
           </p>
         {% endif %}
 
@@ -352,6 +277,8 @@
 
   </div>
 </section>
+
+
 
 <!-- No Results Message -->
 {% if not results and not alternative_scores %}
