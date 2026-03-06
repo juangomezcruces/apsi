@@ -250,6 +250,23 @@ class LiberalIlliberalScorer:
         liberal_hyps   = [h for h in hypothesis_results if h['direction'] == 'liberal']
         illiberal_hyps = [h for h in hypothesis_results if h['direction'] == 'illiberal']
 
+        # Annotate with score_impact: contribution to the penalised avg * 5 points,
+        # reflecting the cross-penalty each side applies to the other.
+        top_lib_weighted  = sorted([(h['probability'] * h['weight'], h) for h in liberal_hyps],   reverse=True)[:k_score]
+        top_illib_weighted = sorted([(h['probability'] * h['weight'], h) for h in illiberal_hyps], reverse=True)[:k_score]
+        for weighted_val, h in top_lib_weighted:
+            h['score_impact'] = round((weighted_val / k_score) * liberal_penalty_mult * 5, 3)
+        for weighted_val, h in top_illib_weighted:
+            h['score_impact'] = round((weighted_val / k_score) * illiberal_penalty_mult * 5, 3)
+        top_lib_set   = {id(h) for _, h in top_lib_weighted}
+        top_illib_set = {id(h) for _, h in top_illib_weighted}
+        for h in liberal_hyps:
+            if id(h) not in top_lib_set:
+                h['score_impact'] = 0.0
+        for h in illiberal_hyps:
+            if id(h) not in top_illib_set:
+                h['score_impact'] = 0.0
+
         top_liberal   = sorted(liberal_hyps,   key=lambda x: x['probability'], reverse=True)[:k_score]
         top_illiberal = sorted(illiberal_hyps, key=lambda x: x['probability'], reverse=True)[:k_score]
 
