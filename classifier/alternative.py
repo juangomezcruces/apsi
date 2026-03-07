@@ -100,84 +100,44 @@ class LeftRightEconomicScorer:
             "The text expresses that public assets and state-owned enterprises should be privatized": (1.0, "right"),
         }
 
+
         left_count = sum(1 for _, (_, direction) in self.left_right_hypotheses.items() if direction == "left")
         right_count = sum(1 for _, (_, direction) in self.left_right_hypotheses.items() if direction == "right")
         print(f"Loaded {len(self.left_right_hypotheses)} hypotheses ({left_count} left, {right_count} right)")
         
         # Precheck hypotheses
-        self.topic_threshold = 0.7
+        self.topic_threshold = 0.6
         self.topic_hypotheses = [
+            # Taxation
+            "The text argues that taxes on the wealthy or corporations should be higher.",
+            "The text argues that taxes should be cut or reduced.",
+            "The text argues about how the government should tax people or businesses.",
+            "The text supports or opposes redistribution of wealth through taxation.",
+
+            # Public spending and social programs
+            "The text argues that the government should spend more on healthcare or education.",
+            "The text argues that social programs or welfare should be expanded or cut.",
+            "The text supports or opposes universal healthcare or public education.",
+            "The text argues about funding social safety nets or public services.",
+
             # Role of government in the economy
-            "The text expresses an opinion about the role of government in the economy.",
-            "The text argues that the government should play a role in economic affairs.",
-            "The text supports or opposes government involvement in the economy.",
-            "The text expresses a stance on how much power the government should have over the economy.",
-            "The text argues for increasing or reducing the role of government in economic policy.",
+            "The text argues that the government should have a larger or smaller role in the economy.",
+            "The text argues about government intervention in markets or industries.",
+            "The text supports or opposes privatization or nationalization.",
+            "The text argues that the free market should be regulated more or less.",
 
-            # Taxation and redistribution
-            "The text expresses an opinion about taxation or tax policy.",
-            "The text argues about how wealth should be redistributed.",
-            "The text expreses a stance about higher taxes.",
-            "The text expresses a stance on income inequality or redistribution.",
-            "The text argues how taxes should be used to achieve economic goals.",
+            # Ownership and business
+            "The text argues about public versus private ownership of services or industries.",
+            "The text supports or opposes breaking up large corporations or regulating banks.",
+            "The text argues that public investment or private investment drives economic growth.",
 
-            # Ownership and control
-            "The text expresses an opinion about public versus private ownership.",
-            "The text argues that industries should be publicly or privately owned.",
-            "The text supports or opposes nationalization or privatization.",
-            "The text expresses a stance on who should control major economic resources.",
-            "The text argues how ownership of businesses should be structured.",
-
-            # Regulation vs markets
-            "The text expresses a stance on market regulation.",
-            "The text argues how free markets should be regulated.",
-            "The text supports or opposes government regulation of businesses.",
-            "The text expresses a stance on market freedom",
-            "The text expreses a stance about regulation of the economy.",
-
-            # Welfare and social programs
-            "The text expresses an opinion about welfare or social programs.",
-            "The text argues that social programs should be expanded or reduced.",
-            "The text supports or opposes government-funded social services.",
-            "The text expresses a stance on healthcare, education, or social safety nets.",
-            "The text argues how social programs should be organized or funded.",
-
-            # Labor markets / wages
-            "The text expresses a stance in favor or against minimum wages.",
-            "The text argues about the minimum wage or worker protections.",
-            "The text supports or opposes labor regulations or unions.",
-            "The text expresses a stance on workers' rights or employment standards.",
-            "The text argues how labor markets should be regulated."
+            # Labor and inequality
+            "The text argues about income inequality or the gap between rich and poor.",
+            "The text supports or opposes minimum wage laws or workers' rights.",
+            "The text argues that unions should have more or less power.",
+            "The text argues about workers' pay, conditions, or protections.",
         ]
 
-        # Pre-tokenize all fixed hypotheses at init time.
-        # At inference, only the input text needs to be tokenized — hypotheses are cached.
-        all_fixed_hypotheses = self.topic_hypotheses + list(self.left_right_hypotheses.keys())
-        self._hypothesis_suffix_ids = self._pretokenize_hypotheses(all_fixed_hypotheses)
-        self._n_topic = len(self.topic_hypotheses)
-        logger.info(f"Pre-tokenized {len(all_fixed_hypotheses)} hypotheses")
-
-    def _pretokenize_hypotheses(self, hypotheses):
-        """
-        Pre-tokenize hypotheses for pair encoding at init time.
-        RoBERTa: [CLS] text [SEP][SEP] hyp [SEP]  (double SEP between premise and hypothesis)
-        BERT:    [CLS] text [SEP] hyp [SEP]        (single SEP)
-        Detects format from tokenizer class name.
-        Returns a list of token-ID lists: the hypothesis suffix that follows the text's [SEP].
-        """
-        sep_id = self.tokenizer.sep_token_id
-        tok_type = type(self.tokenizer).__name__.lower()
-        double_sep = 'roberta' in tok_type or 'deberta' in tok_type
-
-        suffix_ids = []
-        for hyp in hypotheses:
-            ids = self.tokenizer.encode(hyp, add_special_tokens=False)
-            if double_sep:
-                full_suffix = [sep_id, sep_id] + ids + [sep_id]
-            else:
-                full_suffix = [sep_id] + ids + [sep_id]
-            suffix_ids.append(full_suffix)
-        return suffix_ids
 
     def _find_entailment_index(self):
         """Auto-detect entailment index for different NLI models"""
@@ -187,47 +147,6 @@ class LeftRightEconomicScorer:
                 if label.lower() in ['entailment', 'entail']:
                     return idx
         return 0
-
-    def _batch_entailment_probs_cached(self, text, suffix_ids_list, batch_size=16):
-        """
-        Fast inference using pre-tokenized hypothesis suffixes.
-        Tokenizes `text` once, then builds each pair by concatenation.
-        Replaces repeated tokenizer calls with a single encode + manual assembly.
-        """
-        # Encode text once: [CLS] text_tokens [SEP]
-        text_ids = self.tokenizer.encode(text, add_special_tokens=True)
-        # Truncate text to leave room for the longest hypothesis suffix
-        max_hyp_len = max(len(s) for s in suffix_ids_list)
-        max_text_len = 512 - max_hyp_len
-        text_ids = text_ids[:max_text_len]
-
-        pad_id = self.tokenizer.pad_token_id
-        all_probs = []
-
-        for i in range(0, len(suffix_ids_list), batch_size):
-            batch_suffixes = suffix_ids_list[i:i + batch_size]
-
-            sequences = [text_ids + s for s in batch_suffixes]
-            max_len = max(len(s) for s in sequences)
-
-            input_ids = []
-            attention_masks = []
-            for seq in sequences:
-                pad_len = max_len - len(seq)
-                input_ids.append(seq + [pad_id] * pad_len)
-                attention_masks.append([1] * len(seq) + [0] * pad_len)
-
-            inputs = {
-                'input_ids': torch.tensor(input_ids),
-                'attention_mask': torch.tensor(attention_masks),
-            }
-
-            with torch.inference_mode():
-                outputs = self.model(**inputs)
-                probs = torch.softmax(outputs.logits, dim=-1)[:, self.entailment_idx]
-                all_probs.extend(probs.tolist())
-
-        return all_probs
 
     def _batch_entailment_probs(self, text, hypotheses, batch_size=16):
         """Get entailment probabilities for multiple hypotheses in batched forward passes."""
@@ -250,14 +169,15 @@ class LeftRightEconomicScorer:
 
     def is_about_economic_policy(self, text):
         """Check if text is relevant by max entailment over topic hypotheses (batched)"""
-        probs = self._batch_entailment_probs_cached(text, self._hypothesis_suffix_ids[:self._n_topic])
+        probs = self._batch_entailment_probs(text, self.topic_hypotheses)
         prob = float(max(probs)) if probs else 0.0
         logger.info(f"Thesis Left Right triggered with: {prob}")
         return prob >= self.topic_threshold, prob
 
     def get_hypothesis_probabilities(self, text):
         """Get probabilities for all left-right hypotheses (batched)"""
-        probs = self._batch_entailment_probs_cached(text, self._hypothesis_suffix_ids[self._n_topic:])
+        hypotheses = list(self.left_right_hypotheses.keys())
+        probs = self._batch_entailment_probs(text, hypotheses)
         return np.array(probs)
 
     def compute_combined_confidence(self, left_probs, right_probs, all_probs):
@@ -438,7 +358,7 @@ def analyze_text(scorer, text):
     print(f"TEXT: {text}")
     print(f"{'='*80}")
     
-    print(f"\n📊 RESULTS:")
+    print(f"\nðŸ“Š RESULTS:")
     print(f"   LeftAvg: {result['left_avg']:.2f}")
     print(f"   RightAvg: {result['right_avg']:.2f}")
     print(f"   Score: {result['score']:.2f}/10 (0=Far Left, 10=Far Right)")
@@ -446,12 +366,12 @@ def analyze_text(scorer, text):
     print(f"   Contradiction: {'YES' if result['contradiction_detected'] else 'NO'}")
     print(f"   Interpretation: {result['interpretation']}")
     
-    print(f"\n🔍 TOP LEFT HYPOTHESES:")
+    print(f"\nðŸ” TOP LEFT HYPOTHESES:")
     for i, hyp in enumerate(result['top_left_hypotheses']):
         short_hyp = hyp['hypothesis'][:200] + "..." if len(hyp['hypothesis']) > 200 else hyp['hypothesis']
         print(f"   {i}. {hyp['probability']:.3f} - {short_hyp}")
     
-    print(f"\n🔍 TOP RIGHT HYPOTHESES:")
+    print(f"\nðŸ” TOP RIGHT HYPOTHESES:")
     for i, hyp in enumerate(result['top_right_hypotheses']):
         short_hyp = hyp['hypothesis'][:200] + "..." if len(hyp['hypothesis']) > 200 else hyp['hypothesis']
         print(f"   {i}. {hyp['probability']:.3f} - {short_hyp}")
@@ -481,7 +401,7 @@ def analyze_batch(scorer, texts):
     confidences = [r['confidence'] for r in results]
     contradictions = sum(1 for r in results if r['contradiction_detected'])
     
-    print(f"\n📊 SUMMARY:")
+    print(f"\nðŸ“Š SUMMARY:")
     print(f"   Score Range: {min(scores):.2f} - {max(scores):.2f}")
     print(f"   Mean Score: {np.mean(scores):.2f}")
     print(f"   Mean Confidence: {np.mean(confidences):.3f}")
