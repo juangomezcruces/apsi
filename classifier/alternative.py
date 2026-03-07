@@ -56,7 +56,7 @@ class LeftRightEconomicScorer:
     
             "The text expresses that social safety nets should be expanded": (0.7, "left"),
     
-            "The text expresses that government should have a very active role in the economy": (0.95, "left"),
+            "The text expresses that the government should directly fund and provide essential services like healthcare, education, and housing rather than leaving them to the market": (0.95, "left"),
     
             # Right Economic Positions
             "The text expresses that the means of production and major industries should be privately owned and free from state control": (1.5, "right"),
@@ -75,7 +75,9 @@ class LeftRightEconomicScorer:
     
             "The text expresses that education should be privatized": (0.9, "right"),
 
-            "The text expresses that government must partner with businesses": (0.5, "right"),
+            "The text expresses that government must not interfere with how businesses operate or set prices": (0.85, "right"),
+
+            "The text expresses that cutting taxes on businesses and investors is the best way to grow the economy": (0.9, "right"),
     
             "The text expresses that financial regulations should be eliminated": (0.95, "right"),
     
@@ -89,7 +91,7 @@ class LeftRightEconomicScorer:
     
             "The text expresses that unions hurt economic competitiveness": (0.9, "right"),
 
-            "The text expresses that government intervention in the economy should be focused on helping businesses": (0.9, "right"),
+            "The text expresses that government should reduce spending and let the private sector drive economic growth": (0.9, "right"),
     
             "The text expresses that income inequality reflects merit and effort": (0.9, "right"),
     
@@ -101,9 +103,38 @@ class LeftRightEconomicScorer:
         }
 
 
-        left_count = sum(1 for _, (_, direction) in self.left_right_hypotheses.items() if direction == "left")
-        right_count = sum(1 for _, (_, direction) in self.left_right_hypotheses.items() if direction == "right")
-        print(f"Loaded {len(self.left_right_hypotheses)} hypotheses ({left_count} left, {right_count} right)")
+        # Pre-tokenize all fixed hypotheses at init time.
+        # RoBERTa pair format: [CLS] text [SEP][SEP] hypothesis [SEP]
+        # We cache each hypothesis as the token IDs that follow the text's [SEP],
+        # i.e.: [SEP] hyp_tokens [SEP]  (the second sep + hyp body + closing sep)
+        # At inference we only tokenize the text once and concatenate.
+        all_fixed_hypotheses = self.topic_hypotheses + list(self.left_right_hypotheses.keys())
+        self._hypothesis_suffix_ids = self._pretokenize_hypotheses(all_fixed_hypotheses)
+        self._n_topic = len(self.topic_hypotheses)
+        logger.info(f"Pre-tokenized {len(all_fixed_hypotheses)} hypotheses")
+
+    def _pretokenize_hypotheses(self, hypotheses):
+        """
+        Pre-tokenize hypotheses for pair encoding.
+        RoBERTa: [CLS] text [SEP][SEP] hyp [SEP]  — double SEP between premise and hypothesis
+        BERT:    [CLS] text [SEP] hyp [SEP]        — single SEP
+        Detects which format to use from the tokenizer class name.
+        Returns a list of token-ID lists representing the hypothesis suffix
+        (everything after the text's closing [SEP]).
+        """
+        sep_id = self.tokenizer.sep_token_id
+        tok_type = type(self.tokenizer).__name__.lower()
+        double_sep = 'roberta' in tok_type or 'deberta' in tok_type
+
+        suffix_ids = []
+        for hyp in hypotheses:
+            ids = self.tokenizer.encode(hyp, add_special_tokens=False)
+            if double_sep:
+                full_suffix = [sep_id, sep_id] + ids + [sep_id]
+            else:
+                full_suffix = [sep_id] + ids + [sep_id]
+            suffix_ids.append(full_suffix)
+        return suffix_ids
         
         # Precheck hypotheses
         self.topic_threshold = 0.6
@@ -147,6 +178,48 @@ class LeftRightEconomicScorer:
                 if label.lower() in ['entailment', 'entail']:
                     return idx
         return 0
+
+    def _batch_entailment_probs_cached(self, text, suffix_ids_list, batch_size=16):
+        """
+        Fast inference using pre-tokenized hypothesis suffixes.
+        Tokenizes `text` once, then builds each pair by concatenation.
+        suffix_ids_list: list of token-ID lists (pre-computed at init).
+        """
+        # Encode text once: [CLS] text_tokens [SEP]
+        text_ids = self.tokenizer.encode(text, add_special_tokens=True)  # includes CLS + SEP
+        # Truncate text to leave room for the longest hypothesis suffix + padding
+        max_hyp_len = max(len(s) for s in suffix_ids_list)
+        max_text_len = 512 - max_hyp_len
+        text_ids = text_ids[:max_text_len]
+
+        pad_id = self.tokenizer.pad_token_id
+        all_probs = []
+
+        for i in range(0, len(suffix_ids_list), batch_size):
+            batch_suffixes = suffix_ids_list[i:i + batch_size]
+
+            # Build full sequences and find max length for this batch
+            sequences = [text_ids + s for s in batch_suffixes]
+            max_len = max(len(s) for s in sequences)
+
+            input_ids = []
+            attention_masks = []
+            for seq in sequences:
+                pad_len = max_len - len(seq)
+                input_ids.append(seq + [pad_id] * pad_len)
+                attention_masks.append([1] * len(seq) + [0] * pad_len)
+
+            inputs = {
+                'input_ids': torch.tensor(input_ids),
+                'attention_mask': torch.tensor(attention_masks),
+            }
+
+            with torch.inference_mode():
+                outputs = self.model(**inputs)
+                probs = torch.softmax(outputs.logits, dim=-1)[:, self.entailment_idx]
+                all_probs.extend(probs.tolist())
+
+        return all_probs
 
     def _batch_entailment_probs(self, text, hypotheses, batch_size=16):
         """Get entailment probabilities for multiple hypotheses in batched forward passes."""
@@ -220,8 +293,15 @@ class LeftRightEconomicScorer:
 
     def score_left_right(self, text, thr=0.15):
         """Score text and return comprehensive results"""
-        # Check if text is about economic policy
-        is_relevant, topic_prob = self.is_about_economic_policy(text)
+        # Single pass over all hypotheses (topic + scoring) using pre-cached suffix IDs
+        all_probs_combined = self._batch_entailment_probs_cached(text, self._hypothesis_suffix_ids)
+
+        # Precheck: max over topic slice
+        topic_probs = all_probs_combined[:self._n_topic]
+        topic_prob = float(max(topic_probs)) if topic_probs else 0.0
+        logger.info(f"Thesis Left Right triggered with: {topic_prob}")
+        is_relevant = topic_prob >= self.topic_threshold
+
         if not is_relevant:
             return {
                 'text': text,
@@ -230,12 +310,12 @@ class LeftRightEconomicScorer:
                 'contradiction_detected': False,
                 'interpretation': 'Not about economic policy',
                 'is_relevant': False,
-                'topic_probability': float(topic_prob),
+                'topic_probability': topic_prob,
                 'passed_precheck': False,
-                'is_relevant': False,
             }
-        
-        probs = self.get_hypothesis_probabilities(text)
+
+        # Scoring: remaining slice
+        probs = np.array(all_probs_combined[self._n_topic:])
 
         left_probs = []
         right_probs = []
@@ -292,10 +372,12 @@ class LeftRightEconomicScorer:
         top_left_weighted = sorted([(h['probability'] * h['weight'], h) for h in left_hyps], key=lambda x: x[0], reverse=True)[:k_score]
         top_right_weighted = sorted([(h['probability'] * h['weight'], h) for h in right_hyps], key=lambda x: x[0], reverse=True)[:k_score]
 
+        n_left = len(top_left_weighted) or 1
+        n_right = len(top_right_weighted) or 1
         for weighted_val, h in top_left_weighted:
-            h['score_impact'] = round((weighted_val / k_score) * 5, 3)
+            h['score_impact'] = round((weighted_val / n_left) * 5, 3)
         for weighted_val, h in top_right_weighted:
-            h['score_impact'] = round((weighted_val / k_score) * 5, 3)
+            h['score_impact'] = round((weighted_val / n_right) * 5, 3)
         # Hypotheses outside the top-k got no weight in the average
         top_left_set = {id(h) for _, h in top_left_weighted}
         top_right_set = {id(h) for _, h in top_right_weighted}
