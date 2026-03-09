@@ -453,9 +453,12 @@ function startLoadingMessages() {
     }, 7000);
 }
 
-document.addEventListener("DOMContentLoaded", function () {
-    const form = document.querySelector("form");
 
+document.addEventListener("DOMContentLoaded", function () {
+    document.getElementById("loading-overlay").classList.add("d-none");
+    if (msgInterval) clearInterval(msgInterval);
+
+    const form = document.querySelector("form");
     if (form) {
         form.addEventListener("submit", function () {
             document.getElementById("loading-overlay").classList.remove("d-none");
@@ -463,6 +466,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 });
+
 </script>
 
 window.addEventListener("pageshow", function () {
