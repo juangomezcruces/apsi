@@ -465,6 +465,10 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script>
 
+window.addEventListener("pageshow", function () {
+    document.getElementById("loading-overlay").classList.add("d-none");
+    if (msgInterval) clearInterval(msgInterval);
+});
 
 
     {% block extra_js %}{% endblock %}
