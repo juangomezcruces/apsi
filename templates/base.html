@@ -436,23 +436,6 @@
 </div>
 
 
-<script>
-const messages = [
-    "Analyzing text…",
-    "Do not close this tab.",
-];
-
-let msgIndex = 0;
-let msgInterval = null;
-
-function startLoadingMessages() {
-    msgInterval = setInterval(() => {
-        const el = document.getElementById("loading-message");
-        if (el) {
-            el.textContent = messages[msgIndex++ % messages.length];
-        }
-    }, 7000);
-}
 
 
 <script>
