@@ -468,6 +468,12 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 });
+
+window.addEventListener("pageshow", function(event) {
+    if (event.persisted) {
+        document.getElementById("loading-overlay").style.display = "none";
+    }
+});
 </script>
 
 
