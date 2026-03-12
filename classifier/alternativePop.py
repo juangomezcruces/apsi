@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 import torch
 import torch.nn as nn
-import argparse
 import logging
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from .shared_model_cache import SharedModelCache
@@ -11,110 +10,117 @@ warnings.filterwarnings('ignore')
 logger = logging.getLogger(__name__)
 
 # ============================================================================
-# POPULISM-PLURALISM HYPOTHESIS-BASED SCORER
+# LIBERAL-ILLIBERAL HYPOTHESIS-BASED SCORER
 # ============================================================================
 
-class PopulismPluralismScorer:
+class LiberalIlliberalScorer:
     def __init__(self, model_name="mlburnham/Political_DEBATE_large_v1.0"):
         cache = SharedModelCache()
         self.model, self.tokenizer = cache.get_model_and_tokenizer(model_name)
         self.entailment_idx = self._find_entailment_index()
 
-        self.populism_hypotheses = {
-      # Anti-elite vs. legitimate representation
-            "The text argues that corrupt elites or establishment insiders have betrayed ordinary people.": (1.0, "populist"),
-            "The text argues that representative institutions and elected officials can legitimately govern on behalf of citizens without requiring direct popular mandates on every issue.": (0.60, "pluralist"),
-        
-            # System is rigged vs. institutional safeguards
-            "The text claims that electoral or legislative processes are systematically manipulated by wealthy donors, corporations, or lobbyists at the expense of ordinary voters.": (0.80, "populist"),        
-            "The text defends institutional checks, oversight mechanisms, or procedural rules as necessary safeguards against corruption or abuse of power.": (0.85, "pluralist"),
-        
-            # Skepticism of representation vs. mediated democracy
-            "The text explicitly questions or dismisses the legitimacy of legislatures, political parties, or elected representatives, suggesting that direct popular participation should replace them.": (0.75, "populist"),
-            "The text explicitly argues that political decisions must go through formal institutional procedures, such as parliamentary debate, judicial review, or constitutional process — and rejects shortcuts that bypass these.": (0.65, "pluralist"),
-        
-            # Homogeneous 'people' vs. plural society
-            "The text invokes 'the people' as a unified, virtuous whole whose collective will or welfare is being actively frustrated or betrayed by a corrupt or self-serving minority.": (1.0, "populist"),        
-            "The text acknowledges that society contains diverse groups with legitimately different interests that must be negotiated through political compromise.": (0.90, "pluralist"),
-        
-            # Anti-expertise vs. expertise
-            "The text argues that ordinary people's common sense is more trustworthy than experts or technocrats.": (0.90, "populist"),
-            "The text argues that expert knowledge, evidence-based policy, or specialized institutions contribute valuable input to political decision-making.": (0.75, "pluralist"),
-        
-            # Anti-bureaucracy vs. professional administration
-            "The text portrays civil servants, bureaucrats, or administrative agencies as self-interested obstructors of the popular will who should be removed or overridden.": (0.95, "populist"),        
-            "The text argues that professional civil servants and administrative processes provide continuity and competence in governance.": (0.80, "pluralist"),
-        
-            # Anti-media vs. press freedom / open debate
-            "The text claims mainstream media and establishment networks suppress ordinary people's voices or coordinate against them.": (1.0, "populist"),
-            "The text supports freedom of the press, diverse media, or institutionalized public debate as essential to democratic accountability.": (0.85, "pluralist"),
-        
-            # Majority unconstrained vs. minority rights and courts
-            "The text explicitly calls for overriding, ignoring, or abolishing judicial review, constitutional courts, or legal constraints that limit what elected majorities can do.": (0.40, "populist"),
-            "The text argues that courts and constitutional protections should defend minority rights against majority overreach.": (1.0, "pluralist"),
-        
-            # Outsider savior
-            "The text claims that established political parties, career politicians, or the governing class are incapable of solving the country's core problems.": (0.80, "populist"),
-            "The text argues that an outsider candidate or anti-establishment movement, explicitly positioned against the existing political class, is the only legitimate path to genuine change.": (0.85, "populist"),
-            "The text explicitly warns against or rejects sudden, revolutionary, or disruptive political change, arguing instead for gradual and negotiated reform.": (0.70, "pluralist"),
-        
-            # Legal/institutional norms defended vs. circumvented
-            "The text defends the application of legal norms, international treaties, or constitutional rules against attempts by officials or governments to circumvent them.": (0.90, "pluralist"),
-        
-            # Institutional anti-corruption vs. elite-betrayal framing
-            "The text explicitly states that corruption, bribery, or abuse of office should be prosecuted or sanctioned through existing legal institutions, not addressed by removing or replacing the entire political class.": (0.65, "pluralist"),
+        self.liberal_illiberal_hypotheses = {
 
-            # Economic majoritarianism
-            "The text contrasts the economic interests of a wealthy or privileged minority — such as 'the 1%', large corporations, or the super-rich, against the interests of the majority of ordinary people.": (0.50, "populist"),
+            # Liberal
+            "The text explicitly states that every adult citizen has an equal and unconditional right to vote.": (1.0, "liberal"),
+            "The text explicitly argues that electoral defeat must be accepted and power transferred peacefully.": (1.0, "liberal"),
+            "The text explicitly defends freedom of speech as a right the state may not restrict.": (1.0, "liberal"),
+            "The text explicitly defends independent media free from state control.": (1.0, "liberal"),
+            "The text explicitly defends the right to peaceful assembly and protest.": (1.0, "liberal"),
+            "The text explicitly defends the right to form or join independent political parties and civic organizations.": (1.0, "liberal"),
+            "The text explicitly argues that expanding voting rights to more citizens strengthens democracy.": (1.0, "liberal"),
+
+            "The text argues that political opposition parties are a necessary and legitimate part of democracy.": (0.80, "liberal"),
+            "The text argues that citizens must be free to criticize the government without facing repression.": (0.80, "liberal"),
+            "The text argues that the rule of law binds the government equally with ordinary citizens.": (0.80, "liberal"),
+            "The text argues that courts and democratic institutions must be protected from executive interference.": (0.80, "liberal"),
+
+            "The text expresses that minority or dissenting political views deserve legal protection.": (0.40, "liberal"),
+            "The text expresses that political change must occur through legal and electoral processes, not force.": (0.40, "liberal"),
+            "The text expresses that political competition among multiple parties produces better governance.": (0.40, "liberal"),
+
+
+            # Illiberal
+            "The text rejects representative free and fair elections as necessary or desirable for governance.": (1.0, "illiberal"),
+            "The text supports single-party rule or one-party political dominance.": (1.0, "illiberal"),
+            "The text justifies restricting freedom of speech.": (1.0, "illiberal"),
+            "The text supports state control or censorship of the media.": (1.0, "illiberal"),
+            "The text rejects freedom of peaceful assembly or protest.": (1.0, "illiberal"),
+            "The text opposes independent civic or political organizations.": (1.0, "illiberal"),
+            "The text expresses that political legitimacy derives from ideology, religion, or divine authority rather than elections.": (1.0, "illiberal"),
+            "The text supports theocratic governance or religious law as the supreme political authority.": (1.0, "illiberal"),
+            "The text conditions the right to vote or political participation on literacy, education, property, or other qualifying criteria.": (1.0, "illiberal"),
+            "The text expresses that voting rights should be restricted to those who meet an educational or literacy standard.": (1.0, "illiberal"),
+
+            "The text frames suffrage restrictions as beneficial for the quality or responsibility of democratic representation.": (0.85, "illiberal"),
+            "The text expresses refusal to accept defeat in competitive elections.": (0.85, "illiberal"),
+            "The text expresses that political criticism or dissent is illegitimate, dangerous, or should be suppressed.": (0.85, "illiberal"),
+            "The text justifies suppressing dissent to maintain order, stability, or national unity.": (0.85, "illiberal"),
+            "The text expresses that political rights are conditional on loyalty to the regime, party, or ideology.": (0.85, "illiberal"),
+            "The text expreses that one party or leader should govern without challenge from political opponents.": (0.85, "illiberal"),
+            "The text explicitly argues that one party or leader should govern without challenge from political opponents.": (0.85, "illiberal"),
+
+            "The text portrays political opponents as enemies, traitors, or existential threats rather than legitimate actors.": (0.65, "illiberal"),
+            "The text expresses preference for revolutionary or extra-legal seizure of power over electoral competition.": (0.65, "illiberal"),
+            "The text depicts democracy or democratic institutions as inherently corrupt, weak, or irreparably broken.": (0.65, "illiberal"),
+            "The text argues that political participation or rights should be conditional on education, ethnicity, religion, or social standing.": (0.65, "illiberal"),
+            "The text instrumentally invokes democratic values (speech, freedom, rule of law) while simultaneously arguing for their restriction or elimination.": (0.60, "illiberal"),
+            "The text argues that liberal elites suppress or dismiss opinions that differ from their own.": (0.55, "illiberal"),
         }
 
-        populist_count = sum(1 for _, (_, direction) in self.populism_hypotheses.items() if direction == "populist")
-        pluralist_count = sum(1 for _, (_, direction) in self.populism_hypotheses.items() if direction == "pluralist")
-        print(f"Loaded {len(self.populism_hypotheses)} hypotheses ({populist_count} populist, {pluralist_count} pluralist)")
-        
-        # Topic check configuration
+        liberal_count   = sum(1 for _, (_, d) in self.liberal_illiberal_hypotheses.items() if d == "liberal")
+        illiberal_count = sum(1 for _, (_, d) in self.liberal_illiberal_hypotheses.items() if d == "illiberal")
+        print(f"Loaded {len(self.liberal_illiberal_hypotheses)} hypotheses ({liberal_count} liberal, {illiberal_count} illiberal)")
+
+        # Topic check configuration — unchanged from script 1
         self.topic_threshold = 0.6
         self.topic_hypotheses = [
-            # Legitimacy of Political Authority
-            "This text supports the idea that political authority is legitimate only when it follows constitutional rules and legal procedures.",
-            "This text portrays the direct will of the people as the primary source of political legitimacy.",
-            "This text suggests that elected leaders lose legitimacy when they ignore popular demands.",
-            "This text emphasizes the role of courts and independent agencies in validating political authority.",
-            "This text portrays charismatic leadership as a sufficient basis for political legitimacy.",
+            # Electoral competition
+            "This text supports free and fair multiparty elections as the primary source of political authority.",
+            "This text supports accepting electoral defeat and peaceful transfers of power.",
+            "This text supports the full participation of opposition parties in electoral competition.",
+            "This text supports limiting or controlling elections to protect national interests.",
+            "This text rejects the need for competitive elections in favor of alternative forms of rule.",
 
-            # Role of Institutions
-            "This text portrays political institutions as protecting citizens from arbitrary and abusive power.",
-            "This text depicts political institutions as outdated structures that primarily serve elite interests.",
-            "This text supports reforming institutions without weakening or bypassing them.",
-            "This text portrays unelected institutions as unjust obstacles to democratic decision-making.",
-            "This text emphasizes that strong institutions are more important than strong leaders.",
+            # Freedom of expression and media
+            "This text supports freedom of speech as a fundamental political right.",
+            "This text supports independent media as a watchdog over those in power.",
+            "This text supports government regulation of speech to prevent harm or division.",
+            "This text supports state control of media to promote national unity.",
+            "This text portrays free expression as a threat to social or political order.",
 
-            # Decision-Making Style
-            "This text supports political decision-making through negotiation and compromise.",
-            "This text emphasizes decisive leadership over deliberation.",
-            "This text promotes expert knowledge as a legitimate basis for policymaking, even when unpopular.",
-            "This text portrays popular opinion as superior to expert or technocratic judgment.",
-            "This text frames slow decision-making as a necessary feature of democracy.",
+            # Assembly and participation
+            "This text supports the right of citizens to protest and organize freely.",
+            "This text supports broad political participation by citizens in public life.",
+            "This text supports requiring government approval for protests and assemblies.",
+            "This text supports restricting political participation to approved groups or elites.",
+            "This text portrays mass political participation as destabilizing or dangerous.",
 
-            # View of Opposition and Elites
-            "This text portrays political opponents as legitimate actors with valid interests.",
-            "This text depicts elites as manipulating institutions for personal gain.",
-            "This text frames criticism and dissent as strengthening democracy.",
-            "This text portrays those who oppose the people’s will as enemies of democracy.",
-            "This text frames political conflict as a struggle between ordinary citizens and corrupt elites.",
+            # Pluralism and opposition
+            "This text supports tolerance of political opposition and dissenting views.",
+            "This text supports political disagreement as healthy for democracy.",
+            "This text supports restricting extremist or disloyal political views.",
+            "This text supports prioritizing national unity over political diversity.",
+            "This text portrays political opposition as a threat to the nation.",
 
-            # “the People”
-            "This text portrays society as composed of diverse groups with competing interests.",
-            "This text portrays the people as a unified moral community with shared goals.",
-            "This text supports limiting majority power in order to protect minority rights.",
-            "This text portrays the will of the majority as something that should not be constrained by special interests.",
-            "This text suggests that leaders can clearly identify and represent the true will of the people."
+            # State and leadership
+            "This text supports rule of law and institutional limits on political power.",
+            "This text supports checks and balances on executive authority.",
+            "This text supports strong leadership even at the expense of institutional constraints.",
+            "This text supports concentrating power in a single leader or ruling group.",
+            "This text portrays the leader as embodying the will of the nation.",
+
+            # Authoritarian justifications
+            "This text supports limiting freedoms to ensure stability and order.",
+            "This text supports restricting rights for reasons of national security.",
+            "This text supports political authority based on culture or tradition.",
+            "This text supports emergency powers during crises.",
+            "This text portrays internal or external enemies as justification for repression.",
         ]
 
     def _find_entailment_index(self):
-        """Auto-detect entailment index for different NLI models"""
         config = self.model.config
-        if hasattr(config, 'label2id') and config.label2id: 
+        if hasattr(config, 'label2id') and config.label2id:
             for label, idx in config.label2id.items():
                 if label.lower() in ['entailment', 'entail']:
                     return idx
@@ -139,386 +145,291 @@ class PopulismPluralismScorer:
                 all_probs.extend(probs.tolist())
         return all_probs
 
-    def is_about_political_rhetoric(self, text):
+    def is_about_democratic_principles(self, text):
         probs = self._batch_entailment_probs(text, self.topic_hypotheses)
         prob = float(max(probs)) if probs else 0.0
-        logger.info(f"Thesis Populist Pluralist triggered with: {prob}")
+        logger.info(f"Thesis Liberal Illiberal triggered with: {prob}")
         return prob >= self.topic_threshold, prob
 
     def get_hypothesis_probabilities(self, text):
-        """Get probabilities for all populism-pluralism hypotheses (batched)"""
-        hypotheses = list(self.populism_hypotheses.keys())
+        hypotheses = list(self.liberal_illiberal_hypotheses.keys())
         probs = self._batch_entailment_probs(text, hypotheses)
-        return np.array(probs)
+        return np.array(probs, dtype=float)
 
-    def compute_combined_confidence(self, populist_probs, pluralist_probs, all_probs):
-        """Simplified confidence with Top-K contradiction detection only"""
-        
-        # Basic confidence from variance (lower variance = higher confidence)
-        populist_variance = np.var(populist_probs) if len(populist_probs) > 1 else 0
-        pluralist_variance = np.var(pluralist_probs) if len(pluralist_probs) > 1 else 0
-        
-        populist_confidence = 1 / (1 + populist_variance * 4)
-        pluralist_confidence = 1 / (1 + pluralist_variance * 4)
-        base_confidence = 0.7 * min(populist_confidence, pluralist_confidence) + 0.3 * (populist_confidence + pluralist_confidence) / 2
-        
-        # Top-K contradiction detection (only method we use)
-        k = 7
-        top_populist = np.sort(populist_probs)[-k:] if len(populist_probs) >= k else populist_probs
-        top_pluralist = np.sort(pluralist_probs)[-k:] if len(pluralist_probs) >= k else pluralist_probs
-        
-        top_populist_avg = np.mean(top_populist)
-        top_pluralist_avg = np.mean(top_pluralist)
-        
-        # Simple contradiction detection: both top-5 averages must be > 0.25
-        topk_contradiction = min(top_populist_avg, top_pluralist_avg)
+    def compute_combined_confidence(self, liberal_probs, illiberal_probs, all_probs):
+        liberal_variance   = np.var(liberal_probs)  if len(liberal_probs)  > 1 else 0
+        illiberal_variance = np.var(illiberal_probs) if len(illiberal_probs) > 1 else 0
+
+        liberal_confidence   = 1 / (1 + liberal_variance  * 4)
+        illiberal_confidence = 1 / (1 + illiberal_variance * 4)
+        base_confidence = (0.7 * min(liberal_confidence, illiberal_confidence)
+                           + 0.3 * (liberal_confidence + illiberal_confidence) / 2)
+
+        k = 5
+        top_liberal   = np.sort(liberal_probs)[-k:]  if len(liberal_probs)  >= k else liberal_probs
+        top_illiberal = np.sort(illiberal_probs)[-k:] if len(illiberal_probs) >= k else illiberal_probs
+
+        top_liberal_avg   = float(np.mean(top_liberal))   if len(top_liberal)   else 0.0
+        top_illiberal_avg = float(np.mean(top_illiberal)) if len(top_illiberal) else 0.0
+
+        topk_contradiction     = float(min(top_liberal_avg, top_illiberal_avg))
         contradiction_detected = topk_contradiction > 0.25
-        
-        # Apply penalty if contradiction detected
+
         if contradiction_detected:
             contradiction_penalty = min(1.0, topk_contradiction * 2.0)
             final_confidence = base_confidence * (1 - contradiction_penalty * 0.8)
         else:
             final_confidence = base_confidence
-        
+
         return {
-            'combined': final_confidence,
-            'contradiction_detected': contradiction_detected,
-            'contradiction_score': topk_contradiction if contradiction_detected else 0,
-            'top_populist_avg': top_populist_avg,
-            'top_pluralist_avg': top_pluralist_avg
+            'combined':               float(final_confidence),
+            'contradiction_detected': bool(contradiction_detected),
+            'contradiction_score':    float(topk_contradiction if contradiction_detected else 0.0),
+            'top_liberal_avg':        float(top_liberal_avg),
+            'top_illiberal_avg':      float(top_illiberal_avg),
         }
 
-    
-    def score_populism_pluralism(self, text, thr=0.15):
-        """Score text and return comprehensive results"""
-        # Check if text is about political rhetoric or governance
-        is_relevant, topic_prob = self.is_about_political_rhetoric(text)
+    def score_liberal_illiberal(self, text, thr=0.15):
+        # Topic pre-check — unchanged from script 1
+        is_relevant, topic_prob = self.is_about_democratic_principles(text)
         if not is_relevant:
             return {
-                'text': text,
-                'score': 'NA',
-                'confidence': 0.0,
+                'text':                   text,
+                'score':                  'NA',
+                'confidence':             0.0,
                 'contradiction_detected': False,
-                'interpretation': 'Not about democratic principles',
-                'topic_probability': float(topic_prob),
-                'passed_precheck': False,
-                'is_relevant': False,
+                'interpretation':         'Not about democratic principles',
+                'topic_probability':      float(topic_prob),
+                'passed_precheck':        False,
+                'is_relevant':            False,
             }
-        
+
+        # NLI scoring
         probs = self.get_hypothesis_probabilities(text)
 
         # If no hypothesis exceeds the threshold, treat as irrelevant (same response as failed precheck)
         if not np.any(probs > thr):
             return {
-                'text': text,
-                'score': 'NA',
-                'confidence': 0.0,
+                'text':                   text,
+                'score':                  'NA',
+                'confidence':             0.0,
                 'contradiction_detected': False,
-                'interpretation': 'Not about democratic principles',
-                'topic_probability': float(topic_prob),
-                'passed_precheck': False,
-                'is_relevant': False,
+                'interpretation':         'Not about democratic principles',
+                'topic_probability':      float(topic_prob),
+                'passed_precheck':        False,
+                'is_relevant':            False,
             }
 
-        populist_probs = []
-        pluralist_probs = []
+        liberal_probs   = []
+        illiberal_probs = []
         hypothesis_results = []
-        
-        # Process each hypothesis
-        for i, (hypothesis, (weight, direction)) in enumerate(self.populism_hypotheses.items()):
-            prob = probs[i]
-            
+
+        for i, (hypothesis, (weight, direction)) in enumerate(self.liberal_illiberal_hypotheses.items()):
+            prob = float(probs[i])
             hypothesis_results.append({
-                'hypothesis': hypothesis,
+                'hypothesis':  hypothesis,
                 'probability': prob,
-                'weight': weight,
-                'direction': direction
+                'weight':      weight,
+                'direction':   direction,
             })
-            
-            if direction == "populist":
-                populist_probs.append(prob * weight)
+            if direction == "liberal":
+                liberal_probs.append(prob * weight)
             else:
-                pluralist_probs.append(prob * weight)
+                illiberal_probs.append(prob * weight)
 
-        # Calculate averages and score
-        # === ADAPTIVE K (based on ALL hypotheses above threshold) ===
-        k_score = int(np.sum(probs > thr)) + 2
-        k_score = max(4, k_score)
+        k_score = max(4, int(np.sum(probs > thr)) + 2)
 
-        # Use top-k per side for averaging (adaptive probability logic)
-        top_populist_probs = sorted(populist_probs, reverse=True)[:k_score]
-        top_pluralist_probs = sorted(pluralist_probs, reverse=True)[:k_score]
+        top_liberal_probs   = sorted(liberal_probs,   reverse=True)[:k_score]
+        top_illiberal_probs = sorted(illiberal_probs, reverse=True)[:k_score]
 
-        populist_avg = float(np.mean(top_populist_probs)) if top_populist_probs else 0.0
-        pluralist_avg = float(np.mean(top_pluralist_probs)) if top_pluralist_probs else 0.0
+        liberal_avg   = float(np.mean(top_liberal_probs))   if top_liberal_probs   else 0.0
+        illiberal_avg = float(np.mean(top_illiberal_probs)) if top_illiberal_probs else 0.0
 
-        
-        difference = populist_avg - pluralist_avg
-        final_score = 5 + (difference * 5)  # Higher scores = more populist
-        final_score = np.clip(final_score, 0, 10)
+        # Symmetric mutual suppression:
+        # each side penalised proportionally by strength of the opposing signal.
+        # Cap at 0.80 so mild opposing signals don't over-penalise.
+        MAX_SIGNAL = 1.0
+        liberal_penalty_mult   = 1.0 - min(illiberal_avg / MAX_SIGNAL, 0.80)
+        illiberal_penalty_mult = 1.0 - min(liberal_avg   / MAX_SIGNAL, 0.80)
 
-        # Compute confidence
-        confidence_data = self.compute_combined_confidence(
-            [p/1.0 for p in populist_probs],  # Unweight for confidence calc
-            [p/1.0 for p in pluralist_probs],
-            probs
-        )
+        penalised_liberal_avg   = liberal_avg   * liberal_penalty_mult
+        penalised_illiberal_avg = illiberal_avg * illiberal_penalty_mult
 
-        # Get top hypotheses from each direction
-        populist_hyps = [h for h in hypothesis_results if h['direction'] == 'populist']
-        pluralist_hyps = [h for h in hypothesis_results if h['direction'] == 'pluralist']
+        difference  = penalised_liberal_avg - penalised_illiberal_avg
+        final_score = float(np.clip(5 + difference * 5, 0, 10))
 
-        # Annotate with score_impact: (prob*weight / k_score) * 5 points for those in top-k
-        top_pop_weighted = sorted([(h['probability'] * h['weight'], h) for h in populist_hyps], key=lambda x: x[0], reverse=True)[:k_score]
-        top_plu_weighted = sorted([(h['probability'] * h['weight'], h) for h in pluralist_hyps], key=lambda x: x[0], reverse=True)[:k_score]
-        for weighted_val, h in top_pop_weighted:
-            h['score_impact'] = round((weighted_val / k_score) * 5, 3)
-        for weighted_val, h in top_plu_weighted:
-            h['score_impact'] = round((weighted_val / k_score) * 5, 3)
-        top_pop_set = {id(h) for _, h in top_pop_weighted}
-        top_plu_set = {id(h) for _, h in top_plu_weighted}
-        for h in populist_hyps:
-            if id(h) not in top_pop_set:
+        confidence_data = self.compute_combined_confidence(liberal_probs, illiberal_probs, probs)
+
+        liberal_hyps   = [h for h in hypothesis_results if h['direction'] == 'liberal']
+        illiberal_hyps = [h for h in hypothesis_results if h['direction'] == 'illiberal']
+
+        # Annotate with score_impact: contribution to the penalised avg * 5 points,
+        # reflecting the cross-penalty each side applies to the other.
+        top_lib_weighted  = sorted([(h['probability'] * h['weight'], h) for h in liberal_hyps],   key=lambda x: x[0], reverse=True)[:k_score]
+        top_illib_weighted = sorted([(h['probability'] * h['weight'], h) for h in illiberal_hyps], key=lambda x: x[0], reverse=True)[:k_score]
+        for weighted_val, h in top_lib_weighted:
+            h['score_impact'] = round((weighted_val / k_score) * liberal_penalty_mult * 5, 3)
+        for weighted_val, h in top_illib_weighted:
+            h['score_impact'] = round((weighted_val / k_score) * illiberal_penalty_mult * 5, 3)
+        top_lib_set   = {id(h) for _, h in top_lib_weighted}
+        top_illib_set = {id(h) for _, h in top_illib_weighted}
+        for h in liberal_hyps:
+            if id(h) not in top_lib_set:
                 h['score_impact'] = 0.0
-        for h in pluralist_hyps:
-            if id(h) not in top_plu_set:
+        for h in illiberal_hyps:
+            if id(h) not in top_illib_set:
                 h['score_impact'] = 0.0
 
-        top_populist  = sorted([h for h in populist_hyps  if h['score_impact'] >= 0.05], key=lambda x: x['score_impact'], reverse=True)[:10]
-        top_pluralist = sorted([h for h in pluralist_hyps if h['score_impact'] >= 0.05], key=lambda x: x['score_impact'], reverse=True)[:10]
+        top_liberal   = sorted([h for h in liberal_hyps   if h['score_impact'] >= 0.05], key=lambda x: x['score_impact'], reverse=True)[:10]
+        top_illiberal = sorted([h for h in illiberal_hyps if h['score_impact'] >= 0.05], key=lambda x: x['score_impact'], reverse=True)[:10]
 
-        # Interpret score (0-10 scale: 0=Strong Pluralist, 5=Moderate, 10=Strong Populist)
-        if final_score < 2:
-            interpretation = "Strong Pluralist"
-        elif final_score < 4:
-            interpretation = "Pluralist"
-        elif final_score < 6:
-            interpretation = "Moderate"
-        elif final_score < 8:
-            interpretation = "Populist"
-        else:
-            interpretation = "Strong Populist"
+        if final_score < 2:   interpretation = "Very low support"
+        elif final_score < 4: interpretation = "Low support"
+        elif final_score < 6: interpretation = "Support"
+        elif final_score < 8: interpretation = "Strong Support"
+        else:                 interpretation = "Very Strong Liberal"
 
         return {
-            'text': text,
-            'score': final_score,
-            'confidence': confidence_data['combined'],
-            'contradiction_detected': confidence_data['contradiction_detected'],
-            'interpretation': interpretation,
-            'populist_avg': populist_avg,
-            'pluralist_avg': pluralist_avg,
-            'top_populist_hypotheses': top_populist,
-            'top_pluralist_hypotheses': top_pluralist,
-            'passed_precheck': True,
-            'is_relevant': True,
-            'topic_probability': float(topic_prob),
-
+            'text':                     text,
+            'score':                    final_score,
+            'confidence':               confidence_data['combined'],
+            'contradiction_detected':   confidence_data['contradiction_detected'],
+            'interpretation':           interpretation,
+            'liberal_avg':              liberal_avg,
+            'illiberal_avg':            illiberal_avg,
+            'penalised_liberal_avg':    penalised_liberal_avg,
+            'penalised_illiberal_avg':  penalised_illiberal_avg,
+            'top_liberal_hypotheses':   top_liberal,
+            'top_illiberal_hypotheses': top_illiberal,
+            'passed_precheck':          True,
+            'is_relevant':              True,
+            'topic_probability':        float(topic_prob),
+            'k_score':                  k_score,
+            'threshold':                thr,
         }
 
     def quick_score(self, text, thr=0.15):
-        """Ultra-simple interface - just returns the numerical score"""
-        result = self.score_populism_pluralism(text, thr=thr) 
+        result = self.score_liberal_illiberal(text, thr=thr)
         return result['score']
 
-
-def process_csv(scorer, input_file, output_file):
-    """
-    Process texts from a CSV file and output results to a new CSV file
-    
-    Args:
-        scorer: PopulismPluralismScorer instance
-        input_file: Path to input CSV file
-        output_file: Path to output CSV file
-    """
-    try:
-        # Read the input CSV
-        print(f"Reading input CSV from {input_file}...")
-        df = pd.read_csv(input_file)
-        
-        # Check if the expected column exists
-        if 'Text (English)' not in df.columns:
-            print(f"Warning: 'Text (English)' column not found in {input_file}")
-            print(f"Available columns: {df.columns.tolist()}")
-            return
-        
-        # Create output columns
-        print(f"Processing {len(df)} texts...")
-        df['Populism_Score'] = None
-        df['Populism_Interpretation'] = None
-        df['Populism_Confidence'] = None
-        df['Populism_Contradiction'] = None
-        
-        # Process each text
-        for idx, row in df.iterrows():
-            if idx % 10 == 0 and idx > 0:
-                print(f"Processed {idx}/{len(df)} texts...")
-                
-            text = row['Text (English)']
-            if pd.isna(text) or not text.strip():
-                print(f"Warning: Empty text at row {idx+2}, skipping...")
-                continue
-                
-            try:
-                result = scorer.score_populism_pluralism(text)
-                
-                # Add results to dataframe
-                df.at[idx, 'Populism_Score'] = result['score']
-                df.at[idx, 'Populism_Interpretation'] = result['interpretation']
-                df.at[idx, 'Populism_Confidence'] = result['confidence']
-                df.at[idx, 'Populism_Contradiction'] = result['contradiction_detected']
-                
-            except Exception as e:
-                print(f"Error processing text at row {idx+2}: {e}")
-                # Continue with next row instead of failing completely
-        
-        # Write output CSV
-        print(f"Writing results to {output_file}...")
-        df.to_csv(output_file, index=False)
-        print(f"Done! Results saved to {output_file}")
-        
-        # Print summary
-        scores = df['Populism_Score'].dropna().tolist()
-        interpretations = df['Populism_Interpretation'].value_counts().to_dict()
-        
-        print(f"\nðŸ“Š SUMMARY:")
-        print(f"   Processed: {len(scores)}/{len(df)} texts")
-        if scores:
-            print(f"   Score Range: {min(scores):.2f} - {max(scores):.2f}")
-            print(f"   Mean Score: {np.mean(scores):.2f}")
-            print(f"   Interpretations:")
-            for interp, count in sorted(interpretations.items()):
-                print(f"      - {interp}: {count} ({count/len(scores)*100:.1f}%)")
-    
-    except Exception as e:
-        print(f"Error processing CSV: {e}")
 
 # ============================================================================
 # INTERACTIVE ANALYSIS FUNCTIONS
 # ============================================================================
 
 def analyze_text(scorer, text):
-    """Analyze a single text and display clean results"""
-    result = scorer.score_populism_pluralism(text)
-    
+    result = scorer.score_liberal_illiberal(text)
+
     print(f"\n{'='*80}")
     print(f"TEXT: {text}")
     print(f"{'='*80}")
-    
-    print(f"\nðŸ“Š RESULTS:")
-    print(f"   PopulistAvg: {result['populist_avg']:.2f}")
-    print(f"   PluralistAvg: {result['pluralist_avg']:.2f}")
-    print(f"   Score: {result['score']:.2f}/10 (0=Strong Pluralist, 10=Strong Populist)")
-    print(f"   Confidence: {result['confidence']:.3f}")
+
+    if not result['is_relevant']:
+        print(f"\n⚠️  NOT RELEVANT: {result['interpretation']}")
+        print(f"   Topic probability: {result['topic_probability']:.3f}")
+        return result
+
+    print(f"\n📊 RESULTS:")
+    print(f"   Score:         {result['score']:.2f}/10")
+    print(f"   Confidence:    {result['confidence']:.3f}")
     print(f"   Contradiction: {'YES' if result['contradiction_detected'] else 'NO'}")
-    print(f"   Interpretation: {result['interpretation']}")
-    
-    print(f"\nðŸ” TOP POPULIST HYPOTHESES:")
-    for i, hyp in enumerate(result['top_populist_hypotheses']):
-        short_hyp = hyp['hypothesis'][:200] + "..." if len(hyp['hypothesis']) > 200 else hyp['hypothesis']
+    print(f"   Interpretation:{result['interpretation']}")
+    print(
+        f"   liberal={result['liberal_avg']:.3f}→{result['penalised_liberal_avg']:.3f} | "
+        f"illiberal={result['illiberal_avg']:.3f}→{result['penalised_illiberal_avg']:.3f}"
+    )
+
+    print(f"\n🔍 TOP LIBERAL HYPOTHESES:")
+    for i, hyp in enumerate(result['top_liberal_hypotheses']):
+        short_hyp = hyp['hypothesis'][:100] + "..." if len(hyp['hypothesis']) > 100 else hyp['hypothesis']
         print(f"   {i}. {hyp['probability']:.3f} - {short_hyp}")
-    
-    print(f"\nðŸ” TOP PLURALIST HYPOTHESES:")
-    for i, hyp in enumerate(result['top_pluralist_hypotheses']):
-        short_hyp = hyp['hypothesis'][:200] + "..." if len(hyp['hypothesis']) > 200 else hyp['hypothesis']
+
+    print(f"\n🔍 TOP ILLIBERAL HYPOTHESES:")
+    for i, hyp in enumerate(result['top_illiberal_hypotheses']):
+        short_hyp = hyp['hypothesis'][:100] + "..." if len(hyp['hypothesis']) > 100 else hyp['hypothesis']
         print(f"   {i}. {hyp['probability']:.3f} - {short_hyp}")
-    
+
     return result
 
+
 def analyze_batch(scorer, texts):
-    """Analyze multiple texts and display summary table"""
     print(f"\n{'='*120}")
     print("BATCH ANALYSIS RESULTS")
     print(f"{'='*120}")
-    
     print(f"{'Text':<70} {'Score':<7} {'Conf':<7} {'Contr':<6} {'Interpretation'}")
     print("-" * 120)
-    
+
     results = []
     for text in texts:
-        result = scorer.score_populism_pluralism(text)
-        text_display = text[:67] + "..." if len(text) > 70 else text
-        contradiction_status = "YES" if result['contradiction_detected'] else "NO"
-        
-        print(f"{text_display:<70} {result['score']:<7.2f} {result['confidence']:<7.3f} {contradiction_status:<6} {result['interpretation']}")
+        result = scorer.score_liberal_illiberal(text)
+        text_display       = text[:67] + "..." if len(text) > 70 else text
+        contradiction_flag = "YES" if result['contradiction_detected'] else "NO"
+        score_display      = f"{result['score']:.2f}" if result['is_relevant'] else "NA"
+
+        print(
+            f"{text_display:<70} "
+            f"{score_display:<7} "
+            f"{result['confidence']:<7.3f} "
+            f"{contradiction_flag:<6} "
+            f"{result['interpretation']}"
+        )
         results.append(result)
-    
-    # Summary statistics
-    scores = [r['score'] for r in results]
-    confidences = [r['confidence'] for r in results]
-    contradictions = sum(1 for r in results if r['contradiction_detected'])
-    
-    print(f"\nðŸ“Š SUMMARY:")
-    print(f"   Score Range: {min(scores):.2f} - {max(scores):.2f}")
-    print(f"   Mean Score: {np.mean(scores):.2f}")
-    print(f"   Mean Confidence: {np.mean(confidences):.3f}")
-    print(f"   Contradictions: {contradictions}/{len(results)} ({contradictions/len(results)*100:.1f}%)")
-    
+
+    scored = [r for r in results if r['is_relevant']]
+    if scored:
+        scores        = [r['score']      for r in scored]
+        confidences   = [r['confidence'] for r in scored]
+        contradictions = sum(1 for r in scored if r['contradiction_detected'])
+
+        print(f"\n📊 SUMMARY:")
+        print(f"   Scored:          {len(scored)}/{len(results)}")
+        print(f"   Score Range:     {min(scores):.2f} – {max(scores):.2f}")
+        print(f"   Mean Score:      {np.mean(scores):.2f}")
+        print(f"   Mean Confidence: {np.mean(confidences):.3f}")
+        print(f"   Contradictions:  {contradictions}/{len(scored)} ({contradictions/len(scored)*100:.1f}%)")
+
     return results
 
+
 def interactive_mode(scorer):
-    """Interactive mode for testing individual texts"""
     print(f"\n{'='*60}")
-    print("INTERACTIVE POPULISM-PLURALISM SCORER")
+    print("INTERACTIVE LIBERAL-ILLIBERAL SCORER")
     print(f"{'='*60}")
     print("Enter text to analyze (or 'quit' to exit)")
     print("Commands: 'batch' for multiple texts, 'help' for guidance")
-    print("Scale: 0 = Strong Pluralist, 5 = Moderate, 10 = Strong Populist")
-    
+
     while True:
         text = input("\n> ").strip()
-        
+
         if text.lower() in ['quit', 'exit', 'q']:
             break
         elif text.lower() == 'help':
             print("\nCommands:")
-            print("- Enter any political text to get populism-pluralism score")
+            print("- Enter any political text to get liberal-illiberal score")
             print("- 'batch' - analyze multiple predefined test texts")
-            print("- 'quit' - exit the program")
-            print("\nScoring:")
-            print("- 0-2: Strong Pluralist (institutional respect, minority rights, compromise)")
-            print("- 2-4: Pluralist (generally supportive of democratic institutions)")
-            print("- 4-6: Moderate (mixed populist/pluralist elements)")
-            print("- 6-8: Populist (anti-establishment, people vs. elite)")
-            print("- 8-10: Strong Populist (strong anti-institutional, pure people)")
+            print("- 'quit'  - exit the program")
             continue
         elif text.lower() == 'batch':
             test_texts = [
-                # Clear Examples
-                "We want an inclusive, non-exclusionary Spain, which treats its people well and seeks justice and well-being. A fair country that makes us proud to be Spanish."
-                "Perhaps he ordered the murder of Jaime Garzon did not govern later? Perhaps an important part of society does not applaud and is not afraid of that? If you want to feel fear, that is what you have to fear. If they want hope, what must be defended is the right to difference."
-                "Impunity, disarmament, political indications and corruption have generated and continue to fuel Brazil's biggest problems: violence, state inefficiency and unemployment. As important as doing new things is to undo this criminal structure created by the last governments!"
-                "Brazilian officials seem to be willing to prevent @LulaOficial from reaching the Planalto. @NUBrasil said that Lula has the right to be a candidate. The Brazilian government said it is a recommendation. It's law. It is an international treaty, assumed by Brazil. #MostONUGlobo"
+                "We want an inclusive, non-exclusionary Spain, which treats its people well and seeks justice and well-being. A fair country that makes us proud to be Spanish.",
+                "Perhaps he ordered the murder of Jaime Garzon did not govern later? Perhaps an important part of society does not applaud and is not afraid of that? If you want to feel fear, that is what you have to fear. If they want hope, what must be defended is the right to difference.",
+                "Impunity, disarmament, political indications and corruption have generated and continue to fuel Brazil's biggest problems: violence, state inefficiency and unemployment. As important as doing new things is to undo this criminal structure created by the last governments!",
             ]
-            
-
             analyze_batch(scorer, test_texts)
             continue
         elif not text:
             continue
-        
+
         try:
             analyze_text(scorer, text)
         except Exception as e:
             print(f"Error analyzing text: {e}")
+
 
 # ============================================================================
 # MAIN EXECUTION
 # ============================================================================
 
 if __name__ == "__main__":
-    # Parse command line arguments
-    parser = argparse.ArgumentParser(description="Populism-Pluralism Scorer")
-    parser.add_argument("--input", "-i", help="Input CSV file path")
-    parser.add_argument("--output", "-o", help="Output CSV file path")
-    args = parser.parse_args()
-    
-    # Initialize scorer
-    scorer = PopulismPluralismScorer()
-    
-    if args.input and args.output:
-        # Process CSV file
-        process_csv(scorer, args.input, args.output)
-    else:
-        # Run interactive mode
-        interactive_mode(scorer)
+    scorer = LiberalIlliberalScorer()
+    interactive_mode(scorer)
