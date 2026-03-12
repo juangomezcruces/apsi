@@ -208,6 +208,19 @@ class PopulismPluralismScorer:
         
         probs = self.get_hypothesis_probabilities(text)
 
+        # If no hypothesis exceeds the threshold, treat as irrelevant (same response as failed precheck)
+        if not np.any(probs > thr):
+            return {
+                'text': text,
+                'score': 'NA',
+                'confidence': 0.0,
+                'contradiction_detected': False,
+                'interpretation': 'Not about democratic principles',
+                'topic_probability': float(topic_prob),
+                'passed_precheck': False,
+                'is_relevant': False,
+            }
+
         populist_probs = []
         pluralist_probs = []
         hypothesis_results = []
