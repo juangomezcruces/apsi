@@ -116,6 +116,12 @@
                       <span>Very sure</span>
                     </div>
                   </div>
+                  {% if alternative_scores.left_right_hypothesis.contradiction_detected %}
+                  <div class="mt-2 d-flex align-items-center gap-1" style="font-size:0.82rem; color:#dc3545;">
+                    <span>⚠️</span>
+                    <span><strong>Possible contradiction present</strong></span>
+                  </div>
+                  {% endif %}
                   {% endwith %}
                 {% else %}
                   <div class="alert alert-warning mt-3 mb-0" role="alert">
@@ -171,6 +177,12 @@
                       <span>Very sure</span>
                     </div>
                   </div>
+                  {% if alternative_scores.liberal_illiberal_hypothesis.contradiction_detected %}
+                  <div class="mt-2 d-flex align-items-center gap-1" style="font-size:0.82rem; color:#dc3545;">
+                    <span>🚩</span>
+                    <span><strong>Contradiction present</strong> — the text contains signals pointing in opposite directions</span>
+                  </div>
+                  {% endif %}
                   {% endwith %}
                 {% else %}
                   <div class="alert alert-warning mt-3 mb-0" role="alert">
@@ -218,7 +230,7 @@
                     <div class="mb-1">
                       <span class="text-muted fw-semibold">How sure we are</span>
                     </div>
-                    <div style="background:#e9ecef; border-radius:6px; height:10px; width:100%; overflow:hidden;">
+                    <div style="background:#e9ecef; border-radius:6px; height:100%; overflow:hidden;">
                       <div style="background: linear-gradient(90deg, #ffc107, #ffda6a); height:10px; border-radius:6px; width:{{ confidence|floatformat:0 }}%; transition: width 0.6s ease;"></div>
                     </div>
                     <div class="d-flex justify-content-between mt-1" style="font-size:0.75rem; color:#aaa;">
@@ -226,6 +238,12 @@
                       <span>Very sure</span>
                     </div>
                   </div>
+                  {% if alternative_scores.populism_pluralism_hypothesis.contradiction_detected %}
+                  <div class="mt-2 d-flex align-items-center gap-1" style="font-size:0.82rem; color:#dc3545;">
+                    <span>🚩</span>
+                    <span><strong>Contradiction present</strong> — the text contains signals pointing in opposite directions</span>
+                  </div>
+                  {% endif %}
                   {% endwith %}
                 {% else %}
                   <div class="alert alert-warning mt-3 mb-0" role="alert">
