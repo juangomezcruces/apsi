@@ -134,6 +134,7 @@ def generate_alternative_scores(text, scorers=None, selected_approaches=None):
                             'topic_probability': round(lr_result.get('topic_probability', 1.0), 3),
                             'top_left_hypotheses': lr_result.get('top_left_hypotheses', []),
                             'top_right_hypotheses': lr_result.get('top_right_hypotheses', []),
+                            'contradiction_detected': lr_result.get('contradiction_detected', False),
                         }
                         logger.debug(f"✓ Left-right hypothesis: {score:.2f}")
                     else:
@@ -167,6 +168,7 @@ def generate_alternative_scores(text, scorers=None, selected_approaches=None):
                             'topic_probability': round(li_result.get('topic_probability', 1.0), 3),
                             'top_liberal_hypotheses': li_result.get('top_liberal_hypotheses', []),
                             'top_illiberal_hypotheses': li_result.get('top_illiberal_hypotheses', []),
+                            'contradiction_detected': li_result.get('contradiction_detected', False),
                         }
                         logger.debug(f"✓ Liberal-illiberal hypothesis: {score:.2f}")
                     else:
@@ -200,7 +202,7 @@ def generate_alternative_scores(text, scorers=None, selected_approaches=None):
                             'topic_probability': round(pp_result.get('topic_probability', 1.0), 3),
                             'top_populism_hypotheses': pp_result.get('top_populist_hypotheses', []),
                             'top_pluralism_hypotheses': pp_result.get('top_pluralist_hypotheses', []),
-
+                            'contradiction_detected': pp_result.get('contradiction_detected', False),
                         }
                         logger.debug(f"✓ Populism-pluralism hypothesis: {score:.2f}")
                     else:
