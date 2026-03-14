@@ -110,23 +110,21 @@ def generate_alternative_scores(text, scorers=None, selected_approaches=None):
 
     try:
         if scorers and not MOCK_MODE:
-            # FIX 1: Log only selected approaches (not all keys)
+            from concurrent.futures import ThreadPoolExecutor, as_completed
+
             selected_list = [k for k, v in selected_approaches.items() if v]
-            logger.info(f"Running selected alternative approaches: {selected_list}")
+            logger.info(f"Running selected alternative approaches in parallel: {selected_list}")
 
-            # === HYPOTHESIS-BASED MODELS (only if selected) ===
+            # === SCORER FUNCTIONS (one per dimension) ===
 
-            if selected_approaches.get('left_right_hypothesis') and 'left_right' in scorers:
+            def run_left_right():
                 try:
                     logger.debug("Running left-right hypothesis scoring...")
                     lr_result = scorers['left_right'].score_left_right(text)
-
-                    # FIX: Check is_relevant and handle 'NA' score
                     is_relevant = lr_result.get('is_relevant', True)
                     score = lr_result.get('score', 5.0)
-
                     if is_relevant and score != 'NA':
-                        alternative_scores['left_right_hypothesis'] = {
+                        result = {
                             'score': round(score, 2),
                             'confidence': round(lr_result.get('confidence', 0.8) * 100, 1),
                             'interpretation': lr_result.get('interpretation', 'Center'),
@@ -138,29 +136,27 @@ def generate_alternative_scores(text, scorers=None, selected_approaches=None):
                         }
                         logger.debug(f"✓ Left-right hypothesis: {score:.2f}")
                     else:
-                        alternative_scores['left_right_hypothesis'] = {
+                        result = {
                             'score': 'NA',
                             'confidence': 0.0,
                             'interpretation': lr_result.get('interpretation', 'Not about economic policy'),
                             'is_relevant': False,
-                            'topic_probability': round(lr_result.get('topic_probability', 0.0), 3)
+                            'topic_probability': round(lr_result.get('topic_probability', 0.0), 3),
                         }
-                        logger.debug(f"✓ Left-right hypothesis: NA (not relevant)")
+                        logger.debug("✓ Left-right hypothesis: NA (not relevant)")
+                    return 'left_right_hypothesis', result
                 except Exception as e:
                     logger.error(f"Left-Right hypothesis scoring failed: {e}")
-                    alternative_scores['left_right_hypothesis'] = generate_mock_score('left_right')
+                    return 'left_right_hypothesis', generate_mock_score('left_right')
 
-            if selected_approaches.get('liberal_illiberal_hypothesis') and 'liberal_illiberal' in scorers:
+            def run_liberal_illiberal():
                 try:
                     logger.debug("Running liberal-illiberal hypothesis scoring...")
                     li_result = scorers['liberal_illiberal'].score_liberal_illiberal(text)
-
-                    # FIX: Check is_relevant and handle 'NA' score
                     is_relevant = li_result.get('is_relevant', True)
                     score = li_result.get('score', 5.0)
-
                     if is_relevant and score != 'NA':
-                        alternative_scores['liberal_illiberal_hypothesis'] = {
+                        result = {
                             'score': round(score, 2),
                             'confidence': round(li_result.get('confidence', 0.8) * 100, 1),
                             'interpretation': li_result.get('interpretation', 'Moderate'),
@@ -172,29 +168,27 @@ def generate_alternative_scores(text, scorers=None, selected_approaches=None):
                         }
                         logger.debug(f"✓ Liberal-illiberal hypothesis: {score:.2f}")
                     else:
-                        alternative_scores['liberal_illiberal_hypothesis'] = {
+                        result = {
                             'score': 'NA',
                             'confidence': 0.0,
                             'interpretation': li_result.get('interpretation', 'Not about democratic principles'),
                             'is_relevant': False,
-                            'topic_probability': round(li_result.get('topic_probability', 0.0), 3)
+                            'topic_probability': round(li_result.get('topic_probability', 0.0), 3),
                         }
-                        logger.debug(f"✓ Liberal-illiberal hypothesis: NA (not relevant)")
+                        logger.debug("✓ Liberal-illiberal hypothesis: NA (not relevant)")
+                    return 'liberal_illiberal_hypothesis', result
                 except Exception as e:
                     logger.error(f"Liberal-Illiberal hypothesis scoring failed: {e}")
-                    alternative_scores['liberal_illiberal_hypothesis'] = generate_mock_score('liberal_illiberal')
+                    return 'liberal_illiberal_hypothesis', generate_mock_score('liberal_illiberal')
 
-            if selected_approaches.get('populism_hypothesis') and 'populism_pluralism' in scorers:
+            def run_populism():
                 try:
                     logger.debug("Running populism-pluralism hypothesis scoring...")
                     pp_result = scorers['populism_pluralism'].score_populism_pluralism(text)
-
-                    # FIX: Check is_relevant and handle 'NA' score
                     is_relevant = pp_result.get('is_relevant', True)
                     score = pp_result.get('score', 5.0)
-
                     if is_relevant and score != 'NA':
-                        alternative_scores['populism_pluralism_hypothesis'] = {
+                        result = {
                             'score': round(score, 2),
                             'confidence': round(pp_result.get('confidence', 0.8) * 100, 1),
                             'interpretation': pp_result.get('interpretation', 'Moderate'),
@@ -206,7 +200,7 @@ def generate_alternative_scores(text, scorers=None, selected_approaches=None):
                         }
                         logger.debug(f"✓ Populism-pluralism hypothesis: {score:.2f}")
                     else:
-                        alternative_scores['populism_pluralism_hypothesis'] = {
+                        result = {
                             'score': 'NA',
                             'confidence': 0.0,
                             'interpretation': pp_result.get('interpretation', 'Not about political rhetoric'),
@@ -215,10 +209,27 @@ def generate_alternative_scores(text, scorers=None, selected_approaches=None):
                             'top_populism_hypotheses': pp_result.get('top_populism_hypotheses', []),
                             'top_pluralism_hypotheses': pp_result.get('top_pluralism_hypotheses', []),
                         }
-                        logger.debug(f"✓ Populism-pluralism hypothesis: NA (not relevant)")
+                        logger.debug("✓ Populism-pluralism hypothesis: NA (not relevant)")
+                    return 'populism_pluralism_hypothesis', result
                 except Exception as e:
                     logger.error(f"Populism-Pluralism hypothesis scoring failed: {e}")
-                    alternative_scores['populism_pluralism_hypothesis'] = generate_mock_score('populism_pluralism')
+                    return 'populism_pluralism_hypothesis', generate_mock_score('populism_pluralism')
+
+            # Build list of tasks to run based on what was selected
+            tasks = []
+            if selected_approaches.get('left_right_hypothesis') and 'left_right' in scorers:
+                tasks.append(run_left_right)
+            if selected_approaches.get('liberal_illiberal_hypothesis') and 'liberal_illiberal' in scorers:
+                tasks.append(run_liberal_illiberal)
+            if selected_approaches.get('populism_hypothesis') and 'populism_pluralism' in scorers:
+                tasks.append(run_populism)
+
+            # Run all selected scorers in parallel
+            with ThreadPoolExecutor(max_workers=len(tasks)) as executor:
+                futures = [executor.submit(task) for task in tasks]
+                for future in as_completed(futures):
+                    key, result = future.result()
+                    alternative_scores[key] = result
 
         else:
             # Generate mock data only for selected approaches
