@@ -15,12 +15,13 @@
     <title>{% block title %}Automated Political Stance Identification (APSI){% endblock %}</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 
+    <!-- Bootstrap CSS FIRST so custom styles can override it -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- External custom CSS -->
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 
-
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Custom CSS -->
+    <!-- Inline custom CSS -->
     <style>
         body {
             background-color: #ffffff;
@@ -129,253 +130,228 @@
     }
 
     .btn:focus, .btn:active:focus {
-    outline: none;
-    box-shadow: 0 0 0 4px rgba(55, 163, 177, 0.4);
-}
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(55, 163, 177, 0.4);
+    }
 
 
     .disclaimer-box {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 1.5rem;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 1.5rem;
 
-    background:
-    
-        repeating-linear-gradient(
-        to right,
-        #dc3545 0 14px,
-        transparent 14px 28px
-        ) top / 100% 3px no-repeat,
+        background:
+        
+            repeating-linear-gradient(
+            to right,
+            #dc3545 0 14px,
+            transparent 14px 28px
+            ) top / 100% 3px no-repeat,
 
-    
-        repeating-linear-gradient(
-        to right,
-        #dc3545 0 14px,
-        transparent 14px 28px
-        ) bottom / 100% 3px no-repeat,
+        
+            repeating-linear-gradient(
+            to right,
+            #dc3545 0 14px,
+            transparent 14px 28px
+            ) bottom / 100% 3px no-repeat,
 
-    
-        repeating-linear-gradient(
-        to bottom,
-        #dc3545 0 14px,
-        transparent 14px 28px
-        ) left / 3px 100% no-repeat,
+        
+            repeating-linear-gradient(
+            to bottom,
+            #dc3545 0 14px,
+            transparent 14px 28px
+            ) left / 3px 100% no-repeat,
 
-        repeating-linear-gradient(
-        to bottom,
-        #dc3545 0 14px,
-        transparent 14px 28px
-        ) right / 3px 100% no-repeat,
+            repeating-linear-gradient(
+            to bottom,
+            #dc3545 0 14px,
+            transparent 14px 28px
+            ) right / 3px 100% no-repeat,
 
-        #ffffff;
+            #ffffff;
 
-    border-radius: 16px;
-
-
-    font-size: 0.85rem;
-    color: #555; 
-
-    box-sizing: border-box;
+        border-radius: 16px;
+        font-size: 0.85rem;
+        color: #555; 
+        box-sizing: border-box;
     }
 
     .scale-wrap {
-    position: relative;
-    padding-top: 3rem; 
+        position: relative;
+        padding-top: 3rem; 
     }
 
-.scale-line {
-  position: relative;
-  height: 10px;
-}
+    .scale-line {
+        position: relative;
+        height: 10px;
+    }
 
-.scale-line::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  height: 3px;
-  transform: translateY(-50%);
-  background: #adb5bd; /* gray line */
-  border-radius: 999px;
-}
+    .scale-line::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 50%;
+        height: 3px;
+        transform: translateY(-50%);
+        background: #adb5bd;
+        border-radius: 999px;
+    }
 
-.scale-dot {
-  position: absolute;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: 12px;
-  height: 12px;
-  background: #e83e8c; 
-  border-radius: 50%;
-  box-shadow: 0 0 0 3px rgba(232, 62, 140, 0.15);
-}
+    .scale-dot {
+        position: absolute;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: 12px;
+        height: 12px;
+        background: #e83e8c; 
+        border-radius: 50%;
+        box-shadow: 0 0 0 3px rgba(232, 62, 140, 0.15);
+    }
 
-.scale-dotlibillib {
-  position: absolute;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: 12px;
-  height: 12px;
-  background: #20c997; 
-  border-radius: 50%;
-  box-shadow: 0 0 0 3px rgba(32, 201, 151, 0.25);
-}
+    .scale-dotlibillib {
+        position: absolute;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: 12px;
+        height: 12px;
+        background: #20c997; 
+        border-radius: 50%;
+        box-shadow: 0 0 0 3px rgba(32, 201, 151, 0.25);
+    }
 
-.scale-dotpopplu {
-  position: absolute;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: 12px;
-  height: 12px;
-  background: #ffc107; 
-  border-radius: 50%;
-  box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.25);
-}
+    .scale-dotpopplu {
+        position: absolute;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: 12px;
+        height: 12px;
+        background: #ffc107; 
+        border-radius: 50%;
+        box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.25);
+    }
 
+    .scale-score {
+        position: absolute;
+        top: 0;
+        transform: translateX(-50%);
+        white-space: nowrap;
+        line-height: 1;
+    }
 
-.scale-score {
-  position: absolute;
-  top: 0;
-  transform: translateX(-50%);
-  white-space: nowrap;
-  line-height: 1;
-}
+    .scale-labels {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 0.35rem;
+        font-size: 0.8rem;
+        color: #6c757d;
+    }
 
-.scale-labels {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 0.35rem;
-  font-size: 0.8rem;
-  color: #6c757d;
-}
-.economic-badge {
-  background-color: #e83e8c;
-  color: #fff;
-  padding: 0.45em 0.7em;
-  border-radius: 0.65rem;
-}
+    .economic-badge {
+        background-color: #e83e8c;
+        color: #fff;
+        padding: 0.45em 0.7em;
+        border-radius: 0.65rem;
+    }
 
-.loading-overlay {
-    position: fixed;
-    inset: 0;
-    background: translarent;
-    color: #37A3B1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1050;
-}
+    .loading-overlay {
+        position: fixed;
+        inset: 0;
+        background: transparent;
+        color: #37A3B1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1050;
+    }
 
-.loading-overlay .spinner-border {
-    width: 3rem;
-    height: 3rem;
-    color: #37A3B1;
-}
+    .loading-overlay .spinner-border {
+        width: 3rem;
+        height: 3rem;
+        color: #37A3B1;
+    }
 
-.loading-box {
-    background: rgba(255, 255, 255, 0.9);
-    padding: 1.25rem 2rem;
-    border-radius: 1rem;
-    box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.15);
-    color: #37A3B1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;   /* horizontal centering */
-    justify-content: center;
-}
+    .loading-box {
+        background: rgba(255, 255, 255, 0.9);
+        padding: 1.25rem 2rem;
+        border-radius: 1rem;
+        box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.15);
+        color: #37A3B1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
 
-.loading-box .spinner-border {
-    color: #37A3B1;
-}
+    .loading-box .spinner-border {
+        color: #37A3B1;
+    }
 
+    .smooth-spinner {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        position: relative;
+        background: conic-gradient(
+            from 0deg,
+            rgba(55,163,177,0)   0deg,
+            rgba(55,163,177,0)   90deg,
+            rgba(55,163,177,.2)  140deg,
+            rgba(55,163,177,.5)  200deg,
+            rgba(55,163,177,.8)  260deg,
+            rgba(55,163,177,1)   320deg,
+            rgba(55,163,177,1)   360deg
+        );
+        -webkit-mask: radial-gradient(
+            farthest-side,
+            transparent calc(100% - 6px),
+            #000 0
+        );
+        mask: radial-gradient(
+            farthest-side,
+            transparent calc(100% - 6px),
+            #000 0
+        );
+        animation: spin 0.9s linear infinite;
+        filter: drop-shadow(0 0 6px rgba(55,163,177,.25));
+    }
 
+    .smooth-spinner::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        background: inherit;
+        filter: blur(3px);
+        opacity: 0.35;
+    }
 
-/* Smooth spinner — comet properties applied */
-.smooth-spinner {
-    width: 56px;                 /* match comet sizing */
-    height: 56px;
-    border-radius: 50%;
-    position: relative;
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
 
-    /* Comet-style fading trail */
-    background: conic-gradient(
-        from 0deg,
-        rgba(55,163,177,0)   0deg,
-        rgba(55,163,177,0)   90deg,
+    #whyResultsBtn:focus,
+    #whyResultsBtn:focus-visible {
+        outline: none !important;
+        box-shadow: 0 0 0 3px rgba(115, 114, 112, 0.5) !important;
+    }
 
-        rgba(55,163,177,.2)  140deg,
-        rgba(55,163,177,.5)  200deg,
-        rgba(55,163,177,.8)  260deg,
-        rgba(55,163,177,1)   320deg,
-        rgba(55,163,177,1)   360deg
-    );
+    .btn-outline-custom-danger {
+        color: #dc3545 !important;
+        border: 1px solid #dc3545 !important;
+        background-color: transparent !important;
+    }
 
-    /* Ring cutout (instead of border trick) */
-    -webkit-mask: radial-gradient(
-        farthest-side,
-        transparent calc(100% - 6px),
-        #000 0
-    );
-    mask: radial-gradient(
-        farthest-side,
-        transparent calc(100% - 6px),
-        #000 0
-    );
-
-    /* Comet motion speed */
-    animation: spin 0.9s linear infinite;
-
-    /* Glow transferred */
-    filter: drop-shadow(0 0 6px rgba(55,163,177,.25));
-}
-
-/* Optional subtle aura layer retained */
-.smooth-spinner::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: 50%;
-    background: inherit;
-    filter: blur(3px);
-    opacity: 0.35;
-}
-
-/* Rotation */
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-
-#whyResultsBtn:focus,
-#whyResultsBtn:focus-visible {
-    outline: none !important;
-    box-shadow: 0 0 0 3px rgba(115, 114, 112, 0.5) !important;
-}
-
-.btn-outline-custom-danger {
-    color: #dc3545;
-    border: 1px solid #dc3545;
-    background-color: transparent;
-}
-
-.btn-outline-custom-danger:hover {
-    color: #fff;
-    background-color: #dc3545;
-    border-color: #dc3545;
-}
-
-
+    .btn-outline-custom-danger:hover {
+        color: #fff !important;
+        background-color: #dc3545 !important;
+        border-color: #dc3545 !important;
+    }
 
     </style>
     {% block extra_css %}{% endblock %}
 
-
-
-
 </head>
-
-
-
 
 <body>
 
@@ -402,28 +378,18 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'classifier:documentation' %}">Documentation</a>
                     </li>
-
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'classifier:privacy_notice' %}">Privacy Policy</a>
                     </li>
-
-
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'classifier:imprint' %}">Imprint</a>
                     </li>
-
-                                        <li class="nav-item">
+                    <li class="nav-item">
                         <a class="nav-link" href="{% url 'classifier:contact' %}">Contact</a>
                     </li>
-
-
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'classifier:faq' %}">FAQ</a>
                     </li>
-
-
-
-
                 </ul>
             </div>
         </div>
@@ -444,63 +410,56 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
-
-
-
-<!-- Loading Overlay -->
-<div id="loading-overlay" class="loading-overlay d-none" style="display:none !important;">
-    <div class="loading-box text-center">
-        <div class="smooth-spinner mb-3"></div>
-        <p id="loading-message" class="mb-0">
-            Analyzing text…
-        </p>
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay d-none" style="display:none !important;">
+        <div class="loading-box text-center">
+            <div class="smooth-spinner mb-3"></div>
+            <p id="loading-message" class="mb-0">
+                Analyzing text…
+            </p>
+        </div>
     </div>
-</div>
 
+    <script>
+    const messages = [
+        "Analyzing text…",
+        "Do not close this tab.",
+    ];
 
-<script>
-const messages = [
-    "Analyzing text…",
-    "Do not close this tab.",
-];
+    let msgIndex = 0;
+    let msgInterval = null;
 
-let msgIndex = 0;
-let msgInterval = null;
+    function startLoadingMessages() {
+        msgInterval = setInterval(() => {
+            const el = document.getElementById("loading-message");
+            if (el) {
+                el.textContent = messages[msgIndex++ % messages.length];
+            }
+        }, 7000);
+    }
 
-function startLoadingMessages() {
-    msgInterval = setInterval(() => {
-        const el = document.getElementById("loading-message");
-        if (el) {
-            el.textContent = messages[msgIndex++ % messages.length];
+    document.addEventListener("DOMContentLoaded", function () {
+        document.getElementById("loading-overlay").classList.add("d-none");
+        if (msgInterval) clearInterval(msgInterval);
+
+        const form = document.querySelector("form");
+        if (form) {
+            form.addEventListener("submit", function () {
+                const overlay = document.getElementById("loading-overlay");
+                overlay.style.removeProperty("display");
+                overlay.classList.remove("d-none");
+                startLoadingMessages();
+            });
         }
-    }, 7000);
-}
+    });
 
-document.addEventListener("DOMContentLoaded", function () {
-    document.getElementById("loading-overlay").classList.add("d-none");
-    if (msgInterval) clearInterval(msgInterval);
-
-    const form = document.querySelector("form");
-    if (form) {
-        form.addEventListener("submit", function () {
-            const overlay = document.getElementById("loading-overlay");
-            overlay.style.removeProperty("display");
-            overlay.classList.remove("d-none");
-            startLoadingMessages();
-        });
-    }
-});
-
-window.addEventListener("pageshow", function(event) {
-    if (event.persisted) {
-        document.getElementById("loading-overlay").style.display = "none";
-    }
-});
-</script>
-
-
+    window.addEventListener("pageshow", function(event) {
+        if (event.persisted) {
+            document.getElementById("loading-overlay").style.display = "none";
+        }
+    });
+    </script>
 
     {% block extra_js %}{% endblock %}
 </body>
 </html>
-
