@@ -52,12 +52,12 @@ class LiberalIlliberalScorer:
             "The text conditions the right to vote or political participation on literacy, education, property, or other qualifying criteria.": (1.0, "illiberal"),
             "The text expresses that voting rights should be restricted to those who meet an educational or literacy standard.": (1.0, "illiberal"),
 
+            "The text expreses that one party or leader should govern without challenge from political opponents.": (0.95, "illiberal"),
             "The text frames suffrage restrictions as beneficial for the quality or responsibility of democratic representation.": (0.85, "illiberal"),
             "The text expresses refusal to accept defeat in competitive elections.": (0.85, "illiberal"),
             "The text expresses that political criticism or dissent is illegitimate, dangerous, or should be suppressed.": (0.85, "illiberal"),
             "The text justifies suppressing dissent to maintain order, stability, or national unity.": (0.85, "illiberal"),
             "The text expresses that political rights are conditional on loyalty to the regime, party, or ideology.": (0.85, "illiberal"),
-            "The text expreses that one party or leader should govern without challenge from political opponents.": (0.85, "illiberal"),
 
             "The text portrays political opponents as enemies, traitors, or existential threats rather than legitimate actors.": (0.65, "illiberal"),
             "The text expresses preference for revolutionary or extra-legal seizure of power over electoral competition.": (0.65, "illiberal"),
