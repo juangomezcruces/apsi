@@ -13,7 +13,6 @@ from django.views.decorators.http import require_http_methods
 from django.contrib import messages
 from django.conf import settings
 from .forms import TextClassificationForm
-from .inference_service import PoliticalInferenceService
 
 
 
