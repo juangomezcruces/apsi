@@ -12,4 +12,6 @@ urlpatterns = [
     path('imprint/', views.imprint, name='imprint'),
     path('contact/', views.contact, name='contact'),
     path('faq/', views.faq, name='faq'),
+    path('save-result/', views.save_result, name='save_result'),
+    path('delete-result/<int:result_id>/', views.delete_result, name='delete_result'),
 ]

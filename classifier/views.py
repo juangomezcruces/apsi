@@ -450,6 +450,8 @@ def classify_text(request):
             'alternative_scores': alternative_scores,
             'selected_approaches': selected_approaches,
             'why_these_results': why_these_results,
+            'alternative_scores_json': json.dumps(alternative_scores) if alternative_scores else '{}',
+            'selected_approaches_json': json.dumps(selected_approaches),
         }
 
         processing_time = time.time() - start_time
@@ -484,6 +486,41 @@ def contact(request):
 
 def faq(request):
     return render(request, 'classifier/faq.html')
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def save_result(request):
+    """Save a classification result when the user opts in via the toggle."""
+    try:
+        from .models import ClassificationResult
+        data = json.loads(request.body)
+        result = ClassificationResult.objects.create(
+            input_text=data.get('input_text', ''),
+            scores=data.get('scores', {}),
+            selected_approaches=data.get('selected_approaches', {}),
+        )
+        logger.info(f"Classification result {result.id} saved by user opt-in")
+        return JsonResponse({'success': True, 'id': result.id})
+    except Exception as e:
+        logger.error(f"save_result error: {e}")
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def delete_result(request, result_id):
+    """Remove a previously saved result when the user toggles off."""
+    try:
+        from .models import ClassificationResult
+        deleted, _ = ClassificationResult.objects.filter(id=result_id).delete()
+        if deleted:
+            logger.info(f"Classification result {result_id} removed by user opt-out")
+            return JsonResponse({'success': True})
+        return JsonResponse({'success': False, 'error': 'Record not found'}, status=404)
+    except Exception as e:
+        logger.error(f"delete_result error: {e}")
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 
 @csrf_exempt

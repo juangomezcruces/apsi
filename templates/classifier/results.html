@@ -20,12 +20,29 @@
       </div>
 
 
-      <div class="col-md-4 mt-3 mt-md-0">
+      <div class="col-md-4 mt-3 mt-md-0 d-flex flex-column gap-2">
         <a href="{% url 'classifier:analysis' %}"
           class="btn btn-lg w-100"
           style="background-color:#37A3B1; color:#fff;">
           ← Analyze Another Text
         </a>
+
+        <!-- Save-result toggle -->
+        <div class="d-flex align-items-center justify-content-center gap-2 p-2 rounded"
+             style="border: 1px solid #dee2e6; background:#f8f9fa;" id="save-toggle-wrap">
+          <div class="form-check form-switch mb-0">
+            <input class="form-check-input" type="checkbox" role="switch"
+                   id="saveResultToggle" style="cursor:pointer; width:2.5em; height:1.3em;">
+            <label class="form-check-label fw-semibold" for="saveResultToggle"
+                   style="cursor:pointer; user-select:none;">
+              Save this result
+            </label>
+          </div>
+          <span id="saveStatus" style="font-size:0.82rem; min-width:70px;"></span>
+        </div>
+        <div id="savePrivacyNote" class="text-muted" style="font-size:0.78rem; display:none;">
+          The input text and scores will be stored on the server for research purposes.
+        </div>
       </div>
     </div>
   </div>
@@ -438,6 +455,109 @@
       modal.hide();
     });
   });
+</script>
+
+<!-- Hidden CSRF token for AJAX calls -->
+{% csrf_token %}
+
+<!-- Data island: keeps Django template tags out of JS so editors stay happy -->
+<script type="application/json" id="result-data">
+{
+  "inputText": "{{ input_text|escapejs }}",
+  "scores": {{ alternative_scores_json|safe }},
+  "selectedApproaches": {{ selected_approaches_json|safe }},
+  "saveUrl": "{% url 'classifier:save_result' %}"
+}
+</script>
+
+<script>
+  (function () {
+    const toggle          = document.getElementById('saveResultToggle');
+    const statusEl        = document.getElementById('saveStatus');
+    const privacyNote     = document.getElementById('savePrivacyNote');
+
+    const pageData           = JSON.parse(document.getElementById('result-data').textContent);
+    const inputText          = pageData.inputText;
+    const scores             = pageData.scores;
+    const selectedApproaches = pageData.selectedApproaches;
+    const saveUrl            = pageData.saveUrl;
+
+    let savedId = null;
+
+    function setStatus(msg, color) {
+      statusEl.textContent = msg;
+      statusEl.style.color = color || '#555';
+    }
+
+    function getCsrfToken() {
+      const el = document.querySelector('[name=csrfmiddlewaretoken]');
+      return el ? el.value : '';
+    }
+
+    toggle.addEventListener('change', async function () {
+      toggle.disabled = true;
+
+      if (toggle.checked) {
+        setStatus('Saving…', '#888');
+        privacyNote.style.display = 'block';
+        try {
+          const resp = await fetch(saveUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': getCsrfToken(),
+            },
+            body: JSON.stringify({
+              input_text: inputText,
+              scores: scores,
+              selected_approaches: selectedApproaches,
+            }),
+          });
+          const data = await resp.json();
+          if (data.success) {
+            savedId = data.id;
+            setStatus('✓ Saved', '#37A3B1');
+          } else {
+            throw new Error(data.error || 'Unknown error');
+          }
+        } catch (err) {
+          setStatus('⚠ Error', '#dc3545');
+          toggle.checked = false;
+          privacyNote.style.display = 'none';
+          console.error('Save failed:', err);
+        }
+
+      } else {
+        if (savedId === null) {
+          setStatus('', '');
+          privacyNote.style.display = 'none';
+          toggle.disabled = false;
+          return;
+        }
+        setStatus('Removing…', '#888');
+        try {
+          const resp = await fetch(`/classifier/delete-result/${savedId}/`, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': getCsrfToken() },
+          });
+          const data = await resp.json();
+          if (data.success) {
+            savedId = null;
+            setStatus('', '');
+            privacyNote.style.display = 'none';
+          } else {
+            throw new Error(data.error || 'Unknown error');
+          }
+        } catch (err) {
+          setStatus('⚠ Error', '#dc3545');
+          toggle.checked = true;
+          console.error('Delete failed:', err);
+        }
+      }
+
+      toggle.disabled = false;
+    });
+  })();
 </script>
 
 {% endblock %}
