@@ -15,7 +15,7 @@
       src="{% static 'APSIlogo.png' %}"
       alt="APSI Logo"
       class="img-fluid mx-auto d-block"
-      style="max-height: 200px;"
+      style="max-height: 150px;"
     >
   </div>
 </section>
@@ -191,11 +191,12 @@
           </p>
         </div>
 
+
         <!-- CALL TO ACTION BUTTON (centered to match layout) -->
         <div class="text-center mt-3 mb-4" style="max-width: 980px; margin: 0 auto;">
           <a href="{% url 'classifier:analysis' %}"
              class="btn btn-lg"
-             style="background-color:#37A3B1; color:#fff;">
+              style="background-color:#37A3B1; color:#fff;">
             Start an analysis →
           </a>
         </div>
@@ -215,7 +216,7 @@
            <div class="apsi-clip">
             <div class="apsi-content">
              <p class="text-muted">
-               The Automated Political Stance Identifier (APSI) is a tool designed to analyse political texts and identify the stances they express. It uses a hypothesis-based approach grounded in political science theories to evaluate whether a text reflects specific political stances, such as economic left–right orientation, populist versus pluralist rhetoric, and support for liberal democratic values. Instead of relying on manually labeled training data, APSI applies a Natural Language Inference (NLI) model to test how strongly a text supports or contradicts a set of predefined hypotheses. By aggregating these results, the tool produces interpretable stance scores, confidence measures, and supporting evidence, enabling researchers, policymakers, and the public to systematically evaluate political discourse in a transparent and reproducible way.</p>
+               The Automated Political Stance Identifier (APSI) is a tool designed to analyse texts and identify the possible political stances they express. It uses a hypothesis-based approach grounded in political science theories to evaluate whether a text reflects specific political stances, such as economic left–right orientation, populist versus pluralist rhetoric, and support for liberal democratic values. Instead of relying on manually labeled training data, APSI applies a Natural Language Inference (NLI) model to test how strongly a text supports or contradicts a set of predefined hypotheses. By aggregating these results, the tool produces interpretable stance scores, confidence measures, and supporting evidence, enabling researchers, policymakers, and the public to systematically evaluate political discourse in a transparent and reproducible way.</p>
             </div>  
             </div>
           </details>
@@ -268,7 +269,7 @@
             <summary>How the analysis works</summary>
             <div class="apsi-clip">
             <div class="apsi-content">
-              <p class="text-muted">The APSI tool uses a theory-driven Natural Language Inference (NLI) approach to analyse political texts. Instead of relying on keywords or labeled training data, the tool evaluates how strongly a text supports or contradicts predefined political statements in the form of hypotheses derived from political science theories. It first checks whether a text is relevant, then estimates its position across key dimensions — such as economic ideology, populist versus pluralist rhetoric, and support for liberal democratic values. These results are combined into transparent scores, confidence estimates, and supporting evidence.
+              <p class="text-muted">The APSI tool uses a theory-driven Natural Language Inference (NLI) approach to analyse texts. Instead of relying on keywords or labeled training data, the tool evaluates how strongly a text supports or contradicts predefined political statements in the form of hypotheses derived from political science theories. It first checks whether a text is relevant, then estimates its position across key dimensions — such as economic ideology, populist versus pluralist rhetoric, and support for liberal democratic values. These results are combined into transparent scores, confidence estimates, and supporting evidence.
               </p>
 
               </div>

@@ -17,48 +17,52 @@ class PopulismPluralismScorer:
         self.device = cache.get_device()
         self.entailment_idx = self._find_entailment_index()
 
-        # Populism-Pluralism hypotheses based on GPS and V-Party definitions
-        # Populism-Pluralism hypotheses - refined for specificity
         self.populism_hypotheses = {
-            # Populist Positions (18) - Much more specific
-            "The author of this text believes corrupt politicians have betrayed ordinary working people": (1.0, "populist"),
-            "The author of this text believes citizens should vote directly on major issues instead of trusting representatives": (1.0, "populist"),
-            "The author of this text believes elites are out of touch with regular voters": (1.0, "populist"),
-            "The author of this text believes the political system is rigged to benefit wealthy donors": (1.0, "populist"),
-            "The author of this text believes ordinary citizens have more common sense than political experts": (1.0, "populist"),
-            "The author of this text believes career politicians care more about donors than ordinary voters": (1.0, "populist"),
-            "The author of this text believes the media and establishment work together against the people": (1.0, "populist"),
-            "The author of this text believes voters share the same basic values and priorities": (1.0, "populist"),
-            "The author of this text believes government bureaucrats obstruct the will of the people": (1.0, "populist"),
-            "The author of this text believes outsiders can fix problems that elites have created": (1.0, "populist"),
-            "The author of this text believes mainstream media suppresses the voices of regular people": (1.0, "populist"),
-            "The author of this text believes the government serves only the interest of corporations and wealthy individuals": (1.0, "populist"),
-            "The author of this text believes hard-working families are ignored by self-serving politicians": (1.0, "populist"),
-            "The author of this text believes common people understand what's best for the country": (1.0, "populist"),
-            "The author of this text believes political insiders resist giving power back to working families": (1.0, "populist"),
-            "The author of this text believes the political class has formed a conspiracy against ordinary citizens": (1.0, "populist"),
-            "The author of this text believes the majority should decide without being blocked by courts or elites": (1.0, "populist"),
-            "The author of this text believes wealthy special interests have corrupted the entire political system": (1.0, "populist"),            
-            
-            # Pluralist Positions (18) - Much more specific
-            "The author of this text believes different communities have legitimate but conflicting needs": (1.0, "pluralist"),
-            "The author of this text believes political negotiations and compromises are a core democratic principle": (1.0, "pluralist"),
-            "The author of this text believes constitutional courts should protect minority rights from majority rule": (1.0, "pluralist"),
-            "The author of this text believes policy experts provide valuable technical knowledge to lawmakers": (1.0, "pluralist"),
-            "The author of this text believes legislative committees should carefully review proposed laws": (1.0, "pluralist"),
-            "The author of this text believes business associations and labor unions both deserve seats at the policy table": (1.0, "pluralist"),
-            "The author of this text believes complex problems require nuanced solutions and careful implementation": (1.0, "pluralist"),
-            "The author of this text believes democratic institutions have evolved to serve important functions": (1.0, "pluralist"),
-            "The author of this text believes elected representatives should balance constituent demands with broader considerations": (1.0, "pluralist"),
-            "The author of this text believes federal systems allow different regions to have different approaches": (1.0, "pluralist"),
-            "The author of this text believes specialized agencies should make technical decisions based on expertise": (1.0, "pluralist"),
-            "The author of this text believes incremental policy changes are more sustainable than dramatic overhauls": (1.0, "pluralist"),
-            "The author of this text believes professional civil servants provide continuity across administrations": (1.0, "pluralist"),
-            "The author of this text believes political opposition helps improve government policies through debate": (1.0, "pluralist"),
-            "The author of this text believes coalition-building requires acknowledging different viewpoints": (1.0, "pluralist"),
-            "The author of this text believes democratic decisions should balance majority preferences with minority protections": (1.0, "pluralist"),
-            "The author of this text believes competing interests can find mutually beneficial solutions through negotiation": (1.0, "pluralist"),
-            "The author of this text believes institutional safeguards prevent dangerous concentration of power": (1.0, "pluralist"),
+      # Anti-elite vs. legitimate representation
+            "The text argues that corrupt elites or establishment insiders have betrayed ordinary people.": (1.0, "populist"),
+            "The text argues that representative institutions and elected officials can legitimately govern on behalf of citizens without requiring direct popular mandates on every issue.": (0.60, "pluralist"),
+        
+            # System is rigged vs. institutional safeguards
+            "The text claims that electoral or legislative processes are systematically manipulated by wealthy donors, corporations, or lobbyists at the expense of ordinary voters.": (0.80, "populist"),        
+            "The text defends institutional checks, oversight mechanisms, or procedural rules as necessary safeguards against corruption or abuse of power.": (0.85, "pluralist"),
+        
+            # Skepticism of representation vs. mediated democracy
+            "The text explicitly questions or dismisses the legitimacy of legislatures, political parties, or elected representatives, suggesting that direct popular participation should replace them.": (0.75, "populist"),
+            "The text explicitly argues that political decisions must go through formal institutional procedures, such as parliamentary debate, judicial review, or constitutional process — and rejects shortcuts that bypass these.": (0.65, "pluralist"),
+        
+            # Homogeneous 'people' vs. plural society
+            "The text invokes 'the people' as a unified, virtuous whole whose collective will or welfare is being actively frustrated or betrayed by a corrupt or self-serving minority.": (1.0, "populist"),        
+            "The text acknowledges that society contains diverse groups with legitimately different interests that must be negotiated through political compromise.": (0.90, "pluralist"),
+        
+            # Anti-expertise vs. expertise
+            "The text argues that ordinary people's common sense is more trustworthy than experts or technocrats.": (0.90, "populist"),
+            "The text argues that expert knowledge, evidence-based policy, or specialized institutions contribute valuable input to political decision-making.": (0.75, "pluralist"),
+        
+            # Anti-bureaucracy vs. professional administration
+            "The text portrays civil servants, bureaucrats, or administrative agencies as self-interested obstructors of the popular will who should be removed or overridden.": (0.95, "populist"),        
+            "The text argues that professional civil servants and administrative processes provide continuity and competence in governance.": (0.80, "pluralist"),
+        
+            # Anti-media vs. press freedom / open debate
+            "The text claims mainstream media and establishment networks suppress ordinary people's voices or coordinate against them.": (1.0, "populist"),
+            "The text supports freedom of the press, diverse media, or institutionalized public debate as essential to democratic accountability.": (0.85, "pluralist"),
+        
+            # Majority unconstrained vs. minority rights and courts
+            "The text explicitly calls for overriding, ignoring, or abolishing judicial review, constitutional courts, or legal constraints that limit what elected majorities can do.": (0.40, "populist"),
+            "The text argues that courts and constitutional protections should defend minority rights against majority overreach.": (1.0, "pluralist"),
+        
+            # Outsider savior
+            "The text claims that established political parties, career politicians, or the governing class are incapable of solving the country's core problems.": (0.80, "populist"),
+            "The text argues that an outsider candidate or anti-establishment movement, explicitly positioned against the existing political class, is the only legitimate path to genuine change.": (0.85, "populist"),
+            "The text explicitly warns against or rejects sudden, revolutionary, or disruptive political change, arguing instead for gradual and negotiated reform.": (0.70, "pluralist"),
+        
+            # Legal/institutional norms defended vs. circumvented
+            "The text defends the application of legal norms, international treaties, or constitutional rules against attempts by officials or governments to circumvent them.": (0.90, "pluralist"),
+        
+            # Institutional anti-corruption vs. elite-betrayal framing
+            "The text explicitly states that corruption, bribery, or abuse of office should be prosecuted or sanctioned through existing legal institutions, not addressed by removing or replacing the entire political class.": (0.65, "pluralist"),
+
+            # Economic majoritarianism
+            "The text contrasts the economic interests of a wealthy or privileged minority — such as 'the 1%', large corporations, or the super-rich, against the interests of the majority of ordinary people.": (0.50, "populist"),
         }
 
         populist_count = sum(1 for _, (_, direction) in self.populism_hypotheses.items() if direction == "populist")
@@ -113,45 +117,35 @@ class PopulismPluralismScorer:
                     return idx
         return 0
 
-    def _get_entailment_prob(self, text, hypothesis):
-        """Get probability that text entails hypothesis"""
-        inputs = self.tokenizer(
-            text, hypothesis,
-            return_tensors="pt",
-            truncation=True,
-            max_length=512
-        )
-        inputs = {k: v.to(self.device) for k, v in inputs.items()}
-
-        with torch.no_grad():
-            outputs = self.model(**inputs)
-            prob = torch.softmax(outputs.logits, dim=-1)[0, self.entailment_idx].item()
-        return prob
+    def _batch_entailment_probs(self, text, hypotheses, batch_size=16):
+        """Get entailment probabilities for multiple hypotheses in batched forward passes."""
+        all_probs = []
+        for i in range(0, len(hypotheses), batch_size):
+            batch_hyps = hypotheses[i:i + batch_size]
+            inputs = self.tokenizer(
+                [text] * len(batch_hyps),
+                batch_hyps,
+                return_tensors="pt",
+                truncation=True,
+                padding=True,
+                max_length=512,
+            )
+            with torch.inference_mode():
+                outputs = self.model(**inputs)
+                probs = torch.softmax(outputs.logits, dim=-1)[:, self.entailment_idx]
+                all_probs.extend(probs.tolist())
+        return all_probs
 
     def is_about_political_rhetoric(self, text):
-        probs = [self._get_entailment_prob(text, h) for h in self.topic_hypotheses]
+        probs = self._batch_entailment_probs(text, self.topic_hypotheses)
         prob = float(max(probs)) if probs else 0.0
         logger.info(f"Thesis Populist Pluralist triggered with: {prob}")
         return prob >= self.topic_threshold, prob
 
-
     def get_hypothesis_probabilities(self, text):
-        """Get probabilities for all populism-pluralism hypotheses"""
-        probs = []
-        for hypothesis in self.populism_hypotheses.keys():
-            inputs = self.tokenizer(
-                text, hypothesis,
-                return_tensors="pt",
-                truncation=True,
-                max_length=512
-            )
-            inputs = {k: v.to(self.device) for k, v in inputs.items()}
-
-            with torch.no_grad():
-                outputs = self.model(**inputs)
-                prob = torch.softmax(outputs.logits, dim=-1)[0, self.entailment_idx].item()
-                probs.append(prob)
-
+        """Get probabilities for all populism-pluralism hypotheses (batched)"""
+        hypotheses = list(self.populism_hypotheses.keys())
+        probs = self._batch_entailment_probs(text, hypotheses)
         return np.array(probs)
 
     def compute_combined_confidence(self, populist_probs, pluralist_probs, all_probs):
@@ -192,7 +186,8 @@ class PopulismPluralismScorer:
             'top_pluralist_avg': top_pluralist_avg
         }
 
-    def score_populism_pluralism(self, text):
+    
+    def score_populism_pluralism(self, text, thr=0.15):
         """Score text and return comprehensive results"""
         # Check if text is about political rhetoric or governance
         is_relevant, topic_prob = self.is_about_political_rhetoric(text)
@@ -210,6 +205,19 @@ class PopulismPluralismScorer:
         
         probs = self.get_hypothesis_probabilities(text)
 
+        # If no hypothesis exceeds the threshold, treat as irrelevant (same response as failed precheck)
+        if not np.any(probs > thr):
+            return {
+                'text': text,
+                'score': 'NA',
+                'confidence': 0.0,
+                'contradiction_detected': False,
+                'interpretation': 'Not about democratic principles',
+                'topic_probability': float(topic_prob),
+                'passed_precheck': False,
+                'is_relevant': False,
+            }
+
         populist_probs = []
         pluralist_probs = []
         hypothesis_results = []
@@ -221,6 +229,7 @@ class PopulismPluralismScorer:
             hypothesis_results.append({
                 'hypothesis': hypothesis,
                 'probability': prob,
+                'weight': weight,
                 'direction': direction
             })
             
@@ -230,8 +239,17 @@ class PopulismPluralismScorer:
                 pluralist_probs.append(prob * weight)
 
         # Calculate averages and score
-        populist_avg = np.mean(populist_probs) if populist_probs else 0
-        pluralist_avg = np.mean(pluralist_probs) if pluralist_probs else 0
+        # === ADAPTIVE K (based on ALL hypotheses above threshold) ===
+        k_score = int(np.sum(probs > thr)) + 2
+        k_score = max(4, k_score)
+
+        # Use top-k per side for averaging (adaptive probability logic)
+        top_populist_probs = sorted(populist_probs, reverse=True)[:k_score]
+        top_pluralist_probs = sorted(pluralist_probs, reverse=True)[:k_score]
+
+        populist_avg = float(np.mean(top_populist_probs)) if top_populist_probs else 0.0
+        pluralist_avg = float(np.mean(top_pluralist_probs)) if top_pluralist_probs else 0.0
+
         
         difference = populist_avg - pluralist_avg
         final_score = 5 + (difference * 5)  # Higher scores = more populist
@@ -247,9 +265,25 @@ class PopulismPluralismScorer:
         # Get top hypotheses from each direction
         populist_hyps = [h for h in hypothesis_results if h['direction'] == 'populist']
         pluralist_hyps = [h for h in hypothesis_results if h['direction'] == 'pluralist']
-        
-        top_populist = sorted(populist_hyps, key=lambda x: x['probability'], reverse=True)[:10]
-        top_pluralist = sorted(pluralist_hyps, key=lambda x: x['probability'], reverse=True)[:10]
+
+        # Annotate with score_impact: (prob*weight / k_score) * 5 points for those in top-k
+        top_pop_weighted = sorted([(h['probability'] * h['weight'], h) for h in populist_hyps], key=lambda x: x[0], reverse=True)[:k_score]
+        top_plu_weighted = sorted([(h['probability'] * h['weight'], h) for h in pluralist_hyps], key=lambda x: x[0], reverse=True)[:k_score]
+        for weighted_val, h in top_pop_weighted:
+            h['score_impact'] = round((weighted_val / k_score) * 5, 3)
+        for weighted_val, h in top_plu_weighted:
+            h['score_impact'] = round((weighted_val / k_score) * 5, 3)
+        top_pop_set = {id(h) for _, h in top_pop_weighted}
+        top_plu_set = {id(h) for _, h in top_plu_weighted}
+        for h in populist_hyps:
+            if id(h) not in top_pop_set:
+                h['score_impact'] = 0.0
+        for h in pluralist_hyps:
+            if id(h) not in top_plu_set:
+                h['score_impact'] = 0.0
+
+        top_populist  = sorted([h for h in populist_hyps  if h['score_impact'] >= 0.05], key=lambda x: x['score_impact'], reverse=True)[:10]
+        top_pluralist = sorted([h for h in pluralist_hyps if h['score_impact'] >= 0.05], key=lambda x: x['score_impact'], reverse=True)[:10]
 
         # Interpret score (0-10 scale: 0=Strong Pluralist, 5=Moderate, 10=Strong Populist)
         if final_score < 2:
@@ -279,9 +313,9 @@ class PopulismPluralismScorer:
 
         }
 
-    def quick_score(self, text):
+    def quick_score(self, text, thr=0.15):
         """Ultra-simple interface - just returns the numerical score"""
-        result = self.score_populism_pluralism(text)
+        result = self.score_populism_pluralism(text, thr=thr) 
         return result['score']
 
 

@@ -12,7 +12,7 @@
 	    src="{% static 'APSIlogo.png' %}" 
             alt="APSI Logo" 
             class="img-fluid mx-auto d-block"
-            style="max-height: 200px;"
+            style="max-height: 150px;"
         >
     </div>
 </section>
@@ -58,11 +58,13 @@
                                     Select All
                                 </button>
                 
+
                                 <button type="button"
-                                    class="btn btn-sm btn-outline-custom-secondary"
+                                    class="btn btn-sm btn-outline-custom-danger"
                                     onclick="clearAllApproaches()">
                                     Clear All
                                 </button>
+
                             </div>
                         </div>
                         
@@ -79,7 +81,7 @@
                                     </div>
                                     <div class="card-body">
                                         <div class="form-check mb-2">
-                                            <input type="checkbox" name="left_right_hypothesis" class="form-check-input" id="id_left_right_hypothesis" checked>
+                                            <input type="checkbox" name="left_right_hypothesis" class="form-check-input" id="id_left_right_hypothesis">
                                             <label class="form-check-label" for="id_left_right_hypothesis">
 <div class="truncate-text" id="text-left-right">
     <small class="mb-0 italic-text">
@@ -96,32 +98,7 @@
                                 </div>
                             </div>
 
-                            <!-- Liberal-Illiberal Approaches -->
-                            <div class="col-md-4 mb-3">
-                                <div class="card h-100">
-                                    <div class="card-header bg-custom text-white text-center">
-                                        <h6 class="mb-0">Support for Liberal Democracy</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="form-check mb-2">
-                                            <input type="checkbox" name="liberal_illiberal_hypothesis" class="form-check-input" id="id_liberal_illiberal_hypothesis" checked>
-                                            <label class="form-check-label" for="id_liberal_illiberal_hypothesis">
 
-<div class="truncate-text" id="text-lib-illib">
-    <small class="mb-0 italic-text">
-"...to what extent was [the actor or party] clearly committed to free and fair elections with multiple parties, freedom of speech, media, assembly and association? [Actors or parties] show no commitment to such principles if they openly support an autocratic form of government without elections or freedom of speech, assembly and association (e.g. theocracy; single-party rule; revolutionary regime). [Actors or parties] show a full commitment to key democratic principles if they unambiguously support freedom of speech, media, assembly and association and pledge to accept defeat in free and fair elections." (Lindberg et al. 2022, p. 27)
-    </small>
-</div>
-
-<a href="#" class="read-more" data-target="text-lib-illib">Read more</a>
-
-
-
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
 
                             <!-- Populism Approaches -->
                             <div class="col-md-4 mb-3">
@@ -131,7 +108,7 @@
                                     </div>
                                     <div class="card-body">
                                         <div class="form-check mb-2">
-                                            <input type="checkbox" name="populism_hypothesis" class="form-check-input" id="id_populism_hypothesis" checked>
+                                            <input type="checkbox" name="populism_hypothesis" class="form-check-input" id="id_populism_hypothesis">
                                             <label class="form-check-label" for="id_populism_hypothesis">
 
 
@@ -149,15 +126,49 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        
-                        
+
+                
+                           <!-- Liberal-Illiberal Approaches -->
+<div class="col-md-4 mb-3 ms-md-auto">
+    <div class="card h-100 border-warning">
+        <div class="card-header bg-custom text-white text-center">
+            <h6 class="mb-0">Support for Liberal Democracy</h6>
+        </div>
+        <div class="card-body">
+            
+            <!-- Under construction warning -->
+            <div class="alert alert-warning d-flex align-items-start gap-2 py-2 px-3 mb-3" role="alert">
+                <span style="font-size: 1.1rem; line-height: 1;">⚠️</span>
+                <small class="mb-0">
+                    <strong>Proceed with caution.</strong> 
+                    <br>This dimension is still under construction.
+                </small>
+            </div>
+
+            <div class="form-check mb-2">
+                <input type="checkbox" name="liberal_illiberal_hypothesis" class="form-check-input" id="id_liberal_illiberal_hypothesis">
+                <label class="form-check-label" for="id_liberal_illiberal_hypothesis">
+
+                    <div class="truncate-text2" id="text-lib-illib">
+                        <small class="mb-0 italic-text">
+"...to what extent was [the actor or party] clearly committed to free and fair elections with multiple parties, freedom of speech, media, assembly and association? [Actors or parties] show no commitment to such principles if they openly support an autocratic form of government without elections or freedom of speech, assembly and association (e.g. theocracy; single-party rule; revolutionary regime). [Actors or parties] show a full commitment to key democratic principles if they unambiguously support freedom of speech, media, assembly and association and pledge to accept defeat in free and fair elections." (Lindberg et al. 2022, p. 27)
+                        </small>
                     </div>
 
+                    <a href="#" class="read-more" data-target="text-lib-illib">Read more</a>
 
-                    <!-- Submit Button -->
+                </label>
+            </div>
+        </div>
+    </div>
+</div>
+</div>              
+    </div>
+
                     <div class="text-center">
-                        <button type="submit" class="btn btn-primary btn-lg px-5 py-3">
+                        <button type="submit" class="btn btn-lg"
+                        style="background-color:#37A3B1; color:#fff;
+                        --bs-btn-focus-shadow-rgb: 55, 163, 177;">
                             Analyze Text
                         </button>
                     </div>
@@ -167,56 +178,77 @@
     </div>
 </section>
 
-<section class="py-5 bg-light">
+<!-- Disclaimer Section -->
+<section class="py-5 bg-white">
   <div class="container">
     <div class="row">
       <div class="col-12">
-
         <div class="disclaimer-box text-center mb-5">
-          <h3>Disclaimer</h3>
-          <p class="text-muted">
-            This tool provides automated analyses intended to approximate potential political stances expressed in text. Its assessments may be inaccurate or incomplete, and should not be treated as definitive judgments about an individual’s beliefs, affiliations, or intentions.
-          </p>
-          <p class="text-muted">
-            Political language is often nuanced, context-dependent, and influenced by cultural, historical, or rhetorical factors the tool may not fully capture. Results may also be affected by biases present in training data or model limitations.
-          </p>
-          <p class="text-muted">
-            This tool is intended for informational and research purposes only. It should not be used for decisions affecting individuals’ rights, opportunities, or access to services (including employment, housing, legal, or political participation decisions). Users are responsible for applying human review, critical judgment, and, when appropriate, expert consultation.
-          </p>
+
+          <!-- English Disclaimer -->
+          <h3 role="button" 
+              data-bs-toggle="collapse" 
+              data-bs-target="#disclaimerEN" 
+              aria-expanded="false"
+              style="cursor:pointer; color:#000000;">
+            Disclaimer
+          </h3>
+          <div class="collapse" id="disclaimerEN">
+            <p class="text-muted">
+              This tool provides automated analyses intended to approximate potential political stances expressed in text. Its assessments may be inaccurate or incomplete, and should not be treated as definitive judgments about an individual's beliefs, affiliations, or intentions.
+            </p>
+            <p class="text-muted">
+              Political language is often nuanced, context-dependent, and influenced by cultural, historical, or rhetorical factors the tool may not fully capture. Results may also be affected by biases present in training data or model limitations.
+            </p>
+            <p class="text-muted">
+              This tool is intended for informational and research purposes only. It should not be used for decisions affecting individuals' rights, opportunities, or access to services (including employment, housing, legal, or political participation decisions). Users are responsible for applying human review, critical judgment, and, when appropriate, expert consultation.
+            </p>
+          </div>
 
           <hr class="my-4">
 
-          <h3>Haftungsausschluss</h3>
-          <p class="text-muted">
-            Dieses Tool führt automatisierte Analysen durch, um wahrscheinliche politische Haltungen in Texten zu erkennen. Die Ergebnisse können ungenau oder unvollständig sein und sollten nicht als endgültige Aussagen über die Überzeugungen, Zugehörigkeiten oder Absichten einer Person verstanden werden.
-          </p>
-          <p class="text-muted">
-            Politische Sprache ist oft nuanciert, kontextabhängig und wird von kulturellen, historischen oder rhetorischen Faktoren beeinflusst, die das Tool möglicherweise nicht vollständig erfassen kann. Die Resultate können zudem durch Bias in den Trainingsdaten oder durch Modellgrenzen verfälscht werden.
-          </p>
-          <p class="text-muted">
-            Dieses Tool dient ausschließlich Informations- und Forschungszwecken. Es darf nicht für Entscheidungen verwendet werden, die die Rechte, Chancen oder den Zugang zu Dienstleistungen von Personen betreffen (einschließlich Entscheidungen in den Bereichen Beschäftigung, Wohnen, Rechtliches oder politische Teilhabe). Nutzerinnen und Nutzer sind dafür verantwortlich, die Ergebnisse mit menschlicher Prüfung, kritischem Urteilsvermögen und gegebenenfalls fachlicher Beratung zu bewerten.
-          </p>
-        </div>
+          <!-- German Disclaimer -->
+          <h3 role="button" 
+              data-bs-toggle="collapse" 
+              data-bs-target="#disclaimerDE" 
+              aria-expanded="false"
+              style="cursor:pointer; color:#000000;">
+            Haftungsausschluss
+          </h3>
+          <div class="collapse" id="disclaimerDE">
+            <p class="text-muted">
+              Dieses Tool führt automatisierte Analysen durch, um wahrscheinliche politische Haltungen in Texten zu erkennen. Die Ergebnisse können ungenau oder unvollständig sein und sollten nicht als endgültige Aussagen über die Überzeugungen, Zugehörigkeiten oder Absichten einer Person verstanden werden.
+            </p>
+            <p class="text-muted">
+              Politische Sprache ist oft nuanciert, kontextabhängig und wird von kulturellen, historischen oder rhetorischen Faktoren beeinflusst, die das Tool möglicherweise nicht vollständig erfassen kann. Die Resultate können zudem durch Bias in den Trainingsdaten oder durch Modellgrenzen verfälscht werden.
+            </p>
+            <p class="text-muted">
+              Dieses Tool dient ausschließlich Informations- und Forschungszwecken. Es darf nicht für Entscheidungen verwendet werden, die die Rechte, Chancen oder den Zugang zu Dienstleistungen von Personen betreffen (einschließlich Entscheidungen in den Bereichen Beschäftigung, Wohnen, Rechtliches oder politische Teilhabe). Nutzerinnen und Nutzer sind dafür verantwortlich, die Ergebnisse mit menschlicher Prüfung, kritischem Urteilsvermögen und gegebenenfalls fachlicher Beratung zu bewerten.
+            </p>
+          </div>
 
+        </div>
       </div>
     </div>
   </div>
 </section>
 
 
+
+
 <!-- Example Texts Section -->
 <section class="py-5">
     <div class="container">
-        <h3 class="text-center mb-5">Example Political Texts</h3>
+        <h3 class="text-center mb-5">Example Texts</h3>
         <p class="text-center text-muted mb-4">Click any example to automatically fill the text field</p>
         
         <div class="row">
             <div class="col-md-4 mb-3">
                 <div class="card h-100">
                     <div class="card-body">
-                        <h6 class="card-title text-primary">Left-Wing Example</h6>
+                        <h6 class="card-title text-primary">Economic Left-Wing</h6>
                         <p class="card-text small">
-                            "We need higher taxes on the wealthy to fund universal healthcare and education for all citizens."
+                            We need higher taxes on the wealthy to fund universal healthcare and education for all citizens.
                         </p>
                         <button class="btn btn-outline-primary btn-sm" onclick="fillExample(this.previousElementSibling.textContent)">
                             Use This Example
@@ -227,9 +259,9 @@
             <div class="col-md-4 mb-3">
                 <div class="card h-100">
                     <div class="card-body">
-                        <h6 class="card-title text-success">Liberal Example</h6>
+                        <h6 class="card-title text-success">Support for Liberal Democracy</h6>
                         <p class="card-text small">
-                            "Democratic institutions and free elections are essential for protecting minority rights and ensuring peaceful transitions of power."
+                            Democratic institutions and free elections are essential for protecting minority rights and ensuring peaceful transitions of power.
                         </p>
                         <button class="btn btn-outline-success btn-sm" onclick="fillExample(this.previousElementSibling.textContent)">
                             Use This Example
@@ -240,7 +272,7 @@
             <div class="col-md-4 mb-3">
                 <div class="card h-100">
                     <div class="card-body">
-                        <h6 class="card-title text-warning">Populist Example</h6>
+                        <h6 class="card-title text-warning">Populist Rhetoric</h6>
                         <p class="card-text small">
                             "The corrupt political establishment has ignored the will of the people for too long - it's time to drain the swamp!"
                         </p>
@@ -256,7 +288,7 @@
             <div class="col-md-4 mb-3">
                 <div class="card h-100">
                     <div class="card-body">
-                        <h6 class="card-title text-danger">Right-Wing Example</h6>
+                        <h6 class="card-title text-danger">Economic Right-Wing</h6>
                         <p class="card-text small">
                             "Lower taxes and reduced government intervention will stimulate economic growth and individual freedom."
                         </p>
@@ -269,9 +301,9 @@
             <div class="col-md-4 mb-3">
                 <div class="card h-100">
                     <div class="card-body">
-                        <h6 class="card-title text-info">Pluralist Example</h6>
+                        <h6 class="card-title text-secondary">Opposition to Liberal Democracy</h6>
                         <p class="card-text small">
-                            "In a diverse democracy, we must balance competing interests through compromise and respect for all viewpoints."
+                            Strong leadership cannot be constrained by unelected judges or procedural checks that slow decisive action.
                         </p>
                         <button class="btn btn-outline-info btn-sm" onclick="fillExample(this.previousElementSibling.textContent)">
                             Use This Example
@@ -282,9 +314,9 @@
             <div class="col-md-4 mb-3">
                 <div class="card h-100">
                     <div class="card-body">
-                        <h6 class="card-title text-secondary">Centrist Example</h6>
+                        <h6 class="card-title text-info">Pluralist Rhetoric</h6>
                         <p class="card-text small">
-                            "We need practical solutions that combine market efficiency with social responsibility to address our challenges."
+                            In a diverse democracy, we must balance competing interests through compromise and respect for all viewpoints.
                         </p>
                         <button class="btn btn-outline-secondary btn-sm" onclick="fillExample(this.previousElementSibling.textContent)">
                             Use This Example
@@ -317,12 +349,6 @@ function clearAllApproaches() {
 </script>
 
 
-    </main>
-
-
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
- 
 
     <!-- Step 3: Read more toggle -->
     <script>

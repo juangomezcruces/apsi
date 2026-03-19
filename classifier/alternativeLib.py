@@ -17,62 +17,59 @@ class LiberalIlliberalScorer:
         self.device = cache.get_device()
         self.entailment_idx = self._find_entailment_index()
 
-        # Enhanced Liberal-Illiberal hypotheses using recommended format
         self.liberal_illiberal_hypotheses = {
-            # Electoral Democracy & Competition
-            "The author of this text believes in competitive multi-party elections": (1.0, "liberal"),
-            "The author of this text believes in fair electoral processes": (1.0, "liberal"),
-            "The author of this text believes electoral competition is beneficial": (1.0, "liberal"),
-            "The author of this text believes in single-party dominance": (1.0, "illiberal"),
-            "The author of this text believes electoral competition should be opposed": (1.0, "illiberal"),
-            "The author of this text believes election results are illegitimate without providing evidence": (1.0, "illiberal"),
-        
-            # Freedom of Speech
-            "The author of this text believes in freedom of speech and expression": (1.0, "liberal"),
-            "The author of this text believes in the right to free expression": (1.0, "liberal"),
-            "The author of this text believes speech and expression should be restricted": (1.0, "illiberal"),
-            "The author of this text believes political criticism should be censored": (1.0, "illiberal"),
-        
-            # Media Freedom
-            "The author of this text believes in media independence": (1.0, "liberal"),
-            "The author of this text believes in press freedom": (1.0, "liberal"),
-            "The author of this text believes in media accountability": (1.0, "liberal"),
-            "The author of this text believes media freedom should be restricted": (1.0, "illiberal"),
-            "The author of this text believes media content should be controlled": (1.0, "illiberal"),
-            "The author of this text believes traditional media is fake or dishonest": (1.0, "illiberal"),
-        
-            # Freedom of Assembly
-            "The author of this text believes in freedom of assembly": (1.0, "liberal"),
-            "The author of this text believes in the right to peaceful protest": (1.0, "liberal"),
-            "The author of this text believes freedom of assembly should be restricted": (1.0, "illiberal"),
-            "The author of this text believes peaceful protests should be limited": (1.0, "illiberal"),
-        
-            # Freedom of Association
-            "The author of this text believes in freedom of association": (1.0, "liberal"),
-            "The author of this text believes in independent civil society groups": (1.0, "liberal"),
-            "The author of this text believes freedom of association should be restricted": (1.0, "illiberal"),
-            "The author of this text believes civil society should be limited": (1.0, "illiberal"),
-        
-            # Democratic Acceptance
-            "The author of this text believes in accepting democratic electoral outcomes": (1.0, "liberal"),
-            "The author of this text believes political opposition is legitimate": (1.0, "liberal"),
-            "The author of this text believes electoral defeats are illegitimate": (1.0, "illiberal"),
-            "The author of this text believes political opponents should be delegitimized": (1.0, "illiberal"),
-        
-            # Institutional Democratic Norms
-            "The author of this text believes in supporting democratic institutions": (1.0, "liberal"),
-            "The author of this text believes in the rule of law": (1.0, "liberal"),
-            "The author of this text believes institutions should only be changed through democratic procedures": (1.0, "liberal"),
-            "The author of this text believes democratic institutions should be bypassed": (1.0, "illiberal"),
-            "The author of this text believes executive power should be concentrated in a strong leader": (1.0, "illiberal"),
-            "The author of this text believes institutions are fundamentally corrupt": (1.0, "illiberal"),
+
+            # Liberal
+            "The text explicitly states that every adult citizen has an equal and unconditional right to vote.": (1.0, "liberal"),
+            "The text explicitly argues that electoral defeat must be accepted and power transferred peacefully.": (1.0, "liberal"),
+            "The text explicitly defends freedom of speech as a right the state may not restrict.": (1.0, "liberal"),
+            "The text explicitly defends independent media free from state control.": (1.0, "liberal"),
+            "The text explicitly defends the right to peaceful assembly and protest.": (1.0, "liberal"),
+            "The text explicitly defends the right to form or join independent political parties and civic organizations.": (1.0, "liberal"),
+            "The text explicitly argues that expanding voting rights to more citizens strengthens democracy.": (1.0, "liberal"),
+
+            "The text argues that political opposition parties are a necessary and legitimate part of democracy.": (0.80, "liberal"),
+            "The text argues that citizens must be free to criticize the government without facing repression.": (0.80, "liberal"),
+            "The text argues that the rule of law binds the government equally with ordinary citizens.": (0.80, "liberal"),
+            "The text argues that courts and democratic institutions must be protected from executive interference.": (0.80, "liberal"),
+
+            "The text expresses that minority or dissenting political views deserve legal protection.": (0.40, "liberal"),
+            "The text expresses that political change must occur through legal and electoral processes, not force.": (0.40, "liberal"),
+            "The text expresses that political competition among multiple parties produces better governance.": (0.40, "liberal"),
+
+
+            # Illiberal
+            "The text rejects representative free and fair elections as necessary or desirable for governance.": (1.0, "illiberal"),
+            "The text supports single-party rule or one-party political dominance.": (1.0, "illiberal"),
+            "The text justifies restricting freedom of speech.": (1.0, "illiberal"),
+            "The text supports state control or censorship of the media.": (1.0, "illiberal"),
+            "The text rejects freedom of peaceful assembly or protest.": (1.0, "illiberal"),
+            "The text opposes independent civic or political organizations.": (1.0, "illiberal"),
+            "The text expresses that political legitimacy derives from ideology, religion, or divine authority rather than elections.": (1.0, "illiberal"),
+            "The text supports theocratic governance or religious law as the supreme political authority.": (1.0, "illiberal"),
+            "The text conditions the right to vote or political participation on literacy, education, property, or other qualifying criteria.": (1.0, "illiberal"),
+            "The text expresses that voting rights should be restricted to those who meet an educational or literacy standard.": (1.0, "illiberal"),
+
+            "The text expreses that one party or leader should govern without challenge from political opponents.": (0.95, "illiberal"),
+            "The text frames suffrage restrictions as beneficial for the quality or responsibility of democratic representation.": (0.85, "illiberal"),
+            "The text expresses refusal to accept defeat in competitive elections.": (0.85, "illiberal"),
+            "The text expresses that political criticism or dissent is illegitimate, dangerous, or should be suppressed.": (0.85, "illiberal"),
+            "The text justifies suppressing dissent to maintain order, stability, or national unity.": (0.85, "illiberal"),
+            "The text expresses that political rights are conditional on loyalty to the regime, party, or ideology.": (0.85, "illiberal"),
+
+            "The text portrays political opponents as enemies, traitors, or existential threats rather than legitimate actors.": (0.65, "illiberal"),
+            "The text expresses preference for revolutionary or extra-legal seizure of power over electoral competition.": (0.65, "illiberal"),
+            "The text depicts democracy or democratic institutions as inherently corrupt, weak, or irreparably broken.": (0.65, "illiberal"),
+            "The text argues that political participation or rights should be conditional on education, ethnicity, religion, or social standing.": (0.65, "illiberal"),
+            "The text instrumentally invokes democratic values (speech, freedom, rule of law) while simultaneously arguing for their restriction or elimination.": (0.60, "illiberal"),
+            "The text argues that liberal elites suppress or dismiss opinions that differ from their own.": (0.55, "illiberal"),
         }
 
-        liberal_count = sum(1 for _, (_, direction) in self.liberal_illiberal_hypotheses.items() if direction == "liberal")
-        illiberal_count = sum(1 for _, (_, direction) in self.liberal_illiberal_hypotheses.items() if direction == "illiberal")
+        liberal_count   = sum(1 for _, (_, d) in self.liberal_illiberal_hypotheses.items() if d == "liberal")
+        illiberal_count = sum(1 for _, (_, d) in self.liberal_illiberal_hypotheses.items() if d == "illiberal")
         print(f"Loaded {len(self.liberal_illiberal_hypotheses)} hypotheses ({liberal_count} liberal, {illiberal_count} illiberal)")
-        
-        # Topic check configuration
+
+        # Topic check configuration — unchanged from script 1
         self.topic_threshold = 0.6
         self.topic_hypotheses = [
             # Electoral competition
@@ -115,11 +112,10 @@ class LiberalIlliberalScorer:
             "This text supports restricting rights for reasons of national security.",
             "This text supports political authority based on culture or tradition.",
             "This text supports emergency powers during crises.",
-            "This text portrays internal or external enemies as justification for repression."
+            "This text portrays internal or external enemies as justification for repression.",
         ]
 
     def _find_entailment_index(self):
-        """Auto-detect entailment index for different NLI models"""
         config = self.model.config
         if hasattr(config, 'label2id') and config.label2id:
             for label, idx in config.label2id.items():
@@ -127,284 +123,297 @@ class LiberalIlliberalScorer:
                     return idx
         return 0
 
-    def _get_entailment_prob(self, text, hypothesis):
-        """Get probability that text entails hypothesis"""
-        inputs = self.tokenizer(
-            text, hypothesis,
-            return_tensors="pt",
-            truncation=True,
-            max_length=512
-        )
-        inputs = {k: v.to(self.device) for k, v in inputs.items()}
-
-        with torch.no_grad():
-            outputs = self.model(**inputs)
-            prob = torch.softmax(outputs.logits, dim=-1)[0, self.entailment_idx].item()
-        return prob
-
-
+    def _batch_entailment_probs(self, text, hypotheses, batch_size=16):
+        """Get entailment probabilities for multiple hypotheses in batched forward passes."""
+        all_probs = []
+        for i in range(0, len(hypotheses), batch_size):
+            batch_hyps = hypotheses[i:i + batch_size]
+            inputs = self.tokenizer(
+                [text] * len(batch_hyps),
+                batch_hyps,
+                return_tensors="pt",
+                truncation=True,
+                padding=True,
+                max_length=512,
+            )
+            with torch.inference_mode():
+                outputs = self.model(**inputs)
+                probs = torch.softmax(outputs.logits, dim=-1)[:, self.entailment_idx]
+                all_probs.extend(probs.tolist())
+        return all_probs
 
     def is_about_democratic_principles(self, text):
-        """Check if text discusses democratic topics"""
-        probs = [self._get_entailment_prob(text, h) for h in self.topic_hypotheses]
+        probs = self._batch_entailment_probs(text, self.topic_hypotheses)
         prob = float(max(probs)) if probs else 0.0
         logger.info(f"Thesis Liberal Illiberal triggered with: {prob}")
         return prob >= self.topic_threshold, prob
 
     def get_hypothesis_probabilities(self, text):
-        """Get probabilities for all liberal-illiberal hypotheses"""
-        probs = []
-        for hypothesis in self.liberal_illiberal_hypotheses.keys():
-            inputs = self.tokenizer(
-                text, hypothesis,
-                return_tensors="pt",
-                truncation=True,
-                max_length=512
-            )
-            inputs = {k: v.to(self.device) for k, v in inputs.items()}
-
-            with torch.no_grad():
-                outputs = self.model(**inputs)
-                prob = torch.softmax(outputs.logits, dim=-1)[0, self.entailment_idx].item()
-                probs.append(prob)
-
-        return np.array(probs)
+        hypotheses = list(self.liberal_illiberal_hypotheses.keys())
+        probs = self._batch_entailment_probs(text, hypotheses)
+        return np.array(probs, dtype=float)
 
     def compute_combined_confidence(self, liberal_probs, illiberal_probs, all_probs):
-        """Simplified confidence with Top-K contradiction detection only"""
-        
-        # Basic confidence from variance (lower variance = higher confidence)
-        liberal_variance = np.var(liberal_probs) if len(liberal_probs) > 1 else 0
+        liberal_variance   = np.var(liberal_probs)  if len(liberal_probs)  > 1 else 0
         illiberal_variance = np.var(illiberal_probs) if len(illiberal_probs) > 1 else 0
-        
-        liberal_confidence = 1 / (1 + liberal_variance * 4)
+
+        liberal_confidence   = 1 / (1 + liberal_variance  * 4)
         illiberal_confidence = 1 / (1 + illiberal_variance * 4)
-        base_confidence = 0.7 * min(liberal_confidence, illiberal_confidence) + 0.3 * (liberal_confidence + illiberal_confidence) / 2
-        
-        # Top-K contradiction detection (only method we use)
+        base_confidence = (0.7 * min(liberal_confidence, illiberal_confidence)
+                           + 0.3 * (liberal_confidence + illiberal_confidence) / 2)
+
         k = 5
-        top_liberal = np.sort(liberal_probs)[-k:] if len(liberal_probs) >= k else liberal_probs
+        top_liberal   = np.sort(liberal_probs)[-k:]  if len(liberal_probs)  >= k else liberal_probs
         top_illiberal = np.sort(illiberal_probs)[-k:] if len(illiberal_probs) >= k else illiberal_probs
-        
-        top_liberal_avg = np.mean(top_liberal)
-        top_illiberal_avg = np.mean(top_illiberal)
-        
-        # Simple contradiction detection: both top-5 averages must be > 0.25
-        topk_contradiction = min(top_liberal_avg, top_illiberal_avg)
+
+        top_liberal_avg   = float(np.mean(top_liberal))   if len(top_liberal)   else 0.0
+        top_illiberal_avg = float(np.mean(top_illiberal)) if len(top_illiberal) else 0.0
+
+        topk_contradiction     = float(min(top_liberal_avg, top_illiberal_avg))
         contradiction_detected = topk_contradiction > 0.25
-        
-        # Apply penalty if contradiction detected
+
         if contradiction_detected:
             contradiction_penalty = min(1.0, topk_contradiction * 2.0)
             final_confidence = base_confidence * (1 - contradiction_penalty * 0.8)
         else:
             final_confidence = base_confidence
-        
+
         return {
-            'combined': final_confidence,
-            'contradiction_detected': contradiction_detected,
-            'contradiction_score': topk_contradiction if contradiction_detected else 0,
-            'top_liberal_avg': top_liberal_avg,
-            'top_illiberal_avg': top_illiberal_avg
+            'combined':               float(final_confidence),
+            'contradiction_detected': bool(contradiction_detected),
+            'contradiction_score':    float(topk_contradiction if contradiction_detected else 0.0),
+            'top_liberal_avg':        float(top_liberal_avg),
+            'top_illiberal_avg':      float(top_illiberal_avg),
         }
 
-    def score_liberal_illiberal(self, text):
-        """Score text and return comprehensive results"""
-        # Check if text is about democratic principles
+    def score_liberal_illiberal(self, text, thr=0.15):
+        # Topic pre-check — unchanged from script 1
         is_relevant, topic_prob = self.is_about_democratic_principles(text)
         if not is_relevant:
             return {
-                'text': text,
-                'score': 'NA',
-                'confidence': 0.0,
+                'text':                   text,
+                'score':                  'NA',
+                'confidence':             0.0,
                 'contradiction_detected': False,
-                'interpretation': 'Not about democratic principles',
-                'topic_probability': float(topic_prob),
-                'passed_precheck': False,
-                'is_relevant': False,
-
+                'interpretation':         'Not about democratic principles',
+                'topic_probability':      float(topic_prob),
+                'passed_precheck':        False,
+                'is_relevant':            False,
             }
-        
+
+        # NLI scoring
         probs = self.get_hypothesis_probabilities(text)
 
-        liberal_probs = []
+        liberal_probs   = []
         illiberal_probs = []
         hypothesis_results = []
-        
-        # Process each hypothesis
+
         for i, (hypothesis, (weight, direction)) in enumerate(self.liberal_illiberal_hypotheses.items()):
-            prob = probs[i]
-            
+            prob = float(probs[i])
             hypothesis_results.append({
-                'hypothesis': hypothesis,
+                'hypothesis':  hypothesis,
                 'probability': prob,
-                'direction': direction
+                'weight':      weight,
+                'direction':   direction,
             })
-            
             if direction == "liberal":
                 liberal_probs.append(prob * weight)
             else:
                 illiberal_probs.append(prob * weight)
 
-        # Calculate averages and score
-        liberal_avg = np.mean(liberal_probs) if liberal_probs else 0
-        illiberal_avg = np.mean(illiberal_probs) if illiberal_probs else 0
-        
-        difference = liberal_avg - illiberal_avg
-        final_score = 5 + (difference * 5)
-        final_score = np.clip(final_score, 0, 10)
+        k_score = max(4, int(np.sum(probs > thr)) + 2)
 
-        # Compute confidence
-        confidence_data = self.compute_combined_confidence(
-            [p/1.0 for p in liberal_probs],  # Unweight for confidence calc
-            [p/1.0 for p in illiberal_probs],
-            probs
-        )
+        top_liberal_probs   = sorted(liberal_probs,   reverse=True)[:k_score]
+        top_illiberal_probs = sorted(illiberal_probs, reverse=True)[:k_score]
 
-        # Get top hypotheses from each direction
-        liberal_hyps = [h for h in hypothesis_results if h['direction'] == 'liberal']
+        liberal_avg   = float(np.mean(top_liberal_probs))   if top_liberal_probs   else 0.0
+        illiberal_avg = float(np.mean(top_illiberal_probs)) if top_illiberal_probs else 0.0
+
+        # Symmetric mutual suppression:
+        # each side penalised proportionally by strength of the opposing signal.
+        # Cap at 0.80 so mild opposing signals don't over-penalise.
+        MAX_SIGNAL = 1.0
+        liberal_penalty_mult   = 1.0 - min(illiberal_avg / MAX_SIGNAL, 0.80)
+        illiberal_penalty_mult = 1.0 - min(liberal_avg   / MAX_SIGNAL, 0.80)
+
+        penalised_liberal_avg   = liberal_avg   * liberal_penalty_mult
+        penalised_illiberal_avg = illiberal_avg * illiberal_penalty_mult
+
+        difference  = penalised_liberal_avg - penalised_illiberal_avg
+        final_score = float(np.clip(5 + difference * 5, 0, 10))
+
+        confidence_data = self.compute_combined_confidence(liberal_probs, illiberal_probs, probs)
+
+        liberal_hyps   = [h for h in hypothesis_results if h['direction'] == 'liberal']
         illiberal_hyps = [h for h in hypothesis_results if h['direction'] == 'illiberal']
-        
-        top_liberal = sorted(liberal_hyps, key=lambda x: x['probability'], reverse=True)[:5]
-        top_illiberal = sorted(illiberal_hyps, key=lambda x: x['probability'], reverse=True)[:5]
 
-        # Interpret score
-        if final_score < 2:
-            interpretation = "Strongly Illiberal"
-        elif final_score < 4:
-            interpretation = "Illiberal"
-        elif final_score < 6:
-            interpretation = "Moderate"
-        elif final_score < 8:
-            interpretation = "Liberal"
-        else:
-            interpretation = "Strongly Liberal"
+        # Annotate with score_impact: contribution to the penalised avg * 5 points,
+        # reflecting the cross-penalty each side applies to the other.
+        top_lib_weighted  = sorted([(h['probability'] * h['weight'], h) for h in liberal_hyps],   key=lambda x: x[0], reverse=True)[:k_score]
+        top_illib_weighted = sorted([(h['probability'] * h['weight'], h) for h in illiberal_hyps], key=lambda x: x[0], reverse=True)[:k_score]
+        for weighted_val, h in top_lib_weighted:
+            h['score_impact'] = round((weighted_val / k_score) * liberal_penalty_mult * 5, 3)
+        for weighted_val, h in top_illib_weighted:
+            h['score_impact'] = round((weighted_val / k_score) * illiberal_penalty_mult * 5, 3)
+        top_lib_set   = {id(h) for _, h in top_lib_weighted}
+        top_illib_set = {id(h) for _, h in top_illib_weighted}
+        for h in liberal_hyps:
+            if id(h) not in top_lib_set:
+                h['score_impact'] = 0.0
+        for h in illiberal_hyps:
+            if id(h) not in top_illib_set:
+                h['score_impact'] = 0.0
+
+        top_liberal   = sorted([h for h in liberal_hyps   if h['score_impact'] >= 0.05], key=lambda x: x['score_impact'], reverse=True)[:10]
+        top_illiberal = sorted([h for h in illiberal_hyps if h['score_impact'] >= 0.05], key=lambda x: x['score_impact'], reverse=True)[:10]
+
+        if final_score < 2:   interpretation = "Very low support"
+        elif final_score < 4: interpretation = "Low support"
+        elif final_score < 6: interpretation = "Support"
+        elif final_score < 8: interpretation = "Strong Support"
+        else:                 interpretation = "Very Strong Liberal"
 
         return {
-            'text': text,
-            'score': final_score,
-            'confidence': confidence_data['combined'],
-            'contradiction_detected': confidence_data['contradiction_detected'],
-            'interpretation': interpretation,
-            'liberal_avg': liberal_avg,
-            'illiberal_avg': illiberal_avg,
-            'top_liberal_hypotheses': top_liberal,
+            'text':                     text,
+            'score':                    final_score,
+            'confidence':               confidence_data['combined'],
+            'contradiction_detected':   confidence_data['contradiction_detected'],
+            'interpretation':           interpretation,
+            'liberal_avg':              liberal_avg,
+            'illiberal_avg':            illiberal_avg,
+            'penalised_liberal_avg':    penalised_liberal_avg,
+            'penalised_illiberal_avg':  penalised_illiberal_avg,
+            'top_liberal_hypotheses':   top_liberal,
             'top_illiberal_hypotheses': top_illiberal,
-            'passed_precheck': True,
-            'is_relevant': True,
-            'topic_probability': float(topic_prob),
-
+            'passed_precheck':          True,
+            'is_relevant':              True,
+            'topic_probability':        float(topic_prob),
+            'k_score':                  k_score,
+            'threshold':                thr,
         }
 
-    def quick_score(self, text):
-        """Ultra-simple interface - just returns the numerical score"""
-        result = self.score_liberal_illiberal(text)
+    def quick_score(self, text, thr=0.15):
+        result = self.score_liberal_illiberal(text, thr=thr)
         return result['score']
+
 
 # ============================================================================
 # INTERACTIVE ANALYSIS FUNCTIONS
 # ============================================================================
 
 def analyze_text(scorer, text):
-    """Analyze a single text and display clean results"""
     result = scorer.score_liberal_illiberal(text)
-    
+
     print(f"\n{'='*80}")
     print(f"TEXT: {text}")
     print(f"{'='*80}")
-    
-    print(f"\nðŸ“Š RESULTS:")
-    print(f"   LiberalAvg: {result['liberal_avg']:.2f}")
-    print(f"   IliberalAvg: {result['illiberal_avg']:.2f}")
-    print(f"   Score: {result['score']:.2f}/10")
-    print(f"   Confidence: {result['confidence']:.3f}")
+
+    if not result['is_relevant']:
+        print(f"\n⚠️  NOT RELEVANT: {result['interpretation']}")
+        print(f"   Topic probability: {result['topic_probability']:.3f}")
+        return result
+
+    print(f"\n📊 RESULTS:")
+    print(f"   Score:         {result['score']:.2f}/10")
+    print(f"   Confidence:    {result['confidence']:.3f}")
     print(f"   Contradiction: {'YES' if result['contradiction_detected'] else 'NO'}")
-    print(f"   Interpretation: {result['interpretation']}")
-    
-    print(f"\nðŸ” TOP LIBERAL HYPOTHESES:")
+    print(f"   Interpretation:{result['interpretation']}")
+    print(
+        f"   liberal={result['liberal_avg']:.3f}→{result['penalised_liberal_avg']:.3f} | "
+        f"illiberal={result['illiberal_avg']:.3f}→{result['penalised_illiberal_avg']:.3f}"
+    )
+
+    print(f"\n🔍 TOP LIBERAL HYPOTHESES:")
     for i, hyp in enumerate(result['top_liberal_hypotheses']):
         short_hyp = hyp['hypothesis'][:100] + "..." if len(hyp['hypothesis']) > 100 else hyp['hypothesis']
         print(f"   {i}. {hyp['probability']:.3f} - {short_hyp}")
-    
-    print(f"\nðŸ” TOP ILLIBERAL HYPOTHESES:")
+
+    print(f"\n🔍 TOP ILLIBERAL HYPOTHESES:")
     for i, hyp in enumerate(result['top_illiberal_hypotheses']):
         short_hyp = hyp['hypothesis'][:100] + "..." if len(hyp['hypothesis']) > 100 else hyp['hypothesis']
         print(f"   {i}. {hyp['probability']:.3f} - {short_hyp}")
-    
+
     return result
 
+
 def analyze_batch(scorer, texts):
-    """Analyze multiple texts and display summary table"""
     print(f"\n{'='*120}")
     print("BATCH ANALYSIS RESULTS")
     print(f"{'='*120}")
-    
-    print(f"{'Text':<100} {'Score':<7} {'Conf':<7} {'Contr':<6} {'Interpretation'}")
+    print(f"{'Text':<70} {'Score':<7} {'Conf':<7} {'Contr':<6} {'Interpretation'}")
     print("-" * 120)
-    
+
     results = []
     for text in texts:
         result = scorer.score_liberal_illiberal(text)
-        text_display = text[:97] + "..." if len(text) > 100 else text
-        contradiction_status = "YES" if result['contradiction_detected'] else "NO"
-        
-        print(f"{text_display:<70} {result['score']:<7.2f} {result['confidence']:<7.3f} {contradiction_status:<6} {result['interpretation']}")
+        text_display       = text[:67] + "..." if len(text) > 70 else text
+        contradiction_flag = "YES" if result['contradiction_detected'] else "NO"
+        score_display      = f"{result['score']:.2f}" if result['is_relevant'] else "NA"
+
+        print(
+            f"{text_display:<70} "
+            f"{score_display:<7} "
+            f"{result['confidence']:<7.3f} "
+            f"{contradiction_flag:<6} "
+            f"{result['interpretation']}"
+        )
         results.append(result)
-    
-    # Summary statistics
-    scores = [r['score'] for r in results]
-    confidences = [r['confidence'] for r in results]
-    contradictions = sum(1 for r in results if r['contradiction_detected'])
-    
-    print(f"\nðŸ“Š SUMMARY:")
-    print(f"   Score Range: {min(scores):.2f} - {max(scores):.2f}")
-    print(f"   Mean Confidence: {np.mean(confidences):.3f}")
-    print(f"   Contradictions: {contradictions}/{len(results)} ({contradictions/len(results)*100:.1f}%)")
-    
+
+    scored = [r for r in results if r['is_relevant']]
+    if scored:
+        scores        = [r['score']      for r in scored]
+        confidences   = [r['confidence'] for r in scored]
+        contradictions = sum(1 for r in scored if r['contradiction_detected'])
+
+        print(f"\n📊 SUMMARY:")
+        print(f"   Scored:          {len(scored)}/{len(results)}")
+        print(f"   Score Range:     {min(scores):.2f} – {max(scores):.2f}")
+        print(f"   Mean Score:      {np.mean(scores):.2f}")
+        print(f"   Mean Confidence: {np.mean(confidences):.3f}")
+        print(f"   Contradictions:  {contradictions}/{len(scored)} ({contradictions/len(scored)*100:.1f}%)")
+
     return results
 
+
 def interactive_mode(scorer):
-    """Interactive mode for testing individual texts"""
     print(f"\n{'='*60}")
     print("INTERACTIVE LIBERAL-ILLIBERAL SCORER")
     print(f"{'='*60}")
     print("Enter text to analyze (or 'quit' to exit)")
     print("Commands: 'batch' for multiple texts, 'help' for guidance")
-    
+
     while True:
         text = input("\n> ").strip()
-        
+
         if text.lower() in ['quit', 'exit', 'q']:
             break
         elif text.lower() == 'help':
             print("\nCommands:")
             print("- Enter any political text to get liberal-illiberal score")
             print("- 'batch' - analyze multiple predefined test texts")
-            print("- 'quit' - exit the program")
+            print("- 'quit'  - exit the program")
             continue
         elif text.lower() == 'batch':
             test_texts = [
-                "We want an inclusive, non-exclusionary Spain, which treats its people well and seeks justice and well-being. A fair country that makes us proud to be Spanish."
-                "Perhaps he ordered the murder of Jaime Garzon did not govern later? Perhaps an important part of society does not applaud and is not afraid of that? If you want to feel fear, that is what you have to fear. If they want hope, what must be defended is the right to difference."
-                "Impunity, disarmament, political indications and corruption have generated and continue to fuel Brazil's biggest problems: violence, state inefficiency and unemployment. As important as doing new things is to undo this criminal structure created by the last governments!"
+                "We want an inclusive, non-exclusionary Spain, which treats its people well and seeks justice and well-being. A fair country that makes us proud to be Spanish.",
+                "Perhaps he ordered the murder of Jaime Garzon did not govern later? Perhaps an important part of society does not applaud and is not afraid of that? If you want to feel fear, that is what you have to fear. If they want hope, what must be defended is the right to difference.",
+                "Impunity, disarmament, political indications and corruption have generated and continue to fuel Brazil's biggest problems: violence, state inefficiency and unemployment. As important as doing new things is to undo this criminal structure created by the last governments!",
             ]
             analyze_batch(scorer, test_texts)
             continue
         elif not text:
             continue
-        
+
         try:
             analyze_text(scorer, text)
         except Exception as e:
             print(f"Error analyzing text: {e}")
+
 
 # ============================================================================
 # MAIN EXECUTION
 # ============================================================================
 
 if __name__ == "__main__":
-    # Initialize scorer
     scorer = LiberalIlliberalScorer()
-    
-    # Run interactive mode
     interactive_mode(scorer)

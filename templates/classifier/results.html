@@ -14,14 +14,16 @@
           <div class="card-body">
             <h6 class="card-title">Analyzed Text:</h6>
             {# truncatechars needs an argument #}
-            <p class="card-text">{{ input_text}}</p>
+            <p class="card-text">{{ input_text|truncatechars:2000 }}</p>
           </div>
         </div>
       </div>
-      <div class="col-md-4">
+
+
+      <div class="col-md-4 mt-3 mt-md-0">
         <a href="{% url 'classifier:analysis' %}"
-           class="btn btn-lg w-100"
-           style="background-color:#37A3B1; color:#fff;">
+          class="btn btn-lg w-100"
+          style="background-color:#37A3B1; color:#fff;">
           ← Analyze Another Text
         </a>
       </div>
@@ -59,9 +61,11 @@
   </div>
 </section>
 
+
+
 <!-- Alternative Approaches Section -->
 {% if alternative_scores %}
-<section class="py-5 d-flex justify-content-center">
+<section class="pt-4 pb-0 d-flex justify-content-center">
   <div class="container d-flex justify-content-center">
     <div class="w-100" style="max-width: 1100px;">
 
@@ -100,9 +104,24 @@
                     </span>
                   </div>
 
-                  <div class="text-muted" style="font-size: 0.9rem;">
-                    <strong>Confidence:</strong> {{ confidence|floatformat:2 }}%
+                  <div class="mt-3" style="font-size: 0.85rem;">
+                    <div class="mb-1">
+                      <span class="text-muted fw-semibold">How sure we are</span>
+                    </div>
+                    <div style="background:#e9ecef; border-radius:6px; height:10px; width:100%; overflow:hidden;">
+                      <div style="background: linear-gradient(90deg, #c9207a, #e05a9a); height:10px; border-radius:6px; width:{{ confidence|floatformat:0 }}%; transition: width 0.6s ease;"></div>
+                    </div>
+                    <div class="d-flex justify-content-between mt-1" style="font-size:0.75rem; color:#aaa;">
+                      <span>Unsure</span>
+                      <span>Very sure</span>
+                    </div>
                   </div>
+                  {% if alternative_scores.left_right_hypothesis.contradiction_detected %}
+                  <div class="mt-2 d-flex align-items-center gap-1" style="font-size:0.82rem; color:#dc3545;">
+                    <span>⚠️</span>
+                    <span><strong>Possible contradiction present</strong></span>
+                  </div>
+                  {% endif %}
                   {% endwith %}
                 {% else %}
                   <div class="alert alert-warning mt-3 mb-0" role="alert">
@@ -146,9 +165,24 @@
                     </span>
                   </div>
 
-                  <div class="text-muted" style="font-size: 0.9rem;">
-                    <strong>Confidence:</strong> {{ confidence|floatformat:2 }}%
+                  <div class="mt-3" style="font-size: 0.85rem;">
+                    <div class="mb-1">
+                      <span class="text-muted fw-semibold">How sure we are</span>
+                    </div>
+                    <div style="background:#e9ecef; border-radius:6px; height:10px; width:100%; overflow:hidden;">
+                      <div style="background: linear-gradient(90deg, #20c997, #5dd9b6); height:10px; border-radius:6px; width:{{ confidence|floatformat:0 }}%; transition: width 0.6s ease;"></div>
+                    </div>
+                    <div class="d-flex justify-content-between mt-1" style="font-size:0.75rem; color:#aaa;">
+                      <span>Unsure</span>
+                      <span>Very sure</span>
+                    </div>
                   </div>
+                  {% if alternative_scores.liberal_illiberal_hypothesis.contradiction_detected %}
+                  <div class="mt-2 d-flex align-items-center gap-1" style="font-size:0.82rem; color:#dc3545;">
+                    <span>⚠️</span>
+                    <span><strong>Possible contradiction present</strong></span>
+                  </div>
+                  {% endif %}
                   {% endwith %}
                 {% else %}
                   <div class="alert alert-warning mt-3 mb-0" role="alert">
@@ -192,9 +226,24 @@
                     </span>
                   </div>
 
-                  <div class="text-muted" style="font-size: 0.9rem;">
-                    <strong>Confidence:</strong> {{ confidence|floatformat:2 }}%
+                  <div class="mt-3" style="font-size: 0.85rem;">
+                    <div class="mb-1">
+                      <span class="text-muted fw-semibold">How sure we are</span>
+                    </div>
+                    <div style="background:#e9ecef; border-radius:6px; height:100%; overflow:hidden;">
+                      <div style="background: linear-gradient(90deg, #ffc107, #ffda6a); height:10px; border-radius:6px; width:{{ confidence|floatformat:0 }}%; transition: width 0.6s ease;"></div>
+                    </div>
+                    <div class="d-flex justify-content-between mt-1" style="font-size:0.75rem; color:#aaa;">
+                      <span>Unsure</span>
+                      <span>Very sure</span>
+                    </div>
                   </div>
+                  {% if alternative_scores.populism_pluralism_hypothesis.contradiction_detected %}
+                  <div class="mt-2 d-flex align-items-center gap-1" style="font-size:0.82rem; color:#dc3545;">
+                    <span>⚠️</span>
+                    <span><strong>Possible contradiction present</strong></span>
+                  </div>
+                  {% endif %}
                   {% endwith %}
                 {% else %}
                   <div class="alert alert-warning mt-3 mb-0" role="alert">
@@ -219,131 +268,61 @@
 
 
 
+      <!-- Why These Results Toggle -->
+      <section class="py-3 bg-white">
+        <div class="container text-center">
+            <button id="whyResultsBtn" class="btn btn-outline-secondary"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#whyResults"
+                    aria-expanded="false"
+                    aria-controls="whyResults"
+                    style="color:#737270; border-color:#737270; --bs-btn-focus-shadow-rgb: 115, 114, 112;"
+                    onmouseover="this.style.backgroundColor='#737270'; this.style.color='#fff';"
+                    onmouseout="this.style.backgroundColor='transparent'; this.style.color='#737270';">
+              Why these results?
+      </button>
 
-                    <!-- Why These Results Toggle -->
-                    <section class="py-1 bg-white">
-                      <div class="container text-center">
+    <div class="collapse mt-3 text-start" id="whyResults">
+      <div class="card card-body">
 
-                      <button class="btn btn-outline-secondary"
-                              style="margin-top:-100px;"
-                              type="button"
-                              data-bs-toggle="collapse"
-                              data-bs-target="#whyResults"
-                              aria-expanded="false"
-                              aria-controls="whyResults">
-                        Why these results?
-                      </button>
+        <h6 class="mb-3">Influence of Different Hypotheses on the Score Calculation</h6>
 
-                        <div class="collapse mt-3 text-start" id="whyResults">
-                          <div class="card card-body">
+        {% if why_these_results %}
+          {% for dimension, sides in why_these_results.items %}
+            <div class="mb-4">
+              <div class="fw-semibold mb-2">{{ dimension }}</div>
 
-                            <h6 class="mb-3 small">What influenced these results</h6>
+              <div class="row g-3">
+                {% for side_name, items in sides.items %}
+                  <div class="col-md-6">
+                    <div class="mb-1"><strong>{{ side_name }}:</strong></div>
 
-                            {% if why_these_results %}
-                              {% for dimension, sides in why_these_results.items %}
-                                <div class="mb-4 small">
-
-                                  <div class="fw-semibold mb-2">{{ dimension }}</div>
-
-                                  <div class="row g-3">
-                                    {% for side_name, items in sides.items %}
-                                      <div class="col-md-6">
-
-                                        <div class="mb-1"><strong>{{ side_name }}:</strong></div>
-
-                                        {% if items %}
-                                          <ul class="mb-0 list-unstyled">
-
-                                            {% for it in items %}
-
-                                          <li class="mb-2">
-
-                      <div class="small">
-                        "{{ it.text }}"
-                      </div>
-
-                      <div class="text-muted small mb-1">
-                        Probability: {{ it.p }}%
-                      </div>
-
-                      <div style="width:50%;">
-                        <div class="progress" style="height:8px; border-radius:6px;">
-
-                          {% if it.p < 25 %}
-                            <div class="progress-bar"
-                                role="progressbar"
-                                style="
-                                    width: {{ it.p }}%;
-                                    background-color: #dc3545 !important;  /* red */
-                                    border-radius:6px;
-                                    transition: width 0.6s ease;
-                                "
-                                aria-valuenow="{{ it.p }}"
-                                aria-valuemin="0"
-                                aria-valuemax="100"></div>
-
-                          {% elif it.p < 50 %}
-                            <div class="progress-bar"
-                                role="progressbar"
-                                style="
-                                    width: {{ it.p }}%;
-                                    background-color: #fd7e14 !important;  /* orange */
-                                    border-radius:6px;
-                                    transition: width 0.6s ease;
-                                "
-                                aria-valuenow="{{ it.p }}"
-                                aria-valuemin="0"
-                                aria-valuemax="100"></div>
-
-                          {% elif it.p < 75 %}
-                            <div class="progress-bar"
-                                role="progressbar"
-                                style="
-                                    width: {{ it.p }}%;
-                                    background-color: #ffc107 !important;  /* yellow */
-                                    border-radius:6px;
-                                    transition: width 0.6s ease;
-                                "
-                                aria-valuenow="{{ it.p }}"
-                                aria-valuemin="0"
-                                aria-valuemax="100"></div>
-
-                          {% else %}
-                            <div class="progress-bar"
-                                role="progressbar"
-                                style="
-                                    width: {{ it.p }}%;
-                                    background-color: #198754 !important;  /* green */
-                                    border-radius:6px;
-                                    transition: width 0.6s ease;
-                                "
-                                aria-valuenow="{{ it.p }}"
-                                aria-valuemin="0"
-                                aria-valuemax="100"></div>
-                          {% endif %}
-
-                        </div>
-                      </div>
-
-                    </li>
-
+                    {% if items %}
+                      <div class="mb-0">
+                        {% for it in items %}
+                          <div class="mb-2">
+                            <div class="d-flex justify-content-between align-items-baseline mb-1" style="gap: 0.5rem;">
+                              <small class="text-dark" style="flex: 1; min-width: 0;">{{ it.text }}</small>
+                              <small class="text-muted text-nowrap fw-semibold">{{ it.pct }}%</small>
+                            </div>
+                            <div style="background:#e9ecef; border-radius: 4px; height: 8px; width: 100%;">
+                              <div style="background: hsl({{ it.hue }}, 80%, 42%); height:8px; border-radius:4px; width:{{ it.pct }}%;"></div>
+                            </div>
+                          </div>
                         {% endfor %}
-
-                      </ul>
-                    {% else %}
-                      <div class="text-muted small">
-                        No strong indicators detected.
                       </div>
+                    {% else %}
+                      <div class="text-muted">No strong hypotheses detected.</div>
                     {% endif %}
-
                   </div>
                 {% endfor %}
               </div>
             </div>
           {% endfor %}
         {% else %}
-          <p class="text-muted small mb-0">
-            No detailed explanation available for this analysis.
+          <p class="text-muted mb-0">
+            No hypothesis-level explanation available.
           </p>
         {% endif %}
 
@@ -352,6 +331,8 @@
 
   </div>
 </section>
+
+
 
 <!-- No Results Message -->
 {% if not results and not alternative_scores %}
@@ -367,38 +348,96 @@
 {% endif %}
 
 <!-- Disclaimer Section -->
-<section class="py-5 bg-light">
+<section class="py-5 bg-white">
   <div class="container">
     <div class="row">
       <div class="col-12">
         <div class="disclaimer-box text-center mb-5">
-          <h3>Disclaimer</h3>
-          <p class="text-muted">
-            This tool provides automated analyses intended to approximate potential political stances expressed in text. Its assessments may be inaccurate or incomplete, and should not be treated as definitive judgments about an individual's beliefs, affiliations, or intentions.
-          </p>
-          <p class="text-muted">
-            Political language is often nuanced, context-dependent, and influenced by cultural, historical, or rhetorical factors the tool may not fully capture. Results may also be affected by biases present in training data or model limitations.
-          </p>
-          <p class="text-muted">
-            This tool is intended for informational and research purposes only. It should not be used for decisions affecting individuals' rights, opportunities, or access to services (including employment, housing, legal, or political participation decisions). Users are responsible for applying human review, critical judgment, and, when appropriate, expert consultation.
-          </p>
+
+          <!-- English Disclaimer -->
+          <h3 role="button" 
+              data-bs-toggle="collapse" 
+              data-bs-target="#disclaimerEN" 
+              aria-expanded="false"
+              style="cursor:pointer; color:#000000;">
+            Disclaimer
+          </h3>
+          <div class="collapse" id="disclaimerEN">
+            <p class="text-muted">
+              This tool provides automated analyses intended to approximate potential political stances expressed in text. Its assessments may be inaccurate or incomplete, and should not be treated as definitive judgments about an individual's beliefs, affiliations, or intentions.
+            </p>
+            <p class="text-muted">
+              Political language is often nuanced, context-dependent, and influenced by cultural, historical, or rhetorical factors the tool may not fully capture. Results may also be affected by biases present in training data or model limitations.
+            </p>
+            <p class="text-muted">
+              This tool is intended for informational and research purposes only. It should not be used for decisions affecting individuals' rights, opportunities, or access to services (including employment, housing, legal, or political participation decisions). Users are responsible for applying human review, critical judgment, and, when appropriate, expert consultation.
+            </p>
+          </div>
 
           <hr class="my-4">
 
-          <h3>Haftungsausschluss</h3>
-          <p class="text-muted">
-            Dieses Tool führt automatisierte Analysen durch, um wahrscheinliche politische Haltungen in Texten zu erkennen. Die Ergebnisse können ungenau oder unvollständig sein und sollten nicht als endgültige Aussagen über die Überzeugungen, Zugehörigkeiten oder Absichten einer Person verstanden werden.
-          </p>
-          <p class="text-muted">
-            Politische Sprache ist oft nuanciert, kontextabhängig und wird von kulturellen, historischen oder rhetorischen Faktoren beeinflusst, die das Tool möglicherweise nicht vollständig erfassen kann. Die Resultate können zudem durch Bias in den Trainingsdaten oder durch Modellgrenzen verfälscht werden.
-          </p>
-          <p class="text-muted">
-            Dieses Tool dient ausschließlich Informations- und Forschungszwecken. Es darf nicht für Entscheidungen verwendet werden, die die Rechte, Chancen oder den Zugang zu Dienstleistungen von Personen betreffen (einschließlich Entscheidungen in den Bereichen Beschäftigung, Wohnen, Rechtliches oder politische Teilhabe). Nutzerinnen und Nutzer sind dafür verantwortlich, die Ergebnisse mit menschlicher Prüfung, kritischem Urteilsvermögen und gegebenenfalls fachlicher Beratung zu bewerten.
-          </p>
+          <!-- German Disclaimer -->
+          <h3 role="button" 
+              data-bs-toggle="collapse" 
+              data-bs-target="#disclaimerDE" 
+              aria-expanded="false"
+              style="cursor:pointer; color:#000000;">
+            Haftungsausschluss
+          </h3>
+          <div class="collapse" id="disclaimerDE">
+            <p class="text-muted">
+              Dieses Tool führt automatisierte Analysen durch, um wahrscheinliche politische Haltungen in Texten zu erkennen. Die Ergebnisse können ungenau oder unvollständig sein und sollten nicht als endgültige Aussagen über die Überzeugungen, Zugehörigkeiten oder Absichten einer Person verstanden werden.
+            </p>
+            <p class="text-muted">
+              Politische Sprache ist oft nuanciert, kontextabhängig und wird von kulturellen, historischen oder rhetorischen Faktoren beeinflusst, die das Tool möglicherweise nicht vollständig erfassen kann. Die Resultate können zudem durch Bias in den Trainingsdaten oder durch Modellgrenzen verfälscht werden.
+            </p>
+            <p class="text-muted">
+              Dieses Tool dient ausschließlich Informations- und Forschungszwecken. Es darf nicht für Entscheidungen verwendet werden, die die Rechte, Chancen oder den Zugang zu Dienstleistungen von Personen betreffen (einschließlich Entscheidungen in den Bereichen Beschäftigung, Wohnen, Rechtliches oder politische Teilhabe). Nutzerinnen und Nutzer sind dafür verantwortlich, die Ergebnisse mit menschlicher Prüfung, kritischem Urteilsvermögen und gegebenenfalls fachlicher Beratung zu bewerten.
+            </p>
+          </div>
+
         </div>
       </div>
     </div>
   </div>
 </section>
+
+
+<!-- Results Warning Modal -->
+<div class="modal fade" id="resultsWarningModal" tabindex="-1" aria-labelledby="resultsWarningLabel" aria-modal="true" role="dialog" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-dialog-centered" style="max-width: 350px;">
+    <div class="modal-content" style="border-top: 4px solid #37A3B1; border-radius: 8px;">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-semibold" id="resultsWarningLabel" style="color:#f44336;">
+          ⚠️ Before you view the results
+        </h5>
+      </div>
+      <div class="modal-body pt-2" style="color:#444; font-size:0.95rem; line-height:1.8;">
+        <p>
+          These results are generated by an AI-based system and should always be interpreted with care.
+        </p>
+        <p class="mb-0">
+          Classifications may be imprecise, and do not constitute definitive judgments about any individual's political beliefs or affiliations. Always apply critical judgment when using these results.
+        </p>
+      </div>
+      <div class="modal-footer border-0 pt-1">
+        <button type="button" class="btn w-100" id="proceedBtn"
+          style="background-color:#37A3B1; color:#fff; font-weight:500;">
+          I understand.
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var modal = new bootstrap.Modal(document.getElementById('resultsWarningModal'));
+    modal.show();
+    document.getElementById('proceedBtn').addEventListener('click', function () {
+      modal.hide();
+    });
+  });
+</script>
 
 {% endblock %}

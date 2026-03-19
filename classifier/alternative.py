@@ -19,39 +19,83 @@ class LeftRightEconomicScorer:
 
         # Left-Right Economic hypotheses - streamlined to ~15 per side
         self.left_right_hypotheses = {
-            # Left Economic Positions (15) - More specific and policy-focused
-            "The author of this text believes corporations should pay higher taxes": (1.0, "left"),
-            "The author of this text believes wealthy individuals should pay higher tax rates": (1.0, "left"),
-            "The author of this text believes government should increase spending on healthcare": (1.0, "left"),
-            "The author of this text believes government should increase spending on education": (1.0, "left"),
-            "The author of this text believes unemployment benefits should be expanded": (1.0, "left"),
-            "The author of this text believes government should provide universal healthcare": (1.0, "left"),
-            "The author of this text believes banks and financial institutions should be heavily regulated": (1.0, "left"),
-            "The author of this text believes environmental regulations on business are necessary": (1.0, "left"),
-            "The author of this text believes utilities should be publicly owned": (1.0, "left"),
-            "The author of this text believes government should break up large corporations": (1.0, "left"),
-            "The author of this text believes minimum wage laws should be strengthened": (1.0, "left"),
-            "The author of this text believes unions should have more power": (1.0, "left"),
-            "The author of this text believes government should reduce income inequality": (1.0, "left"),
-            "The author of this text believes public investment creates jobs": (1.0, "left"),
-            "The author of this text believes social safety nets should be expanded": (1.0, "left"),
-            
-            # Right Economic Positions (15) - More specific and policy-focused  
-            "The author of this text believes corporate tax rates should be lowered": (1.0, "right"),
-            "The author of this text believes income taxes should be reduced": (1.0, "right"),
-            "The author of this text believes government spending on social programs should be cut": (1.0, "right"),
-            "The author of this text believes welfare programs should be reduced": (1.0, "right"),
-            "The author of this text believes healthcare should be privatized": (1.0, "right"),
-            "The author of this text believes education should be privatized": (1.0, "right"),
-            "The author of this text believes financial regulations should be eliminated": (1.0, "right"),
-            "The author of this text believes environmental regulations hurt business competitiveness": (1.0, "right"),
-            "The author of this text believes government services should be privatized": (1.0, "right"),
-            "The author of this text believes large corporations drive economic growth": (1.0, "right"),
-            "The author of this text believes minimum wage laws hurt employment": (1.0, "right"),
-            "The author of this text believes unions hurt economic competitiveness": (1.0, "right"),
-            "The author of this text believes income inequality reflects merit and effort": (1.0, "right"),
-            "The author of this text believes private investment is more efficient than public": (1.0, "right"),
-            "The author of this text believes social programs create dependency": (1.0, "right"),
+            # left wing hypotheses
+            "The text expresses that the state should own and control the means of production and major industries": (1.5, "left"),
+
+            "The text expresses that market mechanisms should be replaced by central state planning and allocation": (1.5, "left"),
+
+            "The text expresses that corporations should pay higher taxes": (0.8, "left"),
+    
+            "The text expresses that wealthy individuals should pay higher tax rates": (0.85, "left"),
+    
+            "The text expresses that government should increase spending on healthcare": (0.7, "left"),
+    
+            "The text expresses that government should increase spending on education": (0.7, "left"),
+    
+            "The text expresses that unemployment benefits should be expanded": (0.8, "left"),
+    
+            "The text expresses that government should provide universal healthcare": (0.85, "left"),
+    
+            "The text expresses that banks and financial institutions should be heavily regulated": (0.85, "left"),
+    
+            "The text expresses that environmental regulations on business are necessary": (0.75, "left"),
+    
+            "The text expresses that utilities should be publicly owned": (1.0, "left"),
+    
+            "The text expresses that government should break up large corporations": (0.9, "left"),
+    
+            "The text expresses that minimum wage laws should be strengthened": (0.85, "left"),
+    
+            "The text expresses that unions should have more power": (0.9, "left"),
+    
+            "The text expresses that government should reduce income inequality": (0.8, "left"),
+    
+            "The text expresses that public investment creates jobs": (0.75, "left"),
+    
+            "The text expresses that social safety nets should be expanded": (0.7, "left"),
+    
+            "The text expresses that government should have a very active role in the economy": (0.95, "left"),
+    
+            # Right Economic Positions
+            "The text expresses that the means of production and major industries should be privately owned and free from state control": (1.5, "right"),
+
+            "The text expresses that free market mechanisms should replace state planning and allocation": (1.5, "right"),
+
+            "The text expresses that corporate tax rates should be lowered": (0.85, "right"),
+    
+            "The text expresses that income taxes should be reduced": (0.75, "right"),
+    
+            "The text expresses that government spending on social programs should be cut": (0.9, "right"),
+    
+            "The text expresses that welfare programs should be reduced": (0.95, "right"),
+    
+            "The text expresses that healthcare should be privatized": (1.0, "right"),
+    
+            "The text expresses that education should be privatized": (0.9, "right"),
+
+            "The text expresses that government must partner with businesses": (0.5, "right"),
+    
+            "The text expresses that financial regulations should be eliminated": (0.95, "right"),
+    
+            "The text expresses that environmental regulations hurt business competitiveness": (0.75, "right"),
+    
+            "The text expresses that government services should be privatized": (1.0, "right"),
+    
+            "The text expresses that large corporations drive economic growth": (0.65, "right"),
+    
+            "The text expresses that minimum wage laws hurt employment": (0.85, "right"),
+    
+            "The text expresses that unions hurt economic competitiveness": (0.9, "right"),
+
+            "The text expresses that government intervention in the economy should be focused on helping businesses": (0.9, "right"),
+    
+            "The text expresses that income inequality reflects merit and effort": (0.9, "right"),
+    
+            "The text expresses that private investment is more efficient than public": (0.85, "right"),
+    
+            "The text expresses that social programs create dependency": (0.95, "right"),
+
+            "The text expresses that public assets and state-owned enterprises should be privatized": (1.0, "right"),
         }
 
 
@@ -60,49 +104,36 @@ class LeftRightEconomicScorer:
         print(f"Loaded {len(self.left_right_hypotheses)} hypotheses ({left_count} left, {right_count} right)")
         
         # Precheck hypotheses
-        self.topic_threshold = 0.7
+        self.topic_threshold = 0.6
         self.topic_hypotheses = [
+            # Taxation
+            "The text argues that taxes on the wealthy or corporations should be higher.",
+            "The text argues that taxes should be cut or reduced.",
+            "The text argues about how the government should tax people or businesses.",
+            "The text supports or opposes redistribution of wealth through taxation.",
+
+            # Public spending and social programs
+            "The text argues that the government should spend more on healthcare or education.",
+            "The text argues that social programs or welfare should be expanded or cut.",
+            "The text supports or opposes universal healthcare or public education.",
+            "The text argues about funding social safety nets or public services.",
+
             # Role of government in the economy
-            "The text expresses an opinion about the role of government in the economy.",
-            "The text argues that the government should play a role in economic affairs.",
-            "The text supports or opposes government involvement in the economy.",
-            "The text expresses a stance on how much power the government should have over the economy.",
-            "The text argues for increasing or reducing the role of government in economic policy.",
+            "The text argues that the government should have a larger or smaller role in the economy.",
+            "The text argues about government intervention in markets or industries.",
+            "The text supports or opposes privatization or nationalization.",
+            "The text argues that the free market should be regulated more or less.",
 
-            # Taxation and redistribution
-            "The text expresses an opinion about taxation or tax policy.",
-            "The text argues about how wealth should be redistributed.",
-            "The text expreses a stance about higher taxes.",
-            "The text expresses a stance on income inequality or redistribution.",
-            "The text argues how taxes should be used to achieve economic goals.",
+            # Ownership and business
+            "The text argues about public versus private ownership of services or industries.",
+            "The text supports or opposes breaking up large corporations or regulating banks.",
+            "The text argues that public investment or private investment drives economic growth.",
 
-            # Ownership and control
-            "The text expresses an opinion about public versus private ownership.",
-            "The text argues that industries should be publicly or privately owned.",
-            "The text supports or opposes nationalization or privatization.",
-            "The text expresses a stance on who should control major economic resources.",
-            "The text argues how ownership of businesses should be structured.",
-
-            # Regulation vs markets
-            "The text expresses a stance on market regulation.",
-            "The text argues how free markets should be regulated.",
-            "The text supports or opposes government regulation of businesses.",
-            "The text expresses a stance on market freedom",
-            "The text expreses a stance about regulation of the economy.",
-
-            # Welfare and social programs
-            "The text expresses an opinion about welfare or social programs.",
-            "The text argues that social programs should be expanded or reduced.",
-            "The text supports or opposes government-funded social services.",
-            "The text expresses a stance on healthcare, education, or social safety nets.",
-            "The text argues how social programs should be organized or funded.",
-
-            # Labor markets / wages
-            "The text expresses a stance in favor or against minimum wages.",
-            "The text argues about the minimum wage or worker protections.",
-            "The text supports or opposes labor regulations or unions.",
-            "The text expresses a stance on workers' rights or employment standards.",
-            "The text argues how labor markets should be regulated."
+            # Labor and inequality
+            "The text argues about income inequality or the gap between rich and poor.",
+            "The text supports or opposes minimum wage laws or workers' rights.",
+            "The text argues that unions should have more or less power.",
+            "The text argues about workers' pay, conditions, or protections.",
         ]
 
 
@@ -115,46 +146,36 @@ class LeftRightEconomicScorer:
                     return idx
         return 0
 
-    def _get_entailment_prob(self, text, hypothesis):
-        """Get probability that text entails hypothesis"""
-        inputs = self.tokenizer(
-            text, hypothesis,
-            return_tensors="pt",
-            truncation=True,
-            max_length=512
-        )
-        inputs = {k: v.to(self.device) for k, v in inputs.items()}
-        
-        with torch.no_grad():
-            outputs = self.model(**inputs)
-            prob = torch.softmax(outputs.logits, dim=-1)[0, self.entailment_idx].item()
-        return prob
+    def _batch_entailment_probs(self, text, hypotheses, batch_size=16):
+        """Get entailment probabilities for multiple hypotheses in batched forward passes."""
+        all_probs = []
+        for i in range(0, len(hypotheses), batch_size):
+            batch_hyps = hypotheses[i:i + batch_size]
+            inputs = self.tokenizer(
+                [text] * len(batch_hyps),
+                batch_hyps,
+                return_tensors="pt",
+                truncation=True,
+                padding=True,
+                max_length=512,
+            )
+            with torch.inference_mode():
+                outputs = self.model(**inputs)
+                probs = torch.softmax(outputs.logits, dim=-1)[:, self.entailment_idx]
+                all_probs.extend(probs.tolist())
+        return all_probs
 
     def is_about_economic_policy(self, text):
-        """Check if text is relevant by max entailment over topic hypotheses"""
-        probs = [self._get_entailment_prob(text, h) for h in self.topic_hypotheses]
+        """Check if text is relevant by max entailment over topic hypotheses (batched)"""
+        probs = self._batch_entailment_probs(text, self.topic_hypotheses)
         prob = float(max(probs)) if probs else 0.0
         logger.info(f"Thesis Left Right triggered with: {prob}")
         return prob >= self.topic_threshold, prob
 
-
     def get_hypothesis_probabilities(self, text):
-        """Get probabilities for all left-right hypotheses"""
-        probs = []
-        for hypothesis in self.left_right_hypotheses.keys():
-            inputs = self.tokenizer(
-                text, hypothesis,
-                return_tensors="pt",
-                truncation=True,
-                max_length=512
-            )
-            inputs = {k: v.to(self.device) for k, v in inputs.items()}
-
-            with torch.no_grad():
-                outputs = self.model(**inputs)
-                prob = torch.softmax(outputs.logits, dim=-1)[0, self.entailment_idx].item()
-                probs.append(prob)
-
+        """Get probabilities for all left-right hypotheses (batched)"""
+        hypotheses = list(self.left_right_hypotheses.keys())
+        probs = self._batch_entailment_probs(text, hypotheses)
         return np.array(probs)
 
     def compute_combined_confidence(self, left_probs, right_probs, all_probs):
@@ -195,7 +216,7 @@ class LeftRightEconomicScorer:
             'top_right_avg': top_right_avg
         }
 
-    def score_left_right(self, text):
+    def score_left_right(self, text, thr=0.15):
         """Score text and return comprehensive results"""
         # Check if text is about economic policy
         is_relevant, topic_prob = self.is_about_economic_policy(text)
@@ -213,6 +234,20 @@ class LeftRightEconomicScorer:
         
         probs = self.get_hypothesis_probabilities(text)
 
+        # If no hypothesis exceeds the threshold, treat as irrelevant (same response as failed precheck)
+        if not np.any(probs > thr):
+            return {
+                'text': text,
+                'score': 'NA',
+                'confidence': 0.0,
+                'contradiction_detected': False,
+                'interpretation': 'Not about economic policy',
+                'is_relevant': False,
+                'topic_probability': float(topic_prob),
+                'passed_precheck': False,
+                'is_relevant': False,
+            }
+
         left_probs = []
         right_probs = []
         hypothesis_results = []
@@ -224,6 +259,7 @@ class LeftRightEconomicScorer:
             hypothesis_results.append({
                 'hypothesis': hypothesis,
                 'probability': prob,
+                'weight': weight,
                 'direction': direction
             })
             
@@ -233,8 +269,17 @@ class LeftRightEconomicScorer:
                 right_probs.append(prob * weight)
 
         # Calculate averages and score
-        left_avg = np.mean(left_probs) if left_probs else 0
-        right_avg = np.mean(right_probs) if right_probs else 0
+        # === ADAPTIVE K (based on ALL hypotheses above threshold) ===
+        k_score = int(np.sum(probs > thr)) + 2
+        k_score = max(4, k_score)
+
+        # Use top-k per side for averaging (adaptive probability logic)
+        top_left_probs = sorted(left_probs, reverse=True)[:k_score]
+        top_right_probs = sorted(right_probs, reverse=True)[:k_score]
+
+        left_avg = float(np.mean(top_left_probs)) if top_left_probs else 0.0
+        right_avg = float(np.mean(top_right_probs)) if top_right_probs else 0.0
+          
         
         difference = left_avg - right_avg
         final_score = 5 - (difference * 5)  # Flipped: left = low numbers, right = high numbers
@@ -250,21 +295,46 @@ class LeftRightEconomicScorer:
         # Get top hypotheses from each direction
         left_hyps = [h for h in hypothesis_results if h['direction'] == 'left']
         right_hyps = [h for h in hypothesis_results if h['direction'] == 'right']
-        
-        top_left = sorted(left_hyps, key=lambda x: x['probability'], reverse=True)[:10]
-        top_right = sorted(right_hyps, key=lambda x: x['probability'], reverse=True)[:10]
+
+        # Annotate each hypothesis with its score impact (points on 0-10 scale).
+        # Each hypothesis in the top-k contributes (prob*weight / k_score) to its side's avg,
+        # which maps to (contrib_to_avg * 5) points of score movement.
+        # Left pulls score down, right pulls score up — we store absolute impact.
+        top_left_weighted = sorted([(h['probability'] * h['weight'], h) for h in left_hyps], key=lambda x: x[0], reverse=True)[:k_score]
+        top_right_weighted = sorted([(h['probability'] * h['weight'], h) for h in right_hyps], key=lambda x: x[0], reverse=True)[:k_score]
+
+        for weighted_val, h in top_left_weighted:
+            h['score_impact'] = round((weighted_val / k_score) * 5, 3)
+        for weighted_val, h in top_right_weighted:
+            h['score_impact'] = round((weighted_val / k_score) * 5, 3)
+        # Hypotheses outside the top-k got no weight in the average
+        top_left_set = {id(h) for _, h in top_left_weighted}
+        top_right_set = {id(h) for _, h in top_right_weighted}
+        for h in left_hyps:
+            if id(h) not in top_left_set:
+                h['score_impact'] = 0.0
+        for h in right_hyps:
+            if id(h) not in top_right_set:
+                h['score_impact'] = 0.0
+
+        top_left = sorted([h for h in left_hyps if h['score_impact'] >= 0.05], key=lambda x: x['score_impact'], reverse=True)[:10]
+        top_right = sorted([h for h in right_hyps if h['score_impact'] >= 0.05], key=lambda x: x['score_impact'], reverse=True)[:10]
 
         # Interpret score (0-10 scale: 0=Far Left, 5=Center, 10=Far Right)
-        if final_score < 2:
-            interpretation = "Far Left"
-        elif final_score < 4:
+        if final_score < 1.43:
+            interpretation = "Strong Left"
+        elif final_score < 2.86:
             interpretation = "Left"
-        elif final_score < 6:
+        elif final_score < 4.29:
+            interpretation = "Center Left"
+        elif final_score <= 5.71:
             interpretation = "Center"
-        elif final_score < 8:
+        elif final_score < 7.14:
+            interpretation = "Center Right"
+        elif final_score < 8.57:
             interpretation = "Right"
         else:
-            interpretation = "Far Right"
+            interpretation = "Strong Right"
 
         return {
             'text': text,
@@ -282,9 +352,9 @@ class LeftRightEconomicScorer:
             
         }
 
-    def quick_score(self, text):
+    def quick_score(self, text, thr=0.15):
         """Ultra-simple interface - just returns the numerical score"""
-        result = self.score_left_right(text)
+        result = self.score_left_right(text, thr=thr)
         return result['score']
 
 # ============================================================================
