@@ -441,6 +441,18 @@ def classify_text(request):
                         "Populism": populism_items,
                     }
 
+        class NumpyEncoder(json.JSONEncoder):
+            def default(self, obj):
+                if isinstance(obj, np.integer):
+                    return int(obj)
+                if isinstance(obj, np.floating):
+                    return float(obj)
+                if isinstance(obj, np.bool_):
+                    return bool(obj)
+                if isinstance(obj, np.ndarray):
+                    return obj.tolist()
+                return super().default(obj)
+
         context_data = {
             'form': form,
             'results': results,
@@ -450,7 +462,7 @@ def classify_text(request):
             'alternative_scores': alternative_scores,
             'selected_approaches': selected_approaches,
             'why_these_results': why_these_results,
-            'alternative_scores_json': json.dumps(alternative_scores) if alternative_scores else '{}',
+            'alternative_scores_json': json.dumps(alternative_scores, cls=NumpyEncoder) if alternative_scores else '{}',
             'selected_approaches_json': json.dumps(selected_approaches),
         }
 
