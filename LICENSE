@@ -1,0 +1,51 @@
+AUTOMATED POLITICAL STANCE IDENTIFIER (APSI)
+Software License
+
+Copyright (c) 2025
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PART I — SOURCE CODE (AGPL-3.0)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+The source code of this software is licensed under the GNU Affero 
+General Public License v3.0 (AGPL-3.0).
+
+You may use, copy, modify, and distribute this software under the 
+terms of the AGPL-3.0, with the following conditions:
+
+  1. Any modified version of this software must also be licensed 
+     under AGPL-3.0 and made publicly available.
+  2. If you run a modified version of this software as a network 
+     service, you must make the complete source code of that 
+     modified version available to its users.
+
+Full AGPL-3.0 terms: https://www.gnu.org/licenses/agpl-3.0.html
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PART II — MODEL COMPONENTS (RAIL)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+This software incorporates ManifestoBERTa, which is licensed under 
+the Responsible AI License (RAIL). Use of this software is 
+therefore additionally subject to the RAIL use-case restrictions.
+
+These restrictions apply to all users of this software, including 
+those who modify or redistribute it under Part I.
+
+Full RAIL terms: [https://huggingface.co/manifesto-project/manifestoberta-xlm-roberta-56policy-topics-context-2024-1-1]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PART III — THIRD-PARTY COMPONENTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Political DEBATE (mlburnham/Political_DEBATE_large_v1.0) is 
+licensed under the MIT License and incorporated without 
+modification to its terms.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DISCLAIMER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+This software is provided for research purposes. The authors make 
+no warranties regarding the accuracy of political classifications 
+and accept no liability for decisions made based on the output 
+of this system.
