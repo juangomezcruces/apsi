@@ -6,10 +6,10 @@ services:
     volumes:
       - .:/app
       - ./models:/app/models
-    #TODO
+    env_file:
+      - .env
     environment:
       - DEBUG=false
-      - SECRET_KEY=docker-secret-key-change-in-production
 
     # Quick fix: Auto-restart when container crashes
     restart: unless-stopped
