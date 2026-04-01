@@ -10,10 +10,11 @@ A Django-based web application for automated political text analysis. APSI score
 
 ## Key Features
 
-- Continuous 0–10 scores per dimension — not just labels
+- Continuous 0–10 scores per dimension  (not just labels)
 - Hypothesis-based NLI scoring with per-hypothesis explainability
 - Confidence scores with contradiction detection
 - Automatic filtering of non-political text
+- Docker-based, so easy to run yourself (docker compose build && docker compose up -d)
 
 ## Tech Stack
 
