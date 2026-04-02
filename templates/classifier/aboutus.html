@@ -1,53 +1,52 @@
-
 {% extends 'base.html' %}
 {% load static %}          
-
 {% block title %}About Us - Automated Political Stance Identifier{% endblock %}
-
 {% block content %}
 <section class="py-5 bg-white">
     <div class="container text-center">
         <img 
-	    src="{% static 'APSIlogo.png' %}" 
+        src="{% static 'APSIlogo.png' %}" 
             alt="APSI Logo" 
             class="img-fluid mx-auto d-block"
             style="max-height: 150px;"
         >
     </div>
 </section>
-
-
-
 <section class="py-5 bg-white">
   <div class="container">
     <div class="row">
       <div class="col-12">
 <h3 style="margin-bottom: 24px;">About us</h3>
 
-<div class="text-center">
-	<img 
-    	src="{% static 'team.jpeg' %}" 
-    	alt="team" 
-    	class="img-fluid rounded"
-    	style="max-height: 450px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);"
-	>
+		  <figure class="text-center">
+    <img 
+        src="{% static 'team.jpeg' %}" 
+        alt="team" 
+        class="img-fluid rounded"
+        style="max-height: 450px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);"
+    >
+    <figcaption class="text-muted mt-2" style="font-size: 0.85rem;">
+        The APSI team. Ewan Thomas-Colquhoun, Dr. Juan S. Gómez-Cruces, Yorick Scheffler.
+    </figcaption>
+</figure>
 <br>
 <p>
     The Automated Political Stance Identifier is the result of the work of a group of researchers within the 
-    <a href="https://www.pathtopower.global/" target="_blank" rel="noopener noreferrer" style="color: #000000;">Path to Power</a> project.
+    <a href="https://www.pathtopower.global/" target="_blank" rel="noopener noreferrer" style="color: 
+#000000;">Path to Power</a> project.
     The Path to Power is a research team at the 
-    <a href="https://hpi.de/" target="_blank" rel="noopener noreferrer" style="color: #000000;">Hasso-Plattner Institute</a> of the 
-    <a href="https://www.uni-potsdam.de/" target="_blank" rel="noopener noreferrer" style="color: #000000;">University of Potsdam</a>.
-    It was established in October 2023 within the Department of <a href="https://hpi.de/en/research/research-groups/digital-technology-governance-and-policy/" target="_blank" rel="noopener noreferrer" style="color: #000000;">Digital Technology, Governance, and Policy</a>. The project studies the role of digital technologies in political processes, with a focus on the Global South and other underrepresented political contexts.
-    It is funded by the German Agency for International Cooperation <a href="https://www.giz.de/" target="_blank" rel="noopener noreferrer" style="color: #000000;">(GIZ)</a>.
+    <a href="https://hpi.de/" target="_blank" rel="noopener noreferrer" style="color: 
+#000000;">Hasso-Plattner Institute</a> of the 
+    <a href="https://www.uni-potsdam.de/" target="_blank" rel="noopener noreferrer" style="color: 
+#000000;">University of Potsdam</a>.
+    It was established in October 2023 within the Department of <a href="https://hpi.de/en/research/research-groups/digital-technology-governance-and-policy/" target="_blank" rel="noopener noreferrer" style="color: 
+#000000;">Digital Technology, Governance, and Policy</a>. The project studies the role of digital technologies in political processes, with a focus on the Global South and other underrepresented political contexts.
+    It is funded by the German Agency for International Cooperation <a href="https://www.giz.de/" target="_blank" rel="noopener noreferrer" style="color: 
+#000000;">(GIZ)</a>.
 </p> 
-        
 
       </div>
     </div>
   </div>
 </section>
-
-
 {% endblock %}
-
