@@ -447,7 +447,7 @@
         <div class="container">
             <a class="nav-link p-0" href="{% url 'classifier:index' %}">
                 <img
-                    src="{% static 'P2P.png' %}"
+                    src="{% static 'P2Plogo.png' %}"
                     alt="P2P Logo"
                     class="img-fluid"
                     style="max-height: 40px;">
@@ -465,9 +465,6 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'classifier:documentation' %}">Documentation</a>
-                    </li>
-					<li class="nav-item">
-                        <a class="nav-link" href="{% url 'classifier:aboutus' %}">About Us</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'classifier:contact' %}">Contact</a>
@@ -492,8 +489,12 @@
 
                 <!-- Left: partner logos -->
                 <div class="col-12 col-md-4 d-flex align-items-center gap-4 footer-logos">
-                    <img src="{% static 'GIZlogo.png' %}" alt="GIZ Logo">
-                    <img src="{% static 'HPIlogo.png' %}" alt="HPI Logo">
+                    <a href="https://www.giz.de/" target="_blank" rel="noopener noreferrer">
+                        <img src="{% static 'GIZlogo.png' %}" alt="GIZ Logo">
+                    </a>
+                    <a href="https://hpi.de/" target="_blank" rel="noopener noreferrer">
+                        <img src="{% static 'HPIlogo.png' %}" alt="HPI Logo">
+                    </a>
                 </div>
 
                 <!-- Center: copyright -->
