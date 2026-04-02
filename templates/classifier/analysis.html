@@ -351,25 +351,22 @@ document.querySelectorAll('.read-more').forEach(link => {
         const isExpanded = textDiv.getAttribute('data-expanded') === 'true';
 
         const card = textDiv.closest('.card');
+        const col = textDiv.closest('[class*="col-"]');
 
         if (isExpanded) {
             textDiv.style.maxHeight = textDiv.getAttribute('data-collapsed-height');
             textDiv.style.overflow = 'hidden';
             textDiv.setAttribute('data-expanded', 'false');
             this.textContent = 'Read more';
-            if (card) {
-                card.style.height = '';
-                card.style.overflow = '';
-            }
+            if (card) card.style.overflow = '';
+            if (col) col.style.alignSelf = '';
         } else {
             textDiv.style.maxHeight = 'none';
             textDiv.style.overflow = 'visible';
             textDiv.setAttribute('data-expanded', 'true');
             this.textContent = 'Read less';
-            if (card) {
-                card.style.height = 'auto';
-                card.style.overflow = 'visible';
-            }
+            if (card) card.style.overflow = 'visible';  // KEY: unclip the card
+            if (col) col.style.alignSelf = 'flex-start'; // KEY: stop flex stretching
         }
     });
 });
