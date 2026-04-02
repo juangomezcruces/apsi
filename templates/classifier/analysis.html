@@ -355,8 +355,17 @@ document.querySelectorAll('.read-more').forEach(link => {
             textDiv.setAttribute('data-expanded', 'false');
             this.textContent = 'Read more';
         } else {
-            // Animate to exact content height — no overflow needed
-            textDiv.style.maxHeight = textDiv.scrollHeight + 'px';
+            // Temporarily remove max-height to measure true full height
+            textDiv.style.maxHeight = 'none';
+            const fullHeight = textDiv.scrollHeight;
+            textDiv.style.maxHeight = textDiv.getAttribute('data-collapsed-height');
+
+            // Force reflow, then animate to full height
+            textDiv.getBoundingClientRect();
+            requestAnimationFrame(() => {
+                textDiv.style.maxHeight = fullHeight + 'px';
+            });
+
             textDiv.setAttribute('data-expanded', 'true');
             this.textContent = 'Read less';
         }
