@@ -493,11 +493,18 @@ def privacy_notice(request):
 def imprint(request):
     return render(request, 'classifier/imprint.html')
 
+
+def aboutus(request):
+    return render(request, 'classifier/aboutus.html')
+
+
 def contact(request):
     return render(request, 'classifier/contact.html')
 
 def faq(request):
     return render(request, 'classifier/faq.html')
+
+
 
 
 @csrf_exempt
