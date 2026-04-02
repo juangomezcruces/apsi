@@ -325,39 +325,18 @@ function clearAllApproaches() {
 </script>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    // Initialize all truncate divs to collapsed state via inline style
-    document.querySelectorAll('.truncate-text, .truncate-text2').forEach(div => {
-        div.style.display = '-webkit-box';
-        div.style.webkitLineClamp = '2';
-        div.style.webkitBoxOrient = 'vertical';
-        div.style.overflow = 'hidden';
-    });
+document.querySelectorAll('.read-more').forEach(link => {
+    link.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
 
-    document.querySelectorAll('.read-more').forEach(link => {
-        link.addEventListener('click', function (e) {
-            e.preventDefault();
-            e.stopPropagation();
+        const targetId = this.getAttribute('data-target');
+        const textDiv = document.getElementById(targetId);
 
-            const targetId = this.getAttribute('data-target');
-            const textDiv = document.getElementById(targetId);
-            const isExpanded = textDiv.dataset.expanded === 'true';
-
-            if (isExpanded) {
-                textDiv.style.display = '-webkit-box';
-                textDiv.style.webkitLineClamp = '2';
-                textDiv.style.webkitBoxOrient = 'vertical';
-                textDiv.style.overflow = 'hidden';
-                textDiv.dataset.expanded = 'false';
-                this.textContent = 'Read more';
-            } else {
-                textDiv.style.display = 'block';
-                textDiv.style.webkitLineClamp = 'unset';
-                textDiv.style.overflow = 'visible';
-                textDiv.dataset.expanded = 'true';
-                this.textContent = 'Read less';
-            }
-        });
+        textDiv.classList.toggle('expanded');
+        this.textContent = textDiv.classList.contains('expanded')
+            ? 'Read less'
+            : 'Read more';
     });
 });
 </script>
