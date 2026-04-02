@@ -359,11 +359,23 @@ document.querySelectorAll('.read-more').forEach(link => {
 
         const targetId = this.getAttribute('data-target');
         const textDiv = document.getElementById(targetId);
+        const isExpanded = textDiv.getAttribute('data-expanded') === 'true';
 
-        textDiv.classList.toggle('expanded');
-        this.textContent = textDiv.classList.contains('expanded')
-            ? 'Read less'
-            : 'Read more';
+        if (isExpanded) {
+            textDiv.style.maxHeight = textDiv.getAttribute('data-collapsed-height');
+            textDiv.style.overflow = 'hidden';
+            textDiv.setAttribute('data-expanded', 'false');
+            this.textContent = 'Read more';
+        } else {
+            // Save the current collapsed height before expanding
+            if (!textDiv.getAttribute('data-collapsed-height')) {
+                textDiv.setAttribute('data-collapsed-height', textDiv.style.maxHeight);
+            }
+            textDiv.style.maxHeight = '1000px';
+            textDiv.style.overflow = 'hidden';
+            textDiv.setAttribute('data-expanded', 'true');
+            this.textContent = 'Read less';
+        }
     });
 });
 </script>
