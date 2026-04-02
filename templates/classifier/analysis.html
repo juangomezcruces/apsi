@@ -5,6 +5,33 @@
 <link rel="icon" type="image/png" href="{% static 'APSIlogo.png' %}">
 
 {% block content %}
+
+<style>
+    .truncate-text {
+        max-height: 120px;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+    }
+
+    .truncate-text2 {
+        max-height: 100px;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+    }
+
+    .truncate-text3 {
+        max-height: 80px;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+    }
+
+    .truncate-text.expanded,
+    .truncate-text2.expanded,
+    .truncate-text3.expanded {
+        max-height: 1000px;
+    }
+</style>
+
 <!-- Hero Section -->
 <section class="py-5 bg-white">
     <div class="container text-center">
