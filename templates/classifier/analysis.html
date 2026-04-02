@@ -351,20 +351,21 @@ function clearAllApproaches() {
 
 
     <!-- Step 3: Read more toggle -->
-    <script>
-    document.querySelectorAll('.read-more').forEach(link => {
-        link.addEventListener('click', function (e) {
-            e.preventDefault();
+<script>
+document.querySelectorAll('.read-more').forEach(link => {
+    link.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
 
-            const targetId = this.getAttribute('data-target');
-            const textDiv = document.getElementById(targetId);
+        const targetId = this.getAttribute('data-target');
+        const textDiv = document.getElementById(targetId);
 
-            textDiv.classList.toggle('expanded');
-            this.textContent = textDiv.classList.contains('expanded')
-                ? 'Read less'
-                : 'Read more';
-        });
+        textDiv.classList.toggle('expanded');
+        this.textContent = textDiv.classList.contains('expanded')
+            ? 'Read less'
+            : 'Read more';
     });
-    </script>
+});
+</script>
     
 {% endblock %}
