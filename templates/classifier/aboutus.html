@@ -1,0 +1,41 @@
+
+{% extends 'base.html' %}
+{% load static %}          
+
+{% block title %}About Us - Automated Political Stance Identifier{% endblock %}
+
+{% block content %}
+<section class="py-5 bg-white">
+    <div class="container text-center">
+        <img 
+	    src="{% static 'APSIlogo.png' %}" 
+            alt="APSI Logo" 
+            class="img-fluid mx-auto d-block"
+            style="max-height: 150px;"
+        >
+    </div>
+</section>
+
+<section class="py-5 bg-white">
+  <div class="container">
+    <div class="row">
+      <div class="col-12">
+
+The Automated Political Stance Identifier is the result of the work of a group of research within the Path to Power project.
+
+The Path to Power is a research team at the Hasso Plattner Institute of the University of Potsdam. 
+
+It was established in October 2023 within the Department of Digital Technology, Governance, and Policy. The project studies the role of digital technologies in political processes, with a focus on the Global South and other underrepresented political contexts. 
+
+It is funded by the German Agency for International Cooperation (GIZ). 
+        
+        
+
+      </div>
+    </div>
+  </div>
+</section>
+
+
+{% endblock %}
+
