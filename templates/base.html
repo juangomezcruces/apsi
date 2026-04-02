@@ -490,23 +490,25 @@
 <footer>
     <div class="container">
         <div class="row align-items-center gy-3">
-            <!-- Left: partner logos + copyright below -->
-            <div class="col-12 col-md-4 footer-logos">
-                <div class="d-flex align-items-center gap-4 mb-2">
-                    <a href="https://hpi.de/" target="_blank" rel="noopener noreferrer">
-                        <img src="{% static 'hpi.png' %}" alt="HPI Logo">
-                    </a>
-                    <a href="https://www.giz.de/" target="_blank" rel="noopener noreferrer">
-                        <img src="{% static 'giz.png' %}" alt="GIZ Logo">
-                    </a>
-                </div>
-                <small class="text-muted">&copy; Automated Political Stance Identification.</small>
+            <!-- Left: partner logos -->
+            <div class="col-12 col-md-4 d-flex align-items-center gap-4 footer-logos">
+                <a href="https://hpi.de/" target="_blank" rel="noopener noreferrer">
+                    <img src="{% static 'hpi.png' %}" alt="HPI Logo">
+                </a>
+                <a href="https://www.giz.de/" target="_blank" rel="noopener noreferrer">
+                    <img src="{% static 'giz.png' %}" alt="GIZ Logo">
+                </a>
             </div>
 
             <!-- Right: legal links -->
             <div class="col-12 col-md-8 d-flex justify-content-md-end justify-content-center gap-3 align-items-center">
                 <a href="{% url 'classifier:privacy_notice' %}" class="small">Privacy Policy</a>
                 <a href="{% url 'classifier:imprint' %}" class="small">Imprint</a>
+            </div>
+
+            <!-- Bottom: copyright centered -->
+            <div class="col-12 text-center">
+                <small class="text-muted">&copy; Automated Political Stance Identification.</small>
             </div>
         </div>
     </div>
