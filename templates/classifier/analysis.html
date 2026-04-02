@@ -361,20 +361,30 @@ document.querySelectorAll('.read-more').forEach(link => {
         const textDiv = document.getElementById(targetId);
         const isExpanded = textDiv.getAttribute('data-expanded') === 'true';
 
+        // Walk up to the card element
+        const card = textDiv.closest('.card');
+
         if (isExpanded) {
             textDiv.style.maxHeight = textDiv.getAttribute('data-collapsed-height');
             textDiv.style.overflow = 'hidden';
             textDiv.setAttribute('data-expanded', 'false');
             this.textContent = 'Read more';
+            if (card) {
+                card.style.height = '';
+                card.style.overflow = '';
+            }
         } else {
-            // Save the current collapsed height before expanding
             if (!textDiv.getAttribute('data-collapsed-height')) {
                 textDiv.setAttribute('data-collapsed-height', textDiv.style.maxHeight);
             }
-            textDiv.style.maxHeight = '1000px';
-            textDiv.style.overflow = 'hidden';
+            textDiv.style.maxHeight = 'none';
+            textDiv.style.overflow = 'visible';
             textDiv.setAttribute('data-expanded', 'true');
             this.textContent = 'Read less';
+            if (card) {
+                card.style.height = 'auto';
+                card.style.overflow = 'visible';
+            }
         }
     });
 });
