@@ -7,28 +7,11 @@
 {% block content %}
 
 <style>
-    .truncate-text {
-        max-height: 120px;
-        overflow: hidden;
-        transition: max-height 0.3s ease;
-    }
-
-    .truncate-text2 {
-        max-height: 100px;
-        overflow: hidden;
-        transition: max-height 0.3s ease;
-    }
-
+    .truncate-text,
+    .truncate-text2,
     .truncate-text3 {
-        max-height: 80px;
         overflow: hidden;
         transition: max-height 0.3s ease;
-    }
-
-    .truncate-text.expanded,
-    .truncate-text2.expanded,
-    .truncate-text3.expanded {
-        max-height: 1000px;
     }
 </style>
 
@@ -36,7 +19,7 @@
 <section class="py-5 bg-white">
     <div class="container text-center">
         <img 
-	    src="{% static 'APSIlogo.png' %}" 
+            src="{% static 'APSIlogo.png' %}" 
             alt="APSI Logo" 
             class="img-fluid mx-auto d-block"
             style="max-height: 150px;"
@@ -76,14 +59,13 @@
                     <!-- Analysis Approach Selection -->
                     <div class="mb-4">
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5> Select Analysis Approaches</h5>
+                            <h5>Select Analysis Approaches</h5>
                             <div>
                                 <button type="button"
                                     class="btn btn-sm btn-outline-custom-primary"
                                     onclick="selectAllApproaches()">
                                     Select All
                                 </button>
-
                                 <button type="button"
                                     class="btn btn-sm btn-outline-custom-danger"
                                     onclick="clearAllApproaches()">
@@ -92,19 +74,22 @@
                             </div>
                         </div>
 
-                        <div class="row">
+                        <!-- KEY FIX: align-items-start so cards don't stretch to match each other -->
+                        <div class="row align-items-start">
 
                             <!-- Left-Right Approaches -->
                             <div class="col-md-4 mb-3">
                                 <div class="card">
                                     <div class="card-header bg-custom text-white text-center">
-                                        <h6 class="mb-0"> Left-Right Scale</h6>
+                                        <h6 class="mb-0">Left-Right Scale</h6>
                                     </div>
                                     <div class="card-body">
                                         <div class="form-check mb-2">
                                             <input type="checkbox" name="left_right_hypothesis" class="form-check-input" id="id_left_right_hypothesis">
                                             <label class="form-check-label" for="id_left_right_hypothesis">
-                                                <div class="truncate-text3" id="text-left-right">
+                                                <div class="truncate-text3" id="text-left-right"
+                                                    style="max-height: 80px; overflow: hidden; transition: max-height 0.3s ease;"
+                                                    data-collapsed-height="80px">
                                                     <small class="mb-0 italic-text">
                                                         "Parties and actors can be classified in terms of their stance on ECONOMIC ISSUES such as privatization, taxes, regulation, government spending, and the welfare state. Parties on the economic left want government to play an active role in the economy. Those on the economic right want a reduced role for government."
                                                         (Jolly et al. 2022, p. 22)
@@ -127,7 +112,9 @@
                                         <div class="form-check mb-2">
                                             <input type="checkbox" name="populism_hypothesis" class="form-check-input" id="id_populism_hypothesis">
                                             <label class="form-check-label" for="id_populism_hypothesis">
-                                                <div class="truncate-text2" id="text-pop-plur">
+                                                <div class="truncate-text2" id="text-pop-plur"
+                                                    style="max-height: 100px; overflow: hidden; transition: max-height 0.3s ease;"
+                                                    data-collapsed-height="100px">
                                                     <small class="mb-0 italic-text">
                                                         "Parties [or actors] can also be classified by their current use of POPULIST OR PLURALIST rhetoric. POPULIST language typically challenges the legitimacy of established political institutions and emphasizes that the will of the people should prevail. By contrast, PLURALIST rhetoric rejects these ideas, believing that elected leaders should govern, constrained by minority rights, bargaining and compromise, as well as checks and balances on executive power." (Norris 2020, p. 6, 7)
                                                     </small>
@@ -140,7 +127,7 @@
                             </div>
 
                             <!-- Liberal-Illiberal Approaches -->
-                            <div class="col-md-4 mb-3 ms-md-auto">
+                            <div class="col-md-4 mb-3">
                                 <div class="card border-warning">
                                     <div class="card-header bg-custom text-white text-center">
                                         <h6 class="mb-0">Support for Liberal Democracy</h6>
@@ -156,7 +143,9 @@
                                         <div class="form-check mb-2">
                                             <input type="checkbox" name="liberal_illiberal_hypothesis" class="form-check-input" id="id_liberal_illiberal_hypothesis">
                                             <label class="form-check-label" for="id_liberal_illiberal_hypothesis">
-                                                <div class="truncate-text" id="text-lib-illib">
+                                                <div class="truncate-text" id="text-lib-illib"
+                                                    style="max-height: 120px; overflow: hidden; transition: max-height 0.3s ease;"
+                                                    data-collapsed-height="120px">
                                                     <small class="mb-0 italic-text">
                                                         "...to what extent was [the actor or party] clearly committed to free and fair elections with multiple parties, freedom of speech, media, assembly and association? [Actors or parties] show no commitment to such principles if they openly support an autocratic form of government without elections or freedom of speech, assembly and association (e.g. theocracy; single-party rule; revolutionary regime). [Actors or parties] show a full commitment to key democratic principles if they unambiguously support freedom of speech, media, assembly and association and pledge to accept defeat in free and fair elections." (Lindberg et al. 2022, p. 27)
                                                     </small>
@@ -361,7 +350,6 @@ document.querySelectorAll('.read-more').forEach(link => {
         const textDiv = document.getElementById(targetId);
         const isExpanded = textDiv.getAttribute('data-expanded') === 'true';
 
-        // Walk up to the card element
         const card = textDiv.closest('.card');
 
         if (isExpanded) {
@@ -374,9 +362,6 @@ document.querySelectorAll('.read-more').forEach(link => {
                 card.style.overflow = '';
             }
         } else {
-            if (!textDiv.getAttribute('data-collapsed-height')) {
-                textDiv.setAttribute('data-collapsed-height', textDiv.style.maxHeight);
-            }
             textDiv.style.maxHeight = 'none';
             textDiv.style.overflow = 'visible';
             textDiv.setAttribute('data-expanded', 'true');
