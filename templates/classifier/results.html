@@ -295,6 +295,12 @@
                     <div class="mb-1"><strong>{{ side_name }}:</strong></div>
 
                     {% if items %}
+                      {# Summary sentence — filled in by JS using the interpretation from the score card #}
+                      <p class="why-summary mb-2"
+                         data-dimension="{{ dimension }}"
+                         data-side="{{ side_name }}"
+                         style="font-size:0.85rem;"></p>
+
                       <div class="mb-0">
                         {% for it in items %}
                           <div class="mb-2">
@@ -438,6 +444,40 @@
     document.querySelectorAll('.hyp-label').forEach(function(el) {
       var t = el.textContent.replace(/^The text\s+/i, '');
       el.textContent = t.charAt(0).toUpperCase() + t.slice(1);
+    });
+
+    // Build a map of dimension → interpretation from the rendered score cards
+    var interpMap = {
+      'Economic Left\u2013Right':         '{{ alternative_scores.left_right_hypothesis.interpretation|default:"" }}',
+      'Support for Liberal Democracy':    '{{ alternative_scores.liberal_illiberal_hypothesis.interpretation|default:"" }}',
+      'Populism\u2013Pluralism':          '{{ alternative_scores.populism_pluralism_hypothesis.interpretation|default:"" }}'
+    };
+
+    // Side-specific sentence templates
+    // key = "Dimension|||Side"
+    var sideTemplates = {
+      'Economic Left\u2013Right|||Left':              'The hypotheses below pull the score towards the <strong>left</strong> of the economic scale.',
+      'Economic Left\u2013Right|||Right':             'The hypotheses below pull the score towards the <strong>right</strong> of the economic scale.',
+      'Support for Liberal Democracy|||Liberal':      'The hypotheses below are associated with <strong>support for liberal democratic values</strong>.',
+      'Support for Liberal Democracy|||Illiberal':    'The hypotheses below are associated with <strong>opposition to liberal democratic values</strong>.',
+      'Populism\u2013Pluralism|||Populism':           'The hypotheses below are associated with <strong>populist rhetoric</strong>.',
+      'Populism\u2013Pluralism|||Pluralism':          'The hypotheses below are associated with <strong>pluralist rhetoric</strong>.',
+    };
+
+    document.querySelectorAll('.why-summary').forEach(function(el) {
+      var dim  = el.dataset.dimension;
+      var side = el.dataset.side;
+      var interp = interpMap[dim] || '';
+      var key  = dim + '|||' + side;
+      var tpl  = sideTemplates[key];
+
+      if (tpl && interp) {
+        el.innerHTML =
+          '<strong>This text is associated with a political stance that is classified as <em>' +
+          interp + '</em>.</strong> ' + tpl;
+      } else if (tpl) {
+        el.innerHTML = '<strong>' + tpl + '</strong>';
+      }
     });
   });
 </script>
