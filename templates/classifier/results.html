@@ -454,15 +454,7 @@
     };
 
     // Side-specific sentence templates
-    // key = "Dimension|||Side"
-    var sideTemplates = {
-      'Economic Left\u2013Right|||Left':              'The hypotheses below pull the score towards the <strong>left</strong> of the economic scale.',
-      'Economic Left\u2013Right|||Right':             'The hypotheses below pull the score towards the <strong>right</strong> of the economic scale.',
-      'Support for Liberal Democracy|||Liberal':      'The hypotheses below are associated with <strong>support for liberal democratic values</strong>.',
-      'Support for Liberal Democracy|||Illiberal':    'The hypotheses below are associated with <strong>opposition to liberal democratic values</strong>.',
-      'Populism\u2013Pluralism|||Populism':           'The hypotheses below are associated with <strong>populist rhetoric</strong>.',
-      'Populism\u2013Pluralism|||Pluralism':          'The hypotheses below are associated with <strong>pluralist rhetoric</strong>.',
-    };
+
 
     document.querySelectorAll('.why-summary').forEach(function(el) {
       var dim  = el.dataset.dimension;
@@ -473,8 +465,7 @@
 
       if (tpl && interp) {
         el.innerHTML =
-          '<strong>This text is associated with a political stance that is classified as <em>' +
-          interp + '</em>.</strong> ' + tpl;
+          '<strong>This text is associated with a political stance that...';
       } else if (tpl) {
         el.innerHTML = '<strong>' + tpl + '</strong>';
       }
