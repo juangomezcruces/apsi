@@ -40,6 +40,7 @@
                         </label>
                         {{ form.text }}
                         <div class="form-text">{{ form.text.help_text }}</div>
+                        <div class="form-text">For larger and more complex analyses, see the documentation in our <a href="https://github.com/juangomezcruces/apsi" style="color: inherit;">Git</a>.</div>
                         {% if form.text.errors %}
                             <div class="text-danger mt-2">
                                 {% for error in form.text.errors %}
@@ -48,8 +49,7 @@
                             </div>
                         {% endif %}
                     </div>
-For larger and more complex analyses, see the documentation in our <a href="https://github.com/juangomezcruces/apsi">Git</a>.
-                    
+
                     <div class="alert alert-warning mt-4 mb-4" role="alert" style="max-width: 980px; margin: 0 auto;">
                         <strong>Important:</strong>
                         Users are responsible for the content they submit, including ensuring compliance with copyright and other applicable legal requirements.
@@ -75,7 +75,7 @@ For larger and more complex analyses, see the documentation in our <a href="http
 
                         <div class="row">
 
-                            <!-- Left-Right Approaches: max-height 133px ≈ 7 lines at ~19px/line -->
+                            <!-- Left-Right Approaches -->
                             <div class="col-md-4 mb-3">
                                 <div class="card h-100">
                                     <div class="card-header bg-custom text-white text-center">
@@ -98,7 +98,7 @@ For larger and more complex analyses, see the documentation in our <a href="http
                                 </div>
                             </div>
 
-                            <!-- Populism Approaches: max-height 100px ≈ 5 lines -->
+                            <!-- Populism Approaches -->
                             <div class="col-md-4 mb-3">
                                 <div class="card h-100">
                                     <div class="card-header bg-custom text-white text-center">
@@ -120,7 +120,7 @@ For larger and more complex analyses, see the documentation in our <a href="http
                                 </div>
                             </div>
 
-                            <!-- Liberal-Illiberal Approaches-->
+                            <!-- Liberal-Illiberal Approaches -->
                             <div class="col-md-4 mb-3">
                                 <div class="card h-100 border-warning">
                                     <div class="card-header bg-custom text-white text-center">
@@ -351,7 +351,6 @@ document.querySelectorAll('.read-more').forEach(function(link) {
             wrapper.setAttribute('data-expanded', 'false');
             this.textContent = 'Read more';
         } else {
-            // Measure full height by cloning off-screen
             var clone = wrapper.cloneNode(true);
             clone.style.maxHeight = 'none';
             clone.style.position = 'absolute';
