@@ -10,15 +10,11 @@
     <h2 class="mb-3">Classification Results</h2>
     <div class="row">
       <div class="col-md-8">
-        <div class="card bg-light text-dark">
-          <div class="card-body">
-            <h6 class="card-title">Analyzed Text:</h6>
-            {# truncatechars needs an argument #}
-            <p class="card-text">{{ input_text|truncatechars:2000 }}</p>
-          </div>
-        </div>
+        <p class="text-muted mb-1" style="font-size: 0.8rem;">Analyzed Text</p>
+        <blockquote style="background: transparent; border-left: 3px solid #37A3B1; padding: 0.5rem 1rem; color: #ccc; font-style: italic; margin: 0;">
+            {{ input_text|truncatechars:2000 }}
+        </blockquote>
       </div>
-
 
       <div class="col-md-4 mt-3 mt-md-0">
         <a href="{% url 'classifier:analysis' %}"
