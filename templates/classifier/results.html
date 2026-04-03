@@ -299,7 +299,7 @@
                         {% for it in items %}
                           <div class="mb-2">
                             <div class="d-flex justify-content-between align-items-baseline mb-1" style="gap: 0.5rem;">
-                              <small class="text-dark" style="flex: 1; min-width: 0;">{{ it.text }}</small>
+                              <small class="text-dark hyp-label" style="flex: 1; min-width: 0;">{{ it.text }}</small>
                               <small class="text-muted text-nowrap fw-semibold">{{ it.pct }}%</small>
                             </div>
                             <div style="background:#e9ecef; border-radius: 4px; height: 8px; width: 100%;">
@@ -426,14 +426,18 @@
   </div>
 </div>
 
-
-
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     var modal = new bootstrap.Modal(document.getElementById('resultsWarningModal'));
     modal.show();
     document.getElementById('proceedBtn').addEventListener('click', function () {
       modal.hide();
+    });
+
+    // Strip leading "The text " from hypothesis labels and capitalise remainder
+    document.querySelectorAll('.hyp-label').forEach(function(el) {
+      var t = el.textContent.replace(/^The text\s+/i, '');
+      el.textContent = t.charAt(0).toUpperCase() + t.slice(1);
     });
   });
 </script>
