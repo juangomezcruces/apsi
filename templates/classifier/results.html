@@ -453,21 +453,13 @@
       'Populism\u2013Pluralism':          '{{ alternative_scores.populism_pluralism_hypothesis.interpretation|default:"" }}'
     };
 
-    // Side-specific sentence templates
-
-
     document.querySelectorAll('.why-summary').forEach(function(el) {
-      var dim  = el.dataset.dimension;
-      var side = el.dataset.side;
+      var dim    = el.dataset.dimension;
       var interp = interpMap[dim] || '';
-      var key  = dim + '|||' + side;
-      var tpl  = sideTemplates[key];
-
-      if (tpl && interp) {
+      if (interp) {
         el.innerHTML =
-          '<strong>This text is associated with a political stance that...';
-      } else if (tpl) {
-        el.innerHTML = '<strong>' + tpl + '</strong>';
+          '<strong>This text is associated with a political stance classified as <em>' +
+          interp + '</em>.</strong>';
       }
     });
   });
