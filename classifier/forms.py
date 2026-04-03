@@ -11,7 +11,7 @@ class TextClassificationForm(forms.Form):
         }),
         min_length=20,
         max_length=2000,
-        help_text='Enter between 20 and up to 2000 characters of text for analysis. For larger and more complex analyses, see the documentation in our <a href="https://github.com/juangomezcruces/apsi">Git</a>.'
+        help_text='Enter between 20 and up to 2000 characters of text for analysis.'
     )
     
     # Only hypothesis-based approaches
