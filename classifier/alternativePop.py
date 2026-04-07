@@ -1,10 +1,7 @@
-import pandas as pd
 import numpy as np
+import pandas as pd
 import torch
-import torch.nn as nn
-import argparse
 import logging
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from .shared_model_cache import SharedModelCache
 import warnings
 warnings.filterwarnings('ignore')
@@ -18,6 +15,7 @@ class PopulismPluralismScorer:
     def __init__(self, model_name="mlburnham/Political_DEBATE_large_v1.0"):
         cache = SharedModelCache()
         self.model, self.tokenizer = cache.get_model_and_tokenizer(model_name)
+        self.device = cache.get_device()
         self.entailment_idx = self._find_entailment_index()
 
         self.populism_hypotheses = {
