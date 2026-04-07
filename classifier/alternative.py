@@ -318,8 +318,8 @@ class LeftRightEconomicScorer:
             if id(h) not in top_right_set:
                 h['score_impact'] = 0.0
 
-        top_left = sorted([h for h in left_hyps if h['score_impact'] >= 0.05], key=lambda x: x['score_impact'], reverse=True)[:10]
-        top_right = sorted([h for h in right_hyps if h['score_impact'] >= 0.05], key=lambda x: x['score_impact'], reverse=True)[:10]
+        top_left = sorted([h for h in left_hyps if h['score_impact'] >= 0.5], key=lambda x: x['score_impact'], reverse=True)[:10]
+        top_right = sorted([h for h in right_hyps if h['score_impact'] >= 0.5], key=lambda x: x['score_impact'], reverse=True)[:10]
 
         # Interpret score (0-10 scale: 0=Far Left, 5=Center, 10=Far Right)
         if final_score < 1.43:
