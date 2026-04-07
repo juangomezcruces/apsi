@@ -293,7 +293,7 @@ class LiberalIlliberalScorer:
             'threshold':                thr,
         }
 
-    def quick_score(self, text, thr=0.5):
+    def quick_score(self, text, thr=0.6):
         result = self.score_liberal_illiberal(text, thr=thr)
         return result['score']
 
