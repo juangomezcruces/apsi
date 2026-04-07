@@ -187,7 +187,7 @@ class LiberalIlliberalScorer:
             'top_illiberal_avg':      float(top_illiberal_avg),
         }
 
-    def score_liberal_illiberal(self, text, thr=0.15):
+    def score_liberal_illiberal(self, text, thr=0.35):
         # Topic pre-check — unchanged from script 1
         is_relevant, topic_prob = self.is_about_democratic_principles(text)
         if not is_relevant:
@@ -222,37 +222,18 @@ class LiberalIlliberalScorer:
             else:
                 illiberal_probs.append(prob * weight)
 
-        MEANINGFUL_SIGNAL_THR = 0.15
-        
         k_score = max(4, int(np.sum(probs > thr)) + 2)
-        
+
         top_liberal_probs   = sorted(liberal_probs,   reverse=True)[:k_score]
         top_illiberal_probs = sorted(illiberal_probs, reverse=True)[:k_score]
+
+        liberal_avg   = float(np.mean(top_liberal_probs))   if top_liberal_probs   else 0.0
+        illiberal_avg = float(np.mean(top_illiberal_probs)) if top_illiberal_probs else 0.0
+
+
         
         liberal_avg   = float(np.mean(top_liberal_probs))   if top_liberal_probs   else 0.0
         illiberal_avg = float(np.mean(top_illiberal_probs)) if top_illiberal_probs else 0.0
-        
-        # If the averaged probabilities (before weighting) don't clear the meaningful
-        # signal threshold on either side, the score is noise — treat as irrelevant
-        top_liberal_raw_avg   = float(np.mean([h['probability'] for h in sorted(
-            [h for h in liberal_hyps], key=lambda x: x['probability'], reverse=True
-        )[:k_score]])) if liberal_hyps else 0.0
-        
-        top_illiberal_raw_avg = float(np.mean([h['probability'] for h in sorted(
-            [h for h in illiberal_hyps], key=lambda x: x['probability'], reverse=True
-        )[:k_score]])) if illiberal_hyps else 0.0
-        
-        if top_liberal_raw_avg < MEANINGFUL_SIGNAL_THR and top_illiberal_raw_avg < MEANINGFUL_SIGNAL_THR:
-            return {
-                'text':                   text,
-                'score':                  'NA',
-                'confidence':             0.0,
-                'contradiction_detected': False,
-                'interpretation':         'Not about democratic principles',
-                'topic_probability':      float(topic_prob),
-                'passed_precheck':        False,
-                'is_relevant':            False,
-                }
 
         # Symmetric mutual suppression:
         # each side penalised proportionally by strength of the opposing signal.
