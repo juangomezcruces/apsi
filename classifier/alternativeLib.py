@@ -231,8 +231,8 @@ class LiberalIlliberalScorer:
         illiberal_avg = float(np.mean(top_illiberal_probs)) if top_illiberal_probs else 0.0
 
         # Check if the top 4 hypotheses on each side average above threshold
-        top4_liberal_avg   = float(np.mean(sorted(liberal_probs,   reverse=True)[:4])) if liberal_probs   else 0.0
-        top4_illiberal_avg = float(np.mean(sorted(illiberal_probs, reverse=True)[:4])) if illiberal_probs else 0.0
+        top2_liberal_avg   = float(np.mean(sorted(liberal_probs,   reverse=True)[:2])) if liberal_probs   else 0.0
+        top2_illiberal_avg = float(np.mean(sorted(illiberal_probs, reverse=True)[:2])) if illiberal_probs else 0.0
         
         if top4_liberal_avg < thr and top4_illiberal_avg < thr:
             return {
