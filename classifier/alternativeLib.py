@@ -234,7 +234,7 @@ class LiberalIlliberalScorer:
         top2_liberal_avg   = float(np.mean(sorted(liberal_probs,   reverse=True)[:2])) if liberal_probs   else 0.0
         top2_illiberal_avg = float(np.mean(sorted(illiberal_probs, reverse=True)[:2])) if illiberal_probs else 0.0
         
-        if top4_liberal_avg < thr and top4_illiberal_avg < thr:
+        if top2_liberal_avg < thr and top2_illiberal_avg < thr:
             return {
                 'text':                   text,
                 'score':                  'NA',
