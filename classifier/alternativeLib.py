@@ -222,7 +222,7 @@ class LiberalIlliberalScorer:
             else:
                 illiberal_probs.append(prob * weight)
 
-        MEANINGFUL_SIGNAL_THR = 0.35
+        MEANINGFUL_SIGNAL_THR = 0.25
         
         k_score = max(4, int(np.sum(probs > thr)) + 2)
         
