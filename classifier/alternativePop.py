@@ -28,8 +28,8 @@ class PopulismPluralismScorer:
             "The text defends institutional checks, oversight mechanisms, or procedural rules as necessary safeguards against corruption or abuse of power.": (0.85, "pluralist"),
         
             # Skepticism of representation vs. mediated democracy
-            "The text explicitly questions or dismisses the legitimacy of legislatures, political parties, or elected representatives, suggesting that direct popular participation should replace them.": (0.75, "populist"),
-            "The text explicitly argues that political decisions must go through formal institutional procedures, such as parliamentary debate, judicial review, or constitutional process — and rejects shortcuts that bypass these.": (0.65, "pluralist"),
+            "The text questions or dismisses the legitimacy of legislatures, political parties, or elected representatives, suggesting that direct popular participation should replace them.": (0.75, "populist"),
+            "The text argues that political decisions must go through formal institutional procedures, such as parliamentary debate, judicial review, or constitutional process — and rejects shortcuts that bypass these.": (0.65, "pluralist"),
         
             # Homogeneous 'people' vs. plural society
             "The text invokes 'the people' as a unified, virtuous whole whose collective will or welfare is being actively frustrated or betrayed by a corrupt or self-serving minority.": (1.0, "populist"),        
@@ -48,19 +48,19 @@ class PopulismPluralismScorer:
             "The text supports freedom of the press, diverse media, or institutionalized public debate as essential to democratic accountability.": (0.85, "pluralist"),
         
             # Majority unconstrained vs. minority rights and courts
-            "The text explicitly calls for overriding, ignoring, or abolishing judicial review, constitutional courts, or legal constraints that limit what elected majorities can do.": (0.40, "populist"),
+            "The text calls for overriding, ignoring, or abolishing judicial review, constitutional courts, or legal constraints that limit what elected majorities can do.": (0.40, "populist"),
             "The text argues that courts and constitutional protections should defend minority rights against majority overreach.": (1.0, "pluralist"),
         
             # Outsider savior
             "The text claims that established political parties, career politicians, or the governing class are incapable of solving the country's core problems.": (0.80, "populist"),
             "The text argues that an outsider candidate or anti-establishment movement, explicitly positioned against the existing political class, is the only legitimate path to genuine change.": (0.85, "populist"),
-            "The text explicitly warns against or rejects sudden, revolutionary, or disruptive political change, arguing instead for gradual and negotiated reform.": (0.70, "pluralist"),
+            "The text warns against or rejects sudden, revolutionary, or disruptive political change, arguing instead for gradual and negotiated reform.": (0.70, "pluralist"),
         
             # Legal/institutional norms defended vs. circumvented
             "The text defends the application of legal norms, international treaties, or constitutional rules against attempts by officials or governments to circumvent them.": (0.90, "pluralist"),
         
             # Institutional anti-corruption vs. elite-betrayal framing
-            "The text explicitly states that corruption, bribery, or abuse of office should be prosecuted or sanctioned through existing legal institutions, not addressed by removing or replacing the entire political class.": (0.65, "pluralist"),
+            "The text states that corruption, bribery, or abuse of office should be prosecuted or sanctioned through existing legal institutions, not addressed by removing or replacing the entire political class.": (0.65, "pluralist"),
 
             # Economic majoritarianism
             "The text contrasts the economic interests of a wealthy or privileged minority — such as 'the 1%', large corporations, or the super-rich, against the interests of the majority of ordinary people.": (0.50, "populist"),
