@@ -251,6 +251,21 @@ class PopulismPluralismScorer:
         populist_avg = float(np.mean(top_populist_probs)) if top_populist_probs else 0.0
         pluralist_avg = float(np.mean(top_pluralist_probs)) if top_pluralist_probs else 0.0
 
+                # Check if the top 4 hypotheses on each side average above threshold
+        top2_populist_avg   = float(np.mean(sorted(populist_probs,   reverse=True)[:2])) if populist_probs   else 0.0
+        top2_pluralist_avg = float(np.mean(sorted(pluralist_probs, reverse=True)[:2])) if pluralist_probs else 0.0
+        
+        if top2_populist_avg < thr and top2_pluralist_avg < thr:
+            return {
+                'text':                   text,
+                'score':                  'NA',
+                'confidence':             0.0,
+                'contradiction_detected': False,
+                'interpretation':         'Not about democratic principles',
+                'topic_probability':      float(topic_prob),
+                'passed_precheck':        False,
+                'is_relevant':            False,
+            }
         
         difference = populist_avg - pluralist_avg
         final_score = 5 + (difference * 5)  # Higher scores = more populist
