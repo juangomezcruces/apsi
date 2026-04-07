@@ -187,7 +187,7 @@ class LiberalIlliberalScorer:
             'top_illiberal_avg':      float(top_illiberal_avg),
         }
 
-    def score_liberal_illiberal(self, text, thr=0.35):
+    def score_liberal_illiberal(self, text, thr=0.15):
         # Topic pre-check — unchanged from script 1
         is_relevant, topic_prob = self.is_about_democratic_principles(text)
         if not is_relevant:
@@ -230,10 +230,21 @@ class LiberalIlliberalScorer:
         liberal_avg   = float(np.mean(top_liberal_probs))   if top_liberal_probs   else 0.0
         illiberal_avg = float(np.mean(top_illiberal_probs)) if top_illiberal_probs else 0.0
 
-
+        # Check if the top 4 hypotheses on each side average above threshold
+        top4_liberal_avg   = float(np.mean(sorted(liberal_probs,   reverse=True)[:4])) if liberal_probs   else 0.0
+        top4_illiberal_avg = float(np.mean(sorted(illiberal_probs, reverse=True)[:4])) if illiberal_probs else 0.0
         
-        liberal_avg   = float(np.mean(top_liberal_probs))   if top_liberal_probs   else 0.0
-        illiberal_avg = float(np.mean(top_illiberal_probs)) if top_illiberal_probs else 0.0
+        if top4_liberal_avg < thr and top4_illiberal_avg < thr:
+            return {
+                'text':                   text,
+                'score':                  'NA',
+                'confidence':             0.0,
+                'contradiction_detected': False,
+                'interpretation':         'Not about democratic principles',
+                'topic_probability':      float(topic_prob),
+                'passed_precheck':        False,
+                'is_relevant':            False,
+            }
 
         # Symmetric mutual suppression:
         # each side penalised proportionally by strength of the opposing signal.
