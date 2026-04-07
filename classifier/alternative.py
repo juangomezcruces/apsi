@@ -280,6 +280,23 @@ class LeftRightEconomicScorer:
 
         left_avg = float(np.mean(top_left_probs)) if top_left_probs else 0.0
         right_avg = float(np.mean(top_right_probs)) if top_right_probs else 0.0
+
+
+        # Check if the top 4 hypotheses on each side average above threshold
+        top2_left_avg   = float(np.mean(sorted(left_probs,   reverse=True)[:2])) if left_probs   else 0.0
+        top2_right_avg = float(np.mean(sorted(right_probs, reverse=True)[:2])) if right_probs else 0.0
+        
+        if top2_left_avg < thr and top2_right_avg < thr:
+            return {
+                'text':                   text,
+                'score':                  'NA',
+                'confidence':             0.0,
+                'contradiction_detected': False,
+                'interpretation':         'Not about democratic principles',
+                'topic_probability':      float(topic_prob),
+                'passed_precheck':        False,
+                'is_relevant':            False,
+            }
           
         
         difference = left_avg - right_avg
