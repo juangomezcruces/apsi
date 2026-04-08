@@ -21,13 +21,13 @@ class LiberalIlliberalScorer:
         self.liberal_illiberal_hypotheses = {
 
             # Liberal
-            "The text explicitly states that every adult citizen has an equal and unconditional right to vote.": (1.0, "liberal"),
-            "The text explicitly argues that electoral defeat must be accepted and power transferred peacefully.": (1.0, "liberal"),
-            "The text explicitly defends freedom of speech as a right the state may not restrict.": (1.0, "liberal"),
-            "The text explicitly defends independent media free from state control.": (1.0, "liberal"),
-            "The text explicitly defends the right to peaceful assembly and protest.": (1.0, "liberal"),
-            "The text explicitly defends the right to form or join independent political parties and civic organizations.": (1.0, "liberal"),
-            "The text explicitly argues that expanding voting rights to more citizens strengthens democracy.": (1.0, "liberal"),
+            "The text states that every adult citizen has an equal and unconditional right to vote.": (1.0, "liberal"),
+            "The text argues that electoral defeat must be accepted and power transferred peacefully.": (1.0, "liberal"),
+            "The text defends freedom of speech as a right the state may not restrict.": (1.0, "liberal"),
+            "The text defends independent media free from state control.": (1.0, "liberal"),
+            "The text defends the right to peaceful assembly and protest.": (1.0, "liberal"),
+            "The text defends the right to form or join independent political parties and civic organizations.": (1.0, "liberal"),
+            "The text argues that expanding voting rights to more citizens strengthens democracy.": (1.0, "liberal"),
 
             "The text argues that political opposition parties are a necessary and legitimate part of democracy.": (0.80, "liberal"),
             "The text argues that citizens must be free to criticize the government without facing repression.": (0.80, "liberal"),
