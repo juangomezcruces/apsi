@@ -53,7 +53,7 @@ class PopulismPluralismScorer:
         
             # Outsider savior
             "The text claims that established political parties, career politicians, or the governing class are incapable of solving the country's core problems.": (0.80, "populist"),
-            "The text argues that an outsider candidate or anti-establishment movement, explicitly positioned against the existing political class, is the only legitimate path to genuine change.": (0.85, "populist"),
+            "The text argues that an outsider candidate or anti-establishment movement, positioned against the existing political class, is the only legitimate path to genuine change.": (0.85, "populist"),
             "The text warns against or rejects sudden, revolutionary, or disruptive political change, arguing instead for gradual and negotiated reform.": (0.70, "pluralist"),
         
             # Legal/institutional norms defended vs. circumvented
