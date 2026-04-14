@@ -22,18 +22,6 @@ A Django-based web application for automated political text analysis. APSI score
 - **Base model**: [DeBERTaV3](https://huggingface.co/microsoft/deberta-v3-large)
 - **NLI model**: `mlburnham/Political_DEBATE_large_v1.0`
 
-## Usage
-
-Submit a sentence via the web interface:
-
-**Example response:**
-```json
-{
-  "left_right": { "score": 8.4, "interpretation": "Right", "confidence": 0.50 },
-  "liberal_illiberal": { "score": 7.2, "interpretation": "Liberal", "confidence": 0.81 },
-  "populism": { "score": 3.4, "interpretation": "Somewhat Pluralist", "confidence": 0.74 }
-}
-```
 
 ## Hosted Instance
 
@@ -45,7 +33,7 @@ If you use APSI in your research, please cite:
 ```bibtex
 @software{apsi,
   title   = {Automated Political Stance Identifier},
-  author  = {Juan S. G´omez Cruces, Yorick Scheffler, and Ewan Thomas-Colquhoun},
+  author  = {Juan S. Gómez-Cruces, Yorick Scheffler, and Ewan Thomas-Colquhoun},
   year    = {2025},
   url     = {https://apsi.sc.hpi.de}
 }
