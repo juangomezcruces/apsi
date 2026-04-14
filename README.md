@@ -19,7 +19,7 @@ A Django-based web application for automated political text analysis. APSI score
 ## Tech Stack
 
 - **Backend**: Django, PyTorch, HuggingFace Transformers
-- **Base model**: [ManifestoBERTa](https://huggingface.co/manifesto-project/manifestoberta-xlm-roberta-56policy-topics-context-2024-1-1)
+- **Base model**: [DeBERTaV3](https://huggingface.co/microsoft/deberta-v3-large)
 - **NLI model**: `mlburnham/Political_DEBATE_large_v1.0`
 
 ## Usage
