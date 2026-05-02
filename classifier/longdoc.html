@@ -33,7 +33,6 @@
   .progress-bar { background-color: #37A3B1; transition: width .2s ease; }
 
   .email-hint { font-size: 0.75rem; color: #adb5bd; }
-
   .email-status {
     font-size: 0.8rem; font-family: monospace;
     padding: 0.45rem 0.85rem; border-radius: 6px;
@@ -41,6 +40,18 @@
   }
   .email-status.sent   { background: #d1f0e0; color: #155724; }
   .email-status.failed { background: #f8d7da; color: #721c24; }
+
+  .upload-zone {
+    border: 2px dashed #dee2e6; border-radius: 8px;
+    padding: 1.25rem; text-align: center;
+    cursor: pointer; transition: all .15s; background: #fafafa;
+  }
+  .upload-zone:hover { border-color: #37A3B1; background: #f0fafb; }
+  .upload-zone.dragover { border-color: #37A3B1; background: #e6f6f8; }
+  .upload-zone p { margin: 0; font-size: .85rem; color: #6c757d; }
+  .upload-zone .file-types { font-size: .75rem; color: #adb5bd; margin-top: .25rem; }
+
+  #uploadStatus { font-size:.8rem; font-family:monospace; color:#6c757d; margin-top:.5rem; display:none; }
 
   .summary-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); gap: .75rem; margin-bottom: 1.5rem; }
   .summary-card { background: #f8f9fa; border-radius: 8px; padding: .85rem 1rem; }
@@ -78,21 +89,30 @@
   <div class="mb-4">
     <h2 class="h4 mb-1">Long Document Scorer</h2>
     <p class="text-muted mb-0" style="font-size:.9rem">
-      Paste a speech, report, or article. Each paragraph is scored across the selected political dimensions.
+      Paste or upload a speech, report, or article. Each paragraph is scored across the selected political dimensions.
       Paragraphs must be separated by a blank line.
     </p>
   </div>
 
-  <!-- Input card -->
   <div class="card mb-4">
     <div class="card-body">
 
+      <!-- Text input -->
       <label class="form-label" style="font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;color:#6c757d">Document text</label>
       <textarea id="inputText" class="form-control mb-3" rows="8"
         placeholder="Paste your text here. Separate paragraphs with a blank line…"></textarea>
 
+      <!-- Upload zone -->
+      <div class="upload-zone mb-3" id="uploadZone">
+        <p>Drop a file here or <strong>click to browse</strong></p>
+        <p class="file-types">Supported: .txt · .md · .pdf · .docx</p>
+        <input id="fileInput" type="file" accept=".txt,.md,.pdf,.docx,.doc" style="display:none">
+      </div>
+      <div id="uploadStatus"></div>
+
       <hr class="my-3">
 
+      <!-- Dimensions -->
       <div class="mb-2" style="font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;color:#6c757d">Dimensions to score</div>
       <div class="d-flex gap-2 flex-wrap mb-3">
         <label class="dim-toggle active" id="tog-lr">
@@ -111,10 +131,10 @@
 
       <hr class="my-3">
 
+      <!-- Email -->
       <div class="mb-2" style="font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;color:#6c757d">Email results (optional)</div>
       <div class="d-flex align-items-center gap-3 flex-wrap mb-1">
-        <input type="email" id="emailInput" class="form-control" style="max-width:300px"
-          placeholder="your@email.com">
+        <input type="email" id="emailInput" class="form-control" style="max-width:300px" placeholder="your@email.com">
         <span class="email-hint">CSV attached when analysis finishes — you can close this window</span>
       </div>
       <div id="emailStatus" class="email-status"></div>
@@ -124,8 +144,6 @@
       <div class="d-flex gap-2 mt-3 flex-wrap align-items-center">
         <button id="btnAnalyze" class="btn btn-primary" disabled
           style="background:#37A3B1;border-color:#37A3B1">Analyse →</button>
-        <button type="button" id="btnUpload" class="btn btn-outline-secondary">Upload .txt file</button>
-        <input id="fileInput" type="file" accept=".txt,.md,.csv" style="display:none">
         <span id="wordCount" class="text-muted" style="font-size:.8rem;font-family:monospace"></span>
       </div>
     </div>
@@ -163,9 +181,7 @@
     <div class="card">
       <div class="card-body p-0">
         <table id="results-table">
-          <thead><tr id="thead-row">
-            <th>UID</th><th>Paragraph</th>
-          </tr></thead>
+          <thead><tr id="thead-row"><th>UID</th><th>Paragraph</th></tr></thead>
           <tbody id="resultsBody"></tbody>
         </table>
       </div>
@@ -176,9 +192,108 @@
 {% endblock %}
 
 {% block extra_js %}
+<!-- PDF.js for PDF parsing -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<!-- Mammoth.js for DOCX parsing -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+
 <script>
+// Set PDF.js worker
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
 let allRows = [], total = 0, done = 0;
 let useLR = true, useLib = true, usePop = true;
+
+// ── File upload ───────────────────────────────────────────────────────────────
+const uploadZone = document.getElementById('uploadZone');
+const fileInput  = document.getElementById('fileInput');
+
+uploadZone.addEventListener('click', () => fileInput.click());
+uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+uploadZone.addEventListener('drop', e => {
+  e.preventDefault();
+  uploadZone.classList.remove('dragover');
+  const f = e.dataTransfer.files[0];
+  if (f) handleFile(f);
+});
+fileInput.addEventListener('change', e => {
+  const f = e.target.files[0];
+  if (f) handleFile(f);
+  e.target.value = '';
+});
+
+function setUploadStatus(msg, isError) {
+  const el = document.getElementById('uploadStatus');
+  el.textContent = msg;
+  el.style.color = isError ? '#dc3545' : '#6c757d';
+  el.style.display = msg ? 'block' : 'none';
+}
+
+async function handleFile(file) {
+  const name = file.name.toLowerCase();
+  setUploadStatus('Reading ' + file.name + '…');
+  try {
+    let text = '';
+    if (name.endsWith('.txt') || name.endsWith('.md') || name.endsWith('.csv')) {
+      text = await readAsText(file);
+    } else if (name.endsWith('.pdf')) {
+      text = await readPDF(file);
+    } else if (name.endsWith('.docx') || name.endsWith('.doc')) {
+      text = await readDOCX(file);
+    } else {
+      setUploadStatus('Unsupported file type. Use .txt, .md, .pdf, or .docx', true);
+      return;
+    }
+    const ta = document.getElementById('inputText');
+    ta.value = text;
+    ta.dispatchEvent(new Event('input'));
+    setUploadStatus('✓ ' + file.name + ' loaded');
+  } catch(e) {
+    setUploadStatus('Could not read file: ' + e.message, true);
+  }
+}
+
+function readAsText(file) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = e => resolve(e.target.result);
+    r.onerror = () => reject(new Error('Could not read file'));
+    r.readAsText(file);
+  });
+}
+
+async function readPDF(file) {
+  const arrayBuffer = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  let fullText = '';
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    // Group items into lines, then paragraphs
+    let lastY = null;
+    let line = '';
+    const lines = [];
+    for (const item of content.items) {
+      if (lastY !== null && Math.abs(item.transform[5] - lastY) > 5) {
+        lines.push(line.trim());
+        line = '';
+      }
+      line += item.str;
+      lastY = item.transform[5];
+    }
+    if (line.trim()) lines.push(line.trim());
+    // Join lines; double-newline between pages
+    fullText += lines.join('\n') + '\n\n';
+  }
+  return fullText.trim();
+}
+
+async function readDOCX(file) {
+  const arrayBuffer = await file.arrayBuffer();
+  const result = await mammoth.extractRawValue({ arrayBuffer });
+  return result.value;
+}
 
 // ── Dimension toggles ─────────────────────────────────────────────────────────
 ['lr','lib','pop'].forEach(dim => {
@@ -230,7 +345,7 @@ function updateProgress() {
   document.getElementById('progressPct').textContent = done+' / '+total+' ('+pct+'%)';
 }
 
-// ── Summary cards ─────────────────────────────────────────────────────────────
+// ── Summary ───────────────────────────────────────────────────────────────────
 function avg(rows,key){const v=rows.filter(r=>r[key]!=null).map(r=>parseFloat(r[key]));return v.length?v.reduce((a,b)=>a+b,0)/v.length:null;}
 function renderSummary() {
   const avgLR=useLR?avg(allRows,'lr_score'):null;
@@ -243,8 +358,8 @@ function renderSummary() {
   function lrC(v){return v<=3.5?'#1a3f72':v>=6.5?'#6e1a24':'#6c757d';}
   function libC(v){return v>=6.5?'#1a5c30':v<=3.5?'#6b4a0a':'#6c757d';}
   function popC(v){return v>=6.5?'#6b4a0a':v<=3.5?'#3a2a72':'#6c757d';}
-  function card(label,val,sub){return'<div class="summary-card"><div class="lbl">'+label+'</div><div class="val">'+val+'</div><div class="sub">'+sub+'</div></div>';}
-  document.getElementById('cardsRow').innerHTML =
+  function card(l,v,s){return'<div class="summary-card"><div class="lbl">'+l+'</div><div class="val">'+v+'</div><div class="sub">'+s+'</div></div>';}
+  document.getElementById('cardsRow').innerHTML=
     card('Paragraphs',allRows.length,political.length+' political · '+(allRows.length-political.length)+' N/A')+
     (avgLR !=null?card('Avg. Left–Right','<span style="color:'+lrC(avgLR) +'">'+avgLR.toFixed(2) +'</span>','<span style="color:'+lrC(avgLR) +'">'+lrL(avgLR) +'</span>'):'') +
     (avgLib!=null?card('Avg. Liberal',   '<span style="color:'+libC(avgLib)+'">'+avgLib.toFixed(2)+'</span>','<span style="color:'+libC(avgLib)+'">'+libL(avgLib)+'</span>'):'') +
@@ -271,7 +386,7 @@ function exportCSV() {
   a.download='apsi_scores.csv';a.click();
 }
 
-// ── CSRF helper ───────────────────────────────────────────────────────────────
+// ── CSRF ──────────────────────────────────────────────────────────────────────
 function getCookie(name){
   const v=document.cookie.split('; ').find(r=>r.startsWith(name+'='));
   return v?decodeURIComponent(v.split('=')[1]):'';
@@ -294,20 +409,17 @@ async function analyse() {
   document.getElementById('progressBar').style.width='0%';
   document.getElementById('progressPct').textContent='';
   document.getElementById('emailReminder').textContent=email
-    ?'Results will be emailed to '+email+' when complete — you can close this window.':'';
+    ?'Results will be emailed to '+email+' — you can close this window.':'';
   document.getElementById('btnAnalyze').disabled=true;
   buildHeader();
 
   try {
-    const res = await fetch("{% url 'classifier:longdoc_score' %}", {
+    const res=await fetch("{% url 'classifier:longdoc_score' %}",{
       method:'POST',
       headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')},
-      body:JSON.stringify({text, email, use_lr:useLR, use_lib:useLib, use_pop:usePop})
+      body:JSON.stringify({text,email,use_lr:useLR,use_lib:useLib,use_pop:usePop})
     });
-    if (!res.ok) {
-      const err=await res.json().catch(()=>({error:res.statusText}));
-      throw new Error(err.error||res.statusText);
-    }
+    if(!res.ok){const err=await res.json().catch(()=>({error:res.statusText}));throw new Error(err.error||res.statusText);}
     document.getElementById('table-wrap').style.display='block';
     const reader=res.body.getReader();
     const decoder=new TextDecoder();
@@ -349,7 +461,7 @@ function showError(msg){
   el.textContent=msg;el.style.display=msg?'block':'none';
 }
 
-// ── Events ────────────────────────────────────────────────────────────────────
+// ── Text area watcher ─────────────────────────────────────────────────────────
 const ta=document.getElementById('inputText');
 ta.addEventListener('input',()=>{
   const w=ta.value.trim().split(/\s+/).filter(Boolean).length;
@@ -371,24 +483,8 @@ document.getElementById('btnNew').addEventListener('click',()=>{
   document.getElementById('progressWrap').style.display='none';
   document.getElementById('emailStatus').style.display='none';
   document.getElementById('filterInput').value='';
+  setUploadStatus('');
   showError('');
-});
-
-// File upload — reads the file and puts content into textarea
-document.getElementById('btnUpload').addEventListener('click',()=>{
-  document.getElementById('fileInput').click();
-});
-document.getElementById('fileInput').addEventListener('change',e=>{
-  const f=e.target.files[0];
-  if(!f)return;
-  const reader=new FileReader();
-  reader.onload=ev=>{
-    ta.value=ev.target.result;
-    ta.dispatchEvent(new Event('input'));
-  };
-  reader.readAsText(f);
-  // Reset so same file can be uploaded again
-  e.target.value='';
 });
 
 document.getElementById('filterInput').addEventListener('input',()=>{
