@@ -1,0 +1,406 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Long Document Scorer · APSI{% endblock %}
+
+{% block extra_css %}
+<style>
+  .ld-section { padding: 2.5rem 0; }
+
+  .dim-toggle {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 0.4rem 0.9rem; border-radius: 6px;
+    border: 1px solid #dee2e6; background: #f8f9fa;
+    cursor: pointer; font-size: 0.85rem; color: #6c757d;
+    user-select: none; transition: all .15s;
+  }
+  .dim-toggle input { display: none; }
+  .dim-toggle .dot {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: #dee2e6; transition: background .15s; flex-shrink: 0;
+  }
+  .dim-toggle.active { border-color: #37A3B1; color: #1a1a1a; background: #fff; }
+  .dim-toggle.active .dot { background: #37A3B1; }
+  .dim-toggle:hover { border-color: #37A3B1; }
+
+  .progress-wrap { margin-bottom: 1.5rem; display: none; }
+  .progress-label {
+    display: flex; justify-content: space-between;
+    font-size: 0.8rem; color: #6c757d; margin-bottom: 5px;
+    font-family: monospace;
+  }
+  .progress { height: 5px; border-radius: 3px; }
+  .progress-bar { background-color: #37A3B1; transition: width .2s ease; }
+
+  .email-hint { font-size: 0.75rem; color: #adb5bd; }
+
+  .email-status {
+    font-size: 0.8rem; font-family: monospace;
+    padding: 0.45rem 0.85rem; border-radius: 6px;
+    display: none; margin-top: 0.75rem;
+  }
+  .email-status.sent   { background: #d1f0e0; color: #155724; }
+  .email-status.failed { background: #f8d7da; color: #721c24; }
+
+  .summary-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); gap: .75rem; margin-bottom: 1.5rem; }
+  .summary-card { background: #f8f9fa; border-radius: 8px; padding: .85rem 1rem; }
+  .summary-card .lbl { font-size: 0.7rem; color: #6c757d; text-transform: uppercase; letter-spacing: .05em; margin-bottom: .2rem; }
+  .summary-card .val { font-size: 1.6rem; font-weight: 500; line-height: 1; color: #1a1a1a; }
+  .summary-card .sub { font-size: 0.72rem; margin-top: .2rem; color: #6c757d; }
+
+  .pill { display: inline-flex; align-items: center; gap: 4px; border-radius: 4px; padding: 2px 8px; font-size: 0.72rem; white-space: nowrap; font-family: monospace; }
+  .pill-num { font-weight: 700; }
+  .pill-na   { background: #f0eeeb; color: #8a8580; }
+  .pill-lr-l { background: #dce8f5; color: #1a3f72; }
+  .pill-lr-r { background: #f5dce0; color: #6e1a24; }
+  .pill-lr-c { background: #ebebeb; color: #4a4a4a; }
+  .pill-lib  { background: #dcf0e4; color: #1a5c30; }
+  .pill-illib{ background: #f5ead0; color: #6b4a0a; }
+  .pill-pop  { background: #f5ead0; color: #6b4a0a; }
+  .pill-plu  { background: #e8e4f5; color: #3a2a72; }
+  .pill-mid  { background: #ebebeb; color: #4a4a4a; }
+
+  #table-wrap { display: none; overflow-x: auto; }
+  #results-table { width: 100%; border-collapse: collapse; font-size: .875rem; }
+  #results-table thead tr { background: #f8f9fa; }
+  #results-table th { text-align: left; padding: .6rem .85rem; font-weight: 500; font-size: .72rem; color: #6c757d; text-transform: uppercase; letter-spacing: .05em; border-bottom: 2px solid #dee2e6; white-space: nowrap; }
+  #results-table td { padding: .55rem .85rem; border-bottom: 1px solid #f0f0f0; vertical-align: middle; }
+  #results-table tbody tr:hover { background: #fafafa; }
+  .uid-cell  { font-family: monospace; font-size: .7rem; color: #adb5bd; white-space: nowrap; }
+  .para-cell { font-size: .875rem; line-height: 1.5; max-width: 420px; }
+  .conf-cell { font-family: monospace; font-size: .7rem; color: #adb5bd; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container ld-section">
+
+  <div class="mb-4">
+    <h2 class="h4 mb-1">Long Document Scorer</h2>
+    <p class="text-muted mb-0" style="font-size:.9rem">
+      Paste a speech, report, or article. Each paragraph is scored across the selected political dimensions.
+      Paragraphs must be separated by a blank line.
+    </p>
+  </div>
+
+  <!-- Input card -->
+  <div class="card mb-4">
+    <div class="card-body">
+
+      <label class="form-label" style="font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;color:#6c757d">Document text</label>
+      <textarea id="inputText" class="form-control mb-3" rows="8"
+        placeholder="Paste your text here. Separate paragraphs with a blank line…"></textarea>
+
+      <hr class="my-3">
+
+      <div class="mb-2" style="font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;color:#6c757d">Dimensions to score</div>
+      <div class="d-flex gap-2 flex-wrap mb-3">
+        <label class="dim-toggle active" id="tog-lr">
+          <input type="checkbox" id="chk-lr" checked>
+          <span class="dot"></span>Left – Right
+        </label>
+        <label class="dim-toggle active" id="tog-lib">
+          <input type="checkbox" id="chk-lib" checked>
+          <span class="dot"></span>Liberal – Illiberal
+        </label>
+        <label class="dim-toggle active" id="tog-pop">
+          <input type="checkbox" id="chk-pop" checked>
+          <span class="dot"></span>Populist – Pluralist
+        </label>
+      </div>
+
+      <hr class="my-3">
+
+      <div class="mb-2" style="font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;color:#6c757d">Email results (optional)</div>
+      <div class="d-flex align-items-center gap-3 flex-wrap mb-1">
+        <input type="email" id="emailInput" class="form-control" style="max-width:300px"
+          placeholder="your@email.com">
+        <span class="email-hint">CSV attached when analysis finishes — you can close this window</span>
+      </div>
+      <div id="emailStatus" class="email-status"></div>
+
+      <div id="error-msg" class="text-danger mt-2" style="font-size:.85rem;display:none"></div>
+
+      <div class="d-flex gap-2 mt-3 flex-wrap align-items-center">
+        <button id="btnAnalyze" class="btn btn-primary" disabled
+          style="background:#37A3B1;border-color:#37A3B1">Analyse →</button>
+        <button type="button" id="btnUpload" class="btn btn-outline-secondary">Upload .txt file</button>
+        <input id="fileInput" type="file" accept=".txt,.md,.csv" style="display:none">
+        <span id="wordCount" class="text-muted" style="font-size:.8rem;font-family:monospace"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-wrap" id="progressWrap">
+    <div class="progress-label">
+      <span id="progressLabel">Scoring paragraphs…</span>
+      <span id="progressPct"></span>
+    </div>
+    <div class="progress">
+      <div class="progress-bar" id="progressBar" role="progressbar" style="width:0%"></div>
+    </div>
+    <div id="emailReminder" style="font-size:.72rem;color:#adb5bd;font-family:monospace;margin-top:5px"></div>
+  </div>
+
+  <!-- Summary -->
+  <div id="summary" style="display:none">
+    <div class="summary-cards" id="cardsRow"></div>
+  </div>
+
+  <!-- Actions + filter -->
+  <div id="resultActions" style="display:none" class="d-flex gap-2 flex-wrap align-items-center mb-3">
+    <button type="button" id="btnNew" class="btn btn-outline-secondary btn-sm">New analysis</button>
+    <button type="button" id="btnCSV" class="btn btn-outline-secondary btn-sm">Export CSV ↗</button>
+    <span id="resultStat" class="text-muted" style="font-size:.8rem;font-family:monospace"></span>
+    <input id="filterInput" type="text" class="form-control form-control-sm ms-auto"
+      style="max-width:220px" placeholder="Filter paragraphs…">
+    <span id="filterCount" class="text-muted" style="font-size:.75rem;font-family:monospace"></span>
+  </div>
+
+  <!-- Table -->
+  <div id="table-wrap">
+    <div class="card">
+      <div class="card-body p-0">
+        <table id="results-table">
+          <thead><tr id="thead-row">
+            <th>UID</th><th>Paragraph</th>
+          </tr></thead>
+          <tbody id="resultsBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let allRows = [], total = 0, done = 0;
+let useLR = true, useLib = true, usePop = true;
+
+// ── Dimension toggles ─────────────────────────────────────────────────────────
+['lr','lib','pop'].forEach(dim => {
+  const tog = document.getElementById('tog-' + dim);
+  const chk = document.getElementById('chk-' + dim);
+  tog.addEventListener('click', () => {
+    const anyOther = ['lr','lib','pop'].filter(d => d !== dim)
+      .some(d => document.getElementById('chk-' + d).checked);
+    if (chk.checked && !anyOther) return;
+    chk.checked = !chk.checked;
+    tog.classList.toggle('active', chk.checked);
+    useLR  = document.getElementById('chk-lr').checked;
+    useLib = document.getElementById('chk-lib').checked;
+    usePop = document.getElementById('chk-pop').checked;
+  });
+});
+
+// ── Table header ──────────────────────────────────────────────────────────────
+function buildHeader() {
+  const tr = document.getElementById('thead-row');
+  tr.innerHTML = '<th>UID</th><th>Paragraph</th>';
+  if (useLR)  tr.innerHTML += '<th>Left–Right</th><th>Conf.</th>';
+  if (useLib) tr.innerHTML += '<th>Liberal</th><th>Conf.</th>';
+  if (usePop) tr.innerHTML += '<th>Populist</th><th>Conf.</th>';
+}
+
+// ── Pills ─────────────────────────────────────────────────────────────────────
+function lrPill(s,l)  { if(s==null)return'<span class="pill pill-na">N/A</span>';const v=parseFloat(s);return'<span class="pill '+(v<=3.5?'pill-lr-l':v>=6.5?'pill-lr-r':'pill-lr-c')+'"><span class="pill-num">'+v.toFixed(1)+'</span> '+(l||'')+'</span>';}
+function libPill(s,l) { if(s==null)return'<span class="pill pill-na">N/A</span>';const v=parseFloat(s);return'<span class="pill '+(v>=6.5?'pill-lib':v<=3.5?'pill-illib':'pill-mid')+'"><span class="pill-num">'+v.toFixed(1)+'</span> '+(l||'')+'</span>';}
+function popPill(s,l) { if(s==null)return'<span class="pill pill-na">N/A</span>';const v=parseFloat(s);return'<span class="pill '+(v>=6.5?'pill-pop':v<=3.5?'pill-plu':'pill-mid')+'"><span class="pill-num">'+v.toFixed(1)+'</span> '+(l||'')+'</span>';}
+function confCell(c)  { return'<td class="conf-cell">'+(c!=null?(parseFloat(c)*100).toFixed(0)+'%':'—')+'</td>';}
+
+// ── Append row ────────────────────────────────────────────────────────────────
+function appendRow(r) {
+  const tr = document.createElement('tr');
+  let html = '<td class="uid-cell">'+r.uid+'</td>'
+           + '<td class="para-cell">'+r.paragraph.replace(/</g,'&lt;')+'</td>';
+  if (useLR)  html += '<td>'+lrPill(r.lr_score,r.lr_interpretation)+'</td>'+confCell(r.lr_confidence);
+  if (useLib) html += '<td>'+libPill(r.lib_score,r.lib_interpretation)+'</td>'+confCell(r.lib_confidence);
+  if (usePop) html += '<td>'+popPill(r.pop_score,r.pop_interpretation)+'</td>'+confCell(r.pop_confidence);
+  tr.innerHTML = html;
+  document.getElementById('resultsBody').appendChild(tr);
+}
+
+// ── Progress ──────────────────────────────────────────────────────────────────
+function updateProgress() {
+  const pct = total ? Math.round(done/total*100) : 0;
+  document.getElementById('progressBar').style.width = pct+'%';
+  document.getElementById('progressPct').textContent = done+' / '+total+' ('+pct+'%)';
+}
+
+// ── Summary cards ─────────────────────────────────────────────────────────────
+function avg(rows,key){const v=rows.filter(r=>r[key]!=null).map(r=>parseFloat(r[key]));return v.length?v.reduce((a,b)=>a+b,0)/v.length:null;}
+function renderSummary() {
+  const avgLR=useLR?avg(allRows,'lr_score'):null;
+  const avgLib=useLib?avg(allRows,'lib_score'):null;
+  const avgPop=usePop?avg(allRows,'pop_score'):null;
+  const political=allRows.filter(r=>r.lr_score!=null||r.lib_score!=null||r.pop_score!=null);
+  function lrL(v){if(v<=1.5)return'Far Left';if(v<=2.5)return'Left';if(v<=4)return'Center Left';if(v<=6)return'Center';if(v<=7.5)return'Center Right';if(v<=8.5)return'Right';return'Far Right';}
+  function libL(v){if(v<=1.5)return'Very Illiberal';if(v<=3.5)return'Illiberal';if(v<=6.5)return'Moderate';if(v<=8.5)return'Liberal';return'Very Liberal';}
+  function popL(v){if(v<=1.5)return'Strong Pluralist';if(v<=3.5)return'Pluralist';if(v<=6.5)return'Neutral';if(v<=8.5)return'Populist';return'Strong Populist';}
+  function lrC(v){return v<=3.5?'#1a3f72':v>=6.5?'#6e1a24':'#6c757d';}
+  function libC(v){return v>=6.5?'#1a5c30':v<=3.5?'#6b4a0a':'#6c757d';}
+  function popC(v){return v>=6.5?'#6b4a0a':v<=3.5?'#3a2a72':'#6c757d';}
+  function card(label,val,sub){return'<div class="summary-card"><div class="lbl">'+label+'</div><div class="val">'+val+'</div><div class="sub">'+sub+'</div></div>';}
+  document.getElementById('cardsRow').innerHTML =
+    card('Paragraphs',allRows.length,political.length+' political · '+(allRows.length-political.length)+' N/A')+
+    (avgLR !=null?card('Avg. Left–Right','<span style="color:'+lrC(avgLR) +'">'+avgLR.toFixed(2) +'</span>','<span style="color:'+lrC(avgLR) +'">'+lrL(avgLR) +'</span>'):'') +
+    (avgLib!=null?card('Avg. Liberal',   '<span style="color:'+libC(avgLib)+'">'+avgLib.toFixed(2)+'</span>','<span style="color:'+libC(avgLib)+'">'+libL(avgLib)+'</span>'):'') +
+    (avgPop!=null?card('Avg. Populist',  '<span style="color:'+popC(avgPop)+'">'+avgPop.toFixed(2)+'</span>','<span style="color:'+popC(avgPop)+'">'+popL(avgPop)+'</span>'):'');
+  document.getElementById('summary').style.display='block';
+}
+
+// ── Export CSV ────────────────────────────────────────────────────────────────
+function exportCSV() {
+  const hdr=['uid','paragraph'];
+  if(useLR) hdr.push('lr_score','lr_interpretation','lr_confidence');
+  if(useLib)hdr.push('lib_score','lib_interpretation','lib_confidence');
+  if(usePop)hdr.push('pop_score','pop_interpretation','pop_confidence');
+  const lines=[hdr.join(',')];
+  allRows.forEach(r=>{
+    const row=[r.uid,'"'+r.paragraph.replace(/"/g,'""')+'"'];
+    if(useLR) row.push(r.lr_score??'NA',r.lr_interpretation,r.lr_confidence??'NA');
+    if(useLib)row.push(r.lib_score??'NA',r.lib_interpretation,r.lib_confidence??'NA');
+    if(usePop)row.push(r.pop_score??'NA',r.pop_interpretation,r.pop_confidence??'NA');
+    lines.push(row.join(','));
+  });
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([lines.join('\n')],{type:'text/csv'}));
+  a.download='apsi_scores.csv';a.click();
+}
+
+// ── CSRF helper ───────────────────────────────────────────────────────────────
+function getCookie(name){
+  const v=document.cookie.split('; ').find(r=>r.startsWith(name+'='));
+  return v?decodeURIComponent(v.split('=')[1]):'';
+}
+
+// ── Analyse ───────────────────────────────────────────────────────────────────
+async function analyse() {
+  const text  = document.getElementById('inputText').value.trim();
+  const email = document.getElementById('emailInput').value.trim() || null;
+  if (!text) return;
+  showError('');
+  allRows=[];total=0;done=0;
+  document.getElementById('resultsBody').innerHTML='';
+  document.getElementById('summary').style.display='none';
+  document.getElementById('resultActions').style.display='none';
+  document.getElementById('table-wrap').style.display='none';
+  document.getElementById('emailStatus').style.display='none';
+  document.getElementById('progressWrap').style.display='block';
+  document.getElementById('progressLabel').textContent='Scoring paragraphs…';
+  document.getElementById('progressBar').style.width='0%';
+  document.getElementById('progressPct').textContent='';
+  document.getElementById('emailReminder').textContent=email
+    ?'Results will be emailed to '+email+' when complete — you can close this window.':'';
+  document.getElementById('btnAnalyze').disabled=true;
+  buildHeader();
+
+  try {
+    const res = await fetch("{% url 'classifier:longdoc_score' %}", {
+      method:'POST',
+      headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')},
+      body:JSON.stringify({text, email, use_lr:useLR, use_lib:useLib, use_pop:usePop})
+    });
+    if (!res.ok) {
+      const err=await res.json().catch(()=>({error:res.statusText}));
+      throw new Error(err.error||res.statusText);
+    }
+    document.getElementById('table-wrap').style.display='block';
+    const reader=res.body.getReader();
+    const decoder=new TextDecoder();
+    let buffer='';
+    while(true){
+      const{done:sd,value}=await reader.read();
+      if(sd)break;
+      buffer+=decoder.decode(value,{stream:true});
+      const lines=buffer.split('\n');buffer=lines.pop();
+      for(const line of lines){
+        if(!line.trim())continue;
+        const msg=JSON.parse(line);
+        if(msg.type==='total'){total=msg.total;updateProgress();}
+        else if(msg.type==='row'){allRows.push(msg);done++;appendRow(msg);updateProgress();}
+        else if(msg.type==='done'){
+          document.getElementById('progressLabel').textContent='Done.';
+          document.getElementById('emailReminder').textContent='';
+          renderSummary();
+          document.getElementById('resultActions').style.display='flex';
+          document.getElementById('resultStat').textContent=allRows.length+' paragraphs scored';
+          if(email){
+            const el=document.getElementById('emailStatus');
+            el.textContent=msg.email_sent?'✓ Results emailed to '+email:'Could not send email — use Export CSV instead.';
+            el.className='email-status '+(msg.email_sent?'sent':'failed');
+            el.style.display='block';
+          }
+        }
+      }
+    }
+  } catch(e){
+    showError('Error: '+e.message);
+    document.getElementById('progressWrap').style.display='none';
+  }
+  document.getElementById('btnAnalyze').disabled=false;
+}
+
+function showError(msg){
+  const el=document.getElementById('error-msg');
+  el.textContent=msg;el.style.display=msg?'block':'none';
+}
+
+// ── Events ────────────────────────────────────────────────────────────────────
+const ta=document.getElementById('inputText');
+ta.addEventListener('input',()=>{
+  const w=ta.value.trim().split(/\s+/).filter(Boolean).length;
+  document.getElementById('wordCount').textContent=ta.value.trim()?'~'+w+' words':'';
+  document.getElementById('btnAnalyze').disabled=!ta.value.trim();
+});
+
+document.getElementById('btnAnalyze').addEventListener('click',analyse);
+document.getElementById('btnCSV').addEventListener('click',exportCSV);
+
+document.getElementById('btnNew').addEventListener('click',()=>{
+  allRows=[];ta.value='';
+  document.getElementById('wordCount').textContent='';
+  document.getElementById('btnAnalyze').disabled=true;
+  document.getElementById('summary').style.display='none';
+  document.getElementById('resultActions').style.display='none';
+  document.getElementById('table-wrap').style.display='none';
+  document.getElementById('resultsBody').innerHTML='';
+  document.getElementById('progressWrap').style.display='none';
+  document.getElementById('emailStatus').style.display='none';
+  document.getElementById('filterInput').value='';
+  showError('');
+});
+
+// File upload — reads the file and puts content into textarea
+document.getElementById('btnUpload').addEventListener('click',()=>{
+  document.getElementById('fileInput').click();
+});
+document.getElementById('fileInput').addEventListener('change',e=>{
+  const f=e.target.files[0];
+  if(!f)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    ta.value=ev.target.result;
+    ta.dispatchEvent(new Event('input'));
+  };
+  reader.readAsText(f);
+  // Reset so same file can be uploaded again
+  e.target.value='';
+});
+
+document.getElementById('filterInput').addEventListener('input',()=>{
+  const q=document.getElementById('filterInput').value.toLowerCase();
+  const rows=document.querySelectorAll('#resultsBody tr');
+  let visible=0;
+  rows.forEach(row=>{
+    const match=!q||row.cells[1]?.textContent.toLowerCase().includes(q);
+    row.style.display=match?'':'none';
+    if(match)visible++;
+  });
+  document.getElementById('filterCount').textContent=q?visible+' of '+allRows.length+' shown':'';
+});
+</script>
+{% endblock %}
