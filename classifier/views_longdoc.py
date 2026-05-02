@@ -1,9 +1,5 @@
 """
 views_longdoc.py  —  classifier/views_longdoc.py
-
-Provides:
-  GET  /longdoc/         → renders the long-document scorer page
-  POST /longdoc/score/   → streams NDJSON results paragraph by paragraph
 """
 
 import re
@@ -14,6 +10,7 @@ import logging
 import threading
 import queue
 import os
+import traceback
 
 from django.shortcuts import render
 from django.http import StreamingHttpResponse, JsonResponse
@@ -27,8 +24,6 @@ logger = logging.getLogger(__name__)
 resend.api_key = os.environ.get("RESEND_API_KEY", "")
 
 
-# ── Paragraph splitter ────────────────────────────────────────────────────────
-
 def split_paragraphs(text: str, min_words: int = 4) -> list:
     raw = re.split(r'\n\s*\n', text.strip())
     paragraphs = []
@@ -38,8 +33,6 @@ def split_paragraphs(text: str, min_words: int = 4) -> list:
             paragraphs.append(cleaned)
     return paragraphs
 
-
-# ── Score a single paragraph ──────────────────────────────────────────────────
 
 def _score_paragraph(text, scorers, use_lr, use_lib, use_pop):
     def to_float(v):
@@ -82,8 +75,6 @@ def _score_paragraph(text, scorers, use_lr, use_lib, use_pop):
     return result
 
 
-# ── CSV builder ───────────────────────────────────────────────────────────────
-
 def _build_csv(rows, use_lr, use_lib, use_pop):
     output = io.StringIO()
     hdr = ['uid', 'paragraph']
@@ -97,29 +88,38 @@ def _build_csv(rows, use_lr, use_lib, use_pop):
     return output.getvalue()
 
 
-# ── Email sender ──────────────────────────────────────────────────────────────
-
 def _send_email(to, csv_content):
-    params = resend.Emails.SendParams(
-        from_="APSI <onboarding@resend.dev>",
-        to=[to],
-        subject="Your APSI Long Document results",
-        html=(
-            "<p>Hello,</p>"
-            "<p>Your document analysis is complete. "
-            "Results are attached as a CSV file.</p>"
-            "<p>You can open it in Excel or Google Sheets.</p>"
-            "<br><p style='color:#888;font-size:12px'>Sent by APSI · HPI</p>"
-        ),
-        attachments=[{
-            "filename": "apsi_scores.csv",
-            "content": list(csv_content.encode("utf-8")),
-        }],
-    )
-    resend.Emails.send(params)
+    logger.info("Attempting to send email to: %s", to)
+    logger.info("Resend API key present: %s", bool(resend.api_key))
+    logger.info("Resend API key prefix: %s", resend.api_key[:8] if resend.api_key else "MISSING")
 
+    # Try both old and new resend API styles
+    try:
+        # New style (resend >= 2.0)
+        params = {
+            "from": "APSI <onboarding@resend.dev>",
+            "to": [to],
+            "subject": "Your APSI Long Document results",
+            "html": (
+                "<p>Hello,</p>"
+                "<p>Your document analysis is complete. "
+                "Results are attached as a CSV file.</p>"
+                "<p>You can open it in Excel or Google Sheets.</p>"
+                "<br><p style='color:#888;font-size:12px'>Sent by APSI · HPI</p>"
+            ),
+            "attachments": [{
+                "filename": "apsi_scores.csv",
+                "content": list(csv_content.encode("utf-8")),
+            }],
+        }
+        result = resend.Emails.send(params)
+        logger.info("Email send result: %s", result)
+        return True
+    except Exception as e:
+        logger.error("Email send failed: %s", str(e))
+        logger.error("Full traceback: %s", traceback.format_exc())
+        raise
 
-# ── Views ─────────────────────────────────────────────────────────────────────
 
 def longdoc(request):
     return render(request, 'classifier/longdoc.html')
@@ -134,11 +134,13 @@ def longdoc_score(request):
         return JsonResponse({'error': 'Invalid JSON'}, status=400)
 
     text    = (data.get('text') or '').strip()
-    # Fix: handle null email from JS safely
     email   = (data.get('email') or '').strip() or None
     use_lr  = bool(data.get('use_lr', True))
     use_lib = bool(data.get('use_lib', True))
     use_pop = bool(data.get('use_pop', True))
+
+    logger.info("longdoc_score called: email=%s, use_lr=%s, use_lib=%s, use_pop=%s",
+                email, use_lr, use_lib, use_pop)
 
     if not text:
         return JsonResponse({'error': 'No text provided.'}, status=400)
@@ -184,9 +186,15 @@ def longdoc_score(request):
                 csv_content = _build_csv(all_rows, use_lr, use_lib, use_pop)
                 _send_email(email, csv_content)
                 email_sent = True
-                logger.info('Email sent to %s', email)
+                logger.info('Email successfully sent to %s', email)
             except Exception as exc:
-                logger.error('Email error: %s', exc)
+                logger.error('Email failed for %s: %s', email, exc)
+                logger.error('Email traceback: %s', traceback.format_exc())
+        else:
+            if not email:
+                logger.info('No email address provided, skipping email.')
+            if not resend.api_key:
+                logger.error('RESEND_API_KEY is not set in environment!')
 
         result_queue.put(('done', {'email_sent': email_sent}))
 
