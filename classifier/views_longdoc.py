@@ -1,9 +1,9 @@
 """
-views_longdoc.py  —  add to classifier/
+views_longdoc.py  —  classifier/views_longdoc.py
 
-Provides two URL endpoints:
-  GET  /longdoc/          → renders the long-document scorer page
-  POST /longdoc/score/    → streams NDJSON results paragraph by paragraph
+Provides:
+  GET  /longdoc/         → renders the long-document scorer page
+  POST /longdoc/score/   → streams NDJSON results paragraph by paragraph
 """
 
 import re
@@ -26,6 +26,7 @@ logger = logging.getLogger(__name__)
 
 resend.api_key = os.environ.get("RESEND_API_KEY", "")
 
+
 # ── Paragraph splitter ────────────────────────────────────────────────────────
 
 def split_paragraphs(text: str, min_words: int = 4) -> list:
@@ -38,13 +39,9 @@ def split_paragraphs(text: str, min_words: int = 4) -> list:
     return paragraphs
 
 
-# ── Score a single paragraph using the existing scorer instances ──────────────
+# ── Score a single paragraph ──────────────────────────────────────────────────
 
 def _score_paragraph(text, scorers, use_lr, use_lib, use_pop):
-    """
-    scorers is the dict returned by views.get_alternative_scorers().
-    Keys: 'left_right', 'liberal_illiberal', 'populism_pluralism'
-    """
     def to_float(v):
         if v is None or v == 'NA':
             return None
@@ -103,47 +100,42 @@ def _build_csv(rows, use_lr, use_lib, use_pop):
 # ── Email sender ──────────────────────────────────────────────────────────────
 
 def _send_email(to, csv_content):
-    params = {
-        'from': 'APSI <onboarding@resend.dev>',
-        'to': [to],
-        'subject': 'Your APSI Long Document results',
-        'html': (
-            '<p>Hello,</p>'
-            '<p>Your document analysis is complete. '
-            'Results are attached as a CSV file.</p>'
-            '<p>You can open it in Excel or Google Sheets.</p>'
+    params = resend.Emails.SendParams(
+        from_="APSI <onboarding@resend.dev>",
+        to=[to],
+        subject="Your APSI Long Document results",
+        html=(
+            "<p>Hello,</p>"
+            "<p>Your document analysis is complete. "
+            "Results are attached as a CSV file.</p>"
+            "<p>You can open it in Excel or Google Sheets.</p>"
             "<br><p style='color:#888;font-size:12px'>Sent by APSI · HPI</p>"
         ),
-        'attachments': [{
-            'filename': 'apsi_scores.csv',
-            'content': list(csv_content.encode('utf-8')),
+        attachments=[{
+            "filename": "apsi_scores.csv",
+            "content": list(csv_content.encode("utf-8")),
         }],
-    }
+    )
     resend.Emails.send(params)
 
 
 # ── Views ─────────────────────────────────────────────────────────────────────
 
 def longdoc(request):
-    """Render the long-document scorer page."""
     return render(request, 'classifier/longdoc.html')
 
 
 @csrf_exempt
 @require_http_methods(['POST'])
 def longdoc_score(request):
-    """
-    Stream NDJSON results, one line per paragraph.
-    Sends email (if provided) from a background thread so it completes
-    even if the browser window is closed before scoring finishes.
-    """
     try:
         data = json.loads(request.body)
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Invalid JSON'}, status=400)
 
-    text    = data.get('text', '').strip()
-    email   = data.get('email', '').strip() or None
+    text    = (data.get('text') or '').strip()
+    # Fix: handle null email from JS safely
+    email   = (data.get('email') or '').strip() or None
     use_lr  = bool(data.get('use_lr', True))
     use_lib = bool(data.get('use_lib', True))
     use_pop = bool(data.get('use_pop', True))
@@ -160,12 +152,11 @@ def longdoc_score(request):
             status=400,
         )
 
-    # Load only the scorers we need, reusing the same helper as views.py
     from .views import get_alternative_scorers
     selected = {
-        'left_right_hypothesis':       use_lr,
-        'liberal_illiberal_hypothesis': use_lib,
-        'populism_hypothesis':          use_pop,
+        'left_right_hypothesis':        use_lr,
+        'liberal_illiberal_hypothesis':  use_lib,
+        'populism_hypothesis':           use_pop,
     }
     scorers = get_alternative_scorers(selected) or {}
 
@@ -173,7 +164,6 @@ def longdoc_score(request):
     result_queue = queue.Queue()
 
     def worker():
-        """Background thread — keeps running even if client disconnects."""
         all_rows = []
         result_queue.put(('total', {'total': total}))
 
@@ -188,7 +178,6 @@ def longdoc_score(request):
             all_rows.append(row)
             result_queue.put(('row', row))
 
-        # Send email regardless of client connection
         email_sent = False
         if email and resend.api_key:
             try:
@@ -201,21 +190,16 @@ def longdoc_score(request):
 
         result_queue.put(('done', {'email_sent': email_sent}))
 
-    # daemon=False → thread outlives the HTTP connection
     threading.Thread(target=worker, daemon=False).start()
 
     def stream():
         while True:
             try:
-                item_type, data = result_queue.get(timeout=300)
+                item_type, payload = result_queue.get(timeout=300)
             except queue.Empty:
                 break
-            if item_type == 'total':
-                yield json.dumps({'type': 'total', **data}) + '\n'
-            elif item_type == 'row':
-                yield json.dumps({'type': 'row', **data}) + '\n'
-            elif item_type == 'done':
-                yield json.dumps({'type': 'done', **data}) + '\n'
+            yield json.dumps({'type': item_type, **payload}) + '\n'
+            if item_type == 'done':
                 break
 
     return StreamingHttpResponse(stream(), content_type='application/x-ndjson')
