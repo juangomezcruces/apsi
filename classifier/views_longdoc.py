@@ -117,14 +117,14 @@ def _send_email(to, csv_content):
     msg = MIMEMultipart()
     msg["From"] = f"APSI <{host_user}>"
     msg["To"] = to
-    msg["Subject"] = "Your APSIlongdoc results"
+    msg["Subject"] = "Your APSI long document results"
 
     body = MIMEText(
         "<p>Hello,</p>"
         "<p>Your document analysis is complete. "
         "Results are attached as a CSV file.</p>"
         "<p>You can open it in Excel or Google Sheets.</p>"
-        "<br><p style='color:#888;font-size:12px'>Sent by APSIlongdoc · HPI</p>",
+        "<br><p style='color:#888;font-size:12px'>Sent by APSI · Path to Power · HPI</p>",
         "html"
     )
     msg.attach(body)
