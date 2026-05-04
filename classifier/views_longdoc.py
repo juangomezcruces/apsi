@@ -11,6 +11,9 @@ from django.views.decorators.http import require_http_methods
 
 logger = logging.getLogger(__name__)
 
+# Global lock to prevent concurrent analyses from exhausting memory
+_analysis_lock = threading.Semaphore(1)
+
 
 def is_real_paragraph(text):
     """Require at least 2 sentence-ending punctuation marks followed by a space or end,
@@ -221,7 +224,18 @@ def longdoc_score(request):
 
         result_queue.put(('done', {'email_sent': email_sent}))
 
-    threading.Thread(target=worker, daemon=False).start()
+    if not _analysis_lock.acquire(blocking=False):
+        return JsonResponse({'error': 'The server is currently processing another document. Please wait a moment and try again.'}, status=503)
+    _analysis_lock.release()
+
+    def worker_with_lock():
+        _analysis_lock.acquire()
+        try:
+            worker()
+        finally:
+            _analysis_lock.release()
+
+    threading.Thread(target=worker_with_lock, daemon=False).start()
 
     def stream():
         while True:
