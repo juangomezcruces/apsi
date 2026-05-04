@@ -58,6 +58,8 @@
   .uid-cell { font-family: monospace; font-size: .7rem; color: #adb5bd; white-space: nowrap; }
   .para-cell { font-size: .875rem; line-height: 1.5; max-width: 420px; }
   .conf-cell { font-family: monospace; font-size: .7rem; color: #adb5bd; }
+  .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid #dee2e6; border-top-color: #37A3B1; border-radius: 50%; animation: spin 0.8s linear infinite; margin-right: 6px; vertical-align: middle; }
+  @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 {% endblock %}
 
@@ -98,7 +100,7 @@
   </div></div>
 
   <div class="progress-wrap" id="progressWrap">
-    <div class="progress-label"><span id="progressLabel">Scoring paragraphs...</span><span id="progressPct"></span></div>
+    <div class="progress-label"><span id="progressLabel"><span class="spinner" id="spinner"></span>Calculating ETA...</span><span id="progressPct"></span></div>
     <div class="progress"><div class="progress-bar" id="progressBar" role="progressbar" style="width:0%"></div></div>
     <div id="emailReminder" style="font-size:.72rem;color:#adb5bd;font-family:monospace;margin-top:5px"></div>
   </div>
@@ -206,18 +208,23 @@ function updateProgress(){
   document.getElementById('progressBar').style.width=pct+'%';
   if(!startTime && done > 0) startTime = Date.now();
   let etaStr = '';
+  const spinner = document.getElementById('spinner');
   if(startTime && done > 0 && done < total){
     const elapsed=(Date.now()-startTime)/1000;
     const rate=done/elapsed;
     const remaining=Math.round((total-done)/rate);
     if(remaining >= 60){
       const m=Math.floor(remaining/60),s=remaining%60;
-      etaStr=' · ~'+m+'m '+s+'s remaining';
+      etaStr='~'+m+'m '+s+'s remaining';
     } else {
-      etaStr=' · ~'+remaining+'s remaining';
+      etaStr='~'+remaining+'s remaining';
     }
+    if(spinner) spinner.style.borderTopColor='#37A3B1';
+    document.getElementById('progressLabel').innerHTML='<span class="spinner" id="spinner"></span>Scoring · '+etaStr;
+  } else if(done === 0){
+    document.getElementById('progressLabel').innerHTML='<span class="spinner" id="spinner"></span>Calculating ETA...';
   }
-  document.getElementById('progressPct').textContent=done+' / '+total+' ('+pct+'%)'+etaStr;
+  document.getElementById('progressPct').textContent=done+' / '+total+' ('+pct+'%)';
 }
 
 function avg(rows,key){const v=rows.filter(r=>r[key]!=null).map(r=>parseFloat(r[key]));return v.length?v.reduce((a,b)=>a+b,0)/v.length:null;}
