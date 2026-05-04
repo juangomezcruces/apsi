@@ -271,6 +271,7 @@ async function analyse(){
   if(!useLR&&!useLib&&!usePop){showError('Please select at least one dimension to score.');return;}
   showError('');allRows=[];total=0;done=0;
   document.getElementById('resultsBody').innerHTML='';
+  document.getElementById('resultStat').textContent='';
   document.getElementById('summary').style.display='none';
   document.getElementById('resultActions').style.display='none';
   document.getElementById('table-wrap').style.display='none';
