@@ -11,17 +11,18 @@ import threading
 import queue
 import os
 import traceback
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.base import MIMEBase
+from email import encoders
 
 from django.shortcuts import render
 from django.http import StreamingHttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
-import resend
-
 logger = logging.getLogger(__name__)
-
-resend.api_key = os.environ.get("RESEND_API_KEY", "")
 
 
 def split_paragraphs(text: str, min_words: int = 4) -> list:
@@ -78,47 +79,67 @@ def _score_paragraph(text, scorers, use_lr, use_lib, use_pop):
 def _build_csv(rows, use_lr, use_lib, use_pop):
     output = io.StringIO()
     hdr = ['uid', 'paragraph']
-    if use_lr:  hdr += ['lr_score', 'lr_interpretation', 'lr_confidence']
-    if use_lib: hdr += ['lib_score', 'lib_interpretation', 'lib_confidence']
-    if use_pop: hdr += ['pop_score', 'pop_interpretation', 'pop_confidence']
+    if use_lr:  hdr += ['lr_score', 'lr_label', 'lr_confidence']
+    if use_lib: hdr += ['lib_score', 'lib_label', 'lib_confidence']
+    if use_pop: hdr += ['pop_score', 'pop_label', 'pop_confidence']
     writer = csv.DictWriter(output, fieldnames=hdr, extrasaction='ignore')
     writer.writeheader()
     for r in rows:
-        writer.writerow({k: (v if v is not None else 'NA') for k, v in r.items() if k in hdr})
+        row = {
+            'uid': r.get('uid', ''),
+            'paragraph': r.get('paragraph', ''),
+        }
+        if use_lr:
+            row['lr_score']      = r.get('lr_score', 'NA') if r.get('lr_score') is not None else 'NA'
+            row['lr_label']      = r.get('lr_interpretation', '')
+            row['lr_confidence'] = r.get('lr_confidence', 'NA') if r.get('lr_confidence') is not None else 'NA'
+        if use_lib:
+            row['lib_score']      = r.get('lib_score', 'NA') if r.get('lib_score') is not None else 'NA'
+            row['lib_label']      = r.get('lib_interpretation', '')
+            row['lib_confidence'] = r.get('lib_confidence', 'NA') if r.get('lib_confidence') is not None else 'NA'
+        if use_pop:
+            row['pop_score']      = r.get('pop_score', 'NA') if r.get('pop_score') is not None else 'NA'
+            row['pop_label']      = r.get('pop_interpretation', '')
+            row['pop_confidence'] = r.get('pop_confidence', 'NA') if r.get('pop_confidence') is not None else 'NA'
+        writer.writerow(row)
     return output.getvalue()
 
 
 def _send_email(to, csv_content):
-    logger.info("Attempting to send email to: %s", to)
-    logger.info("Resend API key present: %s", bool(resend.api_key))
-    logger.info("Resend API key prefix: %s", resend.api_key[:8] if resend.api_key else "MISSING")
+    host_user = os.environ.get("EMAIL_HOST_USER", "")
+    host_pass = os.environ.get("EMAIL_HOST_PASSWORD", "")
 
-    # Try both old and new resend API styles
-    try:
-        # New style (resend >= 2.0)
-        params = {
-            "from": "APSI <onboarding@resend.dev>",
-            "to": [to],
-            "subject": "Your APSI Long Document results",
-            "html": (
-                "<p>Hello,</p>"
-                "<p>Your document analysis is complete. "
-                "Results are attached as a CSV file.</p>"
-                "<p>You can open it in Excel or Google Sheets.</p>"
-                "<br><p style='color:#888;font-size:12px'>Sent by APSI · HPI</p>"
-            ),
-            "attachments": [{
-                "filename": "apsi_scores.csv",
-                "content": list(csv_content.encode("utf-8")),
-            }],
-        }
-        result = resend.Emails.send(params)
-        logger.info("Email send result: %s", result)
-        return True
-    except Exception as e:
-        logger.error("Email send failed: %s", str(e))
-        logger.error("Full traceback: %s", traceback.format_exc())
-        raise
+    logger.info("Attempting to send email to: %s from: %s", to, host_user)
+
+    if not host_user or not host_pass:
+        raise ValueError("EMAIL_HOST_USER or EMAIL_HOST_PASSWORD not set in environment")
+
+    msg = MIMEMultipart()
+    msg["From"] = f"APSI <{host_user}>"
+    msg["To"] = to
+    msg["Subject"] = "Your APSIlongdoc results"
+
+    body = MIMEText(
+        "<p>Hello,</p>"
+        "<p>Your document analysis is complete. "
+        "Results are attached as a CSV file.</p>"
+        "<p>You can open it in Excel or Google Sheets.</p>"
+        "<br><p style='color:#888;font-size:12px'>Sent by APSIlongdoc · HPI</p>",
+        "html"
+    )
+    msg.attach(body)
+
+    attachment = MIMEBase("application", "octet-stream")
+    attachment.set_payload(csv_content.encode("utf-8"))
+    encoders.encode_base64(attachment)
+    attachment.add_header("Content-Disposition", "attachment", filename="apsi_scores.csv")
+    msg.attach(attachment)
+
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+        server.login(host_user, host_pass)
+        server.sendmail(host_user, to, msg.as_string())
+
+    logger.info("Email successfully sent to %s", to)
 
 
 def longdoc(request):
@@ -181,7 +202,7 @@ def longdoc_score(request):
             result_queue.put(('row', row))
 
         email_sent = False
-        if email and resend.api_key:
+        if email and os.environ.get('EMAIL_HOST_USER'):
             try:
                 csv_content = _build_csv(all_rows, use_lr, use_lib, use_pop)
                 _send_email(email, csv_content)
@@ -193,8 +214,8 @@ def longdoc_score(request):
         else:
             if not email:
                 logger.info('No email address provided, skipping email.')
-            if not resend.api_key:
-                logger.error('RESEND_API_KEY is not set in environment!')
+            if not os.environ.get('EMAIL_HOST_USER'):
+                logger.error('EMAIL_HOST_USER is not set in environment!')
 
         result_queue.put(('done', {'email_sent': email_sent}))
 
@@ -203,7 +224,7 @@ def longdoc_score(request):
     def stream():
         while True:
             try:
-                item_type, payload = result_queue.get(timeout=300)
+                item_type, payload = result_queue.get(timeout=3600)
             except queue.Empty:
                 break
             yield json.dumps({'type': item_type, **payload}) + '\n'
