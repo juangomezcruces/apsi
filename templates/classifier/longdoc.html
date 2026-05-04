@@ -285,7 +285,7 @@ async function analyse(){
   buildHeader();
   try{
     const res=await fetch("{% url 'classifier:longdoc_score' %}",{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')},body:JSON.stringify({text,email,use_lr:useLR,use_lib:useLib,use_pop:usePop})});
-    if(!res.ok){const err=await res.json().catch(()=>({error:res.statusText}));throw new Error(err.error||res.statusText);}
+    if(!res.ok){const err=await res.json().catch(()=>({error:res.statusText}));throw new Error((res.status===503?'503:':'')+( err.error||res.statusText));}
     document.getElementById('table-wrap').style.display='block';
     const reader=res.body.getReader(),decoder=new TextDecoder();let buffer='';
     while(true){
@@ -306,8 +306,13 @@ async function analyse(){
       }
     }
   }catch(e){
-    if(email){showError('Connection lost - your analysis is still running. You will receive results by email at '+email+' when complete.');}
-    else{showError('Connection lost. Try again with an email address so results are sent even if the connection drops.');}
+    if(e.message && e.message.includes('503')){
+      showError('The server is currently processing another document. Please wait a moment and try again.');
+    } else if(email){
+      showError('Connection lost - your analysis is still running. You will receive results by email at '+email+' when complete.');
+    } else {
+      showError('Connection lost. Try again with an email address so results are sent even if the connection drops.');
+    }
     document.getElementById('progressWrap').style.display='none';
   }
   document.getElementById('btnAnalyze').disabled=false;
