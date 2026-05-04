@@ -200,7 +200,25 @@ function appendRow(r){
   tr.innerHTML=h;document.getElementById('resultsBody').appendChild(tr);
 }
 
-function updateProgress(){const pct=total?Math.round(done/total*100):0;document.getElementById('progressBar').style.width=pct+'%';document.getElementById('progressPct').textContent=done+' / '+total+' ('+pct+'%)';}
+let startTime = null;
+function updateProgress(){
+  const pct=total?Math.round(done/total*100):0;
+  document.getElementById('progressBar').style.width=pct+'%';
+  if(!startTime && done > 0) startTime = Date.now();
+  let etaStr = '';
+  if(startTime && done > 0 && done < total){
+    const elapsed=(Date.now()-startTime)/1000;
+    const rate=done/elapsed;
+    const remaining=Math.round((total-done)/rate);
+    if(remaining >= 60){
+      const m=Math.floor(remaining/60),s=remaining%60;
+      etaStr=' · ~'+m+'m '+s+'s remaining';
+    } else {
+      etaStr=' · ~'+remaining+'s remaining';
+    }
+  }
+  document.getElementById('progressPct').textContent=done+' / '+total+' ('+pct+'%)'+etaStr;
+}
 
 function avg(rows,key){const v=rows.filter(r=>r[key]!=null).map(r=>parseFloat(r[key]));return v.length?v.reduce((a,b)=>a+b,0)/v.length:null;}
 
