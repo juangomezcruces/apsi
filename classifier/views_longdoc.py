@@ -13,9 +13,11 @@ logger = logging.getLogger(__name__)
 
 
 def is_real_paragraph(text):
-    """A real paragraph must contain at least two sentences,
-    each with at least 3 words: 3+ words, period/!/?, 3+ words."""
-    return bool(re.search(r'\w+\s+\w+\s+\w+[.!?]+\s+\w+\s+\w+\s+\w+', text))
+    """Require at least 2 sentence-ending punctuation marks followed by a space or end,
+    indicating at least 2 sentences."""
+    sentences = re.split(r'[.!?]+(?:\s|$)', text.strip())
+    real = [s for s in sentences if len(s.split()) >= 3]
+    return len(real) >= 2
 
 
 def split_paragraphs(text, min_words=4):
