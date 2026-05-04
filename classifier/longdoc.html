@@ -64,7 +64,7 @@
 {% block content %}
 <div class="container ld-section">
   <div class="mb-4">
-    <h2 class="h4 mb-1">Long Document Scorer</h2>
+    <h2 class="h4 mb-1">APSI - Long Document Scorer</h2>
     <p class="text-muted mb-0" style="font-size:.9rem">Paste or upload a document. Each paragraph is scored across the selected political dimensions. Paragraphs must be separated by a line break.</p>
   </div>
   <div class="card mb-4"><div class="card-body">
@@ -86,13 +86,13 @@
     <hr class="my-3">
     <div class="mb-2" style="font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;color:#6c757d">Email results (optional)</div>
     <div class="d-flex align-items-center gap-3 flex-wrap mb-1">
-      <input type="email" id="emailInput" class="form-control" style="max-width:300px" placeholder="your@email.com">
-      <span class="email-hint">CSV attached when analysis finishes - you can close this window</span>
+      <input type="email" id="emailInput" class="form-control" style="max-width:300px" placeholder="">
+      <span class="email-hint">A CSV attached will be sent when analysis finishes - you can close this window</span>
     </div>
     <div id="emailStatus" class="email-status"></div>
     <div id="error-msg" class="text-danger mt-2" style="font-size:.85rem;display:none"></div>
     <div class="d-flex gap-2 mt-3 flex-wrap align-items-center">
-      <button id="btnAnalyze" class="btn btn-primary" disabled style="background:#37A3B1;border-color:#37A3B1">Analyse</button>
+      <button id="btnAnalyze" class="btn btn-primary" disabled style="background:#37A3B1;border-color:#37A3B1">Analyze</button>
       <span id="wordCount" class="text-muted" style="font-size:.8rem;font-family:monospace"></span>
     </div>
   </div></div>

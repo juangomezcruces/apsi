@@ -1,0 +1,141 @@
+/* Custom styles for the political classifier */
+.hero-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.card-hover {
+    transition: transform 0.2s ease-in-out;
+}
+
+.card-hover:hover {
+    transform: translateY(-2px);
+}
+
+.score-display {
+    font-size: 2.5rem;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
+
+.dimension-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.plotly-container {
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+
+@media (max-width: 768px) {
+    .score-display {
+        font-size: 2rem;
+    }
+    
+    .dimension-icon {
+        font-size: 2rem;
+    }
+}
+
+
+.loading-spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #007bff;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+
+.rich-text.lead-text {
+  max-width: 880px;
+  margin: 2rem auto;
+  font-size: 1.15rem;
+  line-height: 1.8;
+  color: #444;
+  font-weight: 400;
+}
+
+.rich-text.lead-text p {
+  margin-bottom: 0;
+}
+
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.apsi-section {
+  max-width: 980px;
+  margin: 1.25rem auto;
+  padding: 0 20px;
+  overflow: hidden; /* needed for height animation */
+}
+
+
+.apsi-section summary {
+  list-style: none;
+  cursor: pointer;
+  font-size: 1.6rem;
+  font-weight: 500;
+  color: #111 !important;
+  padding: 0.75rem 0;
+  border: 0 !important;
+  outline: none;
+  transition: opacity 200ms ease, color 200ms ease;
+}
+
+/* Remove default marker */
+.apsi-section summary::-webkit-details-marker { display: none; }
+
+/* Hover effect (stronger specificity + !important so it actually shows) */
+.apsi-section summary:hover {
+  color: #37A3B1 !important;
+  opacity: 0.92;
+}
+
+/*
+  CRITICAL: Override browser default "hide everything" behavior
+  so our transitions can run.
+*/
+.apsi-section > :not(summary) {
+  display: block; /* override UA stylesheet */
+}
+
+/* Smooth reveal container */
+.apsi-section .apsi-content {
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition:
+    max-height 1.2s cubic-bezier(.25,.8,.25,1),
+    opacity 0.9s ease 0.5s,
+    transform 0.9s ease 0.5s;
+  will-change: max-height, opacity, transform;
+}
+
+/* When open */
+.apsi-section[open] .apsi-content {
+  max-height: 900px;   /* adjust if one section is taller */
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.apsi-section summary::after {
+  transition: transform 350ms ease, opacity 350ms ease;
+}
+
+/* Make spacing feel like a document */
+.apsi-section .apsi-content > *:first-child { margin-top: 0.75rem; }
+.apsi-section .apsi-content > *:last-child { margin-bottom: 0; }
+
+

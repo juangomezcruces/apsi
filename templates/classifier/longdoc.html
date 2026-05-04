@@ -19,8 +19,17 @@
     background: #dee2e6; transition: background .15s; flex-shrink: 0;
   }
   .dim-toggle.active { border-color: #37A3B1; color: #1a1a1a; background: #fff; }
-  .dim-toggle.active .dot { background: #37A3B1; }
+  .dim-toggle.active .dot { background: transparent; }
   .dim-toggle:hover { border-color: #37A3B1; }
+  #tog-lr.active { border-color: #E91E8C !important; }
+  #tog-lr.active .dot { background: #E91E8C !important; }
+  #tog-lr:hover { border-color: #E91E8C !important; }
+  #tog-lib.active { border-color: #00B27A !important; }
+  #tog-lib.active .dot { background: #00B27A !important; }
+  #tog-lib:hover { border-color: #00B27A !important; }
+  #tog-pop.active { border-color: #F5A623 !important; }
+  #tog-pop.active .dot { background: #F5A623 !important; }
+  #tog-pop:hover { border-color: #F5A623 !important; }
 
   .progress-wrap { margin-bottom: 1.5rem; display: none; }
   .progress-label {
@@ -103,16 +112,16 @@
 
       <div class="mb-1" style="font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;color:#6c757d">Dimensions to score</div>
       <div class="d-flex gap-2 flex-wrap mb-3">
-        <label class="dim-toggle active" id="tog-lr">
-          <input type="checkbox" id="chk-lr" checked style="display:none">
+        <label class="dim-toggle" id="tog-lr">
+          <input type="checkbox" id="chk-lr" style="display:none">
           <span class="dot"></span>Left – Right
         </label>
-        <label class="dim-toggle active" id="tog-lib">
-          <input type="checkbox" id="chk-lib" checked style="display:none">
+        <label class="dim-toggle" id="tog-lib">
+          <input type="checkbox" id="chk-lib" style="display:none">
           <span class="dot"></span>Liberal – Illiberal
         </label>
-        <label class="dim-toggle active" id="tog-pop">
-          <input type="checkbox" id="chk-pop" checked style="display:none">
+        <label class="dim-toggle" id="tog-pop">
+          <input type="checkbox" id="chk-pop" style="display:none">
           <span class="dot"></span>Populist – Pluralist
         </label>
       </div>
@@ -185,7 +194,7 @@
 {% block extra_js %}
 <script>
 let allRows = [], total = 0, done = 0;
-let useLR = true, useLib = true, usePop = true;
+let useLR = false, useLib = false, usePop = false;
 
 // ── Toggles ──────────────────────────────────────────────────────────────────
 ['lr','lib','pop'].forEach(dim => {
