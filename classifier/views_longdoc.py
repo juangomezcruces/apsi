@@ -20,16 +20,31 @@ def is_real_paragraph(text):
     return len(real) >= 2
 
 
+def clean_text(text):
+    """Normalize text from PDFs: fix line breaks, special chars, ligatures."""
+    # Normalize line endings
+    text = text.replace('\r\n', '\n').replace('\r', '\n')
+    # Replace non-breaking spaces and other whitespace variants
+    text = re.sub(r'[\xa0\u2000-\u200b\u202f\u205f\u3000]', ' ', text)
+    # Fix common PDF ligatures
+    text = text.replace('\ufb01', 'fi').replace('\ufb02', 'fl')
+    text = text.replace('\ufb00', 'ff').replace('\ufb03', 'ffi').replace('\ufb04', 'ffl')
+    # Fix hyphenated line breaks (word- \n break -> word)
+    text = re.sub(r'-(\n)', '', text)
+    return text
+
 def split_paragraphs(text, min_words=4):
-    # First split on blank lines
+    text = clean_text(text)
+    # Split on blank lines
     raw = re.split(r'\n\s*\n', text.strip())
-    # Then split each chunk further on single newlines followed by capital letter or Roman numeral
+    # Split further on newlines followed by capital letter or Roman numeral
     chunks = []
     for block in raw:
         sub = re.split(r'\n(?=[A-Z0-9\u2160-\u2188])', block)
         chunks.extend(sub)
     paragraphs = []
     for p in chunks:
+        # Join lines within a chunk (soft wraps from PDF)
         cleaned = ' '.join(p.split())
         if not cleaned:
             continue
