@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 _analysis_lock = threading.Semaphore(1)
 _queue_lock = threading.Lock()
 _queued_count = 0
+_queued_emails = set()
 
 
 def is_real_paragraph(text):
@@ -237,10 +238,14 @@ def longdoc_score(request):
             _analysis_lock.release()
             with _queue_lock:
                 _queued_count = max(0, _queued_count - 1)
+                _queued_emails.discard(email)
 
     if email:
-        # Email analyses always accepted - queue them
+        # Reject duplicate queued emails
         with _queue_lock:
+            if email in _queued_emails:
+                return JsonResponse({'error': f'An analysis for {email} is already queued or running. You will receive the results by email when complete.'}, status=409)
+            _queued_emails.add(email)
             _queued_count += 1
         position = _queued_count
         t = threading.Thread(target=worker_with_lock, daemon=False)
