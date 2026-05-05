@@ -285,7 +285,8 @@ async function analyse(){
   buildHeader();
   try{
     const res=await fetch("{% url 'classifier:longdoc_score' %}",{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')},body:JSON.stringify({text,email,use_lr:useLR,use_lib:useLib,use_pop:usePop})});
-    if(res.status===503){const err=await res.json().catch(()=>({error:'Server busy'}));showError(err.error||'The server is busy. Please wait and try again.');document.getElementById('progressWrap').style.display='none';document.getElementById('btnAnalyze').disabled=false;return;}
+    if(res.status===503){const err=await res.json().catch(()=>({error:'Server busy'}));showError(err.error||'The server is busy. Please add your email so results are sent automatically.');document.getElementById('progressWrap').style.display='none';document.getElementById('btnAnalyze').disabled=false;return;}
+    if(res.status===202){const data=await res.json();document.getElementById('progressWrap').style.display='none';const el=document.getElementById('emailStatus');el.textContent=data.message;el.className='email-status sent';el.style.display='block';document.getElementById('btnAnalyze').disabled=false;return;}
     if(!res.ok){const err=await res.json().catch(()=>({error:res.statusText}));throw new Error(err.error||res.statusText);}
     document.getElementById('table-wrap').style.display='block';
     const reader=res.body.getReader(),decoder=new TextDecoder();let buffer='';

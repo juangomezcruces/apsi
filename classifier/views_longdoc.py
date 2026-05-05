@@ -11,8 +11,10 @@ from django.views.decorators.http import require_http_methods
 
 logger = logging.getLogger(__name__)
 
-# Global lock to prevent concurrent analyses from exhausting memory
+# Global lock - only 1 analysis at a time to prevent OOM
 _analysis_lock = threading.Semaphore(1)
+_queue_lock = threading.Lock()
+_queued_count = 0
 
 
 def is_real_paragraph(text):
@@ -224,18 +226,39 @@ def longdoc_score(request):
 
         result_queue.put(('done', {'email_sent': email_sent}))
 
-    if not _analysis_lock.acquire(blocking=False):
-        return JsonResponse({'error': 'The server is currently processing another document. Please wait a moment and try again.'}, status=503)
-    _analysis_lock.release()
+    global _queued_count
 
     def worker_with_lock():
+        global _queued_count
         _analysis_lock.acquire()
         try:
             worker()
         finally:
             _analysis_lock.release()
+            with _queue_lock:
+                _queued_count = max(0, _queued_count - 1)
 
-    threading.Thread(target=worker_with_lock, daemon=False).start()
+    if email:
+        # Email analyses always accepted - queue them
+        with _queue_lock:
+            _queued_count += 1
+        position = _queued_count
+        t = threading.Thread(target=worker_with_lock, daemon=False)
+        t.start()
+        if not _analysis_lock.acquire(blocking=False):
+            # Already running something - tell user their analysis is queued
+            return JsonResponse({
+                'queued': True,
+                'message': f'The server is busy. Your analysis is queued (position {position}) and will run automatically. You will receive the results by email at {email} when complete.'
+            }, status=202)
+        else:
+            _analysis_lock.release()
+    else:
+        # No-email analyses get 503 if busy
+        if not _analysis_lock.acquire(blocking=False):
+            return JsonResponse({'error': 'The server is currently processing another document. Please add your email address so results are sent to you automatically when the server is free.'}, status=503)
+        _analysis_lock.release()
+        threading.Thread(target=worker_with_lock, daemon=False).start()
 
     def stream():
         while True:
