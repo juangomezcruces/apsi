@@ -20,7 +20,4 @@ urlpatterns = [
     # Long document scorer
     path('longdoc/', views_longdoc.longdoc, name='longdoc'),
     path('longdoc/score/', views_longdoc.longdoc_score, name='longdoc_score'),
-
-
-    
 ]
