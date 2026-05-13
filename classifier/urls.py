@@ -16,7 +16,11 @@ urlpatterns = [
     path('faq/', views.faq, name='faq'),
     path('save-result/', views.save_result, name='save_result'),
     path('delete-result/<int:result_id>/', views.delete_result, name='delete_result'),
+    path('textsforanalysis/', views.textsforanalysis, name='textsforanalysis'),
     # Long document scorer
     path('longdoc/', views_longdoc.longdoc, name='longdoc'),
     path('longdoc/score/', views_longdoc.longdoc_score, name='longdoc_score'),
+
+
+    
 ]
