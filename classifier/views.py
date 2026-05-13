@@ -493,6 +493,11 @@ def privacy_notice(request):
 def imprint(request):
     return render(request, 'classifier/imprint.html')
 
+def textsforanalysis(request):
+    return render(request, 'texts_for_analysis.html')
+
+
+
 
 def aboutus(request):
     return render(request, 'classifier/aboutus.html')
