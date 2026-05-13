@@ -419,7 +419,18 @@
     margin: 1rem 0 0.5rem;
     border-bottom: 1px solid var(--border);
     padding-bottom: 0.3rem;
-  }</style>
+  }
+
+  /* ── ROLE LINE IN BANNER ── */
+  .party-card-header .role-line {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.75);
+    margin-top: 0.2rem;
+  }
+</style>
 </head>
 <body>
 <!-- ═══════════════════════════════════════════════
@@ -446,9 +457,7 @@
 <a href="#democracy-leaders">V. Democracy Values — Leaders</a>
 <a href="#pop-plu-leaders">VI. Populism vs Pluralism — Leaders</a>
 </nav>
-<!-- ═══════════════════════════════════════════════
-     OVERVIEW
-════════════════════════════════════════════════ -->
+
 <!-- ═══════════════════════════════════════════════
      SECTION I — ECONOMY IN MANIFESTOS
 ════════════════════════════════════════════════ -->
@@ -457,6 +466,7 @@
 <div class="eyebrow">Section I · Party Manifestos</div>
 <h2>Economic Policy</h2>
 </div>
+
 <!-- ── DEMOCRATS ── -->
 <div class="party-card" style="--party-color:var(--dem)">
 <div class="party-card-header">
@@ -469,17 +479,24 @@
 <div class="party-card-body">
 <div class="tag tag-source">SOURCE: democrats.org/wp-content/uploads/2024/08/FINAL-MASTER-PLATFORM.pdf</div>
 <div class="tag tag-date">Aug 19, 2024</div>
-<div class="doc-content collapsed"><div class="quote-block" style="--party-color:var(--dem)">
-<blockquote>"At the start of the Biden-Harris Administration, in the midst of the worst economic crisis in 100 years, experts feared a stagnating recovery and even worried about a new recession. But Democrats chose to put workers first, and instead of recession, America has seen remarkable strength and resilience. Our economy grew by 3.1 percent last year – the fastest rate of any major economy in the world.<br/><br/>We've added nearly 16 million jobs – not only recovering all the positions lost during Trump's botched handling of COVID, but also adding 6.3 million more than existed before the pandemic – surpassing pre-pandemic projections for the labor market."</blockquote></div>
+<div class="doc-content collapsed">
+<div class="quote-block" style="--party-color:var(--dem)">
+<blockquote>"At the start of the Biden-Harris Administration, in the midst of the worst economic crisis in 100 years, experts feared a stagnating recovery and even worried about a new recession. But Democrats chose to put workers first, and instead of recession, America has seen remarkable strength and resilience. Our economy grew by 3.1 percent last year – the fastest rate of any major economy in the world.<br/><br/>We've added nearly 16 million jobs – not only recovering all the positions lost during Trump's botched handling of COVID, but also adding 6.3 million more than existed before the pandemic – surpassing pre-pandemic projections for the labor market."</blockquote>
+</div>
 <div class="quote-block" style="--party-color:var(--dem)">
 <blockquote>"Democrats know that Wall Street didn't build America. The middle class built America – and unions built the middle class. President Biden and Vice President Harris are proud to lead the most pro-union Administration in history. Biden is the first President to walk a picket line, joining UAW workers on strike in Detroit before they won historic wage increases last year."</blockquote>
 </div>
 <div class="quote-block" style="--party-color:var(--dem)">
-<blockquote>"To any American with the ingenuity and drive to make a million bucks, President Biden says, great. Just pay your fair share in taxes. A hedge fund manager or CEO should never pay a lower tax rate than a teacher or firefighter. A company with billions of dollars in profits should not pay $0 in taxes.<br/><br/>Democrats have a different view. We don't believe we should add $5 trillion to the national debt to give more tax breaks skewed to the wealthy and big corporations. We're fighting to reward work, not wealth. Under President Biden's plan, no American earning less than $400,000 a year will pay one single penny more in federal taxes, period."</blockquote></div>
-<div class="quote-block" style="--party-color:var(--dem)">
-<blockquote>"Democrats will keep fighting to pass the Protecting the Right to Organize (PRO) Act, to give everyone the right to organize for better pay, benefits, and working conditions. We oppose state right-to-work laws, which drive down wages and leave workers unsafe. We also raised the minimum wage for federal contractors to $17.20 an hour, and will keep pushing Congress to increase it to at least $15 for all Americans."</blockquote></div>
-</div><div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div></div>
+<blockquote>"To any American with the ingenuity and drive to make a million bucks, President Biden says, great. Just pay your fair share in taxes. A hedge fund manager or CEO should never pay a lower tax rate than a teacher or firefighter. A company with billions of dollars in profits should not pay $0 in taxes.<br/><br/>Democrats have a different view. We don't believe we should add $5 trillion to the national debt to give more tax breaks skewed to the wealthy and big corporations. We're fighting to reward work, not wealth. Under President Biden's plan, no American earning less than $400,000 a year will pay one single penny more in federal taxes, period."</blockquote>
 </div>
+<div class="quote-block" style="--party-color:var(--dem)">
+<blockquote>"Democrats will keep fighting to pass the Protecting the Right to Organize (PRO) Act, to give everyone the right to organize for better pay, benefits, and working conditions. We oppose state right-to-work laws, which drive down wages and leave workers unsafe. We also raised the minimum wage for federal contractors to $17.20 an hour, and will keep pushing Congress to increase it to at least $15 for all Americans."</blockquote>
+</div>
+</div>
+<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div>
+</div>
+</div>
+
 <!-- ── REPUBLICANS ── -->
 <div class="party-card" style="--party-color:var(--rep); margin-top:1.5rem;">
 <div class="party-card-header">
@@ -492,17 +509,24 @@
 <div class="party-card-body">
 <div class="tag tag-source">SOURCE: presidency.ucsb.edu/documents/2024-republican-party-platform</div>
 <div class="tag tag-date">Jul 15, 2024</div>
-<div class="doc-content collapsed"><div class="quote-block" style="--party-color:var(--rep)">
-<blockquote>"The Republican Party will reverse the worst Inflation crisis in four decades that has crushed the middle class, devastated family budgets, and pushed the dream of homeownership out of reach for millions. We will defeat Inflation, tackle the cost-of-living crisis, improve fiscal sanity, restore price stability, and quickly bring down prices.<br/><br/><strong>Unleash American Energy:</strong> Under President Trump, the U.S. became the Number One Producer of Oil and Natural Gas in the World — and we will soon be again by lifting restrictions on American Energy Production and terminating the Socialist Green New Deal."</blockquote></div>
+<div class="doc-content collapsed">
 <div class="quote-block" style="--party-color:var(--rep)">
-<blockquote>"Republicans will make permanent the provisions of the Trump Tax Cuts and Jobs Act that doubled the standard deduction, expanded the Child Tax Credit, and spurred Economic Growth for all Americans. We will eliminate Taxes on Tips for millions of Restaurant and Hospitality Workers, and pursue additional Tax Cuts.<br/><br/><strong>Fair and Reciprocal Trade:</strong> Republicans will support baseline Tariffs on Foreign-made goods, pass the Trump Reciprocal Trade Act, and respond to unfair Trading practices. As Tariffs on Foreign Producers go up, Taxes on American Workers, Families, and Businesses can come down."</blockquote></div>
+<blockquote>"The Republican Party will reverse the worst Inflation crisis in four decades that has crushed the middle class, devastated family budgets, and pushed the dream of homeownership out of reach for millions. We will defeat Inflation, tackle the cost-of-living crisis, improve fiscal sanity, restore price stability, and quickly bring down prices.<br/><br/><strong>Unleash American Energy:</strong> Under President Trump, the U.S. became the Number One Producer of Oil and Natural Gas in the World — and we will soon be again by lifting restrictions on American Energy Production and terminating the Socialist Green New Deal."</blockquote>
+</div>
+<div class="quote-block" style="--party-color:var(--rep)">
+<blockquote>"Republicans will make permanent the provisions of the Trump Tax Cuts and Jobs Act that doubled the standard deduction, expanded the Child Tax Credit, and spurred Economic Growth for all Americans. We will eliminate Taxes on Tips for millions of Restaurant and Hospitality Workers, and pursue additional Tax Cuts.<br/><br/><strong>Fair and Reciprocal Trade:</strong> Republicans will support baseline Tariffs on Foreign-made goods, pass the Trump Reciprocal Trade Act, and respond to unfair Trading practices. As Tariffs on Foreign Producers go up, Taxes on American Workers, Families, and Businesses can come down."</blockquote>
+</div>
 <div class="quote-block" style="--party-color:var(--rep)">
 <blockquote>"Republicans will end Democrats' unlawful and unAmerican Crypto crackdown and oppose the creation of a Central Bank Digital Currency. We will defend the right to mine Bitcoin, and ensure every American has the right to self-custody of their Digital Assets, and transact free from Government Surveillance and Control."</blockquote>
 </div>
 <div class="quote-block" style="--party-color:var(--rep)">
-<blockquote>"President Trump has made absolutely clear that he will not cut one penny from Medicare or Social Security. American Citizens work hard their whole lives, contributing to Social Security and Medicare. These programs are promises to our Seniors, ensuring they can live their golden years with dignity."</blockquote></div>
-</div><div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div></div>
+<blockquote>"President Trump has made absolutely clear that he will not cut one penny from Medicare or Social Security. American Citizens work hard their whole lives, contributing to Social Security and Medicare. These programs are promises to our Seniors, ensuring they can live their golden years with dignity."</blockquote>
 </div>
+</div>
+<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div>
+</div>
+</div>
+
 <!-- ── CDU ── -->
 <div class="party-card" style="--party-color:var(--cdu); margin-top:1.5rem;">
 <div class="party-card-header">
@@ -515,14 +539,21 @@
 <div class="party-card-body">
 <div class="tag tag-source">SOURCE: cdu.de/app/uploads/2025/01/wahlprogramm-cdu-csu-kurzfassung-englisch.pdf</div>
 <div class="tag tag-date">Dec 17, 2024</div>
-<div class="doc-content collapsed"><div class="quote-block" style="--party-color:var(--cdu)">
-<blockquote>"Germany needs political leadership that puts working people first – an agenda for the hardworking. We need comprehensive tax relief. Hard work must pay off again.<br/><br/>• ease the tax burden on low and middle-income earners in particular. To do this, we will adjust the income tax rate. Our goal for social security contributions: we want to reduce the total contributions paid to 40 per cent again.<br/>• exempt overtime pay for those in full-time employment from tax. Those who voluntarily work extra hours should take home more of their gross pay."</blockquote></div>
+<div class="doc-content collapsed">
 <div class="quote-block" style="--party-color:var(--cdu)">
-<blockquote>"There is more to life than the economy, but without the economy, life is impossible. That is why we are committed to growth, investment, freedom for our companies and good jobs.<br/><br/>• cut corporate tax rates to a maximum of 25 per cent, abolish the solidarity surcharge and improve depreciation and loss offsetting.<br/>• eliminate unnecessary red tape by introducing laws to simplify and cut through bureaucracy, reduce reporting requirements and duplicate structures.<br/>• remove restrictions: we will abolish the German Supply Chain Act."</blockquote></div>
-<div class="quote-block" style="--party-color:var(--cdu)">
-<blockquote>"We will put an end to the ideologically driven policies of the previous government.<br/><br/>• lower the electricity tax and grid fees. We need to quickly and significantly reduce the cost of electricity for everyone.<br/>• keep nuclear energy on the table. That's why we will prioritise research into fourth- and fifth-generation nuclear technology, small modular reactors and fusion power plants.<br/>• abolish the previous government's heating law. The bureaucratic meddling with people's heating bills must end."</blockquote></div>
-</div><div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div></div>
+<blockquote>"Germany needs political leadership that puts working people first – an agenda for the hardworking. We need comprehensive tax relief. Hard work must pay off again.<br/><br/>• ease the tax burden on low and middle-income earners in particular. To do this, we will adjust the income tax rate. Our goal for social security contributions: we want to reduce the total contributions paid to 40 per cent again.<br/>• exempt overtime pay for those in full-time employment from tax. Those who voluntarily work extra hours should take home more of their gross pay."</blockquote>
 </div>
+<div class="quote-block" style="--party-color:var(--cdu)">
+<blockquote>"There is more to life than the economy, but without the economy, life is impossible. That is why we are committed to growth, investment, freedom for our companies and good jobs.<br/><br/>• cut corporate tax rates to a maximum of 25 per cent, abolish the solidarity surcharge and improve depreciation and loss offsetting.<br/>• eliminate unnecessary red tape by introducing laws to simplify and cut through bureaucracy, reduce reporting requirements and duplicate structures.<br/>• remove restrictions: we will abolish the German Supply Chain Act."</blockquote>
+</div>
+<div class="quote-block" style="--party-color:var(--cdu)">
+<blockquote>"We will put an end to the ideologically driven policies of the previous government.<br/><br/>• lower the electricity tax and grid fees. We need to quickly and significantly reduce the cost of electricity for everyone.<br/>• keep nuclear energy on the table. That's why we will prioritise research into fourth- and fifth-generation nuclear technology, small modular reactors and fusion power plants.<br/>• abolish the previous government's heating law. The bureaucratic meddling with people's heating bills must end."</blockquote>
+</div>
+</div>
+<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div>
+</div>
+</div>
+
 <!-- ── SPD ── -->
 <div class="party-card" style="--party-color:var(--spd); margin-top:1.5rem;">
 <div class="party-card-header">
@@ -537,16 +568,19 @@
 <div class="tag tag-date">Jan 11, 2025</div>
 <div class="doc-content collapsed">
 <div class="quote-block" style="--party-color:var(--spd)">
-<blockquote>„Wir stehen für eine Wirtschaftspolitik, die Wachstum, soziale Gerechtigkeit und Nachhaltigkeit miteinander verbindet. Wir gestalten einen Aufschwung, der bei allen Menschen ankommt. Däfür investieren wir in die Zukunft – in Bildung, Innovation, Digitalisierung und Klimaschutz. Wir sorgen dafür, dass unsere Kinder auch in 30 Jahren noch Straßen, Brücken und Schienen nutzen können, und modernisieren unsere Infrastrukturen. Diese Investitionen sind einerseits generationengerecht und sie sind andererseits die Grundbedingung dafür, dass Unternehmen in Deutschland wettbewerbsfähig bleiben können.“</blockquote>
+<blockquote>„Wir stehen für eine Wirtschaftspolitik, die Wachstum, soziale Gerechtigkeit und Nachhaltigkeit miteinander verbindet. Wir gestalten einen Aufschwung, der bei allen Menschen ankommt. Däfür investieren wir in die Zukunft – in Bildung, Innovation, Digitalisierung und Klimaschutz. Wir sorgen dafür, dass unsere Kinder auch in 30 Jahren noch Straßen, Brücken und Schienen nutzen können, und modernisieren unsere Infrastrukturen. Diese Investitionen sind einerseits generationengerecht und sie sind andererseits die Grundbedingung dafür, dass Unternehmen in Deutschland wettbewerbsfähig bleiben können."</blockquote>
 </div>
 <div class="quote-block" style="--party-color:var(--spd)">
-<blockquote>„Wir wollen Energiepreise senken und zentrale Erfolgsbranchen strategisch fördern. Wir brauchen bezahlbare Energie, sonst geht unseren Unternehmen in Deutschland die Energie aus. Wir investieren in eine sichere und bezahlbare Energieversorgung durch Erneuerbare Energien. Wir wollen international wettbewerbsfähige Energiepreise. Wir geben Planungs- und Investitionssicherheit bei den Energiekosten durch stabile Preise, von den Netzentgelten über die Stromsteuer bis zum CO₂-Preis.“</blockquote>
+<blockquote>„Wir wollen Energiepreise senken und zentrale Erfolgsbranchen strategisch fördern. Wir brauchen bezahlbare Energie, sonst geht unseren Unternehmen in Deutschland die Energie aus. Wir investieren in eine sichere und bezahlbare Energieversorgung durch Erneuerbare Energien. Wir wollen international wettbewerbsfähige Energiepreise. Wir geben Planungs- und Investitionssicherheit bei den Energiekosten durch stabile Preise, von den Netzentgelten über die Stromsteuer bis zum CO₂-Preis."</blockquote>
 </div>
 <div class="quote-block" style="--party-color:var(--spd)">
 <blockquote>"Wir sorgen dafür, dass das Leben bezahlbar bleibt – mit einem höheren Mindestlohn, Entlastungen für Gering- und Normalverdiener bei der Einkommenssteuer, weniger Mehrwertsteuer auf Lebensmittel sowie wirksamen Regeln für bezahlbares Wohnen."</blockquote>
 </div>
-</div><div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div></div>
 </div>
+<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div>
+</div>
+</div>
+
 <!-- ── DIE LINKE ── -->
 <div class="party-card" style="--party-color:var(--linke); margin-top:1.5rem;">
 <div class="party-card-header">
@@ -560,14 +594,21 @@
 <div class="tag tag-source">SOURCE: die-linke.de/fileadmin/user_upload/Wahlprogramm_Langfassung_Linke-BTW25_01.pdf</div>
 <div class="tag tag-source">ENGLISH: die-linke.de/fileadmin/user_upload/Kurzwahlprogramm_Linke-BTW25_englisch_A4.pdf</div>
 <div class="tag tag-date">Jan 18, 2025</div>
-<div class="doc-content collapsed"><div class="quote-block" style="--party-color:var(--linke)">
-<blockquote>"There is less and less affordable housing: in many cities, rents have doubled in the last 10 years. The party Die Linke wants the state itself to provide more affordable housing:<br/>▪ We want a nationwide rent cap: rents should not be allowed to be increased for six years. After that, there should be hard upper limits for rent increases.<br/>▪ We want to promote public and co-operative housing construction."</blockquote></div>
+<div class="doc-content collapsed">
 <div class="quote-block" style="--party-color:var(--linke)">
-<blockquote>"▪ We want to reform the income tax: Anyone earning less than 7,000 euros gross per month will pay less tax with our rate (as a single person, tax class I).<br/>▪ The top tax rate should rise to 53 per cent, with the superrich paying 75 per cent wealth tax.<br/>▪ Re-introduction of wealth tax for millionaires and billionaires."</blockquote></div>
-<div class="quote-block" style="--party-color:var(--linke)">
-<blockquote>"▪ The minimum wage must be increased to 15 euros.<br/>▪ We demand a sanction-free minimum income and a solidarity-based minimum pension of 1,400 euros per month. No one should fall below the minimum subsistence level.<br/>▪ We demand free lunches in kindergartens and schools. No child should have to learn with an empty stomach."</blockquote></div>
-</div><div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div></div>
+<blockquote>"There is less and less affordable housing: in many cities, rents have doubled in the last 10 years. The party Die Linke wants the state itself to provide more affordable housing:<br/>▪ We want a nationwide rent cap: rents should not be allowed to be increased for six years. After that, there should be hard upper limits for rent increases.<br/>▪ We want to promote public and co-operative housing construction."</blockquote>
 </div>
+<div class="quote-block" style="--party-color:var(--linke)">
+<blockquote>"▪ We want to reform the income tax: Anyone earning less than 7,000 euros gross per month will pay less tax with our rate (as a single person, tax class I).<br/>▪ The top tax rate should rise to 53 per cent, with the superrich paying 75 per cent wealth tax.<br/>▪ Re-introduction of wealth tax for millionaires and billionaires."</blockquote>
+</div>
+<div class="quote-block" style="--party-color:var(--linke)">
+<blockquote>"▪ The minimum wage must be increased to 15 euros.<br/>▪ We demand a sanction-free minimum income and a solidarity-based minimum pension of 1,400 euros per month. No one should fall below the minimum subsistence level.<br/>▪ We demand free lunches in kindergartens and schools. No child should have to learn with an empty stomach."</blockquote>
+</div>
+</div>
+<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div>
+</div>
+</div>
+
 <!-- ── AFD ── -->
 <div class="party-card" style="--party-color:var(--afd); margin-top:1.5rem;">
 <div class="party-card-header">
@@ -582,7 +623,7 @@
 <div class="tag tag-date">Jan 11–12, 2025</div>
 <div class="doc-content collapsed">
 <div class="quote-block" style="--party-color:var(--afd)">
-<blockquote>„Wir stehen fest zu den Prinzipien der Sozialen Marktwirtschaft, die seit Jahrzehnten Wohlstand und sozialen Frieden in unserem Land sichern. Wir wollen in einer Zeit globaler Herausforderungen die Grundwerte unserer Wirtschaftsordnung bewahren und so weiterentwickeln, dass wir eine freiheitliche und erfolgreiche Gesellschaft gewährleisten, in der die Bürger ihr Leben eigenverantwortlich und selbstbestimmt führen können. Ein selbstgewähltes Leben auf Kosten der Allgemeinheit wird nicht gefördert. Viele Regelungen der EU schwächen Wirtschaft und Wettbewerb, statt sie zu stärken. Beispiele dafür sind der ‚Green Deal' und der Einfluss auf Energiefragen.“</blockquote>
+<blockquote>„Wir stehen fest zu den Prinzipien der Sozialen Marktwirtschaft, die seit Jahrzehnten Wohlstand und sozialen Frieden in unserem Land sichern. Wir wollen in einer Zeit globaler Herausforderungen die Grundwerte unserer Wirtschaftsordnung bewahren und so weiterentwickeln, dass wir eine freiheitliche und erfolgreiche Gesellschaft gewährleisten, in der die Bürger ihr Leben eigenverantwortlich und selbstbestimmt führen können. Ein selbstgewähltes Leben auf Kosten der Allgemeinheit wird nicht gefördert. Viele Regelungen der EU schwächen Wirtschaft und Wettbewerb, statt sie zu stärken. Beispiele dafür sind der ‚Green Deal' und der Einfluss auf Energiefragen."</blockquote>
 </div>
 <div class="quote-block" style="--party-color:var(--afd)">
 <blockquote>Bundeshaushalt konsolidieren, Steuerverschwendung beenden, Schuldenbremse einhalten · Steuerrecht stark vereinfachen · Absenkung der Mehrwertsteuer für die Gastronomie auf 7 % · Abschaffung aller CO₂-Abgaben · Arbeit muss sich lohnen – Niedriglohnsektor und Mittelstand entlasten · Grundsteuer abschaffen und Steuerausfälle kompensieren · Familiensplitting einführen · Kein eigenes Besteuerungsrecht der Europäischen Union · Vermögen- und Erbschaftsteuer abschaffen · Erhöhung Sparerpauschbetrag</blockquote>
@@ -590,10 +631,14 @@
 <div class="quote-block" style="--party-color:var(--afd)">
 <blockquote>Deutschland muss aus dem Euro-System austreten · Absicherung gegen die Eurokrise, Geldsystem reformieren und Staatsgold zurückholen · Beendigung der planwirtschaftlichen Politik der EU · Keine Schuldenaufnahme durch die EU: Kredite nur auf nationaler Ebene · Keine deutsche Haftung für ausländische Banken · Bargeld ist Freiheit und Schutz vor Enteignung und Totalüberwachung · Recht auf analoges Leben: ohne Vermögensregister und Digitalen Euro</blockquote>
 </div>
-</div><div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div></div>
+</div>
+<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div>
 </div>
 </div>
+</div>
+
 <div class="divider"></div>
+
 <!-- ═══════════════════════════════════════════════
      SECTION II — DEMOCRACY IN MANIFESTOS
 ════════════════════════════════════════════════ -->
@@ -602,6 +647,7 @@
 <div class="eyebrow">Section II · Party Manifestos</div>
 <h2>Democratic Values</h2>
 </div>
+
 <!-- DEMOCRATS -->
 <div class="party-card" style="--party-color:var(--dem)">
 <div class="party-card-header">
@@ -609,16 +655,24 @@
 <div><h3>Democratic Party — Chapter Six: Strengthening Democracy</h3></div>
 </div>
 <div class="party-card-body">
-<div class="doc-content collapsed"><div class="quote-block" style="--party-color:var(--dem)">
-<blockquote>"Our nation is at an inflection point. What kind of America will we be? A land of more freedom, or less freedom? More rights or fewer?<br/><br/>They are eroding our democracy with lies and threats, have refused to denounce political violence, and are making it harder to vote. And given the chance, they'll keep stacking our courts, locking in their extreme agenda for decades. We cannot let that happen.<br/><br/>History has shown that nothing about democracy is guaranteed. Every generation has to protect it, preserve it, choose it. We must stand together to choose what we want America to be."</blockquote></div>
+<div class="doc-content collapsed">
 <div class="quote-block" style="--party-color:var(--dem)">
-<blockquote>"Democrats will fight back. We will restore balance to our courts by passing the Supreme Court ethics reform bill to establish binding ethics rules, and by passing legislation to end lifetime appointments to the Supreme Court. We will fight for judges who will uphold the rule of law, protect our constitutional rights, and administer justice fairly and impartially to all people, regardless of who they are."</blockquote></div>
-<div class="quote-block" style="--party-color:var(--dem)">
-<blockquote>"Democrats will fight to pass the John Lewis Voting Rights Advancement Act to restore and strengthen the Voting Rights Act and prevent discriminatory voting laws. We will pass the Freedom to Vote Act to set national standards for voter registration and voting access – including automatic voter registration, same-day registration, and at least 15 consecutive days of early voting for federal elections.<br/><br/>January 6th, 2021 was one of the darkest days in American history. Trump and his allies tried to overturn the will of the American people. Trump tried to stay in power by violating the peaceful transfer of power that has been the bedrock of our democracy for more than 200 years."</blockquote></div>
-<div class="quote-block" style="--party-color:var(--dem)">
-<blockquote>"Democrats believe in the freedom of the press. A free press is the cornerstone of our democracy. It holds the powerful accountable. Democrats will protect press freedom and support a free, independent, and diverse press."</blockquote></div>
-</div><div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div></div>
+<blockquote>"Our nation is at an inflection point. What kind of America will we be? A land of more freedom, or less freedom? More rights or fewer?<br/><br/>They are eroding our democracy with lies and threats, have refused to denounce political violence, and are making it harder to vote. And given the chance, they'll keep stacking our courts, locking in their extreme agenda for decades. We cannot let that happen.<br/><br/>History has shown that nothing about democracy is guaranteed. Every generation has to protect it, preserve it, choose it. We must stand together to choose what we want America to be."</blockquote>
 </div>
+<div class="quote-block" style="--party-color:var(--dem)">
+<blockquote>"Democrats will fight back. We will restore balance to our courts by passing the Supreme Court ethics reform bill to establish binding ethics rules, and by passing legislation to end lifetime appointments to the Supreme Court. We will fight for judges who will uphold the rule of law, protect our constitutional rights, and administer justice fairly and impartially to all people, regardless of who they are."</blockquote>
+</div>
+<div class="quote-block" style="--party-color:var(--dem)">
+<blockquote>"Democrats will fight to pass the John Lewis Voting Rights Advancement Act to restore and strengthen the Voting Rights Act and prevent discriminatory voting laws. We will pass the Freedom to Vote Act to set national standards for voter registration and voting access – including automatic voter registration, same-day registration, and at least 15 consecutive days of early voting for federal elections.<br/><br/>January 6th, 2021 was one of the darkest days in American history. Trump and his allies tried to overturn the will of the American people. Trump tried to stay in power by violating the peaceful transfer of power that has been the bedrock of our democracy for more than 200 years."</blockquote>
+</div>
+<div class="quote-block" style="--party-color:var(--dem)">
+<blockquote>"Democrats believe in the freedom of the press. A free press is the cornerstone of our democracy. It holds the powerful accountable. Democrats will protect press freedom and support a free, independent, and diverse press."</blockquote>
+</div>
+</div>
+<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div>
+</div>
+</div>
+
 <!-- REPUBLICANS -->
 <div class="party-card" style="--party-color:var(--rep); margin-top:1.5rem;">
 <div class="party-card-header">
@@ -626,12 +680,18 @@
 <div><h3>Republican Party — Chapter Nine: Government of, By, and For the People</h3></div>
 </div>
 <div class="party-card-body">
-<div class="doc-content collapsed"><div class="quote-block" style="--party-color:var(--rep)">
-<blockquote>"7. DEFEND OUR CONSTITUTION, OUR BILL OF RIGHTS, AND OUR FUNDAMENTAL FREEDOMS, INCLUDING FREEDOM OF SPEECH, FREEDOM OF RELIGION, AND THE RIGHT TO KEEP AND BEAR ARMS<br/><br/>9. END THE WEAPONIZATION OF GOVERNMENT AGAINST THE AMERICAN PEOPLE<br/><br/>19. SECURE OUR ELECTIONS, INCLUDING SAME DAY VOTING, VOTER IDENTIFICATION, PAPER BALLOTS, AND PROOF OF CITIZENSHIP"</blockquote></div>
+<div class="doc-content collapsed">
 <div class="quote-block" style="--party-color:var(--rep)">
-<blockquote>"Republicans will offer a clear, precise, and USA-oriented plan to stop the Radical Left Democrats' Weaponization of Government and its Assault on American Liberty. We will restore Government of, by, and for the People.<br/><br/>Republicans will defend Free Speech, and stop the Democrats' illegal and unconstitutional efforts to silence political speech. We will ban the Federal Government from colluding with anyone to censor lawful speech.<br/><br/>Common Sense tells us clearly that the Republican Party must stand for Equal Treatment for All. Recent Democrat-led political persecutions threaten to destroy 250 years of American Principle and Practice and must be stopped."</blockquote></div>
-</div><div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div></div>
+<blockquote>"7. DEFEND OUR CONSTITUTION, OUR BILL OF RIGHTS, AND OUR FUNDAMENTAL FREEDOMS, INCLUDING FREEDOM OF SPEECH, FREEDOM OF RELIGION, AND THE RIGHT TO KEEP AND BEAR ARMS<br/><br/>9. END THE WEAPONIZATION OF GOVERNMENT AGAINST THE AMERICAN PEOPLE<br/><br/>19. SECURE OUR ELECTIONS, INCLUDING SAME DAY VOTING, VOTER IDENTIFICATION, PAPER BALLOTS, AND PROOF OF CITIZENSHIP"</blockquote>
 </div>
+<div class="quote-block" style="--party-color:var(--rep)">
+<blockquote>"Republicans will offer a clear, precise, and USA-oriented plan to stop the Radical Left Democrats' Weaponization of Government and its Assault on American Liberty. We will restore Government of, by, and for the People.<br/><br/>Republicans will defend Free Speech, and stop the Democrats' illegal and unconstitutional efforts to silence political speech. We will ban the Federal Government from colluding with anyone to censor lawful speech.<br/><br/>Common Sense tells us clearly that the Republican Party must stand for Equal Treatment for All. Recent Democrat-led political persecutions threaten to destroy 250 years of American Principle and Practice and must be stopped."</blockquote>
+</div>
+</div>
+<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div>
+</div>
+</div>
+
 <!-- CDU -->
 <div class="party-card" style="--party-color:var(--cdu); margin-top:1.5rem;">
 <div class="party-card-header">
@@ -639,14 +699,21 @@
 <div><h3>CDU/CSU — Security, Rule of Law &amp; Europe</h3></div>
 </div>
 <div class="party-card-body">
-<div class="doc-content collapsed"><div class="quote-block" style="--party-color:var(--cdu)">
-<blockquote>"We will counter the increasing extremist threats with a 360-degree approach. We will fight every form of extremism, violence, and terror with full force.<br/><br/>• show right-wing extremists the red card and fight them with full force.<br/>• take an equally consistent approach to left-wing extremism. We will not allow open calls for violence against our state or attacks on the property of third parties or critical infrastructure.<br/>• consistently punish the display of anti-constitutional symbols as well as anti-constitutional and anti-Semitic statements. The rule of law must be enforced."</blockquote></div>
+<div class="doc-content collapsed">
 <div class="quote-block" style="--party-color:var(--cdu)">
-<blockquote>"• uphold the debt brake enshrined in the German Constitution (Grundgesetz). Today's debts are tomorrow's tax increases.<br/>• speed up planning and approval procedures, especially for construction, transport and digital infrastructure."</blockquote></div>
-<div class="quote-block" style="--party-color:var(--cdu)">
-<blockquote>"• stand for a Europe that is developing in the right direction – less bureaucracy and more competitiveness.<br/>• strengthen the transatlantic partnership as the foundation of the Western world, especially in turbulent times.<br/>• support Ukraine through diplomatic, financial, and humanitarian means and with arms deliveries. This way, we will also defend our freedom. We stand by Israel in its legitimate fight against terror."</blockquote></div>
-</div><div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div></div>
+<blockquote>"We will counter the increasing extremist threats with a 360-degree approach. We will fight every form of extremism, violence, and terror with full force.<br/><br/>• show right-wing extremists the red card and fight them with full force.<br/>• take an equally consistent approach to left-wing extremism. We will not allow open calls for violence against our state or attacks on the property of third parties or critical infrastructure.<br/>• consistently punish the display of anti-constitutional symbols as well as anti-constitutional and anti-Semitic statements. The rule of law must be enforced."</blockquote>
 </div>
+<div class="quote-block" style="--party-color:var(--cdu)">
+<blockquote>"• uphold the debt brake enshrined in the German Constitution (Grundgesetz). Today's debts are tomorrow's tax increases.<br/>• speed up planning and approval procedures, especially for construction, transport and digital infrastructure."</blockquote>
+</div>
+<div class="quote-block" style="--party-color:var(--cdu)">
+<blockquote>"• stand for a Europe that is developing in the right direction – less bureaucracy and more competitiveness.<br/>• strengthen the transatlantic partnership as the foundation of the Western world, especially in turbulent times.<br/>• support Ukraine through diplomatic, financial, and humanitarian means and with arms deliveries. This way, we will also defend our freedom. We stand by Israel in its legitimate fight against terror."</blockquote>
+</div>
+</div>
+<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div>
+</div>
+</div>
+
 <!-- SPD -->
 <div class="party-card" style="--party-color:var(--spd); margin-top:1.5rem;">
 <div class="party-card-header">
@@ -656,16 +723,19 @@
 <div class="party-card-body">
 <div class="doc-content collapsed">
 <div class="quote-block" style="--party-color:var(--spd)">
-<blockquote>„Demokratie ist eine hohe zivilisatorische Errungenschaft. Sie muss gelernt, gelebt und verteidigt werden. Es ist die Zivilgesellschaft, auf die es hier maßgeblich ankommt. Wir bekämpfen Fake News, Hass und Hetze und treten entschlossen gegen jede Form von Extremismus ein. Im ganzen Land und vor allem in Ostdeutschland leisten zahlreiche engagierte Vereine und zivilgesellschaftliche Akteure vor Ort wertvolle und mutige Arbeit. Gemeinsam mit einer starken Gemeinschaft der Demokratinnen und Demokraten wollen wir Freiheit, Gerechtigkeit und Solidarität gegen alte und neue Feinde der Demokratie verteidigen.“</blockquote>
+<blockquote>„Demokratie ist eine hohe zivilisatorische Errungenschaft. Sie muss gelernt, gelebt und verteidigt werden. Es ist die Zivilgesellschaft, auf die es hier maßgeblich ankommt. Wir bekämpfen Fake News, Hass und Hetze und treten entschlossen gegen jede Form von Extremismus ein. Im ganzen Land und vor allem in Ostdeutschland leisten zahlreiche engagierte Vereine und zivilgesellschaftliche Akteure vor Ort wertvolle und mutige Arbeit. Gemeinsam mit einer starken Gemeinschaft der Demokratinnen und Demokraten wollen wir Freiheit, Gerechtigkeit und Solidarität gegen alte und neue Feinde der Demokratie verteidigen."</blockquote>
 </div>
 <div class="quote-block" style="--party-color:var(--spd)">
-<blockquote>„Wir wollen Bürgerräte als festen Bestandteil unserer Demokratie etablieren. Geloste Bürgerräte beraten zu schwierigen Themen und stärken das Vertrauen in die Demokratie. Sie machen Demokratie erlebbar, indem sie Menschen mit unterschiedlichen Positionen zum Austausch einladen, zur Kompromissfindung ermutigen und erreichen, dass der Interessenausgleich als Kern der Demokratie verstanden wird. Ihre Empfehlungen fließen in die parlamentarischen Beratungen ein, während die Entscheidungen bei den gewählten Institutionen bleiben.“</blockquote>
+<blockquote>„Wir wollen Bürgerräte als festen Bestandteil unserer Demokratie etablieren. Geloste Bürgerräte beraten zu schwierigen Themen und stärken das Vertrauen in die Demokratie. Sie machen Demokratie erlebbar, indem sie Menschen mit unterschiedlichen Positionen zum Austausch einladen, zur Kompromissfindung ermutigen und erreichen, dass der Interessenausgleich als Kern der Demokratie verstanden wird. Ihre Empfehlungen fließen in die parlamentarischen Beratungen ein, während die Entscheidungen bei den gewählten Institutionen bleiben."</blockquote>
 </div>
 <div class="quote-block" style="--party-color:var(--spd)">
-<blockquote>„Verfassungsfeinde haben im öffentlichen Dienst keinen Platz. Mit dem bereits reformierten Bundesdisziplinarrecht stellen wir sicher, dass Verfassungsfeinde nicht mehr im Staatsdienst verbleiben und das Vertrauen in staatliche Institutionen zerstören. Wir stärken den Kampf gegen ausländische Desinformationskampagnen weiter und legen Einflussversuche staatlicher Akteure auf die demokratische Meinungsbildung in Deutschland offen.“</blockquote>
+<blockquote>„Verfassungsfeinde haben im öffentlichen Dienst keinen Platz. Mit dem bereits reformierten Bundesdisziplinarrecht stellen wir sicher, dass Verfassungsfeinde nicht mehr im Staatsdienst verbleiben und das Vertrauen in staatliche Institutionen zerstören. Wir stärken den Kampf gegen ausländische Desinformationskampagnen weiter und legen Einflussversuche staatlicher Akteure auf die demokratische Meinungsbildung in Deutschland offen."</blockquote>
 </div>
-</div><div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div></div>
 </div>
+<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div>
+</div>
+</div>
+
 <!-- DIE LINKE -->
 <div class="party-card" style="--party-color:var(--linke); margin-top:1.5rem;">
 <div class="party-card-header">
@@ -673,13 +743,18 @@
 <div><h3>Die Linke — Chapters 15–16: Democracy &amp; Stopping the Extreme Right</h3></div>
 </div>
 <div class="party-card-body">
-<div class="doc-content collapsed"><div class="quote-block" style="--party-color:var(--linke)">
-<blockquote>"We want a democracy in which all people are heard and can co-decide — not just the rich and powerful. That is why we advocate for more direct democracy, more transparency and a strong civil society.<br/><br/>Freedom must not be played off against security. Security measures must protect effectively, but not subject people to blanket suspicion, surveillance and monitoring without cause.<br/><br/>We reject the expansion of state surveillance. Mass surveillance, biometric surveillance in public spaces and the use of predictive policing are incompatible with a free society."</blockquote></div>
+<div class="doc-content collapsed">
 <div class="quote-block" style="--party-color:var(--linke)">
-<blockquote>„Die extreme Rechte ist eine der größten Gefahren für unsere Demokratie und für alle, die nicht in ihr Weltbild passen. Wir stellen uns ihr entschlossen entgegen. Wir wollen die gesellschaftlichen und wirtschaftlichen Ursachen des Rechtsextremismus bekämpfen. Denn er gedeiht dort, wo soziale Unsicherheit, Perspektivlosigkeit und Enttäuschung herrschen. Wir sind für ein Verbot der AfD, wenn das Bundesverfassungsgericht festgestellt hat, dass sie die freiheitlich-demokratische Grundordnung bekämpft. Wir wollen Antifaschismus gesellschaftlich stärken und diejenigen schützen, die sich gegen Rechtsextremismus engagieren.“</blockquote>
+<blockquote>"We want a democracy in which all people are heard and can co-decide — not just the rich and powerful. That is why we advocate for more direct democracy, more transparency and a strong civil society.<br/><br/>Freedom must not be played off against security. Security measures must protect effectively, but not subject people to blanket suspicion, surveillance and monitoring without cause.<br/><br/>We reject the expansion of state surveillance. Mass surveillance, biometric surveillance in public spaces and the use of predictive policing are incompatible with a free society."</blockquote>
 </div>
-</div><div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div></div>
+<div class="quote-block" style="--party-color:var(--linke)">
+<blockquote>„Die extreme Rechte ist eine der größten Gefahren für unsere Demokratie und für alle, die nicht in ihr Weltbild passen. Wir stellen uns ihr entschlossen entgegen. Wir wollen die gesellschaftlichen und wirtschaftlichen Ursachen des Rechtsextremismus bekämpfen. Denn er gedeiht dort, wo soziale Unsicherheit, Perspektivlosigkeit und Enttäuschung herrschen. Wir sind für ein Verbot der AfD, wenn das Bundesverfassungsgericht festgestellt hat, dass sie die freiheitlich-demokratische Grundordnung bekämpft. Wir wollen Antifaschismus gesellschaftlich stärken und diejenigen schützen, die sich gegen Rechtsextremismus engagieren."</blockquote>
 </div>
+</div>
+<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div>
+</div>
+</div>
+
 <!-- AFD -->
 <div class="party-card" style="--party-color:var(--afd); margin-top:1.5rem;">
 <div class="party-card-header">
@@ -689,18 +764,22 @@
 <div class="party-card-body">
 <div class="doc-content collapsed">
 <div class="quote-block" style="--party-color:var(--afd)">
-<blockquote>„Die ‚uneingeschränkte Volkssouveränität' habe der Schweiz ‚seit fast 200 Jahren (…) Wohlstand, Frieden und Freiheit' gesichert. Erfahrungsgemäß entscheiden Bürger in Schicksalsfragen der Nation weitsichtiger, friedfertiger und gemeinwohlorientierter als Berufspolitiker. So soll die Bevölkerung die Möglichkeit haben, Gesetzesinitiativen einzubringen und per Volksabstimmung zu beschließen. Das Parlament dürfe keine völkerrechtlichen Verträge oder Grundgesetzänderungen mehr ohne vorherige Volksabstimmung beschließen.“</blockquote>
+<blockquote>„Die ‚uneingeschränkte Volkssouveränität' habe der Schweiz ‚seit fast 200 Jahren (…) Wohlstand, Frieden und Freiheit' gesichert. Erfahrungsgemäß entscheiden Bürger in Schicksalsfragen der Nation weitsichtiger, friedfertiger und gemeinwohlorientierter als Berufspolitiker. So soll die Bevölkerung die Möglichkeit haben, Gesetzesinitiativen einzubringen und per Volksabstimmung zu beschließen. Das Parlament dürfe keine völkerrechtlichen Verträge oder Grundgesetzänderungen mehr ohne vorherige Volksabstimmung beschließen."</blockquote>
 </div>
 <div class="quote-block" style="--party-color:var(--afd)">
-<blockquote>„Das Grundrecht der Meinungsfreiheit ist ein unveräußerliches Menschenrecht und das Fundament jeder freien Gesellschaft. Wir treten für die uneingeschränkte Meinungsfreiheit ein. Wir lehnen jede Form staatlicher oder staatlich geförderter Zensur in Deutschland und auf EU-Ebene ab. Das NetzDG fordern wir rückabzuwickeln. Immer mehr sogenannte ‚NGOs', wie zum Beispiel ‚Faktenchecker' oder ‚Correctiv', werden über staatliche Beauftragung und Finanzierung für Desinformationskampagnen eingespannt. Eine Demokratie braucht kein ‚Wahrheitsministerium'.“</blockquote>
+<blockquote>„Das Grundrecht der Meinungsfreiheit ist ein unveräußerliches Menschenrecht und das Fundament jeder freien Gesellschaft. Wir treten für die uneingeschränkte Meinungsfreiheit ein. Wir lehnen jede Form staatlicher oder staatlich geförderter Zensur in Deutschland und auf EU-Ebene ab. Das NetzDG fordern wir rückabzuwickeln. Immer mehr sogenannte ‚NGOs', wie zum Beispiel ‚Faktenchecker' oder ‚Correctiv', werden über staatliche Beauftragung und Finanzierung für Desinformationskampagnen eingespannt. Eine Demokratie braucht kein ‚Wahrheitsministerium'."</blockquote>
 </div>
 <div class="quote-block" style="--party-color:var(--afd)">
-<blockquote>„Die Alternative für Deutschland tritt für das Selbstbestimmungsrecht der Völker und die Souveränität der Nationalstaaten ein. Deutschland muss wieder Herr seiner eigenen Geschicke werden. Wir wollen eine grundlegende Reform der Europäischen Union hin zu einem Bund Europäischer Nationen, in dem die Mitgliedsstaaten ihre Souveränität zurückgewinnen. Sollte eine solche Reform scheitern, favorisiert die AfD den geordneten Austritt Deutschlands aus der EU.“</blockquote>
-</div>
-</div><div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div></div>
+<blockquote>„Die Alternative für Deutschland tritt für das Selbstbestimmungsrecht der Völker und die Souveränität der Nationalstaaten ein. Deutschland muss wieder Herr seiner eigenen Geschicke werden. Wir wollen eine grundlegende Reform der Europäischen Union hin zu einem Bund Europäischer Nationen, in dem die Mitgliedsstaaten ihre Souveränität zurückgewinnen. Sollte eine solche Reform scheitern, favorisiert die AfD den geordneten Austritt Deutschlands aus der EU."</blockquote>
 </div>
 </div>
+<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div>
+</div>
+</div>
+</div>
+
 <div class="divider"></div>
+
 <!-- ═══════════════════════════════════════════════
      SECTION III — POPULIST VS. PLURALIST (MANIFESTOS)
 ════════════════════════════════════════════════ -->
@@ -709,19 +788,18 @@
 <div class="eyebrow">Section III · Party Manifestos</div>
 <h2>Populist vs. Pluralist Rhetoric — Manifestos</h2>
 </div>
+
 <!-- DEMOCRATS -->
-<div class="leader-card">
-<div class="leader-header">
-<div class="leader-stripe" style="background:var(--dem)"></div>
-<div class="leader-info">
-<h4><span class="flag">🇺🇸</span> Democratic Party — 2024 Platform</h4>
-<div class="leader-role"></div>
+<div class="party-card" style="--party-color:var(--dem)">
+<div class="party-card-header">
+<span class="flag">🇺🇸</span>
+<div>
+<h3>Democratic Party — 2024 Platform</h3>
+<span class="party-badge">Populist &amp; Pluralist Passages</span>
 </div>
-
 </div>
-<div class="leader-body">
+<div class="party-card-body">
 <div class="doc-content collapsed">
-
 <div class="quote-block" style="--party-color:var(--dem)">
 <blockquote>"An economy rigged for the rich and powerful, or where everyone has a fair shot at getting ahead? They're rigging our economy for their rich friends and big corporations, pushing more trickle-down tax cuts for the wealthy and powerful."</blockquote>
 <div class="quote-meta">Preamble</div>
@@ -730,8 +808,6 @@
 <blockquote>"They'll give American billionaires an average $3.5 million tax break – a giveaway nearly 50 times bigger than what the average family earns in a year."</blockquote>
 <div class="quote-meta">Chapter Two: Rewarding Work, Not Wealth</div>
 </div>
-
-
 <div class="quote-block" style="--party-color:var(--dem)">
 <blockquote>"We will fight for judges who will uphold the rule of law, protect our constitutional rights, and administer justice fairly and impartially to all people, regardless of who they are."</blockquote>
 <div class="quote-meta">Chapter Six: Judges</div>
@@ -745,21 +821,21 @@
 <div class="quote-meta">Chapter Six: Special Interests</div>
 </div>
 </div>
-<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div></div>
+<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div>
 </div>
+</div>
+
 <!-- REPUBLICANS -->
-<div class="leader-card" style="margin-top:1.5rem;">
-<div class="leader-header">
-<div class="leader-stripe" style="background:var(--rep)"></div>
-<div class="leader-info">
-<h4><span class="flag">🇺🇸</span> Republican Party — 2024 Platform</h4>
-<div class="leader-role"></div>
+<div class="party-card" style="--party-color:var(--rep); margin-top:1.5rem;">
+<div class="party-card-header">
+<span class="flag">🇺🇸</span>
+<div>
+<h3>Republican Party — 2024 Platform</h3>
+<span class="party-badge">Populist &amp; Pluralist Passages</span>
 </div>
-
 </div>
-<div class="leader-body">
+<div class="party-card-body">
 <div class="doc-content collapsed">
-
 <div class="quote-block" style="--party-color:var(--rep)">
 <blockquote>"For decades, our politicians sold our jobs and livelihoods to the highest bidders overseas. They insulated themselves from criticism and the consequences of their own bad actions, allowing our Borders to be overrun, our cities to be overtaken by crime, our System of Justice to be weaponized, and our young people to develop a sense of hopelessness and despair."</blockquote>
 <div class="quote-meta">Preamble</div>
@@ -768,26 +844,25 @@
 <blockquote>"9. END THE WEAPONIZATION OF GOVERNMENT AGAINST THE AMERICAN PEOPLE<br/><br/>Republicans will offer a clear, precise, and USA-oriented plan to stop the Radical Left Democrats' Weaponization of Government and its Assault on American Liberty. We will restore Government of, by, and for the People."</blockquote>
 <div class="quote-meta">20 Promises / Chapter Nine</div>
 </div>
-
-
 <div class="quote-block" style="--party-color:var(--rep)">
 <blockquote>"7. DEFEND OUR CONSTITUTION, OUR BILL OF RIGHTS, AND OUR FUNDAMENTAL FREEDOMS, INCLUDING FREEDOM OF SPEECH, FREEDOM OF RELIGION, AND THE RIGHT TO KEEP AND BEAR ARMS."</blockquote>
 <div class="quote-meta">20 Promises — formal constitutional language, used instrumentally</div>
 </div>
 </div>
-<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div></div>
+<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div>
 </div>
-<!-- CDU -->
-<div class="leader-card" style="margin-top:1.5rem;">
-<div class="leader-header">
-<div class="leader-stripe" style="background:var(--cdu)"></div>
-<div class="leader-info">
-<h4><span class="flag">🇩🇪</span> CDU/CSU — 2025 Election Programme</h4>
-<div class="leader-role"></div>
 </div>
 
+<!-- CDU -->
+<div class="party-card" style="--party-color:var(--cdu); margin-top:1.5rem;">
+<div class="party-card-header">
+<span class="flag">🇩🇪</span>
+<div>
+<h3>CDU/CSU — 2025 Election Programme</h3>
+<span class="party-badge">Pluralist Passages</span>
 </div>
-<div class="leader-body">
+</div>
+<div class="party-card-body">
 <div class="doc-content collapsed">
 <div class="quote-block" style="--party-color:var(--cdu)">
 <blockquote>"We will not allow open calls for violence against our state or attacks on the property of third parties or critical infrastructure. [We will] consistently punish the display of anti-constitutional symbols. The rule of law must be enforced."</blockquote>
@@ -798,19 +873,20 @@
 <div class="quote-meta">Institutional constraints on executive discretion</div>
 </div>
 </div>
-<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div></div>
+<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div>
 </div>
-<!-- SPD -->
-<div class="leader-card" style="margin-top:1.5rem;">
-<div class="leader-header">
-<div class="leader-stripe" style="background:var(--spd)"></div>
-<div class="leader-info">
-<h4><span class="flag">🇩🇪</span> SPD — 2025 Government Programme</h4>
-<div class="leader-role"></div>
 </div>
 
+<!-- SPD -->
+<div class="party-card" style="--party-color:var(--spd); margin-top:1.5rem;">
+<div class="party-card-header">
+<span class="flag">🇩🇪</span>
+<div>
+<h3>SPD — 2025 Government Programme</h3>
+<span class="party-badge">Anti-Populist Passages</span>
 </div>
-<div class="leader-body">
+</div>
+<div class="party-card-body">
 <div class="doc-content collapsed">
 <div class="quote-block" style="--party-color:var(--spd)">
 <blockquote>"Die Populisten von rechts und links wiederum geben völlig falsche Antworten. Ihr Geschäftsmodell ist es, unsere Gesellschaft zu spalten. Wir sagen: Das alles schadet Deutschland. Das ist nicht unser Weg. Politik mit Maß und Mitte, die verbindet und nicht spaltet."</blockquote>
@@ -821,22 +897,21 @@
 <div class="quote-meta">Chapter 15 — Democracy: Pluralist formulation of participation</div>
 </div>
 </div>
-<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div></div>
+<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div>
 </div>
+</div>
+
 <!-- DIE LINKE -->
-<div class="leader-card" style="margin-top:1.5rem;">
-<div class="leader-header">
-<div class="leader-stripe" style="background:var(--linke)"></div>
-<div class="leader-info">
-<h4><span class="flag">🇩🇪</span> Die Linke — 2025 Election Programme</h4>
-<div class="leader-role"></div>
+<div class="party-card" style="--party-color:var(--linke); margin-top:1.5rem;">
+<div class="party-card-header">
+<span class="flag">🇩🇪</span>
+<div>
+<h3>Die Linke — 2025 Election Programme</h3>
+<span class="party-badge">Populist &amp; Pluralist Passages</span>
 </div>
-
 </div>
-<div class="leader-body">
+<div class="party-card-body">
 <div class="doc-content collapsed">
-
-
 <div class="quote-block" style="--party-color:var(--linke)">
 <blockquote>"Unsere Leitlinie heißt: <strong>Wir gemeinsam gegen die da oben.</strong>"</blockquote>
 <div class="quote-meta">Programme rallying cry — explicit populist formulation</div>
@@ -849,8 +924,6 @@
 <blockquote>"Es sollte keine Milliardäre geben."</blockquote>
 <div class="quote-meta">Chapter 3 — Chapter title: populist maximum demand</div>
 </div>
-
-
 <div class="quote-block" style="--party-color:var(--linke)">
 <blockquote>"Freiheit darf nicht gegen Sicherheit ausgespielt werden. Sicherheitsmaßnahmen müssen wirkungsvoll schützen, aber nicht pauschal verdächtigen, kontrollierend und anlasslos überwachen. Wir lehnen den Ausbau staatlicher Überwachung ab."</blockquote>
 <div class="quote-meta">Chapter 15 — civil liberties pluralism</div>
@@ -860,19 +933,20 @@
 <div class="quote-meta">Chapter 16 — the Court, not parliament or the people, as the legitimate authority</div>
 </div>
 </div>
-<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div></div>
+<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div>
 </div>
-<!-- AFD -->
-<div class="leader-card" style="margin-top:1.5rem;">
-<div class="leader-header">
-<div class="leader-stripe" style="background:var(--afd)"></div>
-<div class="leader-info">
-<h4><span class="flag">🇩🇪</span> AfD — 2025 Election Programme</h4>
-<div class="leader-role"></div>
 </div>
 
+<!-- AFD -->
+<div class="party-card" style="--party-color:var(--afd); margin-top:1.5rem;">
+<div class="party-card-header">
+<span class="flag">🇩🇪</span>
+<div>
+<h3>AfD — 2025 Election Programme</h3>
+<span class="party-badge">Populist Passages</span>
 </div>
-<div class="leader-body">
+</div>
+<div class="party-card-body">
 <div class="doc-content collapsed">
 <div class="quote-block" style="--party-color:var(--afd)">
 <blockquote>"Demokratie und Rechtsstaat — Das Volk ist der Souverän. Erfahrungsgemäß entscheiden Bürger in Schicksalsfragen der Nation weitsichtiger, friedfertiger und gemeinwohlorientierter als Berufspolitiker."</blockquote>
@@ -887,10 +961,13 @@
 <div class="quote-meta">EU sovereignty — supranational institutions as constraint on popular will</div>
 </div>
 </div>
-<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div></div>
+<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div>
 </div>
 </div>
+</div>
+
 <div class="divider"></div>
+
 <!-- ═══════════════════════════════════════════════
      SECTION IV — ECONOMY (LEADERS)
 ════════════════════════════════════════════════ -->
@@ -901,17 +978,18 @@
 </div>
 <div class="section-intro">
     Verbatim speeches, interviews and social media posts from party leaders on economic issues. All texts sourced from official government archives, party websites, and verified media transcripts.
-  </div>
+</div>
+
 <!-- HARRIS -->
-<div class="leader-card">
-<div class="leader-header">
-<div class="leader-stripe" style="background:var(--dem)"></div>
-<div class="leader-info">
-<h4>Kamala Harris <span class="flag">🇺🇸</span></h4>
-<div class="leader-role">Democratic Party · Vice President &amp; 2024 Presidential Nominee</div>
+<div class="party-card" style="--party-color:var(--dem)">
+<div class="party-card-header">
+<span class="flag">🇺🇸</span>
+<div>
+<h3>Kamala Harris</h3>
+<div class="role-line">Democratic Party · Vice President &amp; 2024 Presidential Nominee</div>
 </div>
 </div>
-<div class="leader-body">
+<div class="party-card-body">
 <div class="tag tag-date">Aug 16, 2024</div>
 <div class="tag tag-source">Economic Speech, Raleigh NC · singjupost.com/transcript-kamala-harris-economic-speech</div>
 <div class="pull-quote" style="--party-color:var(--dem)">"As President, I will be laser-focused on creating opportunities for the middle class that advance their economic security, stability, and dignity. Together, we will build what I call an opportunity economy. An opportunity economy where everyone can compete and have a real chance to succeed."</div>
@@ -926,19 +1004,21 @@
 <blockquote>"Building up the middle class will be a defining goal of my presidency. Because I strongly believe when the middle class is strong, America is strong. Such as: your salary should be enough to provide you and your family with a good quality of life. Such as: no child should have to grow up in poverty. Such as: after years of hard work, you should be able to retire with dignity. And you should be able to join a union if you choose."</blockquote>
 <div class="quote-meta">Economic Speech, Raleigh NC · Aug 16, 2024</div>
 </div>
-</div><div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div>
+</div>
+<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div>
 </div>
 </div>
+
 <!-- TRUMP -->
-<div class="leader-card" style="margin-top:1.5rem;">
-<div class="leader-header">
-<div class="leader-stripe" style="background:var(--rep)"></div>
-<div class="leader-info">
-<h4>Donald Trump <span class="flag">🇺🇸</span></h4>
-<div class="leader-role">Republican Party · 47th President of the United States</div>
+<div class="party-card" style="--party-color:var(--rep); margin-top:1.5rem;">
+<div class="party-card-header">
+<span class="flag">🇺🇸</span>
+<div>
+<h3>Donald Trump</h3>
+<div class="role-line">Republican Party · 47th President of the United States</div>
 </div>
 </div>
-<div class="leader-body">
+<div class="party-card-body">
 <div class="tag tag-date">Apr 2, 2025</div>
 <div class="tag tag-source">"Liberation Day" Rose Garden · presidency.ucsb.edu</div>
 <div class="pull-quote" style="--party-color:var(--rep)">"For decades, our country has been looted, pillaged, raped, and plundered by nations near and far, both friend and foe alike... This is our declaration of economic independence."</div>
@@ -948,19 +1028,21 @@
 <blockquote>"My fellow Americans, this is 'Liberation Day.' Been waiting a long time. April 2, 2025, will forever be remembered as the day American industry was reborn, the day America's destiny was reclaimed, and the day that we began to make America wealthy again.<br/><br/>For decades, our country has been looted, pillaged, raped, and plundered by nations near and far, both friend and foe alike. American steelworkers, autoworkers, farmers, and skilled craftsmen watched in anguish as foreign leaders have stolen our jobs, foreign cheaters have ransacked our factories, and foreign scavengers have torn apart our once-beautiful American dream.<br/><br/>This is one of the most important days, in my opinion, in American history. It's our declaration of economic independence."</blockquote>
 <div class="quote-meta">Rose Garden, Apr 2, 2025 · presidency.ucsb.edu/documents/remarks-announcing-additional-united-states-tariff-actions-foreign-imports</div>
 </div>
-</div><div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div>
+</div>
+<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div>
 </div>
 </div>
+
 <!-- MERZ -->
-<div class="leader-card" style="margin-top:1.5rem;">
-<div class="leader-header">
-<div class="leader-stripe" style="background:var(--cdu)"></div>
-<div class="leader-info">
-<h4>Friedrich Merz <span class="flag">🇩🇪</span></h4>
-<div class="leader-role">CDU · Federal Chancellor since May 2025</div>
+<div class="party-card" style="--party-color:var(--cdu); margin-top:1.5rem;">
+<div class="party-card-header">
+<span class="flag">🇩🇪</span>
+<div>
+<h3>Friedrich Merz</h3>
+<div class="role-line">CDU · Federal Chancellor since May 2025</div>
 </div>
 </div>
-<div class="leader-body">
+<div class="party-card-body">
 <div class="doc-content collapsed">
 <div class="excerpt-label">Government Declaration — On economic foundations (May 14, 2025)</div>
 <div class="quote-block" style="--party-color:var(--cdu)">
@@ -972,68 +1054,77 @@
 <blockquote>„Wie schaffen wir es, die preisliche Wettbewerbsfähigkeit unserer Volkswirtschaft wiederherzustellen? Die preisliche Wettbewerbsfähigkeit unserer Volkswirtschaft muss besser werden. Dazu gehören auch die hohen Energiekosten. Die Unternehmen in Deutschland leiden unter diesen hohen Energiekosten. Wir wollen, ich persönlich will, dass Deutschland ein Land produzierender Industrie bleibt. Wettbewerbsfähigkeit muss bei allem, was wir auch in der Europäischen Union tun, der erste Gedanke sein."</blockquote>
 <div class="quote-meta">SZ-Wirtschaftsgipfel · bundesregierung.de · Nov 17, 2025</div>
 </div>
-</div><div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div>
+</div>
+<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div>
 </div>
 </div>
+
 <!-- KLINGBEIL -->
-<div class="leader-card" style="margin-top:1.5rem;">
-<div class="leader-header">
-<div class="leader-stripe" style="background:var(--spd)"></div>
-<div class="leader-info">
-<h4>Lars Klingbeil <span class="flag">🇩🇪</span></h4>
-<div class="leader-role">SPD · Federal Finance Minister &amp; Party Co-Chair</div>
+<div class="party-card" style="--party-color:var(--spd); margin-top:1.5rem;">
+<div class="party-card-header">
+<span class="flag">🇩🇪</span>
+<div>
+<h3>Lars Klingbeil</h3>
+<div class="role-line">SPD · Federal Finance Minister &amp; Party Co-Chair</div>
 </div>
 </div>
-<div class="leader-body">
+<div class="party-card-body">
 <div class="doc-content collapsed">
 <div class="excerpt-label">WirtschaftsWoche Interview — "Investment Ministry" (April 2026)</div>
 <div class="quote-block" style="--party-color:var(--spd)">
 <blockquote>„Wir haben im ersten Jahr viel auf den Weg gebracht. Wir haben für die Wirtschaft Super-Abschreibungen eingeführt und senken die Unternehmensteuern. Wir haben die Investitionen von 2024 auf 2025 um 17 Prozent gesteigert. Wir investieren Rekordsummen. Wir beseitigen 20 Jahre Reformstau. Die Reform der privaten Altersvorsorge, das Investitionspaket, der Bauturbo, das Tariftreuegesetz, das erste Rentenpaket – das alles ist bereits umgesetzt."</blockquote>
 <div class="quote-meta">WirtschaftsWoche · bundesfinanzministerium.de · Apr 2026</div>
 </div>
-</div><div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div>
+</div>
+<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div>
 </div>
 </div>
+
 <!-- REICHINNEK -->
-<div class="leader-card" style="margin-top:1.5rem;">
-<div class="leader-header">
-<div class="leader-stripe" style="background:var(--linke)"></div>
-<div class="leader-info">
-<h4>Heidi Reichinnek <span class="flag">🇩🇪</span></h4>
-<div class="leader-role">Die Linke · Parliamentary Group Leader &amp; Top Candidate 2025</div>
+<div class="party-card" style="--party-color:var(--linke); margin-top:1.5rem;">
+<div class="party-card-header">
+<span class="flag">🇩🇪</span>
+<div>
+<h3>Heidi Reichinnek</h3>
+<div class="role-line">Die Linke · Parliamentary Group Leader &amp; Top Candidate 2025</div>
 </div>
 </div>
-<div class="leader-body">
+<div class="party-card-body">
 <div class="doc-content collapsed">
 <div class="excerpt-label">Budget Speech — Poverty and the people's suffering (Nov 26, 2025)</div>
 <div class="quote-block" style="--party-color:var(--linke)">
 <blockquote>„Seit einem halben Jahr quälen sich Union und SPD durch diese Koalition. Aber glauben Sie mir: Egal wie sehr Sie untereinander leiden, niemand leidet unter dieser Regierung mehr als die Menschen in diesem Land. Lebensmittel werden immer teurer. Die Mieten steigen. Den Preis für das Deutschlandticket erhöhen Sie direkt selbst. Es gibt keinen armutsfesten Mindestlohn trotz großspuriger Versprechungen. Denn falls Sie es nicht mitbekommen haben: Jeder fünfte Rentner, jede fünfte Rentnerin lebt schon jetzt in Armut."</blockquote>
 <div class="quote-meta">Bundestag Budget Debate · dielinkebt.de · Nov 26, 2025</div>
 </div>
-</div><div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div>
+</div>
+<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div>
 </div>
 </div>
+
 <!-- WEIDEL -->
-<div class="leader-card" style="margin-top:1.5rem;">
-<div class="leader-header">
-<div class="leader-stripe" style="background:var(--afd)"></div>
-<div class="leader-info">
-<h4>Alice Weidel <span class="flag">🇩🇪</span></h4>
-<div class="leader-role">AfD · Party Chair &amp; Parliamentary Group Leader</div>
+<div class="party-card" style="--party-color:var(--afd); margin-top:1.5rem;">
+<div class="party-card-header">
+<span class="flag">🇩🇪</span>
+<div>
+<h3>Alice Weidel</h3>
+<div class="role-line">AfD · Party Chair &amp; Parliamentary Group Leader</div>
 </div>
 </div>
-<div class="leader-body">
+<div class="party-card-body">
 <div class="doc-content collapsed">
 <div class="excerpt-label">Budget Debate — "Betrayal of the citizens" (Nov 26, 2025)</div>
 <div class="quote-block" style="--party-color:var(--afd)">
 <blockquote>„Statt wie versprochen überflüssige Ausgaben zu streichen und den Haushalt zu konsolidieren, werfen Sie das Geld mit vollen Händen zum Fenster raus: noch 1 Milliarde für einen dubiosen Tropenwaldfonds hier, 6 Milliarden für einen internationalen Klimaschutz da, 11,5 Milliarden für die Ukraine, ohne zu wissen, ob das Geld nicht abermals bei korrupten Kriegsprofiteuren landet. Die Staatsausgaben müssen entschieden zusammengestrichen werden. Das ist der direkte Marsch in den Staatsbankrott. Sie werden als größter Bankrotteur unter allen Kanzlern der Bundesrepublik Deutschland in die Geschichte eingehen."</blockquote>
 <div class="quote-meta">Bundestag Budget Debate · dserver.bundestag.de · Nov 26, 2025</div>
 </div>
-</div><div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div>
+</div>
+<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div>
 </div>
 </div>
 </div>
+
 <div class="divider"></div>
+
 <!-- ═══════════════════════════════════════════════
      SECTION V — DEMOCRACY (LEADERS)
 ════════════════════════════════════════════════ -->
@@ -1044,18 +1135,18 @@
 </div>
 <div class="section-intro">
     Verbatim statements from leaders specifically addressing the defence, erosion, or challenge to liberal democratic values.
-  </div>
-<!-- HARRIS -->
-<div class="leader-card">
-<div class="leader-header">
-<div class="leader-stripe" style="background:var(--dem)"></div>
-<div class="leader-info">
-<h4>Kamala Harris 🇺🇸</h4>
-<div class="leader-role">Affirms rule of law, peaceful transfer of power, minority rights</div>
 </div>
 
+<!-- HARRIS -->
+<div class="party-card" style="--party-color:var(--dem)">
+<div class="party-card-header">
+<span class="flag">🇺🇸</span>
+<div>
+<h3>Kamala Harris</h3>
+<div class="role-line">Affirms rule of law, peaceful transfer of power, minority rights</div>
 </div>
-<div class="leader-body">
+</div>
+<div class="party-card-body">
 <div class="pull-quote" style="--party-color:var(--dem)">"A fundamental principle of American democracy is that when we lose an election, we accept the results. That principle, as much as any other, distinguishes democracy from monarchy or tyranny."</div>
 <div class="doc-content collapsed">
 <div class="quote-block" style="--party-color:var(--dem)">
@@ -1067,19 +1158,20 @@
 <div class="quote-meta">DNC Acceptance Speech · Aug 22, 2024 · cbsnews.com</div>
 </div>
 </div>
-<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div></div>
+<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div>
 </div>
-<!-- TRUMP -->
-<div class="leader-card" style="margin-top:1.5rem;">
-<div class="leader-header">
-<div class="leader-stripe" style="background:var(--rep)"></div>
-<div class="leader-info">
-<h4>Donald Trump 🇺🇸</h4>
-<div class="leader-role">Anti-institutional; the people's will supersedes constitutional constraints</div>
 </div>
 
+<!-- TRUMP -->
+<div class="party-card" style="--party-color:var(--rep); margin-top:1.5rem;">
+<div class="party-card-header">
+<span class="flag">🇺🇸</span>
+<div>
+<h3>Donald Trump</h3>
+<div class="role-line">Anti-institutional; the people's will supersedes constitutional constraints</div>
 </div>
-<div class="leader-body">
+</div>
+<div class="party-card-body">
 <div class="doc-content collapsed">
 <div class="quote-block" style="--party-color:var(--rep)">
 <blockquote>"Do you throw the Presidential Election Results of 2020 OUT and declare the RIGHTFUL WINNER, or do you have a NEW ELECTION? A Massive Fraud of this type and magnitude allows for the termination of all rules, regulations, and articles, even those found in the Constitution. Our great 'Founders' did not want, and would not condone, False &amp; Fraudulent Elections!"</blockquote>
@@ -1094,38 +1186,40 @@
 <div class="quote-meta">"Save America" Rally, The Ellipse · Jan 6, 2021 · National Security Archive: nsarchive.gwu.edu</div>
 </div>
 </div>
-<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div></div>
+<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div>
 </div>
-<!-- MERZ -->
-<div class="leader-card" style="margin-top:1.5rem;">
-<div class="leader-header">
-<div class="leader-stripe" style="background:var(--cdu)"></div>
-<div class="leader-info">
-<h4>Friedrich Merz 🇩🇪</h4>
-<div class="leader-role">Defends liberal democracy; frames Russia as the threat; consensus politics</div>
 </div>
 
+<!-- MERZ -->
+<div class="party-card" style="--party-color:var(--cdu); margin-top:1.5rem;">
+<div class="party-card-header">
+<span class="flag">🇩🇪</span>
+<div>
+<h3>Friedrich Merz</h3>
+<div class="role-line">Defends liberal democracy; frames Russia as the threat; consensus politics</div>
 </div>
-<div class="leader-body">
+</div>
+<div class="party-card-body">
 <div class="doc-content collapsed">
 <div class="quote-block" style="--party-color:var(--cdu)">
 <blockquote>"80 Jahre nach dem Ende des Zweiten Weltkrieges wird unsere Freiheit durch die Gegner und die Feinde unserer liberalen Demokratie so sehr angegriffen wie selten zuvor. Es darf kein Zweifel daran aufkommen, wo wir stehen: an der Seite der Menschen, die sich zu Demokratie und Rechtsstaatlichkeit bekennen. So funktioniert Demokratie: die Lösung wird von einer breiten Mehrheit in unserer Gesellschaft getragen."</blockquote>
 <div class="quote-meta">Regierungserklärung · bundesregierung.de · May 14, 2025</div>
 </div>
 </div>
-<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div></div>
+<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div>
 </div>
-<!-- KLINGBEIL -->
-<div class="leader-card" style="margin-top:1.5rem;">
-<div class="leader-header">
-<div class="leader-stripe" style="background:var(--spd)"></div>
-<div class="leader-info">
-<h4>Lars Klingbeil 🇩🇪</h4>
-<div class="leader-role">Explicitly anti-populist; politics of moderation and minority protection</div>
 </div>
 
+<!-- KLINGBEIL -->
+<div class="party-card" style="--party-color:var(--spd); margin-top:1.5rem;">
+<div class="party-card-header">
+<span class="flag">🇩🇪</span>
+<div>
+<h3>Lars Klingbeil</h3>
+<div class="role-line">Explicitly anti-populist; politics of moderation and minority protection</div>
 </div>
-<div class="leader-body">
+</div>
+<div class="party-card-body">
 <div class="doc-content collapsed">
 <div class="quote-block" style="--party-color:var(--spd)">
 <blockquote>"Die Populisten von rechts und links wiederum geben völlig falsche Antworten. Ihr Geschäftsmodell ist es, unsere Gesellschaft zu spalten. Wir sagen: Das alles schadet Deutschland. Das ist nicht unser Weg. Politik mit Maß und Mitte, die verbindet und nicht spaltet."</blockquote>
@@ -1134,19 +1228,20 @@
 <blockquote>"Ich fordere die Union auf: Kehren Sie um. Herr Merz, ein persönlicher Hinweis: Bedenken Sie das Ende. Eine Feindseligkeit gegenüber Menschen mit Migrationsgeschichte darf nicht zugelassen werden."</blockquote>
 </div>
 </div>
-<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div></div>
+<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div>
 </div>
-<!-- REICHINNEK -->
-<div class="leader-card" style="margin-top:1.5rem;">
-<div class="leader-header">
-<div class="leader-stripe" style="background:var(--linke)"></div>
-<div class="leader-info">
-<h4>Heidi Reichinnek 🇩🇪</h4>
-<div class="leader-role">"Brandmauer" speech — 29 million social media views — the most-watched Bundestag speech of her party's history</div>
 </div>
 
+<!-- REICHINNEK -->
+<div class="party-card" style="--party-color:var(--linke); margin-top:1.5rem;">
+<div class="party-card-header">
+<span class="flag">🇩🇪</span>
+<div>
+<h3>Heidi Reichinnek</h3>
+<div class="role-line">"Brandmauer" speech — 29 million social media views — the most-watched Bundestag speech of her party's history</div>
 </div>
-<div class="leader-body">
+</div>
+<div class="party-card-body">
 <div class="doc-content collapsed">
 <div class="quote-block" style="--party-color:var(--linke)">
 <blockquote style="font-style:normal">
@@ -1158,19 +1253,20 @@
 <div class="quote-meta">Bundestag speech · Jan 29, 2025 · dielinkebt.de/themen/reden/detail/rede-von-heidi-reichinnek-am-29012025/</div>
 </div>
 </div>
-<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div></div>
+<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div>
 </div>
-<!-- WEIDEL -->
-<div class="leader-card" style="margin-top:1.5rem;">
-<div class="leader-header">
-<div class="leader-stripe" style="background:var(--afd)"></div>
-<div class="leader-info">
-<h4>Alice Weidel 🇩🇪</h4>
-<div class="leader-role">Frames democratic institutions as oppressors; endorses Orbán's "illiberal democracy"</div>
 </div>
 
+<!-- WEIDEL -->
+<div class="party-card" style="--party-color:var(--afd); margin-top:1.5rem;">
+<div class="party-card-header">
+<span class="flag">🇩🇪</span>
+<div>
+<h3>Alice Weidel</h3>
+<div class="role-line">Frames democratic institutions as oppressors; endorses Orbán's "illiberal democracy"</div>
 </div>
-<div class="leader-body">
+</div>
+<div class="party-card-body">
 <div class="doc-content collapsed">
 <div class="quote-block" style="--party-color:var(--afd)">
 <blockquote>"Politics have turned Germany into a danger zone. Its people suffer from mass migration, exploding crime rates, high taxes, energy prices, inflation, and the destruction of wealth. That is why they voted out the old left-green government only to get a government that continues down the same disastrous path.<br/><br/>Influential politicians in Germany have their minds made up to ban the strongest opposition political party, the Alternative for Germany. They would eliminate a political force that will soon form the government in several East German [states]."</blockquote>
@@ -1188,10 +1284,13 @@
 <blockquote>"Die Einstufung sei 'ein schwerer Schlag für die bundesdeutsche Demokratie' und man werde sich 'juristisch zur Wehr setzen'."</blockquote>
 </div>
 </div>
-<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div></div>
+<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div>
 </div>
 </div>
+</div>
+
 <div class="divider"></div>
+
 <!-- ═══════════════════════════════════════════════
      SECTION VI — POP vs. PLU (LEADERS)
 ════════════════════════════════════════════════ -->
@@ -1202,8 +1301,10 @@
 </div>
 <div class="section-intro">
     Each leader's defining populist or pluralist statement.
-  </div>
+</div>
+
 <div class="party-grid">
+
 <!-- HARRIS -->
 <div class="party-card" style="--party-color:var(--dem)">
 <div class="party-card-header">
@@ -1217,8 +1318,10 @@
 <div class="quote-meta">Concession Speech · Nov 6, 2024</div>
 </div>
 </div>
-<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div></div>
+<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div>
 </div>
+</div>
+
 <!-- TRUMP -->
 <div class="party-card" style="--party-color:var(--rep)">
 <div class="party-card-header">
@@ -1232,8 +1335,10 @@
 <div class="quote-meta">Truth Social · Dec 3, 2022</div>
 </div>
 </div>
-<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div></div>
+<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div>
 </div>
+</div>
+
 <!-- MERZ -->
 <div class="party-card" style="--party-color:var(--cdu)">
 <div class="party-card-header">
@@ -1247,8 +1352,10 @@
 <div class="quote-meta">Government Declaration · May 14, 2025</div>
 </div>
 </div>
-<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div></div>
+<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div>
 </div>
+</div>
+
 <!-- KLINGBEIL -->
 <div class="party-card" style="--party-color:var(--spd)">
 <div class="party-card-header">
@@ -1262,8 +1369,10 @@
 <div class="quote-meta">SPD Programme · Jan 11, 2025</div>
 </div>
 </div>
-<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div></div>
+<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div>
 </div>
+</div>
+
 <!-- REICHINNEK -->
 <div class="party-card" style="--party-color:var(--linke)">
 <div class="party-card-header">
@@ -1276,8 +1385,10 @@
 <blockquote>"Niemand leidet unter dieser Regierung mehr als die Menschen in diesem Land." (Nobody suffers more under this government than the people of this country.)</blockquote>
 </div>
 </div>
-<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div></div>
+<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div>
 </div>
+</div>
+
 <!-- WEIDEL -->
 <div class="party-card" style="--party-color:var(--afd)">
 <div class="party-card-header">
@@ -1295,10 +1406,13 @@
 <div class="quote-meta">CPAC Hungary · May 30, 2025</div>
 </div>
 </div>
-<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div></div>
+<div class="doc-actions"><button class="expand-btn" onclick="toggleDoc(this)">Show more ▾</button><button class="copy-btn" onclick="copyDoc(this)">Copy text</button></div>
 </div>
+</div>
+
 </div><!-- end party-grid -->
 </div>
+
 <div class="divider"></div>
 
   
