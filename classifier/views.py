@@ -494,7 +494,7 @@ def imprint(request):
     return render(request, 'classifier/imprint.html')
 
 def textsforanalysis(request):
-    return render(request, 'texts_for_analysis.html')
+    return render(request, 'classifier/texts_for_analysis.html')
 
 
 
