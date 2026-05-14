@@ -1414,9 +1414,30 @@
 
 <div class="divider"></div>
 
-  
 <script>
-
+ 
+  function copyQuote(btn) {
+    const block = btn.closest('.quote-block');
+    const bq = block ? block.querySelector('blockquote') : null;
+    const text = bq ? bq.innerText.trim() : '';
+    if (!text) return;
+    navigator.clipboard.writeText(text).then(() => {
+      const orig = btn.textContent;
+      btn.textContent = 'Copied ✓';
+      setTimeout(() => { btn.textContent = orig; }, 2000);
+    }).catch(() => {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      const orig = btn.textContent;
+      btn.textContent = 'Copied ✓';
+      setTimeout(() => { btn.textContent = orig; }, 2000);
+    });
+  }
+ 
   function toggleDoc(btn) {
     const content = btn.closest('.doc-actions').previousElementSibling;
     const collapsed = content.classList.toggle('collapsed');
@@ -1447,13 +1468,13 @@
       setTimeout(() => { btn.textContent = orig; }, 2000);
     });
   }
-
+ 
   function switchTab(group, panel, btn) {
     // deactivate all tabs in this group
     const nav = btn.closest('.tab-nav');
     nav.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-
+ 
     // find all panels belonging to this group and hide/show
     const container = nav.parentElement;
     container.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
