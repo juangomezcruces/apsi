@@ -1,5 +1,3 @@
-<!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
@@ -16,7 +14,7 @@
     --ink-muted: #8a7a6a;
     --border: #ddd8ce;
     --accent: #2d1b69;
-
+ 
     --dem: #1e40af;
     --dem-light: #dbeafe;
     --rep: #991b1b;
@@ -29,7 +27,7 @@
     --linke-light: #f3e8ff;
     --afd: #0369a1;
     --afd-light: #e0f2fe;
-
+ 
     --populist: #d97706;
     --populist-light: #fef3c7;
     --pluralist: #059669;
@@ -37,11 +35,11 @@
     --mixed: #7c3aed;
     --mixed-light: #ede9fe;
   }
-
+ 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
+ 
   html { scroll-behavior: smooth; }
-
+ 
   body {
     font-family: 'Source Serif 4', Georgia, serif;
     background: var(--bg);
@@ -49,7 +47,7 @@
     line-height: 1.7;
     font-size: 16px;
   }
-
+ 
   /* ── MASTHEAD ── */
   .masthead {
     background: var(--ink);
@@ -95,7 +93,7 @@
     color: #6b6059;
     letter-spacing: 0.1em;
   }
-
+ 
   /* ── NAV ── */
   .nav-bar {
     background: var(--surface);
@@ -123,7 +121,7 @@
     display: inline-block;
   }
   .nav-bar a:hover { color: var(--ink); border-bottom-color: var(--accent); }
-
+ 
   /* ── LAYOUT ── */
   .container { max-width: 1100px; margin: 0 auto; padding: 2.5rem 2rem; }
   .section { margin-bottom: 4rem; }
@@ -157,7 +155,7 @@
     color: var(--ink-light);
     line-height: 1.7;
   }
-
+ 
   /* ── PARTY GRID ── */
   .party-grid {
     display: grid;
@@ -197,7 +195,7 @@
     color: white;
   }
   .party-card-body { padding: 1.2rem; }
-
+ 
   /* ── QUOTE BLOCKS ── */
   .quote-block {
     border-left: 3px solid var(--party-color, #999);
@@ -221,7 +219,7 @@
     letter-spacing: 0.05em;
   }
   .quote-meta a { color: var(--ink-muted); text-decoration: underline; }
-
+ 
   /* ── TAGS ── */
   .tag {
     display: inline-flex;
@@ -242,8 +240,8 @@
   .tag-mixed { background: var(--mixed-light); color: #4c1d95; border: 1px solid #c4b5fd; }
   .tag-source { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
   .tag-date { background: var(--bg); color: var(--ink-muted); border: 1px solid var(--border); }
-
-
+ 
+ 
   /* ── DOC CONTENT COLLAPSE ── */
   .doc-content {
     position: relative;
@@ -285,8 +283,8 @@
     transition: color 0.15s;
   }
   .expand-btn:hover, .copy-btn:hover { color: var(--accent); }
-
-
+ 
+ 
   /* ── LEADER CARD ── */
   .leader-card {
     background: var(--surface);
@@ -324,7 +322,7 @@
     letter-spacing: 0.08em;
   }
   .leader-body { padding: 1.2rem; }
-
+ 
   /* ── FOOTER ── */
   .footer {
     background: var(--ink);
@@ -337,14 +335,14 @@
     line-height: 1.9;
   }
   .footer strong { color: #a89f95; }
-
+ 
   /* ── DIVIDER ── */
   .divider {
     height: 1px;
     background: linear-gradient(to right, transparent, var(--border), transparent);
     margin: 3rem 0;
   }
-
+ 
   /* ── TOPIC TABS ── */
   .tab-nav {
     display: flex;
@@ -371,7 +369,7 @@
   .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 500; }
   .tab-panel { display: none; }
   .tab-panel.active { display: block; }
-
+ 
   /* ── PULL QUOTE ── */
   .pull-quote {
     font-family: 'Playfair Display', serif;
@@ -384,7 +382,7 @@
     margin: 1.5rem 0;
     line-height: 1.5;
   }
-
+ 
   /* ── NOTATION ── */
   .notation {
     font-family: 'IBM Plex Mono', monospace;
@@ -398,37 +396,16 @@
     color: #78350f;
     line-height: 1.6;
   }
-
+ 
   /* ── FLAGS ── */
   .flag { font-size: 1.1em; margin-right: 0.3em; }
-
+ 
   .german-text {
     font-size: 0.9rem;
     line-height: 1.75;
     color: var(--ink-light);
     font-style: italic;
     margin: 0.4rem 0;
-  }
-  
-  .excerpt-label {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.65rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--ink-muted);
-    margin: 1rem 0 0.5rem;
-    border-bottom: 1px solid var(--border);
-    padding-bottom: 0.3rem;
-  }
-
-  /* ── ROLE LINE IN BANNER ── */
-  .party-card-header .role-line {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.6rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.75);
-    margin-top: 0.2rem;
   }
   /* ── PER-QUOTE COPY BUTTON ── */
   .quote-copy-btn {
