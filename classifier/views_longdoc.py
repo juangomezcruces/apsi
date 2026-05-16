@@ -244,7 +244,7 @@ def longdoc_score(request):
         # Reject duplicate queued emails
         with _queue_lock:
             if email in _queued_emails:
-                return JsonResponse({'error': f'An analysis for {email} is already queued or running. You will receive the results by email when complete.'}, status=409)
+                return JsonResponse({'error': f'An analysis for {email} is already queued or running. You will receive an email with the results when it completes. Please wait until then to submit a new request.'}, status=409)
             _queued_emails.add(email)
             _queued_count += 1
         position = _queued_count
