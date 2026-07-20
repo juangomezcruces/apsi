@@ -21,9 +21,9 @@ class LeftRightEconomicScorer:
         # Left-Right Economic hypotheses - streamlined to ~15 per side
         self.left_right_hypotheses = {
             # left wing hypotheses
-            "The text expresses that the state should own and control the means of production and major industries": (1.5, "left"),
+            "The text expresses that the state should own and control the means of production and major industries": (1.0, "left"),
 
-            "The text expresses that market mechanisms should be replaced by central state planning and allocation": (1.5, "left"),
+            "The text expresses that market mechanisms should be replaced by central state planning and allocation": (1.0, "left"),
 
             "The text expresses that corporations should pay higher taxes": (0.8, "left"),
     
@@ -39,7 +39,7 @@ class LeftRightEconomicScorer:
     
             "The text expresses that banks and financial institutions should be heavily regulated": (0.85, "left"),
     
-            "The text expresses that environmental regulations on business are necessary": (0.75, "left"),
+            "The text expresses that environmental regulations on business are necessary": (0.5, "left"),
     
             "The text expresses that utilities should be publicly owned": (1.0, "left"),
     
@@ -56,11 +56,13 @@ class LeftRightEconomicScorer:
             "The text expresses that social safety nets should be expanded": (0.7, "left"),
     
             "The text expresses that government should have a very active role in the economy": (0.95, "left"),
-    
-            # Right Economic Positions
-            "The text expresses that the means of production and major industries should be privately owned and free from state control": (1.5, "right"),
 
-            "The text expresses that free market mechanisms should replace state planning and allocation": (1.5, "right"),
+            "The text opposes the privatization of public services or state-owned enterprises": (0.9, "left"),
+
+            # Right Economic Positions
+            "The text expresses that the means of production and major industries should be privately owned and free from state control": (1.0, "right"),
+
+            "The text expresses that free market mechanisms should replace state planning and allocation": (1.0, "right"),
 
             "The text expresses that corporate tax rates should be lowered": (0.85, "right"),
     
@@ -74,11 +76,9 @@ class LeftRightEconomicScorer:
     
             "The text expresses that education should be privatized": (0.9, "right"),
 
-            "The text expresses that government must partner with businesses": (0.5, "right"),
-    
             "The text expresses that financial regulations should be eliminated": (0.95, "right"),
-    
-            "The text expresses that environmental regulations hurt business competitiveness": (0.75, "right"),
+
+            "The text expresses that environmental regulations hurt business competitiveness": (0.5, "right"),
     
             "The text expresses that government services should be privatized": (1.0, "right"),
     
@@ -97,12 +97,20 @@ class LeftRightEconomicScorer:
             "The text expresses that social programs create dependency": (0.95, "right"),
 
             "The text expresses that public assets and state-owned enterprises should be privatized": (1.0, "right"),
+
+            "The text argues that government spending and public debt should be reduced": (0.85, "right"),
+
+            "The text argues that bureaucracy and red tape burden businesses and should be cut": (0.8, "right"),
         }
 
 
         left_count = sum(1 for _, (_, direction) in self.left_right_hypotheses.items() if direction == "left")
         right_count = sum(1 for _, (_, direction) in self.left_right_hypotheses.items() if direction == "right")
         print(f"Loaded {len(self.left_right_hypotheses)} hypotheses ({left_count} left, {right_count} right)")
+
+        # Entailment probabilities below this floor mean "not entailed" for an
+        # NLI model; they are noise and must not accumulate into a score.
+        self.prob_floor = 0.25
         
         # Precheck hypotheses
         self.topic_threshold = 0.6
@@ -255,19 +263,22 @@ class LeftRightEconomicScorer:
         
         # Process each hypothesis
         for i, (hypothesis, (weight, direction)) in enumerate(self.left_right_hypotheses.items()):
-            prob = probs[i]
-            
+            prob = float(probs[i])
+            effective = prob if prob >= self.prob_floor else 0.0
+            weighted = effective * weight
+
             hypothesis_results.append({
                 'hypothesis': hypothesis,
                 'probability': prob,
                 'weight': weight,
-                'direction': direction
+                'direction': direction,
+                'effective_weighted': weighted,
             })
-            
+
             if direction == "left":
-                left_probs.append(prob * weight)
+                left_probs.append(weighted)
             else:
-                right_probs.append(prob * weight)
+                right_probs.append(weighted)
 
         # Calculate averages and score
         # === ADAPTIVE K (based on ALL hypotheses above threshold) ===
@@ -304,11 +315,7 @@ class LeftRightEconomicScorer:
         final_score = np.clip(final_score, 0, 10)
 
         # Compute confidence
-        confidence_data = self.compute_combined_confidence(
-            [p/1.0 for p in left_probs],  # Unweight for confidence calc
-            [p/1.0 for p in right_probs],
-            probs
-        )
+        confidence_data = self.compute_combined_confidence(left_probs, right_probs, probs)
 
         # Get top hypotheses from each direction
         left_hyps = [h for h in hypothesis_results if h['direction'] == 'left']
@@ -318,8 +325,8 @@ class LeftRightEconomicScorer:
         # Each hypothesis in the top-k contributes (prob*weight / k_score) to its side's avg,
         # which maps to (contrib_to_avg * 5) points of score movement.
         # Left pulls score down, right pulls score up — we store absolute impact.
-        top_left_weighted = sorted([(h['probability'] * h['weight'], h) for h in left_hyps], key=lambda x: x[0], reverse=True)[:k_score]
-        top_right_weighted = sorted([(h['probability'] * h['weight'], h) for h in right_hyps], key=lambda x: x[0], reverse=True)[:k_score]
+        top_left_weighted = sorted([(h['effective_weighted'], h) for h in left_hyps], key=lambda x: x[0], reverse=True)[:k_score]
+        top_right_weighted = sorted([(h['effective_weighted'], h) for h in right_hyps], key=lambda x: x[0], reverse=True)[:k_score]
 
         for weighted_val, h in top_left_weighted:
             h['score_impact'] = round((weighted_val / k_score) * 5, 3)
