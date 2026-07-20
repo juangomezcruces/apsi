@@ -85,6 +85,10 @@ class LiberalIlliberalScorer:
         illiberal_count = sum(1 for _, (_, d) in self.liberal_illiberal_hypotheses.items() if d == "illiberal")
         print(f"Loaded {len(self.liberal_illiberal_hypotheses)} hypotheses ({liberal_count} liberal, {illiberal_count} illiberal)")
 
+        # Entailment probabilities below this floor mean "not entailed" for an
+        # NLI model; they are noise and must not accumulate into a score.
+        self.prob_floor = 0.2
+
         # Topic check configuration — unchanged from script 1
         self.topic_threshold = 0.6
         self.topic_hypotheses = [
@@ -232,10 +236,11 @@ class LiberalIlliberalScorer:
                 'weight':      weight,
                 'direction':   direction,
             })
+            effective = prob if prob >= self.prob_floor else 0.0
             if direction == "liberal":
-                liberal_probs.append(prob * weight)
+                liberal_probs.append(effective * weight)
             else:
-                illiberal_probs.append(prob * weight)
+                illiberal_probs.append(effective * weight)
 
         k_score = max(4, int(np.sum(probs > thr)) + 2)
 
@@ -255,7 +260,7 @@ class LiberalIlliberalScorer:
                 'score':                  'NA',
                 'confidence':             0.0,
                 'contradiction_detected': False,
-                'interpretation':         'Not about democratic principles',
+                'interpretation':         'No clear signal on democratic principles',
                 'topic_probability':      float(topic_prob),
                 'passed_precheck':        False,
                 'is_relevant':            False,
