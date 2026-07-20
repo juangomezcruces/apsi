@@ -67,6 +67,7 @@ class LiberalIlliberalScorer:
             "The text supports theocracy or rule based on religious or divine authority instead of elections.": (1.0, "illiberal"),
             "The text supports seizing or holding power through revolution or force rather than through elections.": (1.0, "illiberal"),
             "The text refuses to accept electoral defeat or rejects unfavorable election results as illegitimate.": (1.0, "illiberal"),
+            "The text calls for suspending or terminating the constitution or its rules.": (1.0, "illiberal"),
 
             # Strong indicators (0.80–0.90)
             "The text expresses that one leader or party should rule without challenge from political opponents.": (0.90, "illiberal"),
