@@ -45,6 +45,7 @@ class LiberalIlliberalScorer:
             "The text argues that competition among multiple political parties is good for the country.": (0.70, "liberal"),
             "The text supports defending the democratic constitutional order against extremist or anti-democratic movements.": (0.70, "liberal"),
             "The text condemns incitement to political violence and wants it punished under the rule of law.": (0.60, "liberal"),
+            "The text supports banning anti-democratic extremist symbols or propaganda in order to protect democracy.": (0.55, "liberal"),
             "The text expresses that dissenting or minority political views deserve protection.": (0.60, "liberal"),
             "The text argues that courts and independent institutions must be protected from interference by those in power.": (0.50, "liberal"),
 
@@ -88,6 +89,37 @@ class LiberalIlliberalScorer:
         # Entailment probabilities below this floor mean "not entailed" for an
         # NLI model; they are noise and must not accumulate into a score.
         self.prob_floor = 0.25
+
+        # Militant democracy: restricting *anti-democratic* actors (banning
+        # extremist symbols, punishing incitement) reads to an NLI model like
+        # generic speech repression, so such texts entail the repression
+        # hypotheses at ~1.0 even when they simultaneously entail defending
+        # the democratic order. When the militant-democracy indicators below
+        # fire strongly, the repression-family hypotheses are discounted.
+        # The discount is partial, never full: autocrats also claim to be
+        # defending the constitution, and regime-type hypotheses (single-party
+        # rule, theocracy, refusing defeat, banning opposition parties) are
+        # never discounted.
+        self.militant_democracy_hypotheses = [
+            "The text supports defending the democratic constitutional order against extremist or anti-democratic movements.",
+            "The text condemns incitement to political violence and wants it punished under the rule of law.",
+        ]
+        self.defensive_restriction_targets = {
+            "The text justifies restricting the peaceful expression of political opinions.",
+            "The text supports state censorship or government control of the news media.",
+            "The text supports banning or repressing peaceful assembly and protest.",
+            "The text opposes the existence of peaceful independent civic or political organizations.",
+            "The text expresses that criticism of the government is dangerous and should be suppressed.",
+            "The text justifies repressing peaceful opponents or critics in the name of order, stability, or national unity.",
+        }
+        # Maximum fraction removed from repression hypotheses when the
+        # militant-democracy signal saturates at 1.0.
+        self.defensive_restriction_discount = 0.65
+
+        _missing = [h for h in (list(self.militant_democracy_hypotheses)
+                                + list(self.defensive_restriction_targets))
+                    if h not in self.liberal_illiberal_hypotheses]
+        assert not _missing, f"Unknown hypotheses referenced: {_missing}"
 
         # Topic check configuration — unchanged from script 1
         self.topic_threshold = 0.6
@@ -224,23 +256,35 @@ class LiberalIlliberalScorer:
         # NLI scoring
         probs = self.get_hypothesis_probabilities(text)
 
+        # Militant-democracy signal: how strongly the text frames restrictions
+        # as defence of the democratic order. Ramps the repression discount
+        # from 0 at signal 0.5 up to defensive_restriction_discount at 1.0.
+        hyp_index = {h: i for i, h in enumerate(self.liberal_illiberal_hypotheses)}
+        md_probs  = [float(probs[hyp_index[h]]) for h in self.militant_democracy_hypotheses]
+        md_signal = float(np.mean(md_probs)) if md_probs else 0.0
+        restriction_discount = self.defensive_restriction_discount * max(0.0, (md_signal - 0.5) / 0.5)
+
         liberal_probs   = []
         illiberal_probs = []
         hypothesis_results = []
 
         for i, (hypothesis, (weight, direction)) in enumerate(self.liberal_illiberal_hypotheses.items()):
             prob = float(probs[i])
-            hypothesis_results.append({
-                'hypothesis':  hypothesis,
-                'probability': prob,
-                'weight':      weight,
-                'direction':   direction,
-            })
             effective = prob if prob >= self.prob_floor else 0.0
+            if direction == "illiberal" and hypothesis in self.defensive_restriction_targets:
+                effective *= (1.0 - restriction_discount)
+            weighted = effective * weight
+            hypothesis_results.append({
+                'hypothesis':        hypothesis,
+                'probability':       prob,
+                'weight':            weight,
+                'direction':         direction,
+                'effective_weighted': weighted,
+            })
             if direction == "liberal":
-                liberal_probs.append(effective * weight)
+                liberal_probs.append(weighted)
             else:
-                illiberal_probs.append(effective * weight)
+                illiberal_probs.append(weighted)
 
         k_score = max(4, int(np.sum(probs > thr)) + 2)
 
@@ -286,8 +330,8 @@ class LiberalIlliberalScorer:
 
         # Annotate with score_impact: contribution to the penalised avg * 5 points,
         # reflecting the cross-penalty each side applies to the other.
-        top_lib_weighted  = sorted([(h['probability'] * h['weight'], h) for h in liberal_hyps],   key=lambda x: x[0], reverse=True)[:k_score]
-        top_illib_weighted = sorted([(h['probability'] * h['weight'], h) for h in illiberal_hyps], key=lambda x: x[0], reverse=True)[:k_score]
+        top_lib_weighted  = sorted([(h['effective_weighted'], h) for h in liberal_hyps],   key=lambda x: x[0], reverse=True)[:k_score]
+        top_illib_weighted = sorted([(h['effective_weighted'], h) for h in illiberal_hyps], key=lambda x: x[0], reverse=True)[:k_score]
         for weighted_val, h in top_lib_weighted:
             h['score_impact'] = round((weighted_val / k_score) * liberal_penalty_mult * 5, 3)
         for weighted_val, h in top_illib_weighted:
@@ -327,6 +371,8 @@ class LiberalIlliberalScorer:
             'topic_probability':        float(topic_prob),
             'k_score':                  k_score,
             'threshold':                thr,
+            'militant_democracy_signal': md_signal,
+            'restriction_discount':      float(restriction_discount),
         }
 
     def quick_score(self, text, thr=0.7):
