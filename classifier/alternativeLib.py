@@ -87,7 +87,7 @@ class LiberalIlliberalScorer:
 
         # Entailment probabilities below this floor mean "not entailed" for an
         # NLI model; they are noise and must not accumulate into a score.
-        self.prob_floor = 0.2
+        self.prob_floor = 0.25
 
         # Topic check configuration — unchanged from script 1
         self.topic_threshold = 0.6
