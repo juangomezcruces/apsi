@@ -43,6 +43,8 @@ class LiberalIlliberalScorer:
 
             # Supporting indicators (0.50–0.70)
             "The text argues that competition among multiple political parties is good for the country.": (0.70, "liberal"),
+            "The text supports defending the democratic constitutional order against extremist or anti-democratic movements.": (0.70, "liberal"),
+            "The text condemns incitement to political violence and wants it punished under the rule of law.": (0.60, "liberal"),
             "The text expresses that dissenting or minority political views deserve protection.": (0.60, "liberal"),
             "The text argues that courts and independent institutions must be protected from interference by those in power.": (0.50, "liberal"),
 
@@ -57,10 +59,10 @@ class LiberalIlliberalScorer:
             "The text rejects free and fair elections as necessary or desirable for choosing who governs.": (1.0, "illiberal"),
             "The text supports single-party rule or the permanent dominance of one party.": (1.0, "illiberal"),
             "The text supports banning or outlawing opposition parties.": (1.0, "illiberal"),
-            "The text justifies restricting freedom of speech.": (1.0, "illiberal"),
-            "The text supports censorship or state control of the media.": (1.0, "illiberal"),
+            "The text justifies restricting the peaceful expression of political opinions.": (1.0, "illiberal"),
+            "The text supports state censorship or government control of the news media.": (1.0, "illiberal"),
             "The text supports banning or repressing peaceful assembly and protest.": (1.0, "illiberal"),
-            "The text opposes the existence of independent civic or political organizations.": (1.0, "illiberal"),
+            "The text opposes the existence of peaceful independent civic or political organizations.": (1.0, "illiberal"),
             "The text supports theocracy or rule based on religious or divine authority instead of elections.": (1.0, "illiberal"),
             "The text supports seizing or holding power through revolution or force rather than through elections.": (1.0, "illiberal"),
             "The text refuses to accept electoral defeat or rejects unfavorable election results as illegitimate.": (1.0, "illiberal"),
@@ -69,13 +71,13 @@ class LiberalIlliberalScorer:
             "The text expresses that one leader or party should rule without challenge from political opponents.": (0.90, "illiberal"),
             "The text argues that the right to vote should be limited by literacy, education, property, ethnicity, religion, or similar criteria.": (0.90, "illiberal"),
             "The text expresses that political legitimacy derives from ideology, religion, or divine authority rather than from elections.": (0.90, "illiberal"),
-            "The text expresses that political criticism or dissent is dangerous and should be suppressed.": (0.85, "illiberal"),
-            "The text justifies repressing opponents or dissent in the name of order, stability, or national unity.": (0.85, "illiberal"),
+            "The text expresses that criticism of the government is dangerous and should be suppressed.": (0.85, "illiberal"),
+            "The text justifies repressing peaceful opponents or critics in the name of order, stability, or national unity.": (0.85, "illiberal"),
             "The text expresses that political rights depend on loyalty to the regime, party, leader, or ideology.": (0.80, "illiberal"),
 
             # Supporting indicators (0.60–0.70)
             "The text frames restricting who may vote as improving the quality of democratic representation.": (0.70, "illiberal"),
-            "The text portrays political opponents as enemies, traitors, or existential threats to the nation.": (0.60, "illiberal"),
+            "The text portrays opposition parties and their voters as enemies, traitors, or existential threats to the nation.": (0.60, "illiberal"),
             "The text portrays democracy as inherently corrupt, weak, or broken beyond repair.": (0.60, "illiberal"),
         }
 
