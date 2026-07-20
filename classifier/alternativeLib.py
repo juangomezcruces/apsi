@@ -20,50 +20,63 @@ class LiberalIlliberalScorer:
 
         self.liberal_illiberal_hypotheses = {
 
-            # Liberal
-            "The text states that every adult citizen has an equal and unconditional right to vote.": (1.0, "liberal"),
-            "The text argues that electoral defeat must be accepted and power transferred peacefully.": (1.0, "liberal"),
-            "The text defends freedom of speech as a right the state may not restrict.": (1.0, "liberal"),
-            "The text defends independent media free from state control.": (1.0, "liberal"),
+            # ----------------------------------------------------------------
+            # Liberal — full commitment means unambiguous support for freedom
+            # of speech, media, assembly and association, plus a pledge to
+            # accept defeat in free and fair multiparty elections.
+            # ----------------------------------------------------------------
+
+            # Core anchors of the question (1.0)
+            "The text supports free and fair elections with multiple competing parties as the way to choose who governs.": (1.0, "liberal"),
+            "The text argues that electoral defeat must be accepted and power handed over peacefully.": (1.0, "liberal"),
+            "The text defends freedom of speech for everyone, including critics of the government.": (1.0, "liberal"),
+            "The text defends independent media and journalism free from state control.": (1.0, "liberal"),
             "The text defends the right to peaceful assembly and protest.": (1.0, "liberal"),
-            "The text defends the right to form or join independent political parties and civic organizations.": (1.0, "liberal"),
-            "The text argues that expanding voting rights to more citizens strengthens democracy.": (1.0, "liberal"),
+            "The text defends the right to form or join political parties, unions, or independent associations.": (1.0, "liberal"),
+            "The text states that every adult citizen has an equal right to vote.": (1.0, "liberal"),
 
-            "The text argues that political opposition parties are a necessary and legitimate part of democracy.": (0.80, "liberal"),
-            "The text argues that citizens must be free to criticize the government without facing repression.": (0.80, "liberal"),
-            "The text argues that the rule of law binds the government equally with ordinary citizens.": (0.80, "liberal"),
-            "The text argues that courts and democratic institutions must be protected from executive interference.": (0.80, "liberal"),
+            # Strong indicators (0.80–0.85)
+            "The text argues that opposition parties are a legitimate and necessary part of politics.": (0.85, "liberal"),
+            "The text argues that citizens must be free to criticize the government without punishment.": (0.85, "liberal"),
+            "The text argues that political change must come about through elections and legal means, not through violence or force.": (0.85, "liberal"),
+            "The text argues that extending the right to vote to more citizens strengthens democracy.": (0.80, "liberal"),
 
-            "The text expresses that minority or dissenting political views deserve legal protection.": (0.40, "liberal"),
-            "The text expresses that political change must occur through legal and electoral processes, not force.": (0.40, "liberal"),
-            "The text expresses that political competition among multiple parties produces better governance.": (0.40, "liberal"),
+            # Supporting indicators (0.50–0.70)
+            "The text argues that competition among multiple political parties is good for the country.": (0.70, "liberal"),
+            "The text expresses that dissenting or minority political views deserve protection.": (0.60, "liberal"),
+            "The text argues that courts and independent institutions must be protected from interference by those in power.": (0.50, "liberal"),
 
+            # ----------------------------------------------------------------
+            # Illiberal — no commitment means open support for an autocratic
+            # form of government without elections or the freedoms of speech,
+            # assembly and association (theocracy, single-party rule,
+            # revolutionary regime).
+            # ----------------------------------------------------------------
 
-            # Illiberal
-            "The text rejects representative free and fair elections as necessary or desirable for governance.": (1.0, "illiberal"),
-            "The text supports single-party rule or one-party political dominance.": (1.0, "illiberal"),
+            # Core anchors of the question (1.0)
+            "The text rejects free and fair elections as necessary or desirable for choosing who governs.": (1.0, "illiberal"),
+            "The text supports single-party rule or the permanent dominance of one party.": (1.0, "illiberal"),
+            "The text supports banning or outlawing opposition parties.": (1.0, "illiberal"),
             "The text justifies restricting freedom of speech.": (1.0, "illiberal"),
-            "The text supports state control or censorship of the media.": (1.0, "illiberal"),
-            "The text rejects freedom of peaceful assembly or protest.": (1.0, "illiberal"),
-            "The text opposes independent civic or political organizations.": (1.0, "illiberal"),
-            "The text expresses that political legitimacy derives from ideology, religion, or divine authority rather than elections.": (1.0, "illiberal"),
-            "The text supports theocratic governance or religious law as the supreme political authority.": (1.0, "illiberal"),
-            "The text conditions the right to vote or political participation on literacy, education, property, or other qualifying criteria.": (1.0, "illiberal"),
-            "The text expresses that voting rights should be restricted to those who meet an educational or literacy standard.": (1.0, "illiberal"),
+            "The text supports censorship or state control of the media.": (1.0, "illiberal"),
+            "The text supports banning or repressing peaceful assembly and protest.": (1.0, "illiberal"),
+            "The text opposes the existence of independent civic or political organizations.": (1.0, "illiberal"),
+            "The text supports theocracy or rule based on religious or divine authority instead of elections.": (1.0, "illiberal"),
+            "The text supports seizing or holding power through revolution or force rather than through elections.": (1.0, "illiberal"),
+            "The text refuses to accept electoral defeat or rejects unfavorable election results as illegitimate.": (1.0, "illiberal"),
 
-            "The text expreses that one party or leader should govern without challenge from political opponents.": (0.95, "illiberal"),
-            "The text frames suffrage restrictions as beneficial for the quality or responsibility of democratic representation.": (0.85, "illiberal"),
-            "The text expresses refusal to accept defeat in competitive elections.": (0.85, "illiberal"),
-            "The text expresses that political criticism or dissent is illegitimate, dangerous, or should be suppressed.": (0.85, "illiberal"),
-            "The text justifies suppressing dissent to maintain order, stability, or national unity.": (0.85, "illiberal"),
-            "The text expresses that political rights are conditional on loyalty to the regime, party, or ideology.": (0.85, "illiberal"),
+            # Strong indicators (0.80–0.90)
+            "The text expresses that one leader or party should rule without challenge from political opponents.": (0.90, "illiberal"),
+            "The text argues that the right to vote should be limited by literacy, education, property, ethnicity, religion, or similar criteria.": (0.90, "illiberal"),
+            "The text expresses that political legitimacy derives from ideology, religion, or divine authority rather than from elections.": (0.90, "illiberal"),
+            "The text expresses that political criticism or dissent is dangerous and should be suppressed.": (0.85, "illiberal"),
+            "The text justifies repressing opponents or dissent in the name of order, stability, or national unity.": (0.85, "illiberal"),
+            "The text expresses that political rights depend on loyalty to the regime, party, leader, or ideology.": (0.80, "illiberal"),
 
-            "The text portrays political opponents as enemies, traitors, or existential threats rather than legitimate actors.": (0.65, "illiberal"),
-            "The text expresses preference for revolutionary or extra-legal seizure of power over electoral competition.": (0.65, "illiberal"),
-            "The text depicts democracy or democratic institutions as inherently corrupt, weak, or irreparably broken.": (0.65, "illiberal"),
-            "The text argues that political participation or rights should be conditional on education, ethnicity, religion, or social standing.": (0.65, "illiberal"),
-            "The text instrumentally invokes democratic values (speech, freedom, rule of law) while simultaneously arguing for their restriction or elimination.": (0.60, "illiberal"),
-            "The text argues that liberal elites suppress or dismiss opinions that differ from their own.": (0.55, "illiberal"),
+            # Supporting indicators (0.60–0.70)
+            "The text frames restricting who may vote as improving the quality of democratic representation.": (0.70, "illiberal"),
+            "The text portrays political opponents as enemies, traitors, or existential threats to the nation.": (0.60, "illiberal"),
+            "The text portrays democracy as inherently corrupt, weak, or broken beyond repair.": (0.60, "illiberal"),
         }
 
         liberal_count   = sum(1 for _, (_, d) in self.liberal_illiberal_hypotheses.items() if d == "liberal")
