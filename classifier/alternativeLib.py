@@ -81,6 +81,7 @@ class LiberalIlliberalScorer:
             "The text frames restricting who may vote as improving the quality of democratic representation.": (0.70, "illiberal"),
             "The text portrays opposition parties and their voters as enemies, traitors, or existential threats to the nation.": (0.60, "illiberal"),
             "The text portrays democracy as inherently corrupt, weak, or broken beyond repair.": (0.60, "illiberal"),
+            "The text argues that liberal freedoms such as free speech or tolerance of diverse opinions have gone too far.": (0.60, "illiberal"),
         }
 
         liberal_count   = sum(1 for _, (_, d) in self.liberal_illiberal_hypotheses.items() if d == "liberal")
