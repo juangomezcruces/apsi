@@ -9,9 +9,11 @@
 <link rel="icon" href="{% static 'favicon.ico' %}" sizes="any">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Instrument+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-<link rel="stylesheet" href="{% static 'survey/assets/styles.css' %}">
+{# Bump ?v= whenever app.js or styles.css change, so returning visitors #}
+{# are not served a cached copy of the old files.                        #}
+<link rel="stylesheet" href="{% static 'survey/assets/styles.css' %}?v=7">
 </head>
 <body>
 
@@ -41,6 +43,6 @@
 {# Tells app.js where the survey JSON and images live, so it does not #}
 {# depend on the page URL. Everything under static/survey/.           #}
 <script>window.SURVEY_BASE = "{% static 'survey/' %}";</script>
-<script src="{% static 'survey/assets/app.js' %}"></script>
+<script src="{% static 'survey/assets/app.js' %}?v=7"></script>
 </body>
 </html>

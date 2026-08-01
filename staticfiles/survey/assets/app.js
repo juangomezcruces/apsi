@@ -91,6 +91,28 @@
 
   function clamp(n, lo, hi) { return Math.max(lo, Math.min(hi, n)); }
 
+  /* Colour along the illiberal - liberal ramp, matching the track's
+     gradient so the number and the thumb position agree. */
+  var RAMP = [
+    [0.0, [192, 102, 47]],
+    [0.5, [126, 133, 152]],
+    [1.0, [42, 139, 152]]
+  ];
+  function rampColor(fraction) {
+    var f = clamp(fraction, 0, 1);
+    for (var i = 1; i < RAMP.length; i++) {
+      if (f <= RAMP[i][0]) {
+        var a = RAMP[i - 1], b = RAMP[i];
+        var t = (f - a[0]) / (b[0] - a[0]);
+        var c = [0, 1, 2].map(function (k) {
+          return Math.round(a[1][k] + (b[1][k] - a[1][k]) * t);
+        });
+        return "rgb(" + c.join(",") + ")";
+      }
+    }
+    return "rgb(42,139,152)";
+  }
+
   /* ---------------------------------------------------------------- */
   /*  Screens                                                          */
   /* ---------------------------------------------------------------- */
@@ -412,8 +434,12 @@
     /* slider */
     var sw = el("div", "slider-wrap");
 
+    var span = (max - min) || 1;
+    var fractionOf = function (v) { return (v - min) / span; };
+
     var readout = el("div", "readout");
     var valEl = el("span", "val", String(current));
+    valEl.style.color = rampColor(fractionOf(current));
     var bandEl = el("span", "band-label", bandFor(current));
     readout.appendChild(valEl);
     readout.appendChild(bandEl);
@@ -427,7 +453,19 @@
     range.value = String(current);
     range.setAttribute("aria-label", cfg.prompt || "Rating");
     range.setAttribute("aria-valuetext", current + " — " + bandFor(current));
-    sw.appendChild(range);
+
+    var track = el("div", "track");
+    track.appendChild(range);
+
+    /* A fixed tick at the suggested value, so respondents can see how far
+       they have moved from it. The offset accounts for the 28px thumb,
+       which cannot travel the full width of the track. */
+    var mark = el("span", "start-mark");
+    mark.style.left = "calc(14px + (100% - 28px) * " + fractionOf(state.start).toFixed(4) + ")";
+    mark.title = "Suggested starting point";
+    track.appendChild(mark);
+
+    sw.appendChild(track);
 
     var ticks = el("div", "ticks");
     (sl.ticks || [String(min), String(max)]).forEach(function (t) {
@@ -459,6 +497,7 @@
       state.value = v;
       state.changeCount++;
       valEl.textContent = String(v);
+      valEl.style.color = rampColor(fractionOf(v));
       bandEl.textContent = bandFor(v);
       range.setAttribute("aria-valuetext", v + " — " + bandFor(v));
       paintNote();
