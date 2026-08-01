@@ -1,0 +1,271 @@
+{
+  "id": "liberal-democracy",
+  "title": "Rating support for liberal democracy",
+  "shortName": "LIB-DEM 01",
+  "sampling": {
+    "drawCount": 4
+  },
+  "slider": {
+    "min": 0,
+    "max": 100,
+    "step": 1,
+    "requireInteraction": false,
+    "ticks": [
+      "0 — maximally illiberal",
+      "50",
+      "100 — maximally liberal"
+    ],
+    "bands": [
+      {
+        "upTo": 20,
+        "label": "Strongly illiberal"
+      },
+      {
+        "upTo": 40,
+        "label": "Illiberal"
+      },
+      {
+        "upTo": 60,
+        "label": "Mixed / ambiguous"
+      },
+      {
+        "upTo": 80,
+        "label": "Liberal"
+      },
+      {
+        "upTo": 100,
+        "label": "Strongly liberal"
+      }
+    ]
+  },
+  "submit": {
+    "endpoint": "https://script.google.com/macros/s/AKfycbwciG-uEOnX--Gdmm-CqZxwQapoOZEFr2dmv6fp_jikTQo6Lm0UbQZnScf5CIEzAxAo/exec",
+    "participantParam": "p"
+  },
+  "logos": [
+    { "src": "assets/logo-hpi.png", "alt": "Hasso Plattner Institute — Digital Engineering, Universität Potsdam", "height": 54 },
+    { "src": "assets/logo-apsi.png", "alt": "APSI — Automated Political Stance Identifier", "height": 46 }
+  ],
+  "welcome": {
+    "eyebrow": "Dear expert",
+    "heading": "Validating the APSI classifier",
+    "body": [
+      "Welcome, and thank you for taking part in this survey! Your participation will help us validate the results of a text classification model that assigns numerical scores to a series of statements. These scores indicate the degree to which each text aligns with specific predefined categories.",
+      "In this survey, you will be asked to assess the scores of four texts. The scores range from 0 to 100, where 0 means the texts reflect a maximally illiberal position and 100 maximally liberal position.",
+      "Your expert judgment will be essential to evaluate the accuracy of the model and improve its performance in future analyses. We greatly appreciate your time and valuable input.",
+      "Best regards,",
+      "The APSI team"
+    ],
+    "button": "Begin"
+  },
+  "questions": {
+    "eyebrow": "About you",
+    "heading": "Your position",
+    "intro": [],
+    "button": "Continue",
+    "items": [
+      {
+        "id": "position",
+        "type": "one",
+        "label": "What is your current academic or professional position?",
+        "hint": "Please select the option that best describes you.",
+        "required": true,
+        "options": [
+          "Ph.D. Candidate / Doctoral Researcher",
+          "Post-Doctoral Researcher",
+          "Assistant Professor",
+          "Associate Professor",
+          "Full Professor",
+          "Researcher (non-academic institution)"
+        ],
+        "allowOther": true,
+        "otherLabel": "Other (please specify)",
+        "otherPlaceholder": "Please specify",
+        "errorText": "Please select your position to continue."
+      }
+    ]
+  },
+  "definition": {
+    "eyebrow": "How to judge the passages",
+    "heading": "What counts as support",
+    "intro": [
+      "Liberal democracy is more than majority rule. It combines free and fair elections with constraints on what any elected majority may do: an independent judiciary, constitutional limits on executive power, protection of civil liberties and minority rights, a free press, and a peaceful transfer of power to whoever wins."
+    ],
+    "cards": [
+      {
+        "tone": "high",
+        "title": "Support for liberal democracy",
+        "body": "The passage defends or strengthens these constraints — judicial independence, the rule of law applying to those in power, free expression, protection of minorities, accepting election results, limits on state surveillance, accountable government."
+      },
+      {
+        "tone": "low",
+        "title": "No support for liberal democracy",
+        "body": "The passage weakens or rejects these constraints — treating courts, the press or civil society as obstacles, casting the majority's will as unlimited, questioning the legitimacy of elections it lost, framing opponents as enemies, or openly favouring an illiberal alternative."
+      }
+    ],
+    "outro": [
+      "A passage can be strongly partisan and still support liberal democracy, and it can be moderate in tone while undermining it. Judge what the passage would do to those constraints, not whether you agree with its politics.",
+      "You will rate each passage on a 0–100 slider. The slider does not start at zero: it opens at a suggested position produced by an automated classifier. Move it wherever you think it belongs — including leaving it where it is, if you agree."
+    ],
+    "button": "Start rating"
+  },
+  "item": {
+    "hint": "Passage {n} of {total}",
+    "prompt": "Where does this text fall on the illiberal–liberal scale?",
+    "nextLabel": "Next",
+    "submitLabel": "Submit answers",
+    "backLabel": "Back",
+    "anchorNote": "Suggested starting point: {start}",
+    "movedNote": "Moved {delta} from the suggested {start}"
+  },
+  "done": {
+    "stamp": "Received",
+    "heading": "Thank you",
+    "body": [
+      "Your answers have been recorded. You can close this tab now.",
+      "PLACEHOLDER — add contact details or a debrief link here if you want one."
+    ]
+  },
+  "items": [
+    {
+      "uid": "doc_0001",
+      "text": "We will restore balance to our courts by passing the Supreme Court ethics reform bill to establish binding ethics rules, and by passing legislation to end lifetime appointments to the Supreme Court. We will fight for judges who will uphold the rule of law, protect our constitutional rights, and administer justice fairly and impartially to all people, regardless of who they are.",
+      "libScore": 7.0499,
+      "libLabel": "Strong Support",
+      "start": 70
+    },
+    {
+      "uid": "doc_0002",
+      "text": "Republicans will defend Free Speech, and stop the Democrats' illegal and unconstitutional efforts to silence political speech. We will ban the Federal Government from colluding with anyone to censor lawful speech.",
+      "libScore": 7.9784,
+      "libLabel": "Strong Support",
+      "start": 80
+    },
+    {
+      "uid": "doc_0003",
+      "text": "stand for a Europe that is developing in the right direction – less bureaucracy and more competitiveness. • strengthen the transatlantic partnership as the foundation of the Western world, especially in turbulent times. • support Ukraine through diplomatic, financial, and humanitarian means and with arms deliveries. This way, we will also defend our freedom. We stand by Israel in its legitimate fight against terror.",
+      "libScore": 5.6926,
+      "libLabel": "Support",
+      "start": 57
+    },
+    {
+      "uid": "doc_0004",
+      "text": "Democracy is a great civilizational achievement. It must be learned, lived, and defended. It is civil society that matters most here. We fight fake news, hatred, and incitement, and take a resolute stand against every form of extremism. Across the country, and especially in eastern Germany, numerous dedicated associations and civil society actors are doing valuable and courageous work on the ground. Together with a strong community of democrats, we want to defend freedom, justice, and solidarity against old and new enemies of democracy.",
+      "libScore": 8.563,
+      "libLabel": "Very Strong Liberal",
+      "start": 86
+    },
+    {
+      "uid": "doc_0005",
+      "text": "We reject the expansion of state surveillance. Mass surveillance, biometric surveillance in public spaces and the use of predictive policing are incompatible with a free society.",
+      "libScore": 8.2855,
+      "libLabel": "Very Strong Liberal",
+      "start": 83
+    },
+    {
+      "uid": "doc_0006",
+      "text": "The fundamental right to freedom of expression is an inalienable human right and the foundation of every free society. We stand for unrestricted freedom of expression. We reject every form of state or state-sponsored censorship in Germany and at the EU level. We demand that the NetzDG be repealed. More and more so-called 'NGOs,' such as 'fact-checkers' or 'Correctiv,' are being enlisted through state commissioning and funding for disinformation campaigns. A democracy does not need a 'Ministry of Truth.",
+      "libScore": 8.5643,
+      "libLabel": "Very Strong Liberal",
+      "start": 86
+    },
+    {
+      "uid": "doc_0007",
+      "text": "A fundamental principle of American democracy is that when we lose an election, we accept the results. That principle, as much as any other, distinguishes democracy from monarchy or tyranny, and anyone who seeks the public trust must honor it. At the same time, in our nation, we owe loyalty not to a president or a party, but to the Constitution of the United States — and loyalty to our conscience and to our God.",
+      "libScore": 8.4444,
+      "libLabel": "Very Strong Liberal",
+      "start": 84
+    },
+    {
+      "uid": "doc_0008",
+      "text": "Eighty years after the end of the Second World War, our freedom is under attack by the opponents and enemies of our liberal democracy as rarely before. There must be no doubt about where we stand: on the side of the people who are committed to democracy and the rule of law. This is how democracy works: the solution is supported by a broad majority in our society.",
+      "libScore": 8.4368,
+      "libLabel": "Very Strong Liberal",
+      "start": 84
+    },
+    {
+      "uid": "doc_0009",
+      "text": "Christian freedom and protecting Christian freedom. Illiberal politics working for Christian freedom seeks to preserve everything that liberals neglect, forget and despise.",
+      "libScore": 4.0936,
+      "libLabel": "Support",
+      "start": 41
+    },
+    {
+      "uid": "doc_0010",
+      "text": "show right-wing extremists the red card and fight them with full force. • take an equally consistent approach to left-wing extremism. We will not allow open calls for violence against our state or attacks on the property of third parties or critical infrastructure. • consistently punish the display of anti-constitutional symbols as well as anti-constitutional and anti-Semitic statements. The rule of law must be enforced.",
+      "libScore": 5.4838,
+      "libLabel": "Support",
+      "start": 55
+    },
+    {
+      "uid": "doc_0011",
+      "text": "Do you throw the Presidential Election Results of 2020 OUT and declare the RIGHTFUL WINNER, or do you have a NEW ELECTION? A Massive Fraud of this type and magnitude allows for the termination of all rules, regulations, and articles, even those found in the Constitution. Our great 'Founders' did not want, and would not condone, False & Fraudulent Elections!",
+      "libScore": 5.4595,
+      "libLabel": "Support",
+      "start": 55
+    },
+    {
+      "uid": "doc_0012",
+      "text": "the great figures who are regularly cited as the creators of the idea of European unity would in fact not belong among the ranks of what today are called the liberaldemocrats, but to the illiberal democrats. This is why I think we should not be afraid to go against the spirit of the age and build an illiberal political and state system.",
+      "libScore": 1.5661,
+      "libLabel": "Very low support",
+      "start": 16
+    },
+    {
+      "uid": "doc_0013",
+      "text": "Mr. Merz is currently putting up posters all over the country: 'Enforce law and order again.' Law! And at the same time, you are throwing motions at our feet here that violate EU law, the constitution, rulings of the European Court of Human Rights, and the Geneva Refugee Convention.",
+      "libScore": 6.0754,
+      "libLabel": "Strong Support",
+      "start": 61
+    },
+    {
+      "uid": "doc_0014",
+      "text": "I am your justice. And for those who have been wronged and betrayed, I am your retribution.",
+      "libScore": 1.7749,
+      "libLabel": "Very low support",
+      "start": 18
+    },
+    {
+      "uid": "doc_0015",
+      "text": "Politics have turned Germany into a danger zone. Its people suffer from mass migration, exploding crime rates, high taxes, energy prices, inflation, and the destruction of wealth. That is why they voted out the old left-green government only to get a government that continues down the same disastrous path.",
+      "libScore": 4.257,
+      "libLabel": "Support",
+      "start": 43
+    },
+    {
+      "uid": "doc_0016",
+      "text": "Democracy is like a tram. You ride it until you arrive at your destination, then you step off.",
+      "libScore": 2.9668,
+      "libLabel": "Low support",
+      "start": 30
+    },
+    {
+      "uid": "doc_0017",
+      "text": "there will emerge for a long time a large governing party, a central field of political power that will be capable of formulating the national concerns _ and does this not in constant debate, but rather represents them in their naturalness.",
+      "libScore": 2.9,
+      "libLabel": "Low support",
+      "start": 29
+    },
+    {
+      "uid": "doc_0018",
+      "text": "We will use the Israeli experience to monitor the activities of so-called political NGOs, their funding and their management from abroad",
+      "libScore": 3.2,
+      "libLabel": "No support",
+      "start": 32
+    },
+    {
+      "uid": "doc_0019",
+      "text": "In many areas ranging from rights violations to corruption, an administration that is not accountable before the judiciary has become dominant.",
+      "libScore": 6.8,
+      "libLabel": "Strong Support",
+      "start": 68
+    },
+    {
+      "uid": "doc_0020",
+      "text": "Judges in Swedish courts are appointed directly by the government, and a weak constitutional review process has contributed to a limited separation of powers compared to other liberal democracies.",
+      "libScore": 6.1,
+      "libLabel": "Strong Support",
+      "start": 61
+    }
+  ]
+}

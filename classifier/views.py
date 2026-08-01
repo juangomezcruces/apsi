@@ -510,6 +510,17 @@ def faq(request):
     return render(request, 'classifier/faq.html')
 
 
+def survey(request):
+    """Expert validation survey.
+
+    A self-contained static app: the template only supplies the shell and
+    the static base path. Questions live in static/survey/surveys/*.json
+    and responses go straight from the browser to a Google Apps Script
+    endpoint, so nothing is stored here.
+    """
+    return render(request, 'classifier/survey.html')
+
+
 
 
 @csrf_exempt

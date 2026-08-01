@@ -14,6 +14,7 @@ urlpatterns = [
     path('contact/', views.contact, name='contact'),
     path('aboutus/', views.aboutus, name='aboutus'),
     path('faq/', views.faq, name='faq'),
+    path('survey/', views.survey, name='survey'),
     path('save-result/', views.save_result, name='save_result'),
     path('delete-result/<int:result_id>/', views.delete_result, name='delete_result'),
     path('textsforanalysis/', views.textsforanalysis, name='textsforanalysis'),

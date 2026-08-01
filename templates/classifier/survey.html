@@ -1,0 +1,46 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>APSI expert survey</title>
+
+<link rel="icon" href="{% static 'favicon.ico' %}" sizes="any">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Instrument+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="{% static 'survey/assets/styles.css' %}">
+</head>
+<body>
+
+{# Deliberately standalone rather than {% extends "base.html" %}: the survey #}
+{# carries its own layout and letterhead, and Bootstrap would fight it.      #}
+
+<main class="ss">
+  <div class="sheet" id="sheet">
+
+    <div class="band">
+      <span class="band-id" id="band-id">Survey</span>
+      <span class="band-meta" id="band-meta"></span>
+    </div>
+
+    <div class="progress" id="progress" hidden>
+      <div class="progress-bar"><i id="progress-fill"></i></div>
+      <span class="progress-text" id="progress-text"></span>
+    </div>
+
+    <div id="screen" aria-live="polite"></div>
+
+  </div>
+
+  <p class="colophon" id="colophon"></p>
+</main>
+
+{# Tells app.js where the survey JSON and images live, so it does not #}
+{# depend on the page URL. Everything under static/survey/.           #}
+<script>window.SURVEY_BASE = "{% static 'survey/' %}";</script>
+<script src="{% static 'survey/assets/app.js' %}"></script>
+</body>
+</html>

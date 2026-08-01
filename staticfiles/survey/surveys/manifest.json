@@ -1,0 +1,10 @@
+{
+  "default": "liberal-democracy",
+  "surveys": [
+    {
+      "id": "liberal-democracy",
+      "title": "Rating support for liberal democracy",
+      "status": "open"
+    }
+  ]
+}
