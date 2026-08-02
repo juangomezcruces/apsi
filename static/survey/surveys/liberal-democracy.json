@@ -14,15 +14,23 @@
       "0 — no support",
       "50",
       "strong support — 100"
-    ],
+    ]
   },
   "submit": {
     "endpoint": "https://script.google.com/macros/s/AKfycbwciG-uEOnX--Gdmm-CqZxwQapoOZEFr2dmv6fp_jikTQo6Lm0UbQZnScf5CIEzAxAo/exec",
     "participantParam": "p"
   },
   "logos": [
-    { "src": "assets/logo-hpi.png", "alt": "Hasso Plattner Institute — Digital Engineering, Universität Potsdam", "height": 54 },
-    { "src": "assets/logo-apsi.png", "alt": "APSI — Automated Political Stance Identifier", "height": 46 }
+    {
+      "src": "assets/logo-hpi.png",
+      "alt": "Hasso Plattner Institute — Digital Engineering, Universität Potsdam",
+      "height": 54
+    },
+    {
+      "src": "assets/logo-apsi.png",
+      "alt": "APSI — Automated Political Stance Identifier",
+      "height": 46
+    }
   ],
   "welcome": {
     "eyebrow": "",

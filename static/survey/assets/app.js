@@ -449,7 +449,10 @@
     var readout = el("div", "readout");
     var valEl = el("span", "val", String(current));
     valEl.style.color = rampColor(fractionOf(current));
+    /* The band pill is optional: drop "bands" from the survey JSON and
+       only the number is shown, rather than an empty pill. */
     var bandEl = el("span", "band-label", bandFor(current));
+    bandEl.hidden = !bandFor(current);
     readout.appendChild(valEl);
     readout.appendChild(bandEl);
     sw.appendChild(readout);
@@ -461,7 +464,8 @@
     range.step = String(step);
     range.value = String(current);
     range.setAttribute("aria-label", cfg.prompt || "Rating");
-    range.setAttribute("aria-valuetext", current + " — " + bandFor(current));
+    range.setAttribute("aria-valuetext",
+      bandFor(current) ? current + " — " + bandFor(current) : String(current));
 
     var track = el("div", "track");
     track.appendChild(range);
@@ -505,10 +509,12 @@
       var v = Number(range.value);
       state.value = v;
       state.changeCount++;
+      var label = bandFor(v);
       valEl.textContent = String(v);
       valEl.style.color = rampColor(fractionOf(v));
-      bandEl.textContent = bandFor(v);
-      range.setAttribute("aria-valuetext", v + " — " + bandFor(v));
+      bandEl.textContent = label;
+      bandEl.hidden = !label;
+      range.setAttribute("aria-valuetext", label ? v + " — " + label : String(v));
       paintNote();
       err.textContent = "";
     });
