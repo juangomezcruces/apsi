@@ -47,6 +47,9 @@
   var drawn = [];          // the items this respondent sees, in order
   var answers = {};        // uid -> { value, start, changeCount, ms }
   var profile = {};        // fixed questions everyone answers: id -> value
+  var drawCount = 0;
+  var countsPromise = null;   // ratings so far per item, or null
+  var assignment = "random";  // becomes "balanced" when counts were used
   var responseId = makeId();
   var startedAt = Date.now();
   var itemEnteredAt = 0;
@@ -88,6 +91,49 @@
       var t = a[i]; a[i] = a[j]; a[j] = t;
     }
     return a;
+  }
+
+  /**
+   * How many ratings each item already has, so the least-rated can be
+   * served first. Resolves to null — and the draw falls back to plain
+   * random — if there is no endpoint, the reply is slow, or the deployed
+   * Apps Script predates the counts parameter.
+   */
+  function fetchCounts() {
+    var endpoint = (survey.submit && survey.submit.endpoint) || "";
+    if (!endpoint || (survey.sampling && survey.sampling.balance === false)) {
+      return Promise.resolve(null);
+    }
+    var url = endpoint + (endpoint.indexOf("?") > -1 ? "&" : "?") +
+      "counts=1&survey=" + encodeURIComponent(survey.id || "");
+
+    var request = fetch(url, { cache: "no-store" })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) { return (d && d.ok && d.counts) ? d.counts : null; })
+      .catch(function () { return null; });
+
+    /* Never let a slow sheet hold up the survey. */
+    var timeout = new Promise(function (resolve) { setTimeout(resolve, 5000, null); });
+    return Promise.race([request, timeout]);
+  }
+
+  /**
+   * Choose this respondent's items: shuffle first, then order by how often
+   * each has been rated. The shuffle is what breaks ties, so equally-rated
+   * items are still picked at random.
+   */
+  function drawItems() {
+    if (drawn.length) return Promise.resolve();
+    return countsPromise.then(function (counts) {
+      var pool = shuffle(survey.items);
+      if (counts) {
+        pool.sort(function (a, b) {
+          return (counts[a.uid] || 0) - (counts[b.uid] || 0);
+        });
+        assignment = "balanced";
+      }
+      drawn = pool.slice(0, drawCount);
+    });
   }
 
   function bandFor(value) {
@@ -405,7 +451,12 @@
     wrap.appendChild(footer([
       button(survey.item && survey.item.backLabel || "Back", "btn ghost", afterWelcome),
       el("span", "spacer"),
-      button(d.button || "Start", "btn", function () { renderItem(0); })
+      button(d.button || "Start", "btn", function (ev) {
+        /* The draw happens here, by which point the counts request
+           started at boot has almost always landed. */
+        if (ev && ev.currentTarget) ev.currentTarget.disabled = true;
+        drawItems().then(function () { renderItem(0); });
+      })
     ]));
 
     show(wrap);
@@ -628,6 +679,7 @@
         ms_on_item: a.ms || 0,
         total_ms: totalMs,
         drawn_uids: drawnUids,
+        assignment: assignment,
         screen_width: window.innerWidth || (window.screen && window.screen.width) || "",
         user_agent: navigator.userAgent,
         referrer: document.referrer || ""
@@ -772,12 +824,15 @@
 
         var items = survey.items || [];
         if (!items.length) throw new Error("This survey has no items.");
-        var draw = Math.min((survey.sampling && survey.sampling.drawCount) || 4, items.length);
-        drawn = shuffle(items).slice(0, draw);
+        drawCount = Math.min((survey.sampling && survey.sampling.drawCount) || 4, items.length);
+
+        /* Start asking for the per-item counts now; the draw itself waits
+           until the respondent leaves the instructions page. */
+        countsPromise = fetchCounts();
 
         document.title = survey.title || "Survey";
         bandId.textContent = survey.shortName || survey.id || "Survey";
-        bandMeta.textContent = draw + " passages · ~5 min";
+        bandMeta.textContent = drawCount + " passages · ~5 min";
         colophon.textContent = "Response " + responseId.slice(0, 8);
 
         renderWelcome();
