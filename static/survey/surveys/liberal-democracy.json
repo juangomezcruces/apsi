@@ -111,9 +111,8 @@
           "body": "Texts show no commitment to such principles if they openly support an autocratic form of government without elections or freedom of speech, assembly and association (e.g. theocracy; single-party rule; revolutionary regime)."
         }
       ],
-      "note": "The sliders are pre-configured to our model outputs, please re-align them as you see fit. Thank you!"
+      "note": "The sliders are pre-configured to our model outputs. Please re-align them as you see fit. Thank you!"
     },
-    "prompt": "Where does this text fall on the illiberal–liberal scale?",
     "nextLabel": "Next",
     "submitLabel": "Submit answers",
     "backLabel": "Back"
@@ -123,7 +122,7 @@
     "heading": "Thank you",
     "body": [
       "Your answers have been recorded. You can close this tab now.",
-      "PLACEHOLDER — add contact details or a debrief link here if you want one."
+      "We value your feedback. Direct your questions or comments to juan.gomezcruces@hpi.de"
     ]
   },
   "items": [
