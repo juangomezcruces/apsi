@@ -15,28 +15,6 @@
       "50",
       "strong support — 100"
     ],
-    "bands": [
-      {
-        "upTo": 20,
-        "label": "Strongly illiberal"
-      },
-      {
-        "upTo": 40,
-        "label": "Illiberal"
-      },
-      {
-        "upTo": 60,
-        "label": "Mixed / ambiguous"
-      },
-      {
-        "upTo": 80,
-        "label": "Liberal"
-      },
-      {
-        "upTo": 100,
-        "label": "Strongly liberal"
-      }
-    ]
   },
   "submit": {
     "endpoint": "https://script.google.com/macros/s/AKfycbwciG-uEOnX--Gdmm-CqZxwQapoOZEFr2dmv6fp_jikTQo6Lm0UbQZnScf5CIEzAxAo/exec",
