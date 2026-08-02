@@ -1,5 +1,6 @@
 import json
 import logging
+import re
 import random
 import numpy as np
 import gc
@@ -7,11 +8,12 @@ import torch
 import psutil
 import time
 from django.shortcuts import render, redirect
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse, HttpResponseNotFound
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.contrib import messages
 from django.conf import settings
+from django.urls import reverse
 from .forms import TextClassificationForm
 
 
@@ -510,15 +512,40 @@ def faq(request):
     return render(request, 'classifier/faq.html')
 
 
+SURVEY_DATA_DIR = settings.BASE_DIR / 'static' / 'survey' / 'surveys'
+
+
 def survey(request):
     """Expert validation survey.
 
     A self-contained static app: the template only supplies the shell and
-    the static base path. Questions live in static/survey/surveys/*.json
-    and responses go straight from the browser to a Google Apps Script
+    the base paths. Questions live in static/survey/surveys/*.json and
+    responses go straight from the browser to a Google Apps Script
     endpoint, so nothing is stored here.
     """
-    return render(request, 'classifier/survey.html')
+    # '/survey/data/x' -> '/survey/data/', without hard-coding the prefix.
+    data_base = reverse('classifier:survey_data', args=['x'])[:-1]
+    return render(request, 'classifier/survey.html', {'survey_data_base': data_base})
+
+
+def survey_data(request, name):
+    """Serve a survey definition straight from static/survey/surveys/.
+
+    Read from the source tree rather than STATIC_ROOT so editing the JSON
+    and pulling is enough to change the questionnaire — no collectstatic,
+    and no second copy to keep in step.
+    """
+    if not re.fullmatch(r'[A-Za-z0-9._-]+\.json', name or ''):
+        return HttpResponseNotFound('bad survey name')
+
+    path = (SURVEY_DATA_DIR / name).resolve()
+    if not str(path).startswith(str(SURVEY_DATA_DIR.resolve())) or not path.is_file():
+        return HttpResponseNotFound('no such survey')
+
+    response = HttpResponse(path.read_bytes(), content_type='application/json')
+    # Edits should show up on the next reload, not after a cache expires.
+    response['Cache-Control'] = 'no-cache, must-revalidate'
+    return response
 
 
 

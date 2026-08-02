@@ -33,6 +33,15 @@
     return BASE ? BASE + "/" + String(path).replace(/^\/+/, "") : path;
   }
 
+  /* Where the survey definitions are read from. Django points this at a
+     view that serves static/survey/surveys/ directly, so editing a survey
+     JSON takes effect without a second copy under STATIC_ROOT. Unset on a
+     plain static host, where the files sit next to the page. */
+  var DATA_BASE = (window.SURVEY_DATA_BASE || "").replace(/\/+$/, "");
+  function dataUrl(file) {
+    return DATA_BASE ? DATA_BASE + "/" + file : assetUrl("surveys/" + file);
+  }
+
   /* ---- state ---- */
   var survey = null;
   var drawn = [];          // the items this respondent sees, in order
@@ -707,13 +716,13 @@
   function boot() {
     var wanted = params.get("s");
 
-    getJSON(assetUrl("surveys/manifest.json"))
+    getJSON(dataUrl("manifest.json"))
       .catch(function () { return { default: wanted }; })
       .then(function (manifest) {
         var id = wanted || manifest.default;
         if (!id) throw new Error("No survey requested and no default set in surveys/manifest.json.");
         if (!/^[a-z0-9._-]+$/i.test(id)) throw new Error("Bad survey id: " + id);
-        return getJSON(assetUrl("surveys/" + id + ".json"));
+        return getJSON(dataUrl(id + ".json"));
       })
       .then(function (def) {
         survey = def;

@@ -13,7 +13,7 @@
 
 {# Bump ?v= whenever app.js or styles.css change, so returning visitors #}
 {# are not served a cached copy of the old files.                        #}
-<link rel="stylesheet" href="{% static 'survey/assets/styles.css' %}?v=7">
+<link rel="stylesheet" href="{% static 'survey/assets/styles.css' %}?v=8">
 </head>
 <body>
 
@@ -40,9 +40,14 @@
   <p class="colophon" id="colophon"></p>
 </main>
 
-{# Tells app.js where the survey JSON and images live, so it does not #}
-{# depend on the page URL. Everything under static/survey/.           #}
-<script>window.SURVEY_BASE = "{% static 'survey/' %}";</script>
-<script src="{% static 'survey/assets/app.js' %}?v=7"></script>
+{# SURVEY_BASE: images and other assets, served from STATIC_ROOT.        #}
+{# SURVEY_DATA_BASE: the survey JSON, served by a view that reads       #}
+{# static/survey/surveys/ directly — so editing a questionnaire needs   #}
+{# no collectstatic and there is only ever one copy of it.              #}
+<script>
+  window.SURVEY_BASE = "{% static 'survey/' %}";
+  window.SURVEY_DATA_BASE = "{{ survey_data_base }}";
+</script>
+<script src="{% static 'survey/assets/app.js' %}?v=8"></script>
 </body>
 </html>
