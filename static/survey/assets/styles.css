@@ -190,23 +190,32 @@ body {
   font-size: 11.5px; font-weight: 700; letter-spacing: .14em;
   text-transform: uppercase; color: var(--muted); margin: 0 0 15px;
 }
-/* coding instructions, repeated above each passage */
+/* Coding instructions, repeated above each passage: one full-width card,
+   with a rule across the top running from the illiberal to the liberal
+   end of the scale. */
 .reminder {
+  position: relative; overflow: hidden;
   border: 1px solid var(--line); border-radius: 11px;
-  background: var(--sunken); padding: 17px 19px; margin: 0 0 22px;
+  background: var(--card); padding: 22px 22px 20px; margin: 0 0 26px;
+}
+.reminder::before {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--low) 0%, #98A2B8 50%, var(--teal) 100%);
 }
 .reminder-q {
-  margin: 0 0 13px; font-size: 15px; font-weight: 600; line-height: 1.5; color: var(--navy);
+  margin: 0 0 17px; font-size: 15.5px; font-weight: 600; line-height: 1.5; color: var(--navy);
 }
-/* the shared .def cards, sized down a little inside the reminder */
-.reminder .defs { padding: 0; gap: 14px; }
-.reminder .def { background: var(--card); padding: 15px 16px; }
-.reminder .def h3 { font-size: 11px; margin-bottom: 8px; }
-.reminder .def p { font-size: 13.6px; line-height: 1.55; }
-
+.reminder-sec { margin: 0 0 15px; }
+.reminder-sec:last-of-type { margin-bottom: 0; }
+.reminder-sec h3 {
+  margin: 0 0 6px; font-size: 11px; font-weight: 700;
+  letter-spacing: .1em; text-transform: uppercase; color: var(--teal-dk);
+}
+.reminder-sec.low h3 { color: var(--low); }
+.reminder-sec p { margin: 0; font-size: 14.2px; line-height: 1.6; color: var(--body-tx); }
 .reminder-note {
-  margin: 13px 0 0; padding-top: 12px; border-top: 1px solid var(--line);
-  font-size: 13.4px; line-height: 1.5; color: var(--muted);
+  margin: 17px 0 0; padding-top: 14px; border-top: 1px solid var(--line);
+  font-size: 13.5px; line-height: 1.55; color: var(--muted);
 }
 
 .quote {

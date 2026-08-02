@@ -451,15 +451,21 @@
       var card = el("div", "reminder");
       if (rem.question) card.appendChild(el("p", "reminder-q", rem.question));
 
-      /* "cards" takes the same shape as definition.cards. The older
-         low/high strings still work, without titles. */
+      /* "cards" takes the same shape as definition.cards, but here they
+         are stacked as sections of one full-width card rather than laid
+         out side by side. The older low/high strings still work. */
       var cards = rem.cards;
       if (!cards && (rem.low || rem.high)) {
         cards = [];
         if (rem.low) cards.push({ tone: "low", body: rem.low });
         if (rem.high) cards.push({ tone: "high", body: rem.high });
       }
-      if (cards && cards.length) card.appendChild(defCards(cards));
+      (cards || []).forEach(function (c) {
+        var sec = el("div", "reminder-sec" + (c.tone === "low" ? " low" : ""));
+        if (c.title) sec.appendChild(el("h3", null, c.title));
+        sec.appendChild(el("p", null, c.body));
+        card.appendChild(sec);
+      });
 
       if (rem.note) card.appendChild(el("p", "reminder-note", rem.note));
       body.appendChild(card);
