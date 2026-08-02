@@ -99,18 +99,11 @@
     "hint": "Passage {n} of {total}",
 
     
-    "cards": [
-      {
+
+
         "tone": "high",
         "title": "Support for liberal democracy",
-        "body": "Text shows a full commitment to key democratic principles if they unambiguously support freedom of speech, media, assembly and association and pledge to accept defeat in free and fair elections and would receive a score of 100."
-      },
-      {
-        "tone": "low",
-        "title": "No support for liberal democracy",
-        "body": "Text shows no commitment to such principles if they openly support an autocratic form of government without elections or freedom of speech, assembly and association (e.g. theocracy; single-party rule; revolutionary regime) and would receive a score of 0."
-      }
-    ],
+        "body": "Text shows a full commitment to key democratic principles if they unambiguously support freedom of speech, media, assembly and association and pledge to accept defeat in free and fair elections and would receive a score of 100.",
 
     
     "prompt": "Where does this text fall on the illiberal–liberal scale?",
