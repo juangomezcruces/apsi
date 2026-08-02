@@ -472,7 +472,9 @@
     }
 
     body.appendChild(el("blockquote", "quote", item.text));
-    body.appendChild(el("p", "eyebrow", cfg.prompt || "Your rating"));
+    /* Optional, like the other item labels: drop "prompt" and no heading
+       is shown above the slider. */
+    if (cfg.prompt) body.appendChild(el("p", "eyebrow", cfg.prompt));
 
     /* slider */
     var sw = el("div", "slider-wrap");

@@ -224,6 +224,7 @@ body {
   border-radius: 0 10px 10px 0;
   padding: 22px 24px; margin: 0 0 30px;
   font-size: 17px; line-height: 1.68; color: var(--ink);
+  font-style: italic;
 }
 
 /* ---- slider ---- */
