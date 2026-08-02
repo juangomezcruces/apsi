@@ -198,14 +198,12 @@ body {
 .reminder-q {
   margin: 0 0 13px; font-size: 15px; font-weight: 600; line-height: 1.5; color: var(--navy);
 }
-.reminder-pair { display: grid; gap: 10px; }
-@media (min-width: 660px) { .reminder-pair { grid-template-columns: 1fr 1fr; gap: 16px; } }
-.reminder-end {
-  margin: 0; font-size: 13.4px; line-height: 1.52; color: var(--body-tx);
-  padding-left: 12px; border-left: 3px solid var(--line-sr);
-}
-.reminder-end.low { border-left-color: var(--low); }
-.reminder-end.high { border-left-color: var(--teal); }
+/* the shared .def cards, sized down a little inside the reminder */
+.reminder .defs { padding: 0; gap: 14px; }
+.reminder .def { background: var(--card); padding: 15px 16px; }
+.reminder .def h3 { font-size: 11px; margin-bottom: 8px; }
+.reminder .def p { font-size: 13.6px; line-height: 1.55; }
+
 .reminder-note {
   margin: 13px 0 0; padding-top: 12px; border-top: 1px solid var(--line);
   font-size: 13.4px; line-height: 1.5; color: var(--muted);

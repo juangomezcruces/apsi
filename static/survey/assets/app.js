@@ -154,6 +154,20 @@
     return strip;
   }
 
+  /* The definition cards — a coloured top rule, a title, a body. Used on
+     the instructions page and again in the reminder above each passage,
+     so the two always look the same. */
+  function defCards(cards) {
+    var defs = el("div", "defs");
+    (cards || []).forEach(function (c) {
+      var card = el("div", "def" + (c.tone === "low" ? " low" : ""));
+      if (c.title) card.appendChild(el("h3", null, c.title));
+      card.appendChild(el("p", null, c.body));
+      defs.appendChild(card);
+    });
+    return defs;
+  }
+
   function footer(children) {
     var f = el("div", "foot");
     children.filter(Boolean).forEach(function (c) { f.appendChild(c); });
@@ -381,16 +395,7 @@
     paragraphs(intro, d.intro, "lede");
     wrap.appendChild(intro);
 
-    if (d.cards && d.cards.length) {
-      var defs = el("div", "defs");
-      d.cards.forEach(function (c) {
-        var card = el("div", "def" + (c.tone === "low" ? " low" : ""));
-        card.appendChild(el("h3", null, c.title));
-        card.appendChild(el("p", null, c.body));
-        defs.appendChild(card);
-      });
-      wrap.appendChild(defs);
-    }
+    if (d.cards && d.cards.length) wrap.appendChild(defCards(d.cards));
 
     var outro = el("div", "prose");
     outro.style.paddingTop = "20px";
@@ -445,12 +450,17 @@
     if (rem) {
       var card = el("div", "reminder");
       if (rem.question) card.appendChild(el("p", "reminder-q", rem.question));
-      if (rem.low || rem.high) {
-        var pair = el("div", "reminder-pair");
-        if (rem.low) pair.appendChild(el("p", "reminder-end low", rem.low));
-        if (rem.high) pair.appendChild(el("p", "reminder-end high", rem.high));
-        card.appendChild(pair);
+
+      /* "cards" takes the same shape as definition.cards. The older
+         low/high strings still work, without titles. */
+      var cards = rem.cards;
+      if (!cards && (rem.low || rem.high)) {
+        cards = [];
+        if (rem.low) cards.push({ tone: "low", body: rem.low });
+        if (rem.high) cards.push({ tone: "high", body: rem.high });
       }
+      if (cards && cards.length) card.appendChild(defCards(cards));
+
       if (rem.note) card.appendChild(el("p", "reminder-note", rem.note));
       body.appendChild(card);
     }
