@@ -190,6 +190,27 @@ body {
   font-size: 11.5px; font-weight: 700; letter-spacing: .14em;
   text-transform: uppercase; color: var(--muted); margin: 0 0 15px;
 }
+/* coding instructions, repeated above each passage */
+.reminder {
+  border: 1px solid var(--line); border-radius: 11px;
+  background: var(--sunken); padding: 17px 19px; margin: 0 0 22px;
+}
+.reminder-q {
+  margin: 0 0 13px; font-size: 15px; font-weight: 600; line-height: 1.5; color: var(--navy);
+}
+.reminder-pair { display: grid; gap: 10px; }
+@media (min-width: 660px) { .reminder-pair { grid-template-columns: 1fr 1fr; gap: 16px; } }
+.reminder-end {
+  margin: 0; font-size: 13.4px; line-height: 1.52; color: var(--body-tx);
+  padding-left: 12px; border-left: 3px solid var(--line-sr);
+}
+.reminder-end.low { border-left-color: var(--low); }
+.reminder-end.high { border-left-color: var(--teal); }
+.reminder-note {
+  margin: 13px 0 0; padding-top: 12px; border-top: 1px solid var(--line);
+  font-size: 13.4px; line-height: 1.5; color: var(--muted);
+}
+
 .quote {
   border-left: 3px solid var(--teal);
   background: var(--sunken);
@@ -261,6 +282,7 @@ input[type="range"]:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 5px rgba
 .ticks span:first-child { text-align: left; }
 .ticks span:last-child { text-align: right; }
 
+.anchor-note[hidden] { display: none; }
 .anchor-note {
   font-size: 12.5px; font-weight: 500; color: var(--muted);
   margin: 20px 0 0; text-align: center;

@@ -437,6 +437,24 @@
     body.appendChild(el("p", "item-hint", fill(cfg.hint || "Passage {n} of {total}", {
       n: index + 1, total: total
     })));
+
+    /* Optional reminder of the coding instructions, repeated above every
+       passage so nobody has to page back to the definitions. Drop
+       item.reminder from the survey JSON to leave it out. */
+    var rem = cfg.reminder;
+    if (rem) {
+      var card = el("div", "reminder");
+      if (rem.question) card.appendChild(el("p", "reminder-q", rem.question));
+      if (rem.low || rem.high) {
+        var pair = el("div", "reminder-pair");
+        if (rem.low) pair.appendChild(el("p", "reminder-end low", rem.low));
+        if (rem.high) pair.appendChild(el("p", "reminder-end high", rem.high));
+        card.appendChild(pair);
+      }
+      if (rem.note) card.appendChild(el("p", "reminder-note", rem.note));
+      body.appendChild(card);
+    }
+
     body.appendChild(el("blockquote", "quote", item.text));
     body.appendChild(el("p", "eyebrow", cfg.prompt || "Your rating"));
 
@@ -486,22 +504,23 @@
     });
     sw.appendChild(ticks);
 
-    var note = el("p", "anchor-note");
-    sw.appendChild(note);
+    /* The line under the slider is opt-in: drop anchorNote and movedNote
+       from the survey JSON and nothing is shown. */
+    var note = (cfg.anchorNote || cfg.movedNote) ? el("p", "anchor-note") : null;
+    if (note) sw.appendChild(note);
 
     function paintNote() {
+      if (!note) return;
       var v = Number(range.value);
       var delta = v - state.start;
-      if (delta === 0) {
-        note.className = "anchor-note";
-        note.textContent = fill(cfg.anchorNote || "Starting point: {start}", { start: state.start });
-      } else {
-        note.className = "anchor-note moved";
-        note.textContent = fill(cfg.movedNote || "Moved {delta} from {start}", {
-          delta: (delta > 0 ? "+" : "") + delta,
-          start: state.start
-        });
-      }
+      var template = delta === 0 ? cfg.anchorNote : cfg.movedNote;
+      if (!template) { note.hidden = true; return; }
+      note.hidden = false;
+      note.className = "anchor-note" + (delta === 0 ? "" : " moved");
+      note.textContent = fill(template, {
+        start: state.start,
+        delta: (delta > 0 ? "+" : "") + delta
+      });
     }
     paintNote();
 

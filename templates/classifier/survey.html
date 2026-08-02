@@ -13,7 +13,7 @@
 
 {# Bump ?v= whenever app.js or styles.css change, so returning visitors #}
 {# are not served a cached copy of the old files.                        #}
-<link rel="stylesheet" href="{% static 'survey/assets/styles.css' %}?v=9">
+<link rel="stylesheet" href="{% static 'survey/assets/styles.css' %}?v=10">
 </head>
 <body>
 
@@ -48,6 +48,6 @@
   window.SURVEY_BASE = "{% static 'survey/' %}";
   window.SURVEY_DATA_BASE = "{{ survey_data_base }}";
 </script>
-<script src="{% static 'survey/assets/app.js' %}?v=9"></script>
+<script src="{% static 'survey/assets/app.js' %}?v=10"></script>
 </body>
 </html>
