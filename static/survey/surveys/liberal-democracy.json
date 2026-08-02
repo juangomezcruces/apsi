@@ -96,12 +96,6 @@
     "button": "Start rating"
   },
   "item": {
-        "cards": [
-      {
-        "tone": "high",
-        "title": "Support for liberal democracy",
-        "body": "Text shows a full commitment to key democratic principles if they unambiguously support freedom of speech, media, assembly and association and pledge to accept defeat in free and fair elections and would receive a score of 100."
-      },
     "hint": "Passage {n} of {total}",
     "prompt": "Where does this text fall on the illiberal–liberal scale?",
     "nextLabel": "Next",
