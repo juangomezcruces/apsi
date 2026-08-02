@@ -100,9 +100,7 @@
     "prompt": "Where does this text fall on the illiberal–liberal scale?",
     "nextLabel": "Next",
     "submitLabel": "Submit answers",
-    "backLabel": "Back",
-    "anchorNote": "Suggested starting point: {start}",
-    "movedNote": "Moved {delta} from the suggested {start}"
+    "backLabel": "Back" 
   },
   "done": {
     "stamp": "Received",
