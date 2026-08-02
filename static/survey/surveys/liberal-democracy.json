@@ -11,9 +11,9 @@
     "step": 1,
     "requireInteraction": false,
     "ticks": [
-      "0 — maximally illiberal",
+      "0 — no support",
       "50",
-      "100 — maximally liberal"
+      "100 — strong support"
     ],
     "bands": [
       {
