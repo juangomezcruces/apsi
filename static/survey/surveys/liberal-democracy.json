@@ -104,11 +104,6 @@
           "tone": "low",
           "title": "No support for liberal democracy",
           "body": "Texts show no commitment to such principles if they openly support an autocratic form of government without elections or freedom of speech, assembly and association (e.g. theocracy; single-party rule; revolutionary regime)."
-        },
-        {
-          "tone": "high",
-          "title": "Support for liberal democracy",
-          "body": "Texts show a full commitment to key liberal democratic principles if they unambiguously support freedom of speech, media, assembly and association and pledge to accept defeat in free and fair elections."
         }
       ],
       "note": "The sliders are pre-configured to our model outputs, please re-align them as you see fit. Thank you!"
