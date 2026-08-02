@@ -47,8 +47,8 @@
     { "src": "assets/logo-apsi.png", "alt": "APSI — Automated Political Stance Identifier", "height": 46 }
   ],
   "welcome": {
-    "eyebrow": "Dear expert",
-    "heading": "Validating the APSI classifier",
+    "eyebrow": "",
+    "heading": "Dear expert,",
     "body": [
       "Welcome, and thank you for taking part in this survey! Your participation will help us validate the results of a text classification model that assigns numerical scores to a series of statements. These scores indicate the degree to which each text aligns with specific predefined categories.",
       "In this survey, you will be asked to assess the scores of four texts. The scores range from 0 to 100, where 0 means the texts reflect a maximally illiberal position and 100 maximally liberal position.",
@@ -86,26 +86,26 @@
     ]
   },
   "definition": {
-    "eyebrow": "How to judge the passages",
-    "heading": "What counts as support",
+    "eyebrow": "",
+    "heading": "Questionnaire Instructions",
     "intro": [
-      "Liberal democracy is more than majority rule. It combines free and fair elections with constraints on what any elected majority may do: an independent judiciary, constitutional limits on executive power, protection of civil liberties and minority rights, a free press, and a peaceful transfer of power to whoever wins."
+      "The texts in this questionnaire have been assigned a score ranging from 0 to 100 by our text classification tool according to the following question:.",
+      "To what extent this text clearly shows commitment to free and fair elections with multiple parties, freedom of speech, media, assembly and association?"
     ],
     "cards": [
       {
         "tone": "high",
         "title": "Support for liberal democracy",
-        "body": "The passage defends or strengthens these constraints — judicial independence, the rule of law applying to those in power, free expression, protection of minorities, accepting election results, limits on state surveillance, accountable government."
+        "body": "Text shows a full commitment to key democratic principles if they unambiguously support freedom of speech, media, assembly and association and pledge to accept defeat in free and fair elections and would receive a score of 100."
       },
       {
         "tone": "low",
         "title": "No support for liberal democracy",
-        "body": "The passage weakens or rejects these constraints — treating courts, the press or civil society as obstacles, casting the majority's will as unlimited, questioning the legitimacy of elections it lost, framing opponents as enemies, or openly favouring an illiberal alternative."
+        "body": "Text shows no commitment to such principles if they openly support an autocratic form of government without elections or freedom of speech, assembly and association (e.g. theocracy; single-party rule; revolutionary regime) and would receive a score of 0."
       }
     ],
     "outro": [
-      "A passage can be strongly partisan and still support liberal democracy, and it can be moderate in tone while undermining it. Judge what the passage would do to those constraints, not whether you agree with its politics.",
-      "You will rate each passage on a 0–100 slider. The slider does not start at zero: it opens at a suggested position produced by an automated classifier. Move it wherever you think it belongs — including leaving it where it is, if you agree."
+      "The positions of the sliders on the following page are aligned to our model outputs, please re-align as you see fit. Thank you!"
     ],
     "button": "Start rating"
   },
