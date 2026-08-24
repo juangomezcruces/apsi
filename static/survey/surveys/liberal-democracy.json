@@ -101,10 +101,10 @@
       "question": "To what extent do the following statements show clear commitment to free and fair elections with multiple parties, freedom of speech, media, assembly and association?",
       "cards": [
         {
-        "tone": "high",
-        "title": "Support for liberal democracy",
-        "body": "Texts shows a full commitment to key liberal democratic principles if they unambiguously support freedom of speech, media, assembly and association and pledge to accept defeat in free and fair elections."
-      },
+          "tone": "high",
+          "title": "Support for liberal democracy",
+          "body": "Texts shows a full commitment to key liberal democratic principles if they unambiguously support freedom of speech, media, assembly and association and pledge to accept defeat in free and fair elections."
+        },
         {
           "tone": "low",
           "title": "No support for liberal democracy",
@@ -128,143 +128,143 @@
   "items": [
     {
       "uid": "doc_0001",
-      "text": "We will restore balance to our courts by passing the Supreme Court ethics reform bill to establish binding ethics rules, and by passing legislation to end lifetime appointments to the Supreme Court. We will fight for judges who will uphold the rule of law, protect our constitutional rights, and administer justice fairly and impartially to all people, regardless of who they are.",
-      "libScore": 7.0499,
-      "libLabel": "Strong Support",
-      "start": 70
+      "text": "A prerequisite for a well-functioning democracy is an electoral system that ensures that voters are able to express their preferences in terms of both policies and people.",
+      "libScore": 8.2,
+      "libLabel": "Other",
+      "start": 82
     },
     {
       "uid": "doc_0002",
-      "text": "Republicans will defend Free Speech, and stop the Democrats' illegal and unconstitutional efforts to silence political speech. We will ban the Federal Government from colluding with anyone to censor lawful speech.",
-      "libScore": 7.9784,
-      "libLabel": "Strong Support",
-      "start": 80
+      "text": "We are not in favor of any form of referendum at any level because of the simplification of both questions and issues that it entails.",
+      "libScore": 4.8,
+      "libLabel": "Other",
+      "start": 48
     },
     {
       "uid": "doc_0003",
-      "text": "stand for a Europe that is developing in the right direction – less bureaucracy and more competitiveness. • strengthen the transatlantic partnership as the foundation of the Western world, especially in turbulent times. • support Ukraine through diplomatic, financial, and humanitarian means and with arms deliveries. This way, we will also defend our freedom. We stand by Israel in its legitimate fight against terror.",
-      "libScore": 5.6926,
-      "libLabel": "Support",
-      "start": 57
+      "text": "In this case, the regime, in order to establish its rule, needs not only repressive institutions, such as the Government, the Police and the Courts, but also ideological institutions, such as the Education System, Religion, the Family and the Media.",
+      "libScore": 3.5,
+      "libLabel": "Other",
+      "start": 35
     },
     {
       "uid": "doc_0004",
-      "text": "Democracy is a great civilizational achievement. It must be learned, lived, and defended. It is civil society that matters most here. We fight fake news, hatred, and incitement, and take a resolute stand against every form of extremism. Across the country, and especially in eastern Germany, numerous dedicated associations and civil society actors are doing valuable and courageous work on the ground. Together with a strong community of democrats, we want to defend freedom, justice, and solidarity against old and new enemies of democracy.",
-      "libScore": 8.563,
-      "libLabel": "Very Strong Liberal",
-      "start": 86
+      "text": "Our Fatherland would give the right to vote to those who can at least read and write, in the interests of more responsible representation of public affairs.",
+      "libScore": 7.5,
+      "libLabel": "Other",
+      "start": 75
     },
     {
       "uid": "doc_0005",
-      "text": "We reject the expansion of state surveillance. Mass surveillance, biometric surveillance in public spaces and the use of predictive policing are incompatible with a free society.",
-      "libScore": 8.2855,
-      "libLabel": "Very Strong Liberal",
-      "start": 83
+      "text": "Judges in Swedish courts are appointed directly by the government, and a weak constitutional review process has contributed to a limited separation of powers compared to other liberal democracies",
+      "libScore": 6.1,
+      "libLabel": "Other",
+      "start": 61
     },
     {
       "uid": "doc_0006",
-      "text": "The fundamental right to freedom of expression is an inalienable human right and the foundation of every free society. We stand for unrestricted freedom of expression. We reject every form of state or state-sponsored censorship in Germany and at the EU level. We demand that the NetzDG be repealed. More and more so-called 'NGOs,' such as 'fact-checkers' or 'Correctiv,' are being enlisted through state commissioning and funding for disinformation campaigns. A democracy does not need a 'Ministry of Truth.",
-      "libScore": 8.5643,
-      "libLabel": "Very Strong Liberal",
-      "start": 86
+      "text": "We aim to ensure that a transparent, participatory, accountable, protective and coordinating approach and administrative methods that are based on public trust and aim to gain the trust of the public prevail",
+      "libScore": 6.8,
+      "libLabel": "Other",
+      "start": 68
     },
     {
       "uid": "doc_0007",
-      "text": "A fundamental principle of American democracy is that when we lose an election, we accept the results. That principle, as much as any other, distinguishes democracy from monarchy or tyranny, and anyone who seeks the public trust must honor it. At the same time, in our nation, we owe loyalty not to a president or a party, but to the Constitution of the United States — and loyalty to our conscience and to our God.",
-      "libScore": 8.4444,
-      "libLabel": "Very Strong Liberal",
-      "start": 84
+      "text": "A justice program goes directly to the heart of the rule of law, so it must be a universal program that encompasses everyone, that engages everyone, that considers everyone.",
+      "libScore": 6.7,
+      "libLabel": "Other",
+      "start": 67
     },
     {
       "uid": "doc_0008",
-      "text": "Eighty years after the end of the Second World War, our freedom is under attack by the opponents and enemies of our liberal democracy as rarely before. There must be no doubt about where we stand: on the side of the people who are committed to democracy and the rule of law. This is how democracy works: the solution is supported by a broad majority in our society.",
-      "libScore": 8.4368,
-      "libLabel": "Very Strong Liberal",
-      "start": 84
+      "text": "This would make the appointment process in the poiitical position category more transparent and at the same time strengthen the control function of the National Council vis-à-vis the government.",
+      "libScore": 7.3,
+      "libLabel": "Other",
+      "start": 73
     },
     {
       "uid": "doc_0009",
       "text": "Christian freedom and protecting Christian freedom. Illiberal politics working for Christian freedom seeks to preserve everything that liberals neglect, forget and despise.",
-      "libScore": 4.0936,
-      "libLabel": "Support",
-      "start": 41
+      "libScore": 4.0,
+      "libLabel": "Other",
+      "start": 40
     },
     {
       "uid": "doc_0010",
-      "text": "show right-wing extremists the red card and fight them with full force. • take an equally consistent approach to left-wing extremism. We will not allow open calls for violence against our state or attacks on the property of third parties or critical infrastructure. • consistently punish the display of anti-constitutional symbols as well as anti-constitutional and anti-Semitic statements. The rule of law must be enforced.",
-      "libScore": 5.4838,
-      "libLabel": "Support",
-      "start": 55
+      "text": "It will be a period in which the crisis of trust between institutions and citizens is eliminated and trust is established in every field",
+      "libScore": 6.9,
+      "libLabel": "Other",
+      "start": 69
     },
     {
       "uid": "doc_0011",
-      "text": "Do you throw the Presidential Election Results of 2020 OUT and declare the RIGHTFUL WINNER, or do you have a NEW ELECTION? A Massive Fraud of this type and magnitude allows for the termination of all rules, regulations, and articles, even those found in the Constitution. Our great 'Founders' did not want, and would not condone, False & Fraudulent Elections!",
-      "libScore": 5.4595,
-      "libLabel": "Support",
-      "start": 55
+      "text": "A Lobbying Registry will be created in which all natural or legal persons representing the interests of companies or other organizations that engage in lobbying will be registered, in which they will delimit the areas in which they exercise the activity, who they represent, the authorized persons and their general data.",
+      "libScore": 6.1,
+      "libLabel": "Other",
+      "start": 61
     },
     {
       "uid": "doc_0012",
       "text": "the great figures who are regularly cited as the creators of the idea of European unity would in fact not belong among the ranks of what today are called the liberaldemocrats, but to the illiberal democrats. This is why I think we should not be afraid to go against the spirit of the age and build an illiberal political and state system.",
-      "libScore": 1.5661,
-      "libLabel": "Very low support",
-      "start": 16
+      "libScore": 1.5,
+      "libLabel": "Other",
+      "start": 15
     },
     {
       "uid": "doc_0013",
-      "text": "Mr. Merz is currently putting up posters all over the country: 'Enforce law and order again.' Law! And at the same time, you are throwing motions at our feet here that violate EU law, the constitution, rulings of the European Court of Human Rights, and the Geneva Refugee Convention.",
-      "libScore": 6.0754,
-      "libLabel": "Strong Support",
-      "start": 61
+      "text": "It is important to stand up for what we believe in. Freedom, respect for the dignity of all human beings, and respect for the rule of law, the equality of men and women - these are fundamental values that guide us, and without which social solidarity is unthinkable.",
+      "libScore": 8.6,
+      "libLabel": "Other",
+      "start": 86
     },
     {
       "uid": "doc_0014",
-      "text": "I am your justice. And for those who have been wronged and betrayed, I am your retribution.",
-      "libScore": 1.7749,
-      "libLabel": "Very low support",
-      "start": 18
+      "text": "Some rules are nonnegotiable. The free democratic principles apply to everyone, regardless of origin or length of stay",
+      "libScore": 8.7,
+      "libLabel": "Other",
+      "start": 87
     },
     {
       "uid": "doc_0015",
-      "text": "Politics have turned Germany into a danger zone. Its people suffer from mass migration, exploding crime rates, high taxes, energy prices, inflation, and the destruction of wealth. That is why they voted out the old left-green government only to get a government that continues down the same disastrous path.",
-      "libScore": 4.257,
-      "libLabel": "Support",
-      "start": 43
+      "text": "The argument we can provide to support our assertion that there is an absence of democracy is that in Western Europe censorship and restrictions on freedom of speech have become general phenomena. Working together, political leaders and technology giants filter news items that are uncomfortable for the liberal elite.",
+      "libScore": 6.7,
+      "libLabel": "Other",
+      "start": 67
     },
     {
       "uid": "doc_0016",
-      "text": "Democracy is like a tram. You ride it until you arrive at your destination, then you step off.",
-      "libScore": 2.9668,
-      "libLabel": "Low support",
-      "start": 30
+      "text": "The liberal concept of freedom of opinion has gone so far that liberals see diversity of opinion as important up until the point that they realise, to their shock, that there are opinions which are different from theirs.",
+      "libScore": 4.3,
+      "libLabel": "Other",
+      "start": 43
     },
     {
       "uid": "doc_0017",
-      "text": "there will emerge for a long time a large governing party, a central field of political power that will be capable of formulating the national concerns _ and does this not in constant debate, but rather represents them in their naturalness.",
-      "libScore": 2.9,
-      "libLabel": "Low support",
-      "start": 29
+      "text": "There are three key notions in the current transformation of the Hungarian political system,. The rule of law, the Constitution, and the rights of man. Together, these represent nothing less than the disintegration of an authoritarian and bureaucratic system and the transition toward a pluralist and democratic system.",
+      "libScore": 8.1,
+      "libLabel": "Other",
+      "start": 81
     },
     {
       "uid": "doc_0018",
       "text": "We will use the Israeli experience to monitor the activities of so-called political NGOs, their funding and their management from abroad",
       "libScore": 3.2,
-      "libLabel": "No support",
+      "libLabel": "Other",
       "start": 32
     },
     {
       "uid": "doc_0019",
       "text": "In many areas ranging from rights violations to corruption, an administration that is not accountable before the judiciary has become dominant.",
       "libScore": 6.8,
-      "libLabel": "Strong Support",
+      "libLabel": "Other",
       "start": 68
     },
     {
       "uid": "doc_0020",
-      "text": "Judges in Swedish courts are appointed directly by the government, and a weak constitutional review process has contributed to a limited separation of powers compared to other liberal democracies.",
-      "libScore": 6.1,
-      "libLabel": "Strong Support",
-      "start": 61
+      "text": "there will emerge for a long time a large governing party, a central field of political power that will be capable of formulating the national concerns – and does this not in constant debate, but rather represents them in their naturalness.",
+      "libScore": 3.6,
+      "libLabel": "Other",
+      "start": 36
     }
   ]
 }
