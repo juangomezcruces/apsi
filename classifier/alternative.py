@@ -103,16 +103,11 @@ class LeftRightEconomicScorer:
             "The text argues that bureaucracy and red tape burden businesses and should be cut": (0.8, "right"),
         }
 
-
         left_count = sum(1 for _, (_, direction) in self.left_right_hypotheses.items() if direction == "left")
         right_count = sum(1 for _, (_, direction) in self.left_right_hypotheses.items() if direction == "right")
         print(f"Loaded {len(self.left_right_hypotheses)} hypotheses ({left_count} left, {right_count} right)")
 
-        # Entailment probabilities below this floor mean "not entailed" for an
-        # NLI model; they are noise and must not accumulate into a score.
         self.prob_floor = 0.25
-        
-        # Precheck hypotheses
         self.topic_threshold = 0.6
         self.topic_hypotheses = [
             # Taxation
@@ -144,7 +139,6 @@ class LeftRightEconomicScorer:
             "The text argues that unions should have more or less power.",
             "The text argues about workers' pay, conditions, or protections.",
         ]
-
 
     def _find_entailment_index(self):
         """Auto-detect entailment index for different NLI models"""
@@ -190,7 +184,6 @@ class LeftRightEconomicScorer:
     def compute_combined_confidence(self, left_probs, right_probs, all_probs):
         """Simplified confidence with Top-K contradiction detection only"""
         
-        # Basic confidence from variance (lower variance = higher confidence)
         left_variance = np.var(left_probs) if len(left_probs) > 1 else 0
         right_variance = np.var(right_probs) if len(right_probs) > 1 else 0
         
@@ -198,7 +191,6 @@ class LeftRightEconomicScorer:
         right_confidence = 1 / (1 + right_variance * 4)
         base_confidence = 0.7 * min(left_confidence, right_confidence) + 0.3 * (left_confidence + right_confidence) / 2
         
-        # Top-K contradiction detection (only method we use)
         k = 5
         top_left = np.sort(left_probs)[-k:] if len(left_probs) >= k else left_probs
         top_right = np.sort(right_probs)[-k:] if len(right_probs) >= k else right_probs
@@ -206,11 +198,9 @@ class LeftRightEconomicScorer:
         top_left_avg = np.mean(top_left)
         top_right_avg = np.mean(top_right)
         
-        # Simple contradiction detection: both top-5 averages must be > 0.25
         topk_contradiction = min(top_left_avg, top_right_avg)
         contradiction_detected = topk_contradiction > 0.25
         
-        # Apply penalty if contradiction detected
         if contradiction_detected:
             contradiction_penalty = min(1.0, topk_contradiction * 2.0)
             final_confidence = base_confidence * (1 - contradiction_penalty * 0.8)
@@ -227,7 +217,6 @@ class LeftRightEconomicScorer:
 
     def score_left_right(self, text, thr=0.15):
         """Score text and return comprehensive results"""
-        # Check if text is about economic policy
         is_relevant, topic_prob = self.is_about_economic_policy(text)
         if not is_relevant:
             return {
@@ -243,7 +232,6 @@ class LeftRightEconomicScorer:
         
         probs = self.get_hypothesis_probabilities(text)
 
-        # If no hypothesis exceeds the threshold, treat as irrelevant (same response as failed precheck)
         if not np.any(probs > thr):
             return {
                 'text': text,
@@ -254,14 +242,12 @@ class LeftRightEconomicScorer:
                 'is_relevant': False,
                 'topic_probability': float(topic_prob),
                 'passed_precheck': False,
-                'is_relevant': False,
             }
 
         left_probs = []
         right_probs = []
         hypothesis_results = []
         
-        # Process each hypothesis
         for i, (hypothesis, (weight, direction)) in enumerate(self.left_right_hypotheses.items()):
             prob = float(probs[i])
             effective = prob if prob >= self.prob_floor else 0.0
@@ -280,51 +266,39 @@ class LeftRightEconomicScorer:
             else:
                 right_probs.append(weighted)
 
-        # Calculate averages and score
-        # === ADAPTIVE K (based on ALL hypotheses above threshold) ===
         k_score = int(np.sum(probs > thr)) + 2
         k_score = max(4, k_score)
 
-        # Use top-k per side for averaging (adaptive probability logic)
         top_left_probs = sorted(left_probs, reverse=True)[:k_score]
         top_right_probs = sorted(right_probs, reverse=True)[:k_score]
 
         left_avg = float(np.mean(top_left_probs)) if top_left_probs else 0.0
         right_avg = float(np.mean(top_right_probs)) if top_right_probs else 0.0
 
-
-        # Check if the top 4 hypotheses on each side average above threshold
-        top2_left_avg   = float(np.mean(sorted(left_probs,   reverse=True)[:2])) if left_probs   else 0.0
+        top2_left_avg = float(np.mean(sorted(left_probs, reverse=True)[:2])) if left_probs else 0.0
         top2_right_avg = float(np.mean(sorted(right_probs, reverse=True)[:2])) if right_probs else 0.0
         
         if top2_left_avg < thr and top2_right_avg < thr:
             return {
-                'text':                   text,
-                'score':                  'NA',
-                'confidence':             0.0,
+                'text': text,
+                'score': 'NA',
+                'confidence': 0.0,
                 'contradiction_detected': False,
-                'interpretation':         'Not about democratic principles',
-                'topic_probability':      float(topic_prob),
-                'passed_precheck':        False,
-                'is_relevant':            False,
+                'interpretation': 'Not about economic policy',
+                'topic_probability': float(topic_prob),
+                'passed_precheck': False,
+                'is_relevant': False,
             }
-          
-        
+
         difference = left_avg - right_avg
-        final_score = 5 - (difference * 5)  # Flipped: left = low numbers, right = high numbers
+        final_score = 5 - (difference * 5)
         final_score = np.clip(final_score, 0, 10)
 
-        # Compute confidence
         confidence_data = self.compute_combined_confidence(left_probs, right_probs, probs)
 
-        # Get top hypotheses from each direction
         left_hyps = [h for h in hypothesis_results if h['direction'] == 'left']
         right_hyps = [h for h in hypothesis_results if h['direction'] == 'right']
 
-        # Annotate each hypothesis with its score impact (points on 0-10 scale).
-        # Each hypothesis in the top-k contributes (prob*weight / k_score) to its side's avg,
-        # which maps to (contrib_to_avg * 5) points of score movement.
-        # Left pulls score down, right pulls score up — we store absolute impact.
         top_left_weighted = sorted([(h['effective_weighted'], h) for h in left_hyps], key=lambda x: x[0], reverse=True)[:k_score]
         top_right_weighted = sorted([(h['effective_weighted'], h) for h in right_hyps], key=lambda x: x[0], reverse=True)[:k_score]
 
@@ -332,7 +306,7 @@ class LeftRightEconomicScorer:
             h['score_impact'] = round((weighted_val / k_score) * 5, 3)
         for weighted_val, h in top_right_weighted:
             h['score_impact'] = round((weighted_val / k_score) * 5, 3)
-        # Hypotheses outside the top-k got no weight in the average
+
         top_left_set = {id(h) for _, h in top_left_weighted}
         top_right_set = {id(h) for _, h in top_right_weighted}
         for h in left_hyps:
@@ -342,10 +316,10 @@ class LeftRightEconomicScorer:
             if id(h) not in top_right_set:
                 h['score_impact'] = 0.0
 
-        top_left = sorted([h for h in left_hyps if h['score_impact'] >= 0.5], key=lambda x: x['score_impact'], reverse=True)[:10]
-        top_right = sorted([h for h in right_hyps if h['score_impact'] >= 0.5], key=lambda x: x['score_impact'], reverse=True)[:10]
+        # CHANGED: lowered score_impact threshold from 0.5 to 0.1
+        top_left = sorted([h for h in left_hyps if h['score_impact'] >= 0.1], key=lambda x: x['score_impact'], reverse=True)[:10]
+        top_right = sorted([h for h in right_hyps if h['score_impact'] >= 0.1], key=lambda x: x['score_impact'], reverse=True)[:10]
 
-        # Interpret score (0-10 scale: 0=Far Left, 5=Center, 10=Far Right)
         if final_score < 1.43:
             interpretation = "Strong Left"
         elif final_score < 2.86:
@@ -374,7 +348,6 @@ class LeftRightEconomicScorer:
             'passed_precheck': True,
             'is_relevant': True,
             'topic_probability': float(topic_prob),
-            
         }
 
     def quick_score(self, text, thr=0.15):
@@ -394,7 +367,7 @@ def analyze_text(scorer, text):
     print(f"TEXT: {text}")
     print(f"{'='*80}")
     
-    print(f"\nðŸ“Š RESULTS:")
+    print(f"\n📊 RESULTS:")
     print(f"   LeftAvg: {result['left_avg']:.2f}")
     print(f"   RightAvg: {result['right_avg']:.2f}")
     print(f"   Score: {result['score']:.2f}/10 (0=Far Left, 10=Far Right)")
@@ -402,12 +375,12 @@ def analyze_text(scorer, text):
     print(f"   Contradiction: {'YES' if result['contradiction_detected'] else 'NO'}")
     print(f"   Interpretation: {result['interpretation']}")
     
-    print(f"\nðŸ” TOP LEFT HYPOTHESES:")
+    print(f"\n🔍 TOP LEFT HYPOTHESES:")
     for i, hyp in enumerate(result['top_left_hypotheses']):
         short_hyp = hyp['hypothesis'][:200] + "..." if len(hyp['hypothesis']) > 200 else hyp['hypothesis']
         print(f"   {i}. {hyp['probability']:.3f} - {short_hyp}")
     
-    print(f"\nðŸ” TOP RIGHT HYPOTHESES:")
+    print(f"\n🔍 TOP RIGHT HYPOTHESES:")
     for i, hyp in enumerate(result['top_right_hypotheses']):
         short_hyp = hyp['hypothesis'][:200] + "..." if len(hyp['hypothesis']) > 200 else hyp['hypothesis']
         print(f"   {i}. {hyp['probability']:.3f} - {short_hyp}")
@@ -432,12 +405,11 @@ def analyze_batch(scorer, texts):
         print(f"{text_display:<70} {result['score']:<7.2f} {result['confidence']:<7.3f} {contradiction_status:<6} {result['interpretation']}")
         results.append(result)
     
-    # Summary statistics
     scores = [r['score'] for r in results]
     confidences = [r['confidence'] for r in results]
     contradictions = sum(1 for r in results if r['contradiction_detected'])
     
-    print(f"\nðŸ“Š SUMMARY:")
+    print(f"\n📊 SUMMARY:")
     print(f"   Score Range: {min(scores):.2f} - {max(scores):.2f}")
     print(f"   Mean Score: {np.mean(scores):.2f}")
     print(f"   Mean Confidence: {np.mean(confidences):.3f}")
@@ -497,8 +469,5 @@ def interactive_mode(scorer):
 # ============================================================================
 
 if __name__ == "__main__":
-    # Initialize scorer
     scorer = LeftRightEconomicScorer()
-    
-    # Run interactive mode
     interactive_mode(scorer)
