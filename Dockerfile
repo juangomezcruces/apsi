@@ -24,7 +24,7 @@ COPY . /app/
 RUN mkdir -p /app/models /app/staticfiles
 
 # Collect static files
-RUN python manage.py collectstatic --noinput || true
+RUN python manage.py collectstatic --noinput
 
 # Run migrations
 #RUN python manage.py migrate || true
