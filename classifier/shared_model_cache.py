@@ -1,3 +1,5 @@
+import threading
+
 import torch
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 import logging
@@ -6,6 +8,11 @@ logger = logging.getLogger(__name__)
 
 class SharedModelCache:
     _instance = None
+    # One model and one (Rust) tokenizer are shared by every scorer, and views.py
+    # runs the scorers in parallel threads. The fast tokenizer is not thread-safe
+    # ("Already borrowed"), so every tokenize + forward pass takes this lock.
+    # On a single device the forward passes would queue anyway.
+    _inference_lock = threading.Lock()
     _models = {}
     _tokenizers = {}
     _device = None  # Initialize as None
@@ -39,6 +46,10 @@ class SharedModelCache:
         
         return self._models[model_name], self._tokenizers[model_name]
     
+    def inference_lock(self):
+        """Hold this around any tokenizer or model call on the shared model."""
+        return self._inference_lock
+
     def get_device(self):
         """Get the device being used (cuda or cpu)"""
         return self._device

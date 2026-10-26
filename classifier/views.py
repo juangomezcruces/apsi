@@ -70,22 +70,26 @@ def get_alternative_scorers(selected_approaches):
             selected_approaches.get('liberal_illiberal_hypothesis') or
             selected_approaches.get('populism_hypothesis')):
 
+            # The validated scorers: left-right and populism run the project-root
+            # engine scripts (classify_economic.py, classify_populism.py) through
+            # final_scorers; support for democracy is alternativeLib_v3. All three
+            # share one model via SharedModelCache. The previous scorers
+            # (alternative, alternativeLib, alternativePop) are no longer loaded.
             logger.info("Loading hypothesis-based scorers...")
-            from . import alternative
-            from . import alternativeLib
-            from . import alternativePop
+            from . import final_scorers
+            from . import alternativeLib_v3
 
             if selected_approaches.get('left_right_hypothesis'):
-                scorers['left_right'] = alternative.LeftRightEconomicScorer()
-                logger.info("✓ Left-Right hypothesis scorer loaded")
+                scorers['left_right'] = final_scorers.LeftRightScorer()
+                logger.info("✓ Left-Right hypothesis scorer loaded (classify_economic.py)")
 
             if selected_approaches.get('liberal_illiberal_hypothesis'):
-                scorers['liberal_illiberal'] = alternativeLib.LiberalIlliberalScorer()
-                logger.info("✓ Liberal-Illiberal hypothesis scorer loaded")
+                scorers['liberal_illiberal'] = alternativeLib_v3.LiberalIlliberalScorer()
+                logger.info("✓ Liberal-Illiberal hypothesis scorer loaded (alternativeLib_v3)")
 
             if selected_approaches.get('populism_hypothesis'):
-                scorers['populism_pluralism'] = alternativePop.PopulismPluralismScorer()
-                logger.info("✓ Populism-Pluralism hypothesis scorer loaded")
+                scorers['populism_pluralism'] = final_scorers.PopulismScorer()
+                logger.info("✓ Populism-Pluralism hypothesis scorer loaded (classify_populism.py)")
 
         log_memory_usage("after loading scorers")
         return scorers
@@ -93,6 +97,30 @@ def get_alternative_scorers(selected_approaches):
     except Exception as e:
         logger.error(f"Error loading alternative scorers: {e}")
         return None
+# Form field -> key the results page reads. Populism differs on purpose.
+RESULT_KEYS = {
+    'left_right_hypothesis': 'left_right_hypothesis',
+    'liberal_illiberal_hypothesis': 'liberal_illiberal_hypothesis',
+    'populism_hypothesis': 'populism_pluralism_hypothesis',
+}
+
+
+def scoring_failed():
+    """What the results page shows when a scorer could not run: no score and an
+    explicit failure, never a stand-in number (generate_mock_score is for
+    MOCK_MODE only)."""
+    return {
+        'score': 'NA',
+        'confidence': 0.0,
+        'is_relevant': False,
+        'failed': True,
+        'interpretation': 'Scoring failed',
+        'error_message': 'This dimension could not be scored because of an internal error. '
+                         'Please try again; if it keeps failing, contact us.',
+        'topic_probability': 0.0,
+    }
+
+
 def generate_alternative_scores(text, scorers=None, selected_approaches=None):
     """Generate ONLY the selected alternative hypothesis scores"""
     from .inference_service import MOCK_MODE
@@ -144,9 +172,9 @@ def generate_alternative_scores(text, scorers=None, selected_approaches=None):
                         }
                         logger.debug("✓ Left-right hypothesis: NA (not relevant)")
                     return 'left_right_hypothesis', result
-                except Exception as e:
-                    logger.error(f"Left-Right hypothesis scoring failed: {e}")
-                    return 'left_right_hypothesis', generate_mock_score('left_right')
+                except Exception:
+                    logger.exception("Left-Right hypothesis scoring failed")
+                    return 'left_right_hypothesis', scoring_failed()
 
             def run_liberal_illiberal():
                 try:
@@ -176,9 +204,9 @@ def generate_alternative_scores(text, scorers=None, selected_approaches=None):
                         }
                         logger.debug("✓ Liberal-illiberal hypothesis: NA (not relevant)")
                     return 'liberal_illiberal_hypothesis', result
-                except Exception as e:
-                    logger.error(f"Liberal-Illiberal hypothesis scoring failed: {e}")
-                    return 'liberal_illiberal_hypothesis', generate_mock_score('liberal_illiberal')
+                except Exception:
+                    logger.exception("Liberal-Illiberal hypothesis scoring failed")
+                    return 'liberal_illiberal_hypothesis', scoring_failed()
 
             def run_populism():
                 try:
@@ -210,9 +238,9 @@ def generate_alternative_scores(text, scorers=None, selected_approaches=None):
                         }
                         logger.debug("✓ Populism-pluralism hypothesis: NA (not relevant)")
                     return 'populism_pluralism_hypothesis', result
-                except Exception as e:
-                    logger.error(f"Populism-Pluralism hypothesis scoring failed: {e}")
-                    return 'populism_pluralism_hypothesis', generate_mock_score('populism_pluralism')
+                except Exception:
+                    logger.exception("Populism-Pluralism hypothesis scoring failed")
+                    return 'populism_pluralism_hypothesis', scoring_failed()
 
             # Build list of tasks to run based on what was selected
             tasks = []
@@ -230,13 +258,9 @@ def generate_alternative_scores(text, scorers=None, selected_approaches=None):
                     key, result = future.result()
                     alternative_scores[key] = result
 
-        else:
-            # Generate mock data only for selected approaches
-            if MOCK_MODE:
-                logger.info("Using mock alternative scores (MOCK_MODE = True)")
-            else:
-                logger.warning("Using mock alternative scores (real scorers not available)")
-
+        elif MOCK_MODE:
+            # Development only: random scores, so the pages can be built without a model
+            logger.info("Using mock alternative scores (MOCK_MODE = True)")
             if selected_approaches.get('left_right_hypothesis'):
                 alternative_scores['left_right_hypothesis'] = generate_mock_score('left_right')
             if selected_approaches.get('liberal_illiberal_hypothesis'):
@@ -244,20 +268,18 @@ def generate_alternative_scores(text, scorers=None, selected_approaches=None):
             if selected_approaches.get('populism_hypothesis'):
                 alternative_scores['populism_pluralism_hypothesis'] = generate_mock_score('populism_pluralism')
 
-            logger.debug(f"Generated mock scores for selected approaches: {list(alternative_scores.keys())}")
+        else:
+            # The scorers did not load (get_alternative_scorers logged why). Say so.
+            logger.error("Hypothesis scorers are not available; reporting the selected "
+                         "dimensions as failed")
+            for approach, selected in selected_approaches.items():
+                if selected:
+                    alternative_scores[RESULT_KEYS[approach]] = scoring_failed()
 
-    except Exception as e:
-        logger.error(f"Alternative scoring error: {e}")
-        # Emergency fallback - only mock the selected approaches
-        alternative_scores = {}
-        for approach, selected in selected_approaches.items():
-            if selected:
-                if 'left_right' in approach:
-                    alternative_scores[approach] = generate_mock_score('left_right')
-                elif 'liberal_illiberal' in approach:
-                    alternative_scores[approach] = generate_mock_score('liberal_illiberal')
-                elif 'populism' in approach:
-                    alternative_scores[approach] = generate_mock_score('populism_pluralism')
+    except Exception:
+        logger.exception("Alternative scoring error")
+        alternative_scores = {RESULT_KEYS[approach]: scoring_failed()
+                              for approach, selected in selected_approaches.items() if selected}
 
     return alternative_scores
 

@@ -238,8 +238,11 @@
             <summary>9. How is the final score calculated?</summary>
             <div class="apsi-clip"><div class="apsi-content">
               <p class="answer">
-                APSI averages entailment probabilities for each side of a dimension, takes the difference, and scales it to a 0–10 score
-                (clipped to stay within bounds).
+                Each dimension is a set of paired statements, one for each side — for example, that key industries should be
+                state-owned, and that they should be privately run. The model judges how strongly the text supports each statement,
+                and each pair contributes the difference between its two sides. Only pairs the text actually addresses count, and
+                their weighted average is placed on a 0–10 scale, where 5 means no lean either way. Every statement is also scored in
+                a second wording and the two are averaged, so results depend less on how a statement happens to be phrased.
               </p>
             </div></div>
           </details>
@@ -249,8 +252,12 @@
             <summary>10. How does APSI decide whether a text is politically relevant?</summary>
             <div class="apsi-clip"><div class="apsi-content">
               <p class="answer">
-                APSI runs a topic relevance pre-check. If the text does not strongly match political topic hypotheses (threshold 0.6),
-                it returns no score.
+                Before scoring, APSI checks whether the text is about the dimension at all, using neutral "this text is about…"
+                statements for that dimension; at least two of them must apply. For economic left–right and populism, a text is also
+                set aside when it reads more like general rhetoric than like the topic. Texts of fewer than five words are not scored,
+                and the text must take a position on at least two statement pairs (one for liberal democracy). Very long texts are cut
+                at the model's limit of 512 tokens, roughly 350 words, so split longer documents into paragraphs — the long-document
+                page does this for you.
               </p>
             </div></div>
           </details>
@@ -330,7 +337,7 @@
             <div class="apsi-clip"><div class="apsi-content">
               <p class="answer">
                 Lower values indicate more pluralist rhetoric; higher values indicate more populist rhetoric. The tool maps score ranges
-                to labels such as "Pluralist", "Moderate", and "Populist".
+                to labels such as "Pluralist", "Mixed", and "Populist".
               </p>
             </div></div>
           </details>
@@ -350,8 +357,10 @@
             <summary>19. What is the confidence score?</summary>
             <div class="apsi-clip"><div class="apsi-content">
               <p class="answer">
-                Confidence reflects the internal consistency of the model's hypothesis probabilities. Lower variance across
-                hypotheses produces higher confidence.
+                Confidence shows how much the score depends on which statements happened to apply. APSI re-scores the text 200 times,
+                each time with a random draw of the statement pairs that applied, and measures how far the score moves. If it barely
+                moves, confidence is close to 100%; if the range covers much of the 0–10 scale, confidence is low. When a score rests on
+                a single pair there is nothing to compare, and confidence is shown as 0%.
               </p>
             </div></div>
           </details>
