@@ -119,6 +119,11 @@
                   </div>
                   {% endif %}
                   {% endwith %}
+                {% elif alternative_scores.left_right_hypothesis.failed %}
+                  <div class="alert alert-danger mt-3 mb-0" role="alert">
+                    <strong>Scoring failed:</strong>
+                    {{ alternative_scores.left_right_hypothesis.error_message }}
+                  </div>
                 {% else %}
                   <div class="alert alert-warning mt-3 mb-0" role="alert">
                     <strong>Not in scope:</strong>
@@ -180,6 +185,11 @@
                   </div>
                   {% endif %}
                   {% endwith %}
+                {% elif alternative_scores.liberal_illiberal_hypothesis.failed %}
+                  <div class="alert alert-danger mt-3 mb-0" role="alert">
+                    <strong>Scoring failed:</strong>
+                    {{ alternative_scores.liberal_illiberal_hypothesis.error_message }}
+                  </div>
                 {% else %}
                   <div class="alert alert-warning mt-3 mb-0" role="alert">
                     <strong>Not in scope:</strong>
@@ -241,6 +251,11 @@
                   </div>
                   {% endif %}
                   {% endwith %}
+                {% elif alternative_scores.populism_pluralism_hypothesis.failed %}
+                  <div class="alert alert-danger mt-3 mb-0" role="alert">
+                    <strong>Scoring failed:</strong>
+                    {{ alternative_scores.populism_pluralism_hypothesis.error_message }}
+                  </div>
                 {% else %}
                   <div class="alert alert-warning mt-3 mb-0" role="alert">
                     <strong>Not in scope:</strong>
@@ -440,9 +455,9 @@
       modal.hide();
     });
 
-    // Strip leading "The text " from hypothesis labels and capitalise remainder
+    // Strip leading "The text " / "This text " from hypothesis labels and capitalise remainder
     document.querySelectorAll('.hyp-label').forEach(function(el) {
-      var t = el.textContent.replace(/^The text\s+/i, '');
+      var t = el.textContent.replace(/^(The|This) text\s+/i, '');
       el.textContent = t.charAt(0).toUpperCase() + t.slice(1);
     });
 

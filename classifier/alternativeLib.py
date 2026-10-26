@@ -1,385 +1,442 @@
-import numpy as np
-import pandas as pd
-import torch
+"""
+Liberal-illiberal scorer, v2: commitment to the democratic process.
+
+Scale: 0 = openly autocratic, 5 = no clear position, 10 = fully committed.
+NA = the text is not about democratic principles, or takes no position on them.
+
+TARGET CONCEPT (V-Party v2paplur; Lindberg et al. 2022, p. 27)
+--------------------------------------------------------------
+"To what extent was [the actor] clearly committed to free and fair elections
+with multiple parties, freedom of speech, media, assembly and association?"
+  No commitment   = openly supports autocratic rule without elections or these
+                    freedoms (theocracy, single-party rule, revolutionary regime).
+  Full commitment = unambiguously supports the freedoms AND pledges to accept
+                    defeat in free and fair elections.
+
+The battery is built from the parts of that definition: ELECTIONS, DEFEAT,
+SPEECH, MEDIA, ASSEMBLY, ASSOCIATION and the REGIME type it names as the zero
+point. Each part has a liberal and an illiberal side.
+
+WHAT CHANGED FROM v1 (alternativeLib_v1.py) AND WHY
+---------------------------------------------------
+1.  MARGINS, NOT PROBABILITIES. Political_DEBATE has two labels, so the margin
+    (logit entailment - logit not-entailment) is the sufficient statistic and
+    p = sigmoid(margin). v1's softmax saturates at 0/1, and its prob_floor of
+    0.25 then threw away whatever was left between 0 and 0.25.
+
+2.  PAIRED BATTERY. v1 had 17 liberal and 18 illiberal hypotheses with unequal
+    weight mass and no mirror between them. Each item is now a PAIR, and the
+    evidence is the contrast c = (m_liberal - m_illiberal) / 2. This cancels a
+    template's own tendency to entail, and it gives both ends of the scale the
+    same headroom by construction.
+
+3.  NO k_score, NO MUTUAL SUPPRESSION. v1 counted fires on BOTH sides to set
+    the top-k for EACH side, so illiberal fires diluted the liberal average and
+    texts that tripped many hypotheses read as more extreme. The ad-hoc
+    1 - min(avg, 0.80) cross-penalty then compressed mixed texts. An inactive
+    pair has c ~ 0, which is the neutral value, so a weighted mean over the
+    ACTIVE pairs needs neither device.
+
+4.  ITEMS ON THE CONSTRUCT. Dropped from v1 because v2paplur does not ask
+    about them: court independence, "democracy is broken", "liberal freedoms
+    have gone too far", voting-rights EXPANSION as such. Demonizing opponents
+    belongs to the wider anti-pluralism index, not to this indicator, so it
+    survives only where it targets the media or the opposition's right to
+    exist. Added: accepting defeat as a pair of its own, and a regime pair for
+    rule by religion, ideology or revolution.
+
+5.  ONE GATE, NEUTRAL PROBES. v1 gated on the max of 30 STANCE probes at
+    p >= 0.6. Stance probes entail on anything political, and a max over 30
+    is permissive. v1 then applied a second "no clear signal" gate whose
+    threshold depended on the entry point (thr=0.15 here, 0.7 in quick_score),
+    so the same text could be NA by one path and scored by the other. Now
+    there are seven "is about" probes, one per part of the concept, with a
+    single threshold in margin units. After that a text is NA only if no pair
+    is active.
+
+6.  MILITANT DEMOCRACY, SCOPED. Restricting violence, incitement or movements
+    that would abolish democracy is not illiberal. A single probe for that
+    framing now discounts only the NEGATIVE contrasts of the freedom pairs,
+    smoothly via sigmoid(margin) rather than v1's hard 0.5 hinge. Elections,
+    defeat, regime and opposition-party pairs are never discounted: "the
+    opposition are extremists" is exactly how bans of real oppositions are
+    justified.
+
+7.  CONFIDENCE YOU CAN EXPLAIN. confidence = W / (W + 1) * (1 - SD), with W
+    the weight of active evidence and SD the weighted dispersion of positions
+    across active pairs. Confidence goes up with more evidence and down with
+    disagreement between pairs, and nothing else feeds it.
+
+8.  MECHANICS. Inputs are moved to the model's device (v1 left them on the
+    CPU). Truncation is "only_first", so a hypothesis is never cut. Texts over
+    CHUNK_WORDS are split on sentences and margins are max-pooled across
+    chunks, where v1 silently dropped everything past 512 tokens.
+    score_texts() batches many texts. An injectable margin_fn lets the
+    aggregation be tested, or re-run from cached margins, without torch.
+
+9.  ACTOR LEVEL. v2paplur rates an ACTOR. aggregate_actor() pools a party's
+    texts and applies the conjunctive rule: level 4 needs evidence for both
+    the freedoms and accepting defeat, and level 0 needs open support for an
+    autocratic regime.
+
+The output keys views.py and views_longdoc.py read are unchanged. New keys
+add to them: vparty_level, component_positions, pair_positions, margins.
+"""
 import logging
-from .shared_model_cache import SharedModelCache
+import re
 import warnings
+
+import numpy as np
+
 warnings.filterwarnings('ignore')
 logger = logging.getLogger(__name__)
 
+MODEL_NAME = "mlburnham/Political_DEBATE_large_v1.0"
+
 # ============================================================================
-# LIBERAL-ILLIBERAL HYPOTHESIS-BASED SCORER
+# BATTERY: (domain, component, weight, liberal side, illiberal side)
+# ============================================================================
+
+BATTERY = [
+    # ELECTIONS -- "free and fair elections with multiple parties"
+    ("multiparty_elections", "elections", 1.0,
+     "The text supports choosing the government through free and fair elections between competing parties.",
+     "The text supports choosing or keeping a government without free and competitive elections."),
+    ("electoral_conduct", "elections", 0.7,
+     "The text supports elections run impartially, with every party able to campaign freely.",
+     "The text justifies rigging, postponing, or manipulating elections."),
+    ("franchise", "elections", 0.6,
+     "The text supports an equal right to vote for all adult citizens.",
+     "The text supports denying the vote to some citizens because of their group, beliefs, or loyalty."),
+    # DEFEAT -- "pledge to accept defeat in free and fair elections"
+    ("accept_defeat", "defeat", 1.0,
+     "The text commits to accepting election results and handing over power peacefully after a defeat.",
+     "The text refuses to accept an election result or to hand over power after losing."),
+    ("lawful_means", "defeat", 0.8,
+     "The text insists that power may be won only through elections and lawful means.",
+     "The text supports taking or keeping power by force, revolution, or a coup."),
+    # SPEECH
+    ("free_speech", "speech", 1.0,
+     "The text defends freedom of speech, including for critics of the government.",
+     "The text supports punishing or silencing people for peaceful political speech."),
+    ("criticism", "speech", 0.8,
+     "The text defends the right of citizens to criticize those in power.",
+     "The text portrays criticism of the government or its leader as illegitimate or treasonous."),
+    # MEDIA
+    ("press_freedom", "media", 1.0,
+     "The text defends independent media free from government control.",
+     "The text supports government censorship or control of the media."),
+    ("press_role", "media", 0.6,
+     "The text defends the role of journalists in holding those in power to account.",
+     "The text portrays independent journalists as enemies who must be stopped."),
+    # ASSEMBLY
+    ("assembly", "assembly", 1.0,
+     "The text defends the right to peaceful assembly and protest.",
+     "The text supports banning or breaking up peaceful protests."),
+    ("protest_force", "assembly", 0.7,
+     "The text condemns the use of force against peaceful demonstrators.",
+     "The text justifies the use of force against peaceful demonstrators."),
+    # ASSOCIATION
+    ("opposition_parties", "association", 1.0,
+     "The text accepts opposition parties as legitimate competitors for power.",
+     "The text supports banning or eliminating opposition parties."),
+    ("civil_society", "association", 0.8,
+     "The text defends the right of citizens to form independent associations, unions, and parties.",
+     "The text supports banning or controlling independent associations and unions."),
+    # REGIME -- the zero point: "theocracy; single-party rule; revolutionary regime"
+    ("one_party", "regime", 1.0,
+     "The text supports a political system in which several parties compete for power.",
+     "The text supports rule by a single party or leader without political competition."),
+    ("source_of_authority", "regime", 1.0,
+     "The text holds that the right to govern comes from the votes of the people.",
+     "The text holds that the right to govern comes from religion, ideology, or revolution rather than elections."),
+    ("constitutional_order", "regime", 0.6,
+     "The text defends constitutional rules that limit how power is won and used.",
+     "The text supports suspending the constitution or ruling by decree."),
+]
+
+COMPONENTS = ["elections", "defeat", "speech", "media", "assembly", "association", "regime"]
+FREEDOM_COMPONENTS = ("speech", "media", "assembly", "association")
+AUTOCRACY_COMPONENTS = ("regime", "elections", "defeat")
+
+# One neutral "is about" probe per part of the concept. Stance-free on purpose:
+# a probe that takes a side entails on any partisan text.
+TOPIC_HYPOTHESES = [
+    "The text is about elections or who should hold political power.",
+    "The text is about accepting or rejecting the result of an election.",
+    "The text is about freedom of speech or the right to criticize the government.",
+    "The text is about the freedom or control of the media.",
+    "The text is about protests or public demonstrations.",
+    "The text is about political parties, the opposition, or civic organizations.",
+    "The text is about democracy, dictatorship, or how a country should be governed.",
+]
+
+MILITANT_DEMOCRACY_HYPOTHESIS = (
+    "The text restricts only violence, incitement, or movements that seek to abolish "
+    "democracy, while protecting peaceful political activity.")
+# Freedom pairs whose ILLIBERAL side a defensive-democracy framing can explain.
+DEFENSIVE_TARGETS = {"free_speech", "criticism", "press_freedom", "assembly",
+                     "protest_force", "civil_society"}
+
+# Same thresholds as the mock scorer in views.py, so the label never depends
+# on which code path produced the score.
+INTERPRETATION_BANDS = [(3.0, "Strong Illiberal"), (4.5, "Illiberal"), (5.5, "Moderate"),
+                        (7.0, "Liberal"), (np.inf, "Strong Liberal")]
+VPARTY_LABELS = ["Not at all committed", "Not committed", "Weakly committed",
+                 "Committed", "Fully committed"]
+
+CHUNK_WORDS = 200   # ~270 tokens; leaves room for the hypothesis inside 512
+SENT = re.compile(r"(?<=[.!?])\s+")
+
+
+def _sigmoid(x):
+    return 1.0 / (1.0 + np.exp(-x))
+
+
+def interpret(score):
+    for upper, label in INTERPRETATION_BANDS:
+        if score < upper:
+            return label
+
+
+def chunk_text(text, chunk_words=CHUNK_WORDS):
+    """Sentence-aligned chunks of about chunk_words words. Short texts come back whole."""
+    words = text.split()
+    if len(words) <= chunk_words:
+        return [text]
+    out, cur, n = [], [], 0
+    for s in SENT.split(text):
+        w = len(s.split())
+        if n and n + w > chunk_words:
+            out.append(" ".join(cur)); cur, n = [], 0
+        cur.append(s); n += w
+    if cur:
+        out.append(" ".join(cur))
+    return out
+
+
+# ============================================================================
+# SCORER
 # ============================================================================
 
 class LiberalIlliberalScorer:
-    def __init__(self, model_name="mlburnham/Political_DEBATE_large_v1.0"):
+    """
+    Parameters
+    ----------
+    topic_margin_min : float
+        Gate. The text is relevant if any topic probe reaches this margin.
+        0.0 = "more likely about it than not". Raise it to gate harder.
+    active_margin : float
+        A pair is active if either side reaches this margin.
+    contrast_scale : float
+        Logit units per unit of position: pos = tanh(c / contrast_scale).
+        At 4, a contrast of 4 logits (sides at +4 / -4) is a position of 0.76.
+    shrinkage : float
+        Pseudo-weight of neutral evidence: score = 5 + 5 * sum(w*pos) / (W + k0).
+        A text resting on one weight-1 pair cannot reach the end of the scale.
+    defensive_discount : float
+        Largest share of a freedom pair's illiberal contrast that the
+        militant-democracy framing can cancel.
+    margin_fn : callable(premises, hypotheses) -> np.ndarray, optional
+        Replaces the model. Used for tests and for re-scoring cached margins.
+    """
+
+    def __init__(self, model_name=MODEL_NAME, topic_margin_min=0.0, active_margin=0.0,
+                 contrast_scale=4.0, shrinkage=0.5, defensive_discount=0.65,
+                 battery=BATTERY, topic_hypotheses=TOPIC_HYPOTHESES,
+                 batch_size=16, max_length=512, margin_fn=None):
+        self.battery = list(battery)
+        self.topic_hypotheses = list(topic_hypotheses)
+        self.domains = [b[0] for b in self.battery]
+        self.components = [b[1] for b in self.battery]
+        self.weights = np.array([b[2] for b in self.battery], dtype=float)
+        self.topic_margin_min = float(topic_margin_min)
+        self.active_margin = float(active_margin)
+        self.contrast_scale = float(contrast_scale)
+        self.shrinkage = float(shrinkage)
+        self.defensive_discount = float(defensive_discount)
+        self.defensive_mask = np.array([d in DEFENSIVE_TARGETS for d in self.domains])
+        self.batch_size = int(batch_size)
+        self.max_length = int(max_length)
+
+        # Column layout of the margin matrix: topics | militant probe | L, I, L, I, ...
+        self.hypotheses = (self.topic_hypotheses + [MILITANT_DEMOCRACY_HYPOTHESIS]
+                           + [h for b in self.battery for h in (b[3], b[4])])
+        self.n_topic = len(self.topic_hypotheses)
+
+        if margin_fn is not None:
+            self._margin_fn = margin_fn
+        else:
+            self._load_model(model_name)
+            self._margin_fn = self._model_margins
+
+    # ------------------------------------------------------------------ model
+    def _load_model(self, model_name):
+        from .shared_model_cache import SharedModelCache   # imports torch
         cache = SharedModelCache()
         self.model, self.tokenizer = cache.get_model_and_tokenizer(model_name)
         self.device = cache.get_device()
         self.entailment_idx = self._find_entailment_index()
 
-        self.liberal_illiberal_hypotheses = {
-
-            # ----------------------------------------------------------------
-            # Liberal — full commitment means unambiguous support for freedom
-            # of speech, media, assembly and association, plus a pledge to
-            # accept defeat in free and fair multiparty elections.
-            # ----------------------------------------------------------------
-
-            # Core anchors of the question (1.0)
-            "The text supports free and fair elections with multiple competing parties as the way to choose who governs.": (1.0, "liberal"),
-            "The text argues that electoral defeat must be accepted and power handed over peacefully.": (1.0, "liberal"),
-            "The text defends freedom of speech for everyone, including critics of the government.": (1.0, "liberal"),
-            "The text defends independent media and journalism free from state control.": (1.0, "liberal"),
-            "The text defends the right to peaceful assembly and protest.": (1.0, "liberal"),
-            "The text defends the right to form or join political parties, unions, or independent associations.": (1.0, "liberal"),
-            "The text states that every adult citizen has an equal right to vote.": (1.0, "liberal"),
-
-            # Strong indicators (0.80–0.85)
-            "The text argues that opposition parties are a legitimate and necessary part of politics.": (0.85, "liberal"),
-            "The text argues that citizens must be free to criticize the government without punishment.": (0.85, "liberal"),
-            "The text argues that political change must come about through elections and legal means, not through violence or force.": (0.85, "liberal"),
-            "The text argues that extending the right to vote to more citizens strengthens democracy.": (0.80, "liberal"),
-
-            # Supporting indicators (0.50–0.70)
-            "The text argues that competition among multiple political parties is good for the country.": (0.70, "liberal"),
-            "The text supports defending the democratic constitutional order against extremist or anti-democratic movements.": (0.70, "liberal"),
-            "The text condemns incitement to political violence and wants it punished under the rule of law.": (0.60, "liberal"),
-            "The text supports banning anti-democratic extremist symbols or propaganda in order to protect democracy.": (0.55, "liberal"),
-            "The text expresses that dissenting or minority political views deserve protection.": (0.60, "liberal"),
-            "The text argues that courts and independent institutions must be protected from interference by those in power.": (0.50, "liberal"),
-
-            # ----------------------------------------------------------------
-            # Illiberal — no commitment means open support for an autocratic
-            # form of government without elections or the freedoms of speech,
-            # assembly and association (theocracy, single-party rule,
-            # revolutionary regime).
-            # ----------------------------------------------------------------
-
-            # Core anchors of the question (1.0)
-            "The text rejects free and fair elections as necessary or desirable for choosing who governs.": (1.0, "illiberal"),
-            "The text supports single-party rule or the permanent dominance of one party.": (1.0, "illiberal"),
-            "The text supports banning or outlawing opposition parties.": (1.0, "illiberal"),
-            "The text justifies restricting the peaceful expression of political opinions.": (1.0, "illiberal"),
-            "The text supports state censorship or government control of the news media.": (1.0, "illiberal"),
-            "The text supports banning or repressing peaceful assembly and protest.": (1.0, "illiberal"),
-            "The text opposes the existence of peaceful independent civic or political organizations.": (1.0, "illiberal"),
-            "The text supports theocracy or rule based on religious or divine authority instead of elections.": (1.0, "illiberal"),
-            "The text supports seizing or holding power through revolution or force rather than through elections.": (1.0, "illiberal"),
-            "The text refuses to accept electoral defeat or rejects unfavorable election results as illegitimate.": (1.0, "illiberal"),
-            "The text calls for suspending or terminating the constitution or its rules.": (1.0, "illiberal"),
-
-            # Strong indicators (0.80–0.90)
-            "The text expresses that one leader or party should rule without challenge from political opponents.": (0.90, "illiberal"),
-            "The text argues that the right to vote should be limited by literacy, education, property, ethnicity, religion, or similar criteria.": (0.90, "illiberal"),
-            "The text expresses that political legitimacy derives from ideology, religion, or divine authority rather than from elections.": (0.90, "illiberal"),
-            "The text expresses that criticism of the government is dangerous and should be suppressed.": (0.85, "illiberal"),
-            "The text justifies repressing peaceful opponents or critics in the name of order, stability, or national unity.": (0.85, "illiberal"),
-            "The text expresses that political rights depend on loyalty to the regime, party, leader, or ideology.": (0.80, "illiberal"),
-
-            # Supporting indicators (0.60–0.70)
-            "The text frames restricting who may vote as improving the quality of democratic representation.": (0.70, "illiberal"),
-            "The text portrays opposition parties and their voters as enemies, traitors, or existential threats to the nation.": (0.60, "illiberal"),
-            "The text portrays democracy as inherently corrupt, weak, or broken beyond repair.": (0.60, "illiberal"),
-            "The text argues that liberal freedoms such as free speech or tolerance of diverse opinions have gone too far.": (0.60, "illiberal"),
-        }
-
-        liberal_count   = sum(1 for _, (_, d) in self.liberal_illiberal_hypotheses.items() if d == "liberal")
-        illiberal_count = sum(1 for _, (_, d) in self.liberal_illiberal_hypotheses.items() if d == "illiberal")
-        print(f"Loaded {len(self.liberal_illiberal_hypotheses)} hypotheses ({liberal_count} liberal, {illiberal_count} illiberal)")
-
-        # Entailment probabilities below this floor mean "not entailed" for an
-        # NLI model; they are noise and must not accumulate into a score.
-        self.prob_floor = 0.25
-
-        # Militant democracy: restricting *anti-democratic* actors (banning
-        # extremist symbols, punishing incitement) reads to an NLI model like
-        # generic speech repression, so such texts entail the repression
-        # hypotheses at ~1.0 even when they simultaneously entail defending
-        # the democratic order. When the militant-democracy indicators below
-        # fire strongly, the repression-family hypotheses are discounted.
-        # The discount is partial, never full: autocrats also claim to be
-        # defending the constitution, and regime-type hypotheses (single-party
-        # rule, theocracy, refusing defeat, banning opposition parties) are
-        # never discounted.
-        self.militant_democracy_hypotheses = [
-            "The text supports defending the democratic constitutional order against extremist or anti-democratic movements.",
-            "The text condemns incitement to political violence and wants it punished under the rule of law.",
-        ]
-        self.defensive_restriction_targets = {
-            "The text justifies restricting the peaceful expression of political opinions.",
-            "The text supports state censorship or government control of the news media.",
-            "The text supports banning or repressing peaceful assembly and protest.",
-            "The text opposes the existence of peaceful independent civic or political organizations.",
-            "The text expresses that criticism of the government is dangerous and should be suppressed.",
-            "The text justifies repressing peaceful opponents or critics in the name of order, stability, or national unity.",
-        }
-        # Maximum fraction removed from repression hypotheses when the
-        # militant-democracy signal saturates at 1.0.
-        self.defensive_restriction_discount = 0.65
-
-        _missing = [h for h in (list(self.militant_democracy_hypotheses)
-                                + list(self.defensive_restriction_targets))
-                    if h not in self.liberal_illiberal_hypotheses]
-        assert not _missing, f"Unknown hypotheses referenced: {_missing}"
-
-        # Topic check configuration — unchanged from script 1
-        self.topic_threshold = 0.6
-        self.topic_hypotheses = [
-            # Electoral competition
-            "This text supports free and fair multiparty elections as the primary source of political authority.",
-            "This text supports accepting electoral defeat and peaceful transfers of power.",
-            "This text supports the full participation of opposition parties in electoral competition.",
-            "This text supports limiting or controlling elections to protect national interests.",
-            "This text rejects the need for competitive elections in favor of alternative forms of rule.",
-
-            # Freedom of expression and media
-            "This text supports freedom of speech as a fundamental political right.",
-            "This text supports independent media as a watchdog over those in power.",
-            "This text supports government regulation of speech to prevent harm or division.",
-            "This text supports state control of media to promote national unity.",
-            "This text portrays free expression as a threat to social or political order.",
-
-            # Assembly and participation
-            "This text supports the right of citizens to protest and organize freely.",
-            "This text supports broad political participation by citizens in public life.",
-            "This text supports requiring government approval for protests and assemblies.",
-            "This text supports restricting political participation to approved groups or elites.",
-            "This text portrays mass political participation as destabilizing or dangerous.",
-
-            # Pluralism and opposition
-            "This text supports tolerance of political opposition and dissenting views.",
-            "This text supports political disagreement as healthy for democracy.",
-            "This text supports restricting extremist or disloyal political views.",
-            "This text supports prioritizing national unity over political diversity.",
-            "This text portrays political opposition as a threat to the nation.",
-
-            # State and leadership
-            "This text supports rule of law and institutional limits on political power.",
-            "This text supports checks and balances on executive authority.",
-            "This text supports strong leadership even at the expense of institutional constraints.",
-            "This text supports concentrating power in a single leader or ruling group.",
-            "This text portrays the leader as embodying the will of the nation.",
-
-            # Authoritarian justifications
-            "This text supports limiting freedoms to ensure stability and order.",
-            "This text supports restricting rights for reasons of national security.",
-            "This text supports political authority based on culture or tradition.",
-            "This text supports emergency powers during crises.",
-            "This text portrays internal or external enemies as justification for repression.",
-        ]
-
     def _find_entailment_index(self):
         config = self.model.config
-        if hasattr(config, 'label2id') and config.label2id:
+        if getattr(config, 'label2id', None):
             for label, idx in config.label2id.items():
                 if label.lower() in ['entailment', 'entail']:
                     return idx
         return 0
 
-    def _batch_entailment_probs(self, text, hypotheses, batch_size=16):
-        """Get entailment probabilities for multiple hypotheses in batched forward passes."""
-        all_probs = []
-        for i in range(0, len(hypotheses), batch_size):
-            batch_hyps = hypotheses[i:i + batch_size]
-            inputs = self.tokenizer(
-                [text] * len(batch_hyps),
-                batch_hyps,
-                return_tensors="pt",
-                truncation=True,
-                padding=True,
-                max_length=512,
-            )
+    def _model_margins(self, premises, hypotheses):
+        import torch
+        out = np.empty(len(premises), dtype=float)
+        for i in range(0, len(premises), self.batch_size):
+            j = min(i + self.batch_size, len(premises))
+            enc = self.tokenizer(premises[i:j], hypotheses[i:j], return_tensors="pt",
+                                 truncation="only_first", padding=True, max_length=self.max_length)
+            enc = {k: v.to(self.device) for k, v in enc.items()}
             with torch.inference_mode():
-                outputs = self.model(**inputs)
-                probs = torch.softmax(outputs.logits, dim=-1)[:, self.entailment_idx]
-                all_probs.extend(probs.tolist())
-        return all_probs
+                lg = self.model(**enc).logits.float()
+            ent = lg[:, self.entailment_idx]
+            rest = torch.cat([lg[:, :self.entailment_idx], lg[:, self.entailment_idx + 1:]], dim=1)
+            out[i:j] = (ent - torch.logsumexp(rest, dim=1)).cpu().numpy()
+        return out
 
-    def is_about_democratic_principles(self, text):
-        probs = self._batch_entailment_probs(text, self.topic_hypotheses)
-        prob = float(max(probs)) if probs else 0.0
-        logger.info(f"Thesis Liberal Illiberal triggered with: {prob}")
-        return prob >= self.topic_threshold, prob
+    def margin_matrix(self, texts):
+        """(n_texts, n_hypotheses) margins, max-pooled over each text's chunks."""
+        chunks = [chunk_text(t) for t in texts]
+        owner = np.repeat(np.arange(len(texts)), [len(c) for c in chunks])
+        flat = [c for cs in chunks for c in cs]
+        nh = len(self.hypotheses)
+        prem = [c for c in flat for _ in range(nh)]
+        hyp = self.hypotheses * len(flat)
+        m = np.asarray(self._margin_fn(prem, hyp), dtype=float).reshape(len(flat), nh)
+        out = np.full((len(texts), nh), -np.inf)
+        np.maximum.at(out, owner, m)
+        return out
 
-    def get_hypothesis_probabilities(self, text):
-        hypotheses = list(self.liberal_illiberal_hypotheses.keys())
-        probs = self._batch_entailment_probs(text, hypotheses)
-        return np.array(probs, dtype=float)
+    # ------------------------------------------------------------ aggregation
+    def pair_positions(self, row):
+        """Margins for one text -> (positions, active mask, militant weight)."""
+        bat = row[self.n_topic + 1:]
+        lib, ill = bat[0::2], bat[1::2]
+        active = np.fmax(lib, ill) >= self.active_margin
+        c = (lib - ill) / 2.0
+        md = float(_sigmoid(row[self.n_topic]))
+        discount = np.where(self.defensive_mask & (c < 0), 1.0 - self.defensive_discount * md, 1.0)
+        pos = np.tanh(c * discount / self.contrast_scale)
+        return np.where(active, pos, 0.0), active, md
 
-    def compute_combined_confidence(self, liberal_probs, illiberal_probs, all_probs):
-        liberal_variance   = np.var(liberal_probs)  if len(liberal_probs)  > 1 else 0
-        illiberal_variance = np.var(illiberal_probs) if len(illiberal_probs) > 1 else 0
+    def _summarize(self, pos, active, weights):
+        """Score, confidence, component means and V-Party level from pair positions."""
+        w = weights * active
+        W = float(w.sum())
+        mean_pos = float((w * pos).sum() / W)
+        score = float(np.clip(5.0 + 5.0 * (w * pos).sum() / (W + self.shrinkage), 0.0, 10.0))
+        sd = float(np.sqrt((w * (pos - mean_pos) ** 2).sum() / W))
+        confidence = W / (W + 1.0) * max(0.0, 1.0 - sd)
+        comp = {}
+        for k in COMPONENTS:
+            sel = np.array([c == k for c in self.components]) & active
+            if sel.any():
+                comp[k] = float((weights[sel] * pos[sel]).sum() / weights[sel].sum())
+        return score, confidence, comp, self._vparty_level(score, comp)
 
-        liberal_confidence   = 1 / (1 + liberal_variance  * 4)
-        illiberal_confidence = 1 / (1 + illiberal_variance * 4)
-        base_confidence = (0.7 * min(liberal_confidence, illiberal_confidence)
-                           + 0.3 * (liberal_confidence + illiberal_confidence) / 2)
+    @staticmethod
+    def _vparty_level(score, comp):
+        """Approximate crosswalk to the 0-4 v2paplur scale (UNCALIBRATED).
 
-        k = 5
-        top_liberal   = np.sort(liberal_probs)[-k:]  if len(liberal_probs)  >= k else liberal_probs
-        top_illiberal = np.sort(illiberal_probs)[-k:] if len(illiberal_probs) >= k else illiberal_probs
+        Bands of 2 points, then the two conjunctive rules of the definition:
+        4 needs positive evidence on accepting defeat AND on at least one
+        freedom, and 0 needs open support for an autocratic alternative.
+        """
+        level = int(min(4, score // 2))
+        if level == 4 and not (comp.get("defeat", 0) > 0
+                               and any(comp.get(k, 0) > 0 for k in FREEDOM_COMPONENTS)):
+            level = 3
+        if level == 0 and not any(comp.get(k, 0) < -0.5 for k in AUTOCRACY_COMPONENTS):
+            level = 1
+        return level
 
-        top_liberal_avg   = float(np.mean(top_liberal))   if len(top_liberal)   else 0.0
-        top_illiberal_avg = float(np.mean(top_illiberal)) if len(top_illiberal) else 0.0
+    def score_from_margins(self, row, text=""):
+        row = np.asarray(row, dtype=float)
+        topic_margin = float(np.max(row[:self.n_topic]))
+        base = {'text': text, 'topic_probability': float(_sigmoid(topic_margin)),
+                'topic_margin': topic_margin, 'margins': row.tolist()}
+        if topic_margin < self.topic_margin_min:
+            return {**base, 'score': 'NA', 'confidence': 0.0, 'is_relevant': False,
+                    'contradiction_detected': False,
+                    'interpretation': 'Not about democratic principles'}
 
-        topk_contradiction     = float(min(top_liberal_avg, top_illiberal_avg))
-        contradiction_detected = topk_contradiction > 0.25
+        pos, active, md = self.pair_positions(row)
+        if not active.any():
+            return {**base, 'score': 'NA', 'confidence': 0.0, 'is_relevant': False,
+                    'contradiction_detected': False,
+                    'interpretation': 'No clear position on democratic principles'}
 
-        if contradiction_detected:
-            contradiction_penalty = min(1.0, topk_contradiction * 2.0)
-            final_confidence = base_confidence * (1 - contradiction_penalty * 0.8)
-        else:
-            final_confidence = base_confidence
+        score, confidence, comp, level = self._summarize(pos, active, self.weights)
+        W = float((self.weights * active).sum())
+        bat = row[self.n_topic + 1:]
+        top_lib, top_ill = [], []
+        for p in np.flatnonzero(active):
+            side = 0 if pos[p] >= 0 else 1
+            item = {'hypothesis': self.battery[p][3 + side],
+                    'probability': float(_sigmoid(bat[2 * p + side])),
+                    'score_impact': float(5.0 * self.weights[p] * abs(pos[p]) / (W + self.shrinkage)),
+                    'domain': self.domains[p]}
+            (top_lib if side == 0 else top_ill).append(item)
+        top_lib.sort(key=lambda d: -d['score_impact'])
+        top_ill.sort(key=lambda d: -d['score_impact'])
 
-        return {
-            'combined':               float(final_confidence),
-            'contradiction_detected': bool(contradiction_detected),
-            'contradiction_score':    float(topk_contradiction if contradiction_detected else 0.0),
-            'top_liberal_avg':        float(top_liberal_avg),
-            'top_illiberal_avg':      float(top_illiberal_avg),
-        }
+        return {**base,
+                'score': score,
+                'confidence': float(confidence),
+                'is_relevant': True,
+                'interpretation': interpret(score),
+                'contradiction_detected': bool((pos[active] > 0.5).any() and (pos[active] < -0.5).any()),
+                'top_liberal_hypotheses': top_lib[:5],
+                'top_illiberal_hypotheses': top_ill[:5],
+                'vparty_level': level,
+                'vparty_label': VPARTY_LABELS[level],
+                'component_positions': comp,
+                'pair_positions': {d: float(pos[i]) for i, d in enumerate(self.domains) if active[i]},
+                'n_active': int(active.sum()),
+                'militant_democracy': md}
 
-    def score_liberal_illiberal(self, text, thr=0.15):
-        # Topic pre-check — unchanged from script 1
-        is_relevant, topic_prob = self.is_about_democratic_principles(text)
-        if not is_relevant:
-            return {
-                'text':                   text,
-                'score':                  'NA',
-                'confidence':             0.0,
-                'contradiction_detected': False,
-                'interpretation':         'Not about democratic principles',
-                'topic_probability':      float(topic_prob),
-                'passed_precheck':        False,
-                'is_relevant':            False,
-            }
+    # ---------------------------------------------------------------- public
+    def score_texts(self, texts):
+        texts = [str(t) for t in texts]
+        M = self.margin_matrix(texts)
+        return [self.score_from_margins(M[i], t) for i, t in enumerate(texts)]
 
-        # NLI scoring
-        probs = self.get_hypothesis_probabilities(text)
+    def score_liberal_illiberal(self, text):
+        return self.score_texts([text])[0]
 
-        # Militant-democracy signal: how strongly the text frames restrictions
-        # as defence of the democratic order. Ramps the repression discount
-        # from 0 at signal 0.5 up to defensive_restriction_discount at 1.0.
-        hyp_index = {h: i for i, h in enumerate(self.liberal_illiberal_hypotheses)}
-        md_probs  = [float(probs[hyp_index[h]]) for h in self.militant_democracy_hypotheses]
-        md_signal = float(np.mean(md_probs)) if md_probs else 0.0
-        restriction_discount = self.defensive_restriction_discount * max(0.0, (md_signal - 0.5) / 0.5)
+    def quick_score(self, text):
+        return self.score_liberal_illiberal(text)['score']
 
-        liberal_probs   = []
-        illiberal_probs = []
-        hypothesis_results = []
+    def aggregate_actor(self, results):
+        """Pools one actor's scored texts into an actor-level estimate.
 
-        for i, (hypothesis, (weight, direction)) in enumerate(self.liberal_illiberal_hypotheses.items()):
-            prob = float(probs[i])
-            effective = prob if prob >= self.prob_floor else 0.0
-            if direction == "illiberal" and hypothesis in self.defensive_restriction_targets:
-                effective *= (1.0 - restriction_discount)
-            weighted = effective * weight
-            hypothesis_results.append({
-                'hypothesis':        hypothesis,
-                'probability':       prob,
-                'weight':            weight,
-                'direction':         direction,
-                'effective_weighted': weighted,
-            })
-            if direction == "liberal":
-                liberal_probs.append(weighted)
-            else:
-                illiberal_probs.append(weighted)
-
-        k_score = max(4, int(np.sum(probs > thr)) + 2)
-
-        top_liberal_probs   = sorted(liberal_probs,   reverse=True)[:k_score]
-        top_illiberal_probs = sorted(illiberal_probs, reverse=True)[:k_score]
-
-        liberal_avg   = float(np.mean(top_liberal_probs))   if top_liberal_probs   else 0.0
-        illiberal_avg = float(np.mean(top_illiberal_probs)) if top_illiberal_probs else 0.0
-
-        # Check if the top 4 hypotheses on each side average above threshold
-        top2_liberal_avg   = float(np.mean(sorted(liberal_probs,   reverse=True)[:2])) if liberal_probs   else 0.0
-        top2_illiberal_avg = float(np.mean(sorted(illiberal_probs, reverse=True)[:2])) if illiberal_probs else 0.0
-        
-        if top2_liberal_avg < thr and top2_illiberal_avg < thr:
-            return {
-                'text':                   text,
-                'score':                  'NA',
-                'confidence':             0.0,
-                'contradiction_detected': False,
-                'interpretation':         'No clear signal on democratic principles',
-                'topic_probability':      float(topic_prob),
-                'passed_precheck':        False,
-                'is_relevant':            False,
-            }
-
-        # Symmetric mutual suppression:
-        # each side penalised proportionally by strength of the opposing signal.
-        # Cap at 0.80 so mild opposing signals don't over-penalise.
-        MAX_SIGNAL = 1.0
-        liberal_penalty_mult   = 1.0 - min(illiberal_avg / MAX_SIGNAL, 0.80)
-        illiberal_penalty_mult = 1.0 - min(liberal_avg   / MAX_SIGNAL, 0.80)
-
-        penalised_liberal_avg   = liberal_avg   * liberal_penalty_mult
-        penalised_illiberal_avg = illiberal_avg * illiberal_penalty_mult
-
-        difference  = penalised_liberal_avg - penalised_illiberal_avg
-        final_score = float(np.clip(5 + difference * 5, 0, 10))
-
-        confidence_data = self.compute_combined_confidence(liberal_probs, illiberal_probs, probs)
-
-        liberal_hyps   = [h for h in hypothesis_results if h['direction'] == 'liberal']
-        illiberal_hyps = [h for h in hypothesis_results if h['direction'] == 'illiberal']
-
-        # Annotate with score_impact: contribution to the penalised avg * 5 points,
-        # reflecting the cross-penalty each side applies to the other.
-        top_lib_weighted  = sorted([(h['effective_weighted'], h) for h in liberal_hyps],   key=lambda x: x[0], reverse=True)[:k_score]
-        top_illib_weighted = sorted([(h['effective_weighted'], h) for h in illiberal_hyps], key=lambda x: x[0], reverse=True)[:k_score]
-        for weighted_val, h in top_lib_weighted:
-            h['score_impact'] = round((weighted_val / k_score) * liberal_penalty_mult * 5, 3)
-        for weighted_val, h in top_illib_weighted:
-            h['score_impact'] = round((weighted_val / k_score) * illiberal_penalty_mult * 5, 3)
-        top_lib_set   = {id(h) for _, h in top_lib_weighted}
-        top_illib_set = {id(h) for _, h in top_illib_weighted}
-        for h in liberal_hyps:
-            if id(h) not in top_lib_set:
-                h['score_impact'] = 0.0
-        for h in illiberal_hyps:
-            if id(h) not in top_illib_set:
-                h['score_impact'] = 0.0
-
-        top_liberal   = sorted([h for h in liberal_hyps   if h['score_impact'] >= 0.05], key=lambda x: x['score_impact'], reverse=True)[:10]
-        top_illiberal = sorted([h for h in illiberal_hyps if h['score_impact'] >= 0.05], key=lambda x: x['score_impact'], reverse=True)[:10]
-
-        if final_score < 2:   interpretation = "Very low support"
-        elif final_score < 4: interpretation = "Low support"
-        elif final_score < 6: interpretation = "Support"
-        elif final_score < 8: interpretation = "Strong Support"
-        else:                 interpretation = "Very Strong Liberal"
-
-        return {
-            'text':                     text,
-            'score':                    final_score,
-            'confidence':               confidence_data['combined'],
-            'contradiction_detected':   confidence_data['contradiction_detected'],
-            'interpretation':           interpretation,
-            'liberal_avg':              liberal_avg,
-            'illiberal_avg':            illiberal_avg,
-            'penalised_liberal_avg':    penalised_liberal_avg,
-            'penalised_illiberal_avg':  penalised_illiberal_avg,
-            'top_liberal_hypotheses':   top_liberal,
-            'top_illiberal_hypotheses': top_illiberal,
-            'passed_precheck':          True,
-            'is_relevant':              True,
-            'topic_probability':        float(topic_prob),
-            'k_score':                  k_score,
-            'threshold':                thr,
-            'militant_democracy_signal': md_signal,
-            'restriction_discount':      float(restriction_discount),
-        }
-
-    def quick_score(self, text, thr=0.7):
-        result = self.score_liberal_illiberal(text, thr=thr)
-        return result['score']
+        Each pair's position is averaged over the texts where it was active, so
+        a party that addresses press freedom in 3 of 40 speeches is placed on
+        press freedom by those 3, not diluted by the other 37.
+        """
+        scored = [r for r in results if r.get('is_relevant') and r.get('score') != 'NA']
+        out = {'n_texts': len(results), 'n_scored': len(scored)}
+        if not scored:
+            return {**out, 'score': 'NA', 'vparty_level': None}
+        P = np.array([[r['pair_positions'].get(d, np.nan) for d in self.domains] for r in scored])
+        n = np.sum(~np.isnan(P), axis=0)
+        active = n > 0
+        pos = np.nansum(P, axis=0) / np.maximum(n, 1)
+        # evidence weight grows with the number of texts, but slowly
+        score, confidence, comp, level = self._summarize(pos, active, self.weights * np.sqrt(np.maximum(n, 1)))
+        return {**out, 'score': score, 'confidence': confidence, 'interpretation': interpret(score),
+                'vparty_level': level, 'vparty_label': VPARTY_LABELS[level],
+                'component_positions': comp,
+                'evidence_on_freedoms': any(k in comp for k in FREEDOM_COMPONENTS),
+                'evidence_on_defeat': 'defeat' in comp,
+                'texts_per_pair': {d: int(n[i]) for i, d in enumerate(self.domains) if active[i]}}
 
 
 # ============================================================================
@@ -388,117 +445,62 @@ class LiberalIlliberalScorer:
 
 def analyze_text(scorer, text):
     result = scorer.score_liberal_illiberal(text)
-
-    print(f"\n{'='*80}")
-    print(f"TEXT: {text}")
-    print(f"{'='*80}")
-
+    print(f"\n{'='*80}\nTEXT: {text}\n{'='*80}")
     if not result['is_relevant']:
-        print(f"\n⚠️  NOT RELEVANT: {result['interpretation']}")
-        print(f"   Topic probability: {result['topic_probability']:.3f}")
+        print(f"\n⚠️  NA: {result['interpretation']}  (topic margin {result['topic_margin']:+.2f})")
         return result
-
     print(f"\n📊 RESULTS:")
-    print(f"   Score:         {result['score']:.2f}/10")
-    print(f"   Confidence:    {result['confidence']:.3f}")
-    print(f"   Contradiction: {'YES' if result['contradiction_detected'] else 'NO'}")
-    print(f"   Interpretation:{result['interpretation']}")
-    print(
-        f"   liberal={result['liberal_avg']:.3f}→{result['penalised_liberal_avg']:.3f} | "
-        f"illiberal={result['illiberal_avg']:.3f}→{result['penalised_illiberal_avg']:.3f}"
-    )
-
-    print(f"\n🔍 TOP LIBERAL HYPOTHESES:")
-    for i, hyp in enumerate(result['top_liberal_hypotheses']):
-        short_hyp = hyp['hypothesis'][:100] + "..." if len(hyp['hypothesis']) > 100 else hyp['hypothesis']
-        print(f"   {i}. {hyp['probability']:.3f} - {short_hyp}")
-
-    print(f"\n🔍 TOP ILLIBERAL HYPOTHESES:")
-    for i, hyp in enumerate(result['top_illiberal_hypotheses']):
-        short_hyp = hyp['hypothesis'][:100] + "..." if len(hyp['hypothesis']) > 100 else hyp['hypothesis']
-        print(f"   {i}. {hyp['probability']:.3f} - {short_hyp}")
-
+    print(f"   Score:         {result['score']:.2f}/10  ({result['interpretation']})")
+    print(f"   V-Party level: {result['vparty_level']} - {result['vparty_label']} (uncalibrated)")
+    print(f"   Confidence:    {result['confidence']:.3f}   active pairs: {result['n_active']}")
+    print(f"   Contradiction: {'YES' if result['contradiction_detected'] else 'NO'}"
+          f"   militant-democracy framing: {result['militant_democracy']:.2f}")
+    print("   Components:    " + ", ".join(f"{k} {v:+.2f}" for k, v in result['component_positions'].items()))
+    for label, key in [("LIBERAL", 'top_liberal_hypotheses'), ("ILLIBERAL", 'top_illiberal_hypotheses')]:
+        print(f"\n🔍 TOP {label} EVIDENCE:")
+        for hyp in result[key]:
+            print(f"   {hyp['score_impact']:+.2f}  p={hyp['probability']:.2f}  {hyp['hypothesis'][:100]}")
     return result
 
 
 def analyze_batch(scorer, texts):
-    print(f"\n{'='*120}")
-    print("BATCH ANALYSIS RESULTS")
-    print(f"{'='*120}")
+    print(f"\n{'='*120}\nBATCH ANALYSIS RESULTS\n{'='*120}")
     print(f"{'Text':<70} {'Score':<7} {'Conf':<7} {'Contr':<6} {'Interpretation'}")
     print("-" * 120)
-
-    results = []
-    for text in texts:
-        result = scorer.score_liberal_illiberal(text)
-        text_display       = text[:67] + "..." if len(text) > 70 else text
-        contradiction_flag = "YES" if result['contradiction_detected'] else "NO"
-        score_display      = f"{result['score']:.2f}" if result['is_relevant'] else "NA"
-
-        print(
-            f"{text_display:<70} "
-            f"{score_display:<7} "
-            f"{result['confidence']:<7.3f} "
-            f"{contradiction_flag:<6} "
-            f"{result['interpretation']}"
-        )
-        results.append(result)
-
+    results = scorer.score_texts(texts)
+    for text, r in zip(texts, results):
+        shown = text[:67] + "..." if len(text) > 70 else text
+        score = f"{r['score']:.2f}" if r['is_relevant'] else "NA"
+        print(f"{shown:<70} {score:<7} {r['confidence']:<7.3f} "
+              f"{'YES' if r['contradiction_detected'] else 'NO':<6} {r['interpretation']}")
     scored = [r for r in results if r['is_relevant']]
     if scored:
-        scores        = [r['score']      for r in scored]
-        confidences   = [r['confidence'] for r in scored]
-        contradictions = sum(1 for r in scored if r['contradiction_detected'])
-
-        print(f"\n📊 SUMMARY:")
-        print(f"   Scored:          {len(scored)}/{len(results)}")
-        print(f"   Score Range:     {min(scores):.2f} – {max(scores):.2f}")
-        print(f"   Mean Score:      {np.mean(scores):.2f}")
-        print(f"   Mean Confidence: {np.mean(confidences):.3f}")
-        print(f"   Contradictions:  {contradictions}/{len(scored)} ({contradictions/len(scored)*100:.1f}%)")
-
+        scores = [r['score'] for r in scored]
+        print(f"\n📊 SUMMARY: scored {len(scored)}/{len(results)} | range {min(scores):.2f}-{max(scores):.2f}"
+              f" | mean {np.mean(scores):.2f} | mean confidence {np.mean([r['confidence'] for r in scored]):.3f}"
+              f" | contradictions {sum(r['contradiction_detected'] for r in scored)}")
     return results
 
 
 def interactive_mode(scorer):
-    print(f"\n{'='*60}")
-    print("INTERACTIVE LIBERAL-ILLIBERAL SCORER")
-    print(f"{'='*60}")
-    print("Enter text to analyze (or 'quit' to exit)")
-    print("Commands: 'batch' for multiple texts, 'help' for guidance")
-
+    print(f"\n{'='*60}\nINTERACTIVE LIBERAL-ILLIBERAL SCORER\n{'='*60}")
+    print("Enter text to analyze ('batch' for test texts, 'quit' to exit)")
     while True:
         text = input("\n> ").strip()
-
         if text.lower() in ['quit', 'exit', 'q']:
             break
-        elif text.lower() == 'help':
-            print("\nCommands:")
-            print("- Enter any political text to get liberal-illiberal score")
-            print("- 'batch' - analyze multiple predefined test texts")
-            print("- 'quit'  - exit the program")
-            continue
-        elif text.lower() == 'batch':
-            test_texts = [
+        if text.lower() == 'batch':
+            analyze_batch(scorer, [
                 "We want an inclusive, non-exclusionary Spain, which treats its people well and seeks justice and well-being. A fair country that makes us proud to be Spanish.",
                 "Perhaps he ordered the murder of Jaime Garzon did not govern later? Perhaps an important part of society does not applaud and is not afraid of that? If you want to feel fear, that is what you have to fear. If they want hope, what must be defended is the right to difference.",
                 "Impunity, disarmament, political indications and corruption have generated and continue to fuel Brazil's biggest problems: violence, state inefficiency and unemployment. As important as doing new things is to undo this criminal structure created by the last governments!",
-            ]
-            analyze_batch(scorer, test_texts)
-            continue
-        elif not text:
-            continue
+            ])
+        elif text:
+            try:
+                analyze_text(scorer, text)
+            except Exception as e:
+                print(f"Error analyzing text: {e}")
 
-        try:
-            analyze_text(scorer, text)
-        except Exception as e:
-            print(f"Error analyzing text: {e}")
-
-
-# ============================================================================
-# MAIN EXECUTION
-# ============================================================================
 
 if __name__ == "__main__":
-    scorer = LiberalIlliberalScorer()
-    interactive_mode(scorer)
+    interactive_mode(LiberalIlliberalScorer())
