@@ -19,56 +19,63 @@ class PopulismPluralismScorer:
         self.entailment_idx = self._find_entailment_index()
 
         self.populism_hypotheses = {
-      # Anti-elite vs. legitimate representation
+            # Exclusive representation claim — the most diagnostic populism marker
+            "The text claims that it or its movement alone truly represents the people.": (1.0, "populist"),
+
+            # Anti-elite vs. legitimate representation
             "The text argues that corrupt elites or establishment insiders have betrayed ordinary people.": (1.0, "populist"),
-            "The text argues that representative institutions and elected officials can legitimately govern on behalf of citizens without requiring direct popular mandates on every issue.": (0.60, "pluralist"),
-        
+            "The text argues that elected representatives can legitimately make decisions on behalf of citizens.": (0.60, "pluralist"),
+
             # System is rigged vs. institutional safeguards
-            "The text claims that electoral or legislative processes are systematically manipulated by wealthy donors, corporations, or lobbyists at the expense of ordinary voters.": (0.80, "populist"),        
-            "The text defends institutional checks, oversight mechanisms, or procedural rules as necessary safeguards against corruption or abuse of power.": (0.85, "pluralist"),
-        
+            "The text claims that elections or lawmaking are rigged by wealthy donors, corporations, or lobbyists against ordinary voters.": (0.80, "populist"),
+            "The text defends institutional checks and oversight as necessary safeguards against abuse of power.": (0.85, "pluralist"),
+
             # Skepticism of representation vs. mediated democracy
-            "The text questions or dismisses the legitimacy of legislatures, political parties, or elected representatives, suggesting that direct popular participation should replace them.": (0.75, "populist"),
-            "The text argues that political decisions must go through formal institutional procedures, such as parliamentary debate, judicial review, or constitutional process — and rejects shortcuts that bypass these.": (0.65, "pluralist"),
-        
+            "The text argues that direct decisions by the people should replace parliaments, parties, or representatives.": (0.75, "populist"),
+            "The text argues that political decisions must follow formal procedures such as parliamentary debate or constitutional process.": (0.65, "pluralist"),
+
             # Homogeneous 'people' vs. plural society
-            "The text invokes 'the people' as a unified, virtuous whole whose collective will or welfare is being actively frustrated or betrayed by a corrupt or self-serving minority.": (1.0, "populist"),        
-            "The text acknowledges that society contains diverse groups with legitimately different interests that must be negotiated through political compromise.": (0.90, "pluralist"),
-        
+            "The text portrays the people as a unified and virtuous whole betrayed by a corrupt elite.": (1.0, "populist"),
+            "The text says society contains diverse groups whose different interests must be settled through compromise.": (0.90, "pluralist"),
+
             # Anti-expertise vs. expertise
             "The text argues that ordinary people's common sense is more trustworthy than experts or technocrats.": (0.90, "populist"),
-            "The text argues that expert knowledge, evidence-based policy, or specialized institutions contribute valuable input to political decision-making.": (0.75, "pluralist"),
-        
-            # Anti-bureaucracy vs. professional administration
-            "The text portrays civil servants, bureaucrats, or administrative agencies as self-interested obstructors of the popular will who should be removed or overridden.": (0.95, "populist"),        
-            "The text argues that professional civil servants and administrative processes provide continuity and competence in governance.": (0.80, "pluralist"),
-        
-            # Anti-media vs. press freedom / open debate
-            "The text claims mainstream media and establishment networks suppress ordinary people's voices or coordinate against them.": (1.0, "populist"),
-            "The text supports freedom of the press, diverse media, or institutionalized public debate as essential to democratic accountability.": (0.85, "pluralist"),
-        
-            # Majority unconstrained vs. minority rights and courts
-            "The text calls for overriding, ignoring, or abolishing judicial review, constitutional courts, or legal constraints that limit what elected majorities can do.": (0.40, "populist"),
-            "The text argues that courts and constitutional protections should defend minority rights against majority overreach.": (1.0, "pluralist"),
-        
-            # Outsider savior
-            "The text claims that established political parties, career politicians, or the governing class are incapable of solving the country's core problems.": (0.80, "populist"),
-            "The text argues that an outsider candidate or anti-establishment movement, positioned against the existing political class, is the only legitimate path to genuine change.": (0.85, "populist"),
-            "The text warns against or rejects sudden, revolutionary, or disruptive political change, arguing instead for gradual and negotiated reform.": (0.70, "pluralist"),
-        
-            # Legal/institutional norms defended vs. circumvented
-            "The text defends the application of legal norms, international treaties, or constitutional rules against attempts by officials or governments to circumvent them.": (0.90, "pluralist"),
-        
-            # Institutional anti-corruption vs. elite-betrayal framing
-            "The text states that corruption, bribery, or abuse of office should be prosecuted or sanctioned through existing legal institutions, not addressed by removing or replacing the entire political class.": (0.65, "pluralist"),
+            "The text argues that expert knowledge and evidence contribute valuable input to political decisions.": (0.75, "pluralist"),
 
-            # Economic majoritarianism
-            "The text contrasts the economic interests of a wealthy or privileged minority — such as 'the 1%', large corporations, or the super-rich, against the interests of the majority of ordinary people.": (0.50, "populist"),
+            # Anti-bureaucracy vs. professional administration
+            "The text portrays bureaucrats or state agencies as self-interested obstacles to the will of the people.": (0.95, "populist"),
+            "The text argues that professional civil servants provide continuity and competence in governance.": (0.80, "pluralist"),
+
+            # Anti-media vs. press freedom / open debate
+            "The text claims mainstream media suppress ordinary people's voices or coordinate against them.": (1.0, "populist"),
+            "The text supports a free and diverse press as essential to democratic accountability.": (0.85, "pluralist"),
+
+            # Majority unconstrained vs. minority rights and courts
+            "The text calls for overriding or abolishing courts and legal limits on what elected majorities can do.": (0.75, "populist"),
+            "The text argues that courts and constitutional protections should defend minority rights against majority overreach.": (1.0, "pluralist"),
+
+            # Outsider savior
+            "The text claims that established parties and career politicians are incapable of solving the country's core problems.": (0.80, "populist"),
+            "The text argues that only an outsider or anti-establishment movement can bring genuine change.": (0.85, "populist"),
+            "The text warns against sudden or revolutionary change and argues for gradual, negotiated reform.": (0.70, "pluralist"),
+
+            # Legal/institutional norms defended vs. circumvented
+            "The text defends legal norms and constitutional rules against attempts to circumvent them.": (0.90, "pluralist"),
+
+            # Institutional anti-corruption vs. elite-betrayal framing
+            "The text argues that corruption should be prosecuted through existing legal institutions.": (0.65, "pluralist"),
+
+            # Economic majoritarianism — kept low: redistributive framing alone is not populism
+            "The text contrasts the interests of the super-rich or large corporations with those of ordinary people.": (0.35, "populist"),
         }
 
         populist_count = sum(1 for _, (_, direction) in self.populism_hypotheses.items() if direction == "populist")
         pluralist_count = sum(1 for _, (_, direction) in self.populism_hypotheses.items() if direction == "pluralist")
         print(f"Loaded {len(self.populism_hypotheses)} hypotheses ({populist_count} populist, {pluralist_count} pluralist)")
+
+        # Entailment probabilities below this floor mean "not entailed" for an
+        # NLI model; they are noise and must not accumulate into a score.
+        self.prob_floor = 0.25
         
         # Topic check configuration
         self.topic_threshold = 0.6
@@ -225,19 +232,22 @@ class PopulismPluralismScorer:
         
         # Process each hypothesis
         for i, (hypothesis, (weight, direction)) in enumerate(self.populism_hypotheses.items()):
-            prob = probs[i]
-            
+            prob = float(probs[i])
+            effective = prob if prob >= self.prob_floor else 0.0
+            weighted = effective * weight
+
             hypothesis_results.append({
                 'hypothesis': hypothesis,
                 'probability': prob,
                 'weight': weight,
-                'direction': direction
+                'direction': direction,
+                'effective_weighted': weighted,
             })
-            
+
             if direction == "populist":
-                populist_probs.append(prob * weight)
+                populist_probs.append(weighted)
             else:
-                pluralist_probs.append(prob * weight)
+                pluralist_probs.append(weighted)
 
         # Calculate averages and score
         # === ADAPTIVE K (based on ALL hypotheses above threshold) ===
@@ -272,19 +282,15 @@ class PopulismPluralismScorer:
         final_score = np.clip(final_score, 0, 10)
 
         # Compute confidence
-        confidence_data = self.compute_combined_confidence(
-            [p/1.0 for p in populist_probs],  # Unweight for confidence calc
-            [p/1.0 for p in pluralist_probs],
-            probs
-        )
+        confidence_data = self.compute_combined_confidence(populist_probs, pluralist_probs, probs)
 
         # Get top hypotheses from each direction
         populist_hyps = [h for h in hypothesis_results if h['direction'] == 'populist']
         pluralist_hyps = [h for h in hypothesis_results if h['direction'] == 'pluralist']
 
         # Annotate with score_impact: (prob*weight / k_score) * 5 points for those in top-k
-        top_pop_weighted = sorted([(h['probability'] * h['weight'], h) for h in populist_hyps], key=lambda x: x[0], reverse=True)[:k_score]
-        top_plu_weighted = sorted([(h['probability'] * h['weight'], h) for h in pluralist_hyps], key=lambda x: x[0], reverse=True)[:k_score]
+        top_pop_weighted = sorted([(h['effective_weighted'], h) for h in populist_hyps], key=lambda x: x[0], reverse=True)[:k_score]
+        top_plu_weighted = sorted([(h['effective_weighted'], h) for h in pluralist_hyps], key=lambda x: x[0], reverse=True)[:k_score]
         for weighted_val, h in top_pop_weighted:
             h['score_impact'] = round((weighted_val / k_score) * 5, 3)
         for weighted_val, h in top_plu_weighted:
