@@ -177,3 +177,14 @@ def test_national_and_state_corpora_are_reported_apart(data_root):
     assert state.loc["etnico", "count"] >= 2 and (T.out_dir() / "report_state.md").exists()
     national = pd.read_csv(T.out_dir() / "rates_per_10k.csv").set_index("measure")
     assert "etnico" not in national.index or national.loc["etnico", "count"] == 0   # state book excluded
+
+
+def test_lexicon_is_consistent():
+    from collections import Counter
+    from ltg import lexicon as L
+    verbs = Counter(v for vs in L.VERB_CLASSES.values() for v in vs)
+    assert not [v for v, n in verbs.items() if n > 1], "a verb sits in two classes"
+    for fam, spec in L.FAMILIES.items():
+        for term in spec["terms"]:
+            word = term.split("/")[0]
+            assert word == T.fold(word), f"{fam}: write '{word}' without accents, in lower case"

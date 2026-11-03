@@ -108,10 +108,17 @@ VERB_CLASSES = {
                       "dialogar", "organizar", "deliberar", "proponer", "consultar", "colaborar",
                       "cooperar", "reunir", "asociar"],
     "work": ["trabajar", "construir", "producir", "cultivar", "sembrar", "cosechar", "crear",
-             "edificar", "fabricar", "elaborar", "desarrollar", "contribuir", "aportar"],
+             "edificar", "fabricar", "elaborar", "desarrollar", "contribuir", "aportar", "fundar", "establecer"],
     "suffering": ["sufrir", "padecer", "morir", "perder", "carecer", "huir", "emigrar", "migrar"],
     "will": ["querer", "desear", "saber", "merecer", "mandar", "ejercer", "necesitar", "esperar", "anhelar"],
     "unity": ["unir", "solidarizar", "hermanar", "integrar", "agrupar"],
+    # added after reading the unclassified agent verbs of the 1988 and 2022 books
+    "submission": ["obedecer", "pagar", "servir", "entregar", "tributar", "aceptar", "soportar", "aguantar"],
+    "rule": ["gobernar", "dirigir", "administrar", "controlar", "reinar"],
+    "thought": ["pensar", "creer", "conocer", "aprender", "descubrir", "decir", "contar", "entender",
+                "imaginar", "considerar"],
+    "everyday": ["vivir", "habitar", "viajar", "llegar", "venir", "ir", "usar", "acostumbrar", "comprar",
+                 "vender", "alimentar", "comer", "jugar", "transportar", "pescar", "cazar", "comerciar"],
     "culture": ["conservar", "celebrar", "hablar", "mantener", "preservar", "transmitir", "compartir",
                 "festejar", "vestir", "heredar", "honrar", "recordar"],
 }

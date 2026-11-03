@@ -7,6 +7,7 @@ numpy>=1.24
 pillow>=10.0
 pytesseract>=0.3.10      # plus the system packages: tesseract-ocr tesseract-ocr-spa
 pymupdf>=1.24            # PDFs with a text layer
+matplotlib>=3.7
 opencv-python-headless>=4.8,<5   # 5.0 dropped the Haar face cascade
 spacy>=3.7
 # python -m pip install https://github.com/explosion/spacy-models/releases/download/es_core_news_sm-3.8.0/es_core_news_sm-3.8.0-py3-none-any.whl

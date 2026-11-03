@@ -24,4 +24,5 @@ if [[ $part == all || $part == images ]]; then
   step visual-sample
   step visual-report
 fi
+step figures
 echo "=== $(date +%T) done"

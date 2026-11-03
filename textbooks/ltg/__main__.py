@@ -13,6 +13,7 @@
   zeroshot       CLIP codebook on the sample        -> data/results/visual/zeroshot.csv
   visual-sample  hand-coding sheet for images       -> data/results/validation/visual_sample.*
   visual-report  visual tables + report.md          -> data/results/visual/report.md
+  figures        figures for the paper              -> data/results/figures/*.png|svg
   validate       agreement of a hand-coded sample   --kind sense|role|visual [--dim people]
 """
 import argparse
@@ -48,6 +49,9 @@ def main(argv=None):
         ap = argparse.ArgumentParser(prog="ltg report")
         ap.add_argument("--corpus", default="national", choices=["national", "state", "all"])
         return report(corpus=ap.parse_args(rest).corpus)
+    if stage == "figures":
+        from .figures import run
+        return run()
     if stage == "sample":
         from .text_analysis import export_for_coding
         return export_for_coding()
