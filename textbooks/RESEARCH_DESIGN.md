@@ -76,7 +76,7 @@ the CIs decide.
 | OCR | 20 random pages per edition, transcribed by hand | word error rate per edition; rates re-computed on high-confidence pages only |
 | Sense of *pueblo*, *comunidad*, *asamblea* | up to 40 per edition x word x predicted sense | accuracy, per-sense precision/recall, kappa (`validate --kind sense`). Target precision >= .9 for `settlement` and `classroom`, since they are what gets excluded. The classifier's seed codes were made by Claude; replace them with your own before reporting |
 | Role | up to 20 per edition x predicted role | as above (`--kind role`) |
-| Visual codebook | up to 30 per edition x predicted people label | per dimension (`--kind visual --dim ...`). Dimensions with poor agreement are reported from the hand-coded sample only, or prevalence is corrected for the measured misclassification |
+| Visual codebook | up to 30 per edition x predicted people label, drawn from the analysis sample of illustrations | per dimension (`--kind visual --dim ...`); `people` is the detector's count, the rest CLIP's. Dimensions with poor agreement are reported from the hand-coded sample only, or prevalence is corrected for the measured misclassification |
 | Inter-coder | second coder on ~20% of each sample | Cohen's kappa / Krippendorff's alpha |
 
 Coders see the contact sheet without predictions (the HTML hides them) to

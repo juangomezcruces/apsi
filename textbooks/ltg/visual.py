@@ -200,11 +200,22 @@ def _regions_job(args):
         return ([], None), f"{args[2]}: {type(e).__name__}: {e}"
 
 
-def run_regions(editions=None, workers=4):
+def run_regions(editions=None, workers=4, redo=False):
+    """Incremental: only books whose OCR is finished (their word boxes mask the text) and
+    that are not in pages_visual.csv yet; results are appended. redo=True starts over."""
     from concurrent.futures import ProcessPoolExecutor
+    out = out_dir()
+    old_r = old_p = pd.DataFrame()
+    if not redo and (out / "pages_visual.csv").exists():
+        old_p = pd.read_csv(out / "pages_visual.csv", dtype={"edition": str})
+        old_r = pd.read_csv(out / "regions.csv", dtype={"edition": str}) if (out / "regions.csv").stat().st_size > 1 else old_r
+    done = set(zip(old_p["edition"], old_p["code"])) if not old_p.empty else set()
+    ready = {(t.parent.name, t.stem) for t in PATHS["text"].glob("*/*.jsonl")}
     jobs = [(p.parent.parent.name, p.parent.name, str(p))
             for p in sorted(PATHS["pages"].glob("*/*/[0-9][0-9][0-9].jpg"))
-            if not editions or p.parent.parent.name in editions]
+            if (not editions or p.parent.parent.name in editions)
+            and (p.parent.parent.name, p.parent.name) in ready - done]
+    log.info("%d pages in %d books to segment", len(jobs), len({(e, c) for e, c, _ in jobs}))
     regions, pages, errors = [], [], []
     with ProcessPoolExecutor(workers) as ex:
         for i, ((rows, page_row), err) in enumerate(ex.map(_regions_job, jobs, chunksize=8)):
@@ -219,10 +230,13 @@ def run_regions(editions=None, workers=4):
         log.warning("%d of %d pages failed, first: %s", len(errors), len(jobs), errors[0])
         if len(errors) == len(jobs):
             raise RuntimeError(f"every page failed; first error: {errors[0]}")
-    out_dir().mkdir(parents=True, exist_ok=True)
-    pd.DataFrame(regions).to_csv(out_dir() / "regions.csv", index=False)
-    pd.DataFrame(pages).to_csv(out_dir() / "pages_visual.csv", index=False)
-    log.info("%d illustrations on %d pages", len(regions), len(pages))
+    out.mkdir(parents=True, exist_ok=True)
+    all_r = pd.concat([old_r, pd.DataFrame(regions)], ignore_index=True)
+    all_p = pd.concat([old_p, pd.DataFrame(pages)], ignore_index=True)
+    all_r.to_csv(out / "regions.csv", index=False)
+    all_p.to_csv(out / "pages_visual.csv", index=False)
+    log.info("%d new illustrations on %d new pages; %d illustrations on %d pages in all",
+             len(regions), len(pages), len(all_r), len(all_p))
 
 
 # --------------------------------------------------------------------------- zero-shot codebook

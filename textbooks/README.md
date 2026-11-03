@@ -80,9 +80,11 @@ python -m ltg report                # results/text/report.md + CSVs
 python -m ltg sample                # hand-coding samples + sentences for APSI
 
 # 4. Images
-python -m ltg regions               # cut out illustrations + captions
-python -m ltg zeroshot --model openai/clip-vit-base-patch16   # B/16 is practical on CPU
-python -m ltg visual-sample         # hand-coding sheet (CSV + HTML contact sheet)
+python -m ltg regions               # cut out illustrations + captions (incremental, after OCR)
+python -m ltg illustration-sample   # simple random sample, 300 illustrations per edition
+python -m ltg detect                # person counts on the sample (Faster R-CNN, COCO)
+python -m ltg zeroshot              # CLIP B/16 codebook on the sample
+python -m ltg visual-sample         # hand-coding sheet drawn from the sample (CSV + HTML)
 python -m ltg visual-report         # results/visual/report.md
 
 # 5. Validate after hand-coding the gold_* columns
@@ -102,6 +104,8 @@ python -m ltg validate --kind visual --dim people
 | senses | `senses.py` | re-labels *pueblo* in `people_tokens.csv.gz` (`sense`, `sense_p`, `sense_rule`), recomputes `counted`, writes `senses_cv.txt` |
 | report | `text_analysis.py` | `report.md` + `rates_per_10k.csv`, `people_sentence_shares.csv`, `keyness.csv`, `pueblo_collocates.csv` |
 | regions | `visual.py` | `results/visual/regions.csv` (size, colourfulness, caption, whether the caption names the people) and `visual/crops/` |
+| illustration-sample | `visual.py` | `regions_sample.csv`: the random sample the two models run on |
+| detect | `visual.py` | `people_detect.csv`: persons detected per illustration and none / one / group / crowd |
 | zeroshot | `visual.py` | `zeroshot.csv`: label and probabilities on five codebook dimensions |
 
 Every rate is a ratio of sums over books with a 95% interval from resampling
@@ -128,6 +132,14 @@ books, since pages and sentences within a book are not independent.
   instructions ("En pequeñas comunidades, reúnan...", "En asamblea,
   elaboren..."). They are tagged `classroom` / `school` and not counted as
   people-talk; *tu / su comunidad* is `local`; the rest `collective`.
+- **Images: a sample for the expensive models.** Every illustration is cut out
+  and measured for size, colour and caption. The people count and the CLIP
+  codebook run on a simple random sample of 300 national-corpus illustrations
+  per edition, because on a CPU the detector takes seconds per image. On 24
+  hand-checked NEM crops the person detector got people presence right 20
+  times and the none / one / group / crowd category 19 times, against 16 and
+  15 for CLIP B/16, so the detector supplies the people count and CLIP the
+  activity, figure, setting and medium.
 - **Formulas.** NEM books repeat sentences such as "De manera individual y sin
   olvidar que eres parte de una comunidad, ...". They are kept (they are the
   books' own framing), and the report lists every people-talk sentence

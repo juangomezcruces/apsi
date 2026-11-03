@@ -77,6 +77,8 @@ def test_pipeline(site, data_root, monkeypatch):
     regions = pd.read_csv(PATHS["results"] / "visual" / "regions.csv", dtype={"edition": str})
     assert len(regions) == 2 and set(regions["page"]) == {1}                       # one illustration per book
     assert regions["caption_people"].all()                                        # 'Campesinos y obreros ...'
+    cli(["regions", "--workers", "2"])                                            # incremental: nothing new
+    assert len(pd.read_csv(PATHS["results"] / "visual" / "pages_visual.csv")) == 4
     cli(["visual-sample"])
     cli(["visual-report"])
     assert (PATHS["results"] / "visual" / "report.md").exists()

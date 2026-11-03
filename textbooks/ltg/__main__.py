@@ -57,8 +57,9 @@ def main(argv=None):
     if stage == "regions":
         ap.add_argument("--editions", default="")
         ap.add_argument("--workers", type=int, default=4)
+        ap.add_argument("--redo", action="store_true", help="start over instead of adding new books")
         a = ap.parse_args(rest)
-        return visual.run_regions(set(filter(None, a.editions.split(","))) or None, a.workers)
+        return visual.run_regions(set(filter(None, a.editions.split(","))) or None, a.workers, a.redo)
     if stage == "illustration-sample":
         ap.add_argument("--n", type=int, default=300, help="illustrations per edition")
         ap.add_argument("--seed", type=int, default=0)
