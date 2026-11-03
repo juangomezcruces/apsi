@@ -1,0 +1,90 @@
+"""Downloader against a local HTTP server laid out like the documented URL scheme."""
+import functools
+import io
+import json
+import threading
+from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+
+import pytest
+from PIL import Image
+
+from ltg import download as D
+from ltg.catalog import make_session
+from ltg.config import PATHS
+
+
+def _jpeg(n):
+    buf = io.BytesIO()
+    Image.new("RGB", (60, 80), (n * 7 % 255, 100, 150)).save(buf, "JPEG")
+    return buf.getvalue()
+
+
+@pytest.fixture
+def server(tmp_path):
+    site = tmp_path / "site"
+    # declared count, pages 001-012
+    (site / "2023/c/P1AAA").mkdir(parents=True)
+    (site / "2023/P1AAA.htm").write_text("<script>var anchoPagina = 800; var totalPaginas = 12;</script>")
+    for n in range(1, 13):
+        (site / f"2023/c/P1AAA/{n:03d}.jpg").write_bytes(_jpeg(n))
+    # nothing declared, pages 000-036, page 20 missing upstream
+    (site / "c/H1988P3CS001").mkdir(parents=True)
+    (site / "H1988P3CS001.htm").write_text("<html>visor</html>")
+    for n in range(0, 37):
+        if n != 20:
+            (site / f"c/H1988P3CS001/{n:03d}.jpg").write_bytes(_jpeg(n))
+    # viewer page with no images at all
+    (site / "2023/P2ZZZ.htm").write_text("<html></html>")
+
+    class Quiet(SimpleHTTPRequestHandler):
+        def log_message(self, *a):
+            pass
+
+    httpd = ThreadingHTTPServer(("127.0.0.1", 0), functools.partial(Quiet, directory=str(site)))
+    t = threading.Thread(target=httpd.serve_forever, daemon=True)
+    t.start()
+    yield f"http://127.0.0.1:{httpd.server_address[1]}"
+    httpd.shutdown()
+
+
+def test_declared_page_counts():
+    html = "var anchoPagina = 800; var totalPaginas = 12; numPages: '240', zoom=3"
+    assert D.declared_page_counts(html) == [12, 240]
+
+
+def test_declared_count_book(server, data_root):
+    row = dict(code="P1AAA", edition="2023", viewer_url=f"{server}/2023/P1AAA.htm", pdf_url="")
+    m = D.download_book(row, make_session(retries=0), D.Throttle(0))
+    assert (m["first"], m["last"], m["missing"], m["complete"]) == (1, 12, [], True)
+    files = sorted(p.name for p in (PATHS["pages"] / "2023/P1AAA").glob("*.jpg"))
+    assert files == [f"{n:03d}.jpg" for n in range(1, 13)]
+    assert json.loads((PATHS["pages"] / "2023/P1AAA/manifest.json").read_text())["complete"]
+
+
+def test_probed_book_with_gap_and_resume(server, data_root):
+    row = dict(code="H1988P3CS001", edition="1988", viewer_url=f"{server}/H1988P3CS001.htm", pdf_url="")
+    s = make_session(retries=0)
+    m = D.download_book(row, s, D.Throttle(0))
+    # binary search assumes contiguous pages; the gap at 20 sits below the true end, so it is found
+    assert (m["first"], m["last"]) == (0, 36)
+    assert m["missing"] == [20] and not m["complete"]
+    # resume: existing files are skipped, nothing is re-fetched
+    status = D.fetch_file(s, D.Throttle(0), f"{server}/c/H1988P3CS001/005.jpg",
+                          PATHS["pages"] / "1988/H1988P3CS001/005.jpg", D.JPEG_MAGIC)
+    assert status == "skipped"
+
+
+def test_pilot_limit_and_no_images(server, data_root):
+    s = make_session(retries=0)
+    row = dict(code="H1988P3CS001", edition="1988", viewer_url=f"{server}/H1988P3CS001.htm", pdf_url="")
+    m = D.download_book(row, s, D.Throttle(0), max_pages=5)
+    assert m["n_pages"] == 5 and not m["complete"]
+    row = dict(code="P2ZZZ", edition="2023", viewer_url=f"{server}/2023/P2ZZZ.htm", pdf_url="")
+    assert D.download_book(row, s, D.Throttle(0))["error"] == "no page images"
+
+
+def test_minimal_hand_made_catalog(server, data_root, tmp_path):
+    cat = tmp_path / "catalog.csv"
+    cat.write_text(f"edition,code,viewer_url\n2023,P1AAA,{server}/2023/P1AAA.htm\n")
+    res = D.main(["--catalog", str(cat), "--delay", "0"])
+    assert len(res) == 1 and res[0]["complete"]
