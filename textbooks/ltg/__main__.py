@@ -4,6 +4,7 @@
   download       page images (+ PDFs)               -> data/pages, data/pdf
   extract        OCR / PDF text + word boxes        -> data/text, data/boxes
   text           spaCy pass over every page         -> data/results/text/*.csv.gz
+  senses         'pueblo' sense classifier (BETO)   -> updates people_tokens.csv.gz
   report         text tables + report.md            -> data/results/text/report.md
   sample         hand-coding samples + APSI export  -> data/results/validation
   regions        cut out illustrations              -> data/results/visual/regions.csv
@@ -37,6 +38,9 @@ def main(argv=None):
     if stage == "text":
         from .text_analysis import main as m
         return m(rest)
+    if stage == "senses":
+        from .senses import run
+        return run()
     if stage == "report":
         from .text_analysis import report
         return report()
@@ -67,7 +71,7 @@ def main(argv=None):
         ap.add_argument("--dim", default="people", help="visual codebook dimension")
         a = ap.parse_args(rest)
         v = PATHS["results"] / "validation"
-        spec = {"sense": (v / "pueblo_sense_sample.csv", "predicted_sense", "gold_sense"),
+        spec = {"sense": (v / "sense_sample.csv", "predicted_sense", "gold_sense"),
                 "role": (v / "role_sample.csv", "predicted_role", "gold_role"),
                 "visual": (v / "visual_sample.csv", f"pred_{a.dim}", f"gold_{a.dim}")}[a.kind]
         return validate(*spec)

@@ -8,13 +8,15 @@ the report can be traced back to a page:
 
     page_tokens.csv        tokens per page (the denominator for every rate)
     matches.csv.gz         every lexicon hit: family, term, page, sentence
-    people_tokens.csv.gz   one row per people noun: sense of 'pueblo', number,
-                           determiner, grammatical role, governing verb and its
-                           class, adjectives, with a keyword-in-context window
-    sentences.csv.gz       every sentence that talks about the people, with flags
-                           for elite / grievance / unity / pluralism / institutions
+    people_tokens.csv.gz   one row per candidate people noun: sense (pueblo,
+                           comunidad, asamblea), whether it counts as people-talk,
+                           number, determiner, grammatical role, governing verb and
+                           its class, adjectives, keyword-in-context, and for
+                           'pueblo' the lemmas within 5 tokens (collocations)
+    sentences.csv.gz       every sentence with a candidate people noun, with flags
+                           for elite / grievance / unity / pluralism / institutions;
+                           people-talk = sentences with a counted people_token
     lemma_freq.csv.gz      lemma counts per edition (keyness, collocations)
-    pueblo_window.csv      lemmas within 5 tokens of 'pueblo' (collocations)
 """
 import argparse
 import logging
@@ -203,6 +205,53 @@ def pueblo_sense(tok, sent_folded_lemmas):
     return "ambiguous"
 
 
+def is_counted(sense, families):
+    """A town, a classroom grouping or a school is not 'the people' -- unless another family
+    also claims the token ('comunidades indígenas' stays, via etnico)."""
+    fams = set(families.split("+")) if isinstance(families, str) else set(families)
+    return not (sense in NOT_COUNTED and fams <= {"pueblo", "comunidad"})
+
+
+COMMUNITY_LEMMAS = {"comunidad", "asamblea", "colectivo"}
+SCHOOL_MODS = {"escolar", "educativo", "aula", "escuela", "aprendizaje", "salon", "grupo", "clase"}
+POSSESSIVES = {"tu", "su", "mi", "nuestro", "vuestro", "tuyo", "suyo"}
+GROUP_WORDS = {"pequenas", "pequenos", "dos", "tres", "cuatro", "cinco", "seis", "varias", "sus"}
+ORDINALS = {"primero", "segundo", "tercero", "cuarto", "quinto", "sexto"}
+NOT_COUNTED = {"settlement", "classroom", "school"}     # senses that are not 'the people'
+
+
+def community_sense(tok):
+    """Sense of comunidad / asamblea: classroom / school / local / collective.
+
+    NEM books use both words to organise class work ('En pequeñas comunidades, reúnan...',
+    'En asamblea, elaboren...'); those are instructions, not depictions of a people.
+    """
+    dets = determiners(tok)
+    mods = {fold(w.lemma_) for c in tok.children if c.dep_ in ("amod", "nmod", "compound", "flat")
+            for w in c.subtree}
+    if mods & SCHOOL_MODS:
+        return "school"
+    t = _first_conjunct(tok)
+    amods = {fold(c.lemma_) for c in tok.children if c.dep_ == "amod"}
+    has_nmod = any(c.dep_ == "nmod" for c in tok.children)
+    window = [x for x in tok.doc[max(tok.sent.start, tok.i - 4):tok.i] if not x.is_space]
+    prev = [fold(x.text) for x in window]
+    lives = any(fold(x.lemma_) in ("vivir", "convivir") for x in window[-3:])
+    if len(prev) > 1 and prev[-2] == "en" and prev[-1] in GROUP_WORDS and not dets:
+        return "classroom"                                      # 'en pequeñas / tres comunidades'
+    if amods & ORDINALS or (("pequeno" in amods or "cada" in dets) and not has_nmod) or mods & {"trabajo"}:
+        return "classroom"                                      # 'la segunda comunidad', 'cada pequeña comunidad'
+    if prev and prev[-1] == "en" and not dets and not lives:
+        return "classroom"                                      # 'En asamblea, ...' but not 'vivir en comunidad'
+    head = t.head
+    if "cada" in dets and head.pos_ in ("VERB", "AUX") and set(head.morph.get("Mood")) & {"Sub", "Imp"}:
+        return "classroom"                                      # 'Cada comunidad organice ...'
+
+    if any(d in POSSESSIVES for d in dets):
+        return "local"
+    return "collective"
+
+
 # --------------------------------------------------------------------------- parse pass
 def _meta(catalog):
     if catalog is None or catalog.empty:
@@ -240,39 +289,35 @@ def analyse_doc(doc, ctx, matcher, acc):
                 head = doc[s:e].root
                 people_tokens.setdefault(head.i, set()).add(fam)
 
-        fams_people, senses = set(), []
         for i, fams in sorted(people_tokens.items()):
             tok = doc[i]
-            sense = pueblo_sense(tok, sent_lemmas) if fold(tok.lemma_) == "pueblo" else ""
-            if sense == "settlement" and fams == {"pueblo"}:
-                fams_eff = set()
-            else:
-                fams_eff = fams
-            fams_people |= fams_eff
-            senses.append(sense)
+            lemma = fold(tok.lemma_)
+            sense = (pueblo_sense(tok, sent_lemmas) if lemma == "pueblo"
+                     else community_sense(tok) if lemma in COMMUNITY_LEMMAS else "")
             role, gov = role_of(tok)
             dets = determiners(tok)
             left = sent.text[: tok.idx - sent.start_char][-90:]
             right = sent.text[tok.idx + len(tok) - sent.start_char:][:90]
+            window = ""
+            if lemma == "pueblo":                           # collocates, scored once senses are final
+                lo, hi = max(sent.start, i - 5), min(sent.end, i + 6)
+                window = "+".join(fold(t.lemma_) for t in doc[lo:hi]
+                                  if t.i != i and t.is_alpha and t.pos_ in CONTENT_POS)
             acc["people_tokens"].append(dict(
-                sent_id=sid, **ctx, token_i=i, families="+".join(sorted(fams)), counted=bool(fams_eff),
-                lemma=fold(tok.lemma_), form=tok.text, sense=sense,
+                sent_id=sid, **ctx, token_i=i, families="+".join(sorted(fams)),
+                counted=is_counted(sense, fams), lemma=lemma, form=tok.text, sense=sense, window=window,
                 number=(tok.morph.get("Number") or [""])[0], det="+".join(dets), role=role,
                 head_lemma=fold(gov.lemma_), head_pos=gov.pos_, verb_class=verb_class(role, gov),
                 attributes="+".join(attributes(tok, role, gov)),
                 nmod="+".join(n for n, _ in _nmod_names(tok)),
                 left=left, keyword=tok.text, right=right))
-            if fold(tok.lemma_) == "pueblo":
-                lo, hi = max(sent.start, i - 5), min(sent.end, i + 6)
-                for t in doc[lo:hi]:
-                    if t.i != i and t.is_alpha and t.pos_ in CONTENT_POS:
-                        acc["window"][(ed, sense, fold(t.lemma_))] += 1
 
-        if fams_people:
+        # Every sentence with a candidate people noun is kept; whether it is people-talk
+        # is decided from people_tokens.counted once senses are final (see `senses`).
+        if people_tokens:
             sent_fams = {f for f, *_ in sent_hits}
             acc["sentences"].append(dict(
-                sent_id=sid, **ctx, people_families="+".join(sorted(fams_people)),
-                pueblo_senses="+".join(s for s in senses if s),
+                sent_id=sid, **ctx,
                 **{f"has_{f}": f in sent_fams for f in
                    ("elite", "agravio", "unidad", "pluralismo", "instituciones", "nosotros")},
                 text=sent.text.strip()))
@@ -291,7 +336,7 @@ def parse(editions=None, workers=1, catalog=None, model="es_core_news_sm", batch
     nlp.max_length = 2_000_000
     matcher = Matcher()
     acc = dict(page_tokens=[], matches=[], people_tokens=[], sentences=[],
-               lemmas=defaultdict(Counter), window=Counter())
+               lemmas=defaultdict(Counter))
 
     def ctxs():
         for r in pages.itertuples(index=False):
@@ -317,8 +362,6 @@ def write_tables(acc):
         pd.DataFrame(acc[name]).to_csv(out_dir() / f"{name}.csv.gz", index=False)
     lem = [dict(edition=e, lemma=l, pos=p, n=n) for e, c in acc["lemmas"].items() for (l, p), n in c.items()]
     pd.DataFrame(lem).to_csv(out_dir() / "lemma_freq.csv.gz", index=False)
-    win = [dict(edition=e, sense=s, lemma=l, n=n) for (e, s, l), n in acc["window"].items()]
-    pd.DataFrame(win, columns=["edition", "sense", "lemma", "n"]).to_csv(out_dir() / "pueblo_window.csv", index=False)
     log.info("wrote tables to %s: %d people mentions in %d sentences",
              out_dir(), len(acc["people_tokens"]), len(acc["sentences"]))
 
@@ -376,11 +419,14 @@ def keyness(lemma_freq, ed1, ed2, top=30, min_freq=10):
     return pd.concat([over, under])
 
 
-def collocates(window, lemma_freq, senses=("people_political", "people_ethnic"), top=25, min_n=3):
-    """logDice between 'pueblo' (given senses) and window lemmas, per edition."""
+def collocates(ptok, lemma_freq, top=25, min_n=3):
+    """logDice between 'pueblo' in its people senses and the lemmas within 5 tokens, per edition."""
+    pp = ptok[(ptok["lemma"] == "pueblo") & ptok["sense"].str.startswith("people") & (ptok["window"] != "")]
+    window = (pp.assign(lemma=pp["window"].str.split("+")).explode("lemma")
+                .groupby(["edition", "lemma"]).size().rename("n").reset_index())
     out = []
     lf = lemma_freq.groupby(["edition", "lemma"])["n"].sum()
-    for ed, g in window[window["sense"].isin(senses)].groupby("edition"):
+    for ed, g in window.groupby("edition"):
         fx = lf.get((ed, "pueblo"), 0)
         co = g.groupby("lemma")["n"].sum()
         co = co[(co >= min_n) & (co.index != "pueblo")]
@@ -418,13 +464,19 @@ def edition_order(eds):
     return order + sorted(set(eds) - set(order))
 
 
+def people_talk(sents, ptok):
+    """Sentences with at least one counted people noun."""
+    ids = set(ptok.loc[ptok["counted"].astype(str) == "True", "sent_id"])
+    return sents[sents["sent_id"].isin(ids)]
+
+
 def report(B=1000):
     pt = pd.read_csv(out_dir() / "page_tokens.csv", dtype={"edition": str})
     matches = pd.read_csv(out_dir() / "matches.csv.gz", dtype={"edition": str})
     ptok = pd.read_csv(out_dir() / "people_tokens.csv.gz", dtype={"edition": str}, keep_default_na=False)
-    sents = pd.read_csv(out_dir() / "sentences.csv.gz", dtype={"edition": str})
+    ptok["counted"] = ptok["counted"].astype(str) == "True"
+    sents = people_talk(pd.read_csv(out_dir() / "sentences.csv.gz", dtype={"edition": str}), ptok)
     lemma_freq = pd.read_csv(out_dir() / "lemma_freq.csv.gz", dtype={"edition": str}, keep_default_na=False)
-    window = pd.read_csv(out_dir() / "pueblo_window.csv", dtype={"edition": str}, keep_default_na=False)
     eds = edition_order(pt["edition"].unique())
     tables = {}
 
@@ -436,12 +488,12 @@ def report(B=1000):
     tables["overview"] = ov.reindex(eds).reset_index()
 
     # 2. family rates per 10k tokens, excluding settlement 'pueblo'
-    counted = ptok[ptok["counted"].astype(str) == "True"]
-    settled = ptok[ptok["sense"] == "settlement"]
-    settle_keys = set(zip(settled["sent_id"], settled["token_i"].astype(int)))
-    is_settle = [f == "pueblo" and (s, int(i)) in settle_keys
-                 for f, s, i in zip(matches["family"], matches["sent_id"], matches["token_i"])]
-    m = matches[~np.array(is_settle, dtype=bool)]
+    counted = ptok[ptok["counted"]]
+    dropped = ptok[~ptok["counted"]]
+    drop_keys = set(zip(dropped["sent_id"], dropped["token_i"].astype(int)))
+    is_dropped = [f in ("pueblo", "comunidad") and (s, int(i)) in drop_keys
+                  for f, s, i in zip(matches["family"], matches["sent_id"], matches["token_i"])]
+    m = matches[~np.array(is_dropped, dtype=bool)]
     per_book_tok = pt.groupby(["edition", "code"])["n_tokens"].sum()
     fam_counts = m.groupby(["edition", "code", "family"]).size().unstack(fill_value=0)
     per_book = per_book_tok.to_frame().join(fam_counts, how="left").fillna(0).reset_index()
@@ -464,9 +516,13 @@ def report(B=1000):
     # 4. senses of 'pueblo'
     pb = ptok[ptok["lemma"] == "pueblo"]
     tables["pueblo_senses"] = pd.crosstab(pb["sense"], pb["edition"]).reindex(columns=eds).reset_index()
+    cb = ptok[ptok["lemma"].isin(COMMUNITY_LEMMAS)]
+    if not cb.empty:
+        tables["community_senses"] = pd.crosstab([cb["lemma"], cb["sense"]], cb["edition"]).reindex(
+            columns=eds).fillna(0).astype(int).reset_index()
 
     # 5. how the people appear: number, determiner, role, verb class, adjectives
-    pp = pb[pb["sense"].isin(["people_political", "people_ethnic"])]
+    pp = pb[pb["sense"].str.startswith("people")]
     def share(df, col, by="edition"):
         t = pd.crosstab(df[col], df[by], normalize="columns").reindex(columns=eds)
         return (100 * t).round(1).reset_index()
@@ -507,11 +563,19 @@ def report(B=1000):
             t = (10_000 * num / den).rename("people_per_10k").reset_index().fillna(0)
             tables[f"by_{col}"] = t.pivot(index=col, columns="edition", values="people_per_10k").reindex(columns=eds).round(1).reset_index()
 
+    # 7b. boilerplate: people-talk sentences the books repeat (formulas inflate rates; read them)
+    rep = (sents.assign(norm=sents["text"].map(lambda t: re.sub(r"\W+", " ", fold(str(t))).strip()))
+                .groupby(["edition", "norm"]).agg(n=("sent_id", "size"), books=("code", "nunique"),
+                                                  example=("text", "first")).reset_index())
+    rep = rep[rep["n"] >= 5].sort_values(["edition", "n"], ascending=[True, False]).groupby("edition").head(8)
+    tables["repeated"] = rep[["edition", "n", "books", "example"]].assign(
+        example=lambda d: d["example"].str.replace(r"\s+", " ", regex=True).str[:140])
+
     # 8. keyness between consecutive editions, 9. collocates
     kk = [keyness(lemma_freq, a, b).assign(comparison=f"{a} vs {b}") for a, b in zip(eds, eds[1:])]
     kk = pd.concat(kk) if kk else pd.DataFrame()
     kk.to_csv(out_dir() / "keyness.csv", index=False)
-    col = collocates(window, lemma_freq)
+    col = collocates(ptok, lemma_freq)
     col.to_csv(out_dir() / "pueblo_collocates.csv", index=False)
     tables["collocates"] = (col.assign(t=lambda d: d["lemma"] + " (" + d["log_dice"].round(1).astype(str) + ")")
                               .groupby("edition")["t"].apply(", ".join).reindex(eds).rename("top (logDice)").reset_index()
@@ -526,6 +590,9 @@ SECTIONS = [
     ("rates", "People-talk per 10,000 tokens", "Ratio of sums with 95% CIs from resampling books. `people_all` counts people nouns once each, with settlement uses of *pueblo* removed; families overlap ('pueblos indígenas' is both *pueblo* and *etnico*)."),
     ("top_terms", "Most frequent terms per family", ""),
     ("pueblo_senses", "Senses of *pueblo*", "Rule-based; validate with `python -m ltg sample` before reporting."),
+    ("community_senses", "Senses of *comunidad* / *asamblea*",
+     "classroom = 'en (pequeñas) comunidades', 'en asamblea' (NEM's way of organising group work); school = "
+     "'comunidad escolar / de aula'; local = 'tu / su comunidad'. classroom and school are not counted as people-talk."),
     ("pueblo_number", "*Pueblo* (people senses): singular vs plural, % of mentions", "Singular *el pueblo* constructs one people; plural *los pueblos* constructs many."),
     ("pueblo_determiners", "*Pueblo* (people senses): determiners", ""),
     ("pueblo_role", "*Pueblo* (people senses): grammatical role, %", "agent = active subject; patient = passive subject or object of a victimising verb; attribute = subject of a copular predicate; possessor = 'X del pueblo'."),
@@ -535,6 +602,8 @@ SECTIONS = [
     ("agency", "All people nouns: % of mentions as agent / patient", "95% CIs from resampling books."),
     ("people_role_by_family", "Role by people family, % of mentions", ""),
     ("cooccurrence", "What people-talk sentences also contain, % of sentences", "has_elite + has_agravio approximates a people-vs-elite frame; has_unidad vs has_pluralismo a homogeneous vs plural people."),
+    ("repeated", "People-talk sentences repeated 5+ times (formulas)",
+     "Boilerplate instructions repeated across a book inflate rates; these are kept, but read them before interpreting a rate."),
     ("by_subject", "People-talk per 10k tokens by subject", ""),
     ("by_grade", "People-talk per 10k tokens by grade", ""),
     ("collocates", "Collocates of *pueblo* (people senses), logDice", "Within 5 tokens, same sentence."),
@@ -569,13 +638,13 @@ def stratified_sample(df, keys, n, seed=0):
 def export_for_coding(n_per_cell=40, seed=0):
     """Validation samples + the people-talk sentences for the APSI populism scorer."""
     ptok = pd.read_csv(out_dir() / "people_tokens.csv.gz", dtype={"edition": str}, keep_default_na=False)
-    sents = pd.read_csv(out_dir() / "sentences.csv.gz", dtype={"edition": str})
+    sents = people_talk(pd.read_csv(out_dir() / "sentences.csv.gz", dtype={"edition": str}), ptok)
     vdir = PATHS["results"] / "validation"
     vdir.mkdir(parents=True, exist_ok=True)
-    pb = ptok[ptok["lemma"] == "pueblo"]
-    s = stratified_sample(pb, ["edition", "sense"], n_per_cell, seed)
-    s[["sent_id", "edition", "code", "page", "left", "keyword", "right", "sense"]].rename(
-        columns={"sense": "predicted_sense"}).assign(gold_sense="").to_csv(vdir / "pueblo_sense_sample.csv", index=False)
+    pb = ptok[ptok["lemma"].isin({"pueblo"} | COMMUNITY_LEMMAS)]
+    s = stratified_sample(pb, ["edition", "lemma", "sense"], n_per_cell, seed)
+    s[["sent_id", "edition", "code", "page", "lemma", "left", "keyword", "right", "sense"]].rename(
+        columns={"sense": "predicted_sense"}).assign(gold_sense="").to_csv(vdir / "sense_sample.csv", index=False)
     r = stratified_sample(ptok[ptok["counted"].astype(str) == "True"], ["edition", "role"], n_per_cell // 2, seed)
     r[["sent_id", "edition", "left", "keyword", "right", "role", "head_lemma", "verb_class"]].rename(
         columns={"role": "predicted_role"}).assign(gold_role="").to_csv(

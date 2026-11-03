@@ -35,6 +35,12 @@ def server(tmp_path):
             (site / f"c/H1988P3CS001/{n:03d}.jpg").write_bytes(_jpeg(n))
     # viewer page with no images at all
     (site / "2023/P2ZZZ.htm").write_text("<html></html>")
+    # 2025 layout: same viewer, but magazine.js loads pages from c2025/ (as on the live site)
+    (site / "2025/c2025/P5PCA").mkdir(parents=True)
+    (site / "2025/P5PCA.htm").write_text("<script>\nag_pages = 4;\nag_clave = \"P5PCA\";\n</script>")
+    (site / "2025/magazine.js").write_text("  \timg.attr('src', './c2025/' + ag_clave + '/' + ag_page +'.jpg');")
+    for n in range(0, 4):
+        (site / f"2025/c2025/P5PCA/{n:03d}.jpg").write_bytes(_jpeg(n))
 
     class Quiet(SimpleHTTPRequestHandler):
         def log_message(self, *a):
@@ -50,6 +56,14 @@ def server(tmp_path):
 def test_declared_page_counts():
     html = "var anchoPagina = 800; var totalPaginas = 12; numPages: '240', zoom=3"
     assert D.declared_page_counts(html) == [12, 240]
+    assert D.declared_page_counts('ag_pages = 362;\nag_clave = "P5PCA";') == [362]     # live viewer
+
+
+def test_image_folder_from_magazine_js(server, data_root):
+    row = dict(code="P5PCA", edition="2025", viewer_url=f"{server}/2025/P5PCA.htm", pdf_url="")
+    m = D.download_book(row, make_session(retries=0), D.Throttle(0))
+    assert (m["folder"], m["first"], m["last"], m["complete"]) == ("c2025", 0, 3, True)
+    assert D.image_folder(make_session(retries=0), f"{server}/2023/P1AAA.htm") == "c"   # no magazine.js
 
 
 def test_declared_count_book(server, data_root):
@@ -88,3 +102,13 @@ def test_minimal_hand_made_catalog(server, data_root, tmp_path):
     cat.write_text(f"edition,code,viewer_url\n2023,P1AAA,{server}/2023/P1AAA.htm\n")
     res = D.main(["--catalog", str(cat), "--delay", "0"])
     assert len(res) == 1 and res[0]["complete"]
+
+
+def test_teacher_and_reader_only_books_are_skipped(server, data_root, tmp_path):
+    cat = tmp_path / "catalog.csv"
+    cat.write_text("edition,code,viewer_url,level,audience\n"
+                   f"2023,P1AAA,{server}/2023/P1AAA.htm,primaria,student\n"
+                   f"2023,P1LPM,{server}/2023/P1LPM.htm,primaria,teacher\n"
+                   "current,P5PCA,,primaria,student\n")
+    res = D.main(["--catalog", str(cat), "--delay", "0"])
+    assert [m["code"] for m in res] == ["P1AAA"]

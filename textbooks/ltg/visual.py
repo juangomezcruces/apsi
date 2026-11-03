@@ -279,21 +279,25 @@ class ClipEncoder:
         self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
         self.model = CLIPModel.from_pretrained(model).to(self.device).eval()
         self.proc = CLIPProcessor.from_pretrained(model)
-        self.logit_scale = float(self.model.logit_scale.exp())
+        self.logit_scale = float(self.model.logit_scale.detach().exp())
 
     def _norm(self, x):
         x = x.float().cpu().numpy()
         return x / np.linalg.norm(x, axis=1, keepdims=True)
 
+    # Tower -> pooled output -> projection, spelled out: get_*_features changed its
+    # return type between transformers 4 and 5.
     def texts(self, texts):
         with self.torch.no_grad():
             t = self.proc(text=texts, return_tensors="pt", padding=True).to(self.device)
-            return self._norm(self.model.get_text_features(**t))
+            pooled = self.model.text_model(input_ids=t["input_ids"], attention_mask=t["attention_mask"]).pooler_output
+            return self._norm(self.model.text_projection(pooled))
 
     def images(self, images):
         with self.torch.no_grad():
             t = self.proc(images=images, return_tensors="pt").to(self.device)
-            return self._norm(self.model.get_image_features(**t))
+            pooled = self.model.vision_model(pixel_values=t["pixel_values"]).pooler_output
+            return self._norm(self.model.visual_projection(pooled))
 
 
 def label_embeddings(encoder, codebook=CODEBOOK, template="a picture from a school textbook: {}"):

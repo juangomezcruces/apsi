@@ -31,8 +31,29 @@ PDF_MAGIC = b"%PDF"
 _BAD_NAME = re.compile(r"width|height|zoom|size|scale|margin|top|left|ancho|alto|altura|escala|tama|^w$|^h$", re.I)
 
 
-def image_url(viewer_url, code, n, pad=3):
-    return urljoin(viewer_url, f"c/{code}/{n:0{pad}d}.jpg")
+def image_url(viewer_url, code, n, pad=3, folder="c"):
+    return urljoin(viewer_url, f"{folder}/{code}/{n:0{pad}d}.jpg")
+
+
+_FOLDERS = {}
+
+
+def image_folder(session, viewer_url, timeout=30):
+    """The page-image folder the viewer's magazine.js loads from: 'c' for most years,
+    'c2025' for 2025. Read once per viewer directory; 'c' if it cannot be read."""
+    base = urljoin(viewer_url, "./")
+    if base not in _FOLDERS:
+        folder = "c"
+        try:
+            js = session.get(urljoin(base, "magazine.js"), timeout=timeout).text
+            m = re.search(r"""['"]\./?([\w-]+)/['"]\s*\+\s*ag_clave""", js)
+            if m:
+                folder = m.group(1)
+        except Exception as e:
+            log.debug("magazine.js for %s: %s", base, e)
+        _FOLDERS[base] = folder
+        log.info("page images for %s are in %s/", base, folder)
+    return _FOLDERS[base]
 
 
 class Throttle:
@@ -83,12 +104,12 @@ class Prober:
         return self.cache[url]
 
 
-def find_pages(prober, viewer_url, code, declared=(), cap=2000):
+def find_pages(prober, viewer_url, code, declared=(), cap=2000, folder="c"):
     """Return (first, last) page numbers, or None if no page image is reachable."""
-    first = next((i for i in (0, 1, 2) if prober.exists(image_url(viewer_url, code, i))), None)
+    url = lambda n: image_url(viewer_url, code, n, folder=folder)
+    first = next((i for i in (0, 1, 2) if prober.exists(url(i))), None)
     if first is None:
         return None
-    url = lambda n: image_url(viewer_url, code, n)
     for n in declared:                          # the viewer may count from 0 or from 1
         for last in (n + first - 1, n):
             if last > first and prober.exists(url(last)) and not prober.exists(url(last + 1)):
@@ -154,9 +175,11 @@ def download_book(row, session, throttle, workers=2, max_pages=None, want_pdf=Tr
     except Exception as e:
         log.warning("%s: viewer page failed (%s); probing images directly", code, e)
         declared = []
-    span = find_pages(Prober(session, throttle), viewer, code, declared)
+    folder = image_folder(session, viewer)
+    span = find_pages(Prober(session, throttle), viewer, code, declared, folder=folder)
     if span is None:
-        log.warning("%s/%s: no page images found under %s", edition, code, image_url(viewer, code, 1))
+        log.warning("%s/%s: no page images found under %s", edition, code,
+                    image_url(viewer, code, 1, folder=folder))
         manifest.update(complete=False, error="no page images")
         book_dir.mkdir(parents=True, exist_ok=True)
         manifest_path.write_text(json.dumps(manifest, indent=1))
@@ -166,10 +189,10 @@ def download_book(row, session, throttle, workers=2, max_pages=None, want_pdf=Tr
         last = min(last, first + max_pages - 1)
     pages = list(range(first, last + 1))
     with ThreadPoolExecutor(workers) as ex:
-        status = list(ex.map(lambda n: fetch_file(session, throttle, image_url(viewer, code, n),
+        status = list(ex.map(lambda n: fetch_file(session, throttle, image_url(viewer, code, n, folder=folder),
                                                    book_dir / f"{n:03d}.jpg", JPEG_MAGIC), pages))
     bad = [n for n, s in zip(pages, status) if s in ("missing", "failed")]
-    manifest.update(first=first, last=last, declared=declared[:3], n_pages=len(pages),
+    manifest.update(first=first, last=last, declared=declared[:3], folder=folder, n_pages=len(pages),
                     missing=bad, complete=not bad and not max_pages)
     manifest_path.write_text(json.dumps(manifest, indent=1))
     log.info("%s/%s: pages %d-%d, %d new, %d missing", edition, code, first, last,
@@ -183,6 +206,7 @@ def main(argv=None):
     ap.add_argument("--editions", default="")
     ap.add_argument("--codes", default="", help="comma-separated book codes")
     ap.add_argument("--level", default="primaria", help="'' for every level in the catalog")
+    ap.add_argument("--audience", default="student", help="student | teacher | all")
     ap.add_argument("--max-pages", type=int, default=None, help="pilot runs: first N pages per book")
     ap.add_argument("--workers", type=int, default=2)
     ap.add_argument("--delay", type=float, default=0.5)
@@ -196,6 +220,12 @@ def main(argv=None):
         cat = cat[cat["code"].isin(args.codes.split(","))]
     if args.level and "level" in cat:          # a hand-made catalog needs only edition, code, viewer_url
         cat = cat[cat["level"].isna() | (cat["level"] == args.level)]
+    if args.audience != "all" and "audience" in cat:
+        cat = cat[cat["audience"].isna() | (cat["audience"] == args.audience)]
+    no_viewer = cat["viewer_url"].isna() | (cat["viewer_url"].astype(str).str.strip() == "")
+    if no_viewer.any():
+        log.info("skipping %d books with no image viewer (e.g. the 2026 encrypted PDF reader)", no_viewer.sum())
+    cat = cat[~no_viewer]
     session, throttle = make_session(), Throttle(args.delay)
     results = [download_book(r, session, throttle, args.workers, args.max_pages, args.pdf)
                for r in cat.to_dict("records")]

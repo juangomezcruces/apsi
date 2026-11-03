@@ -28,11 +28,17 @@ log = logging.getLogger("ltg.catalog")
 CODE_RE = re.compile(r"^(?:H(?P<year>\d{4}))?(?P<level>[A-Z])(?P<grade>\d)(?P<rest>[A-Z0-9]{2,10})$")
 HTM_IN_TEXT_RE = re.compile(r"""(?P<url>[\w./:%-]*?(?P<code>(?:H\d{4})?[A-Z]\d[A-Z0-9]{2,10})\.htm)(?![a-zA-Z])""")
 PDF_IN_TEXT_RE = re.compile(r"""(?P<url>[\w./:%-]+\.pdf)\b""", re.I)
+# The historical archive lists its books in a script: ["TITLE","H1988P5CI124",1988,5],
+BOOK_ARRAY_RE = re.compile(r'\[\s*"(?P<title>[^"]*)"\s*,\s*"(?P<code>(?:H\d{4})?[A-Z]\d[A-Z0-9]{2,10})"'
+                           r'\s*,\s*(?P<gen>\d{4})\s*,\s*(?P<grade>\d)\s*\]')
+GRADE_RE = re.compile(r"Grado:?\s*(\d)")
+TEACHER_RE = re.compile(r"para (la )?maestra|para el maestro|para (el |la )?docente|libro (del|para el) maestro|sin recetas")
 
 LEVELS = {"P": "primaria", "S": "secundaria", "K": "preescolar", "T": "telesecundaria"}
 
 # First match wins, so specific phrases come before the words they contain.
 SUBJECTS = [
+    ("sin recetas", "Libro para el docente"),
     ("proyectos comunitarios", "Proyectos comunitarios"),
     ("proyectos escolares", "Proyectos escolares"),
     ("proyectos de aula", "Proyectos de aula"),
@@ -46,7 +52,10 @@ SUBJECTS = [
     ("formacion civica", "Formación cívica y ética"),
     ("civismo", "Formación cívica y ética"),
     ("geografia", "Geografía"),
+    ("cartografia", "Atlas"),
+    ("sociales", "Ciencias sociales"),
     ("atlas", "Atlas"),
+    ("constitucion", "Formación cívica y ética"),
     ("conocimiento del medio", "Conocimiento del medio"),
     ("entidad donde vivo", "La entidad donde vivo"),
     ("ciencias naturales", "Ciencias naturales"),
@@ -60,7 +69,7 @@ SUBJECTS = [
     ("lecturas", "Lengua"),
     ("lenguajes", "Lengua"),
     ("trazos", "Lengua"),
-    ("mi libro de", "Lengua"),
+    ("mi libro de", "Integrado (1°-2°)"),
     ("ingles", "Inglés"),
 ]
 
@@ -110,11 +119,31 @@ def _clean(s):
     return re.sub(r"\s+", " ", s or "").strip()
 
 
+def audience_from_title(title):
+    t = fold(title)
+    return "teacher" if TEACHER_RE.search(t) and "alumn" not in t else "student"
+
+
+def _anchor_grade(a):
+    for node in (a, a.parent, getattr(a.parent, "parent", None)):
+        if node is not None:
+            m = GRADE_RE.search(node.get_text(" ", strip=True))
+            if m:
+                return int(m.group(1))
+    return None
+
+
 def _anchor_title(a):
-    parts = [a.get_text(" ", strip=True), a.get("title", "")]
+    """Card title: bold text, else the cover's alt text, else the link text, else the card's text."""
+    for tag in a.find_all(["b", "strong", "h3", "h4"]):
+        t = _clean(tag.get_text(" ", strip=True))
+        if len(t) >= 4:
+            return t.rstrip(". ")
     for img in a.find_all("img"):
-        parts += [img.get("alt", ""), img.get("title", "")]
-    title = _clean(" ".join(p for p in parts if p))
+        t = _clean(img.get("alt", "") or img.get("title", ""))
+        if len(t) >= 4:
+            return t.rstrip(". ")
+    title = _clean(" ".join(p for p in (a.get("title", ""), a.get_text(" ", strip=True)) if p))
     if len(title) < 4:                      # bare cover image: use the enclosing card's text
         node = a.parent
         for _ in range(3):
@@ -132,19 +161,27 @@ def extract_books(html, base_url):
     soup = BeautifulSoup(html, "lxml")
     books = {}
 
-    def add(code, url, title="", pdf=""):
+    def add(code, url, title="", pdf="", grade=None, access="viewer", year=""):
         if not parse_code(code):
             return
-        b = books.setdefault(code, dict(code=code, viewer_url=urljoin(base_url, url), title="", pdf_url=""))
+        b = books.setdefault(code, dict(code=code, viewer_url=urljoin(base_url, url) if url else "", title="",
+                                        pdf_url="", grades=set(), access=access, served_year=year))
         if title and len(title) > len(b["title"]):
             b["title"] = title
         if pdf and not b["pdf_url"]:
             b["pdf_url"] = urljoin(base_url, pdf)
+        if grade:
+            b["grades"].add(int(grade))
 
     for a in soup.find_all("a"):
         href = a.get("href", "") + " " + a.get("onclick", "")
         for m in HTM_IN_TEXT_RE.finditer(href):
-            add(m.group("code"), m.group("url"), _anchor_title(a))
+            add(m.group("code"), m.group("url"), _anchor_title(a), grade=_anchor_grade(a))
+        if "reader.html" in href and "clave=" in href:
+            # 2026 onwards: an encrypted-PDF reader and no image viewer. Recorded, not downloaded.
+            q = parse_qs(urlparse(urljoin(base_url, a.get("href", ""))).query)
+            add(q["clave"][0], None, _anchor_title(a), grade=_anchor_grade(a), access="pdf-reader",
+                year=q.get("ciclo", [""])[0])
         pdfs = PDF_IN_TEXT_RE.findall(href)
         if pdfs:
             # A PDF link belongs to the book whose code it contains, else to the card it sits in.
@@ -158,6 +195,32 @@ def extract_books(html, base_url):
         if m.group("code") not in books:
             add(m.group("code"), m.group("url"))
     return books
+
+
+def books_from_script(js, base_url, generation=None):
+    """Books declared as ["TITLE","CODE",generation,grade] arrays (historical archive)."""
+    books = {}
+    for m in BOOK_ARRAY_RE.finditer(js):
+        if generation and m.group("gen") != str(generation):
+            continue
+        code = m.group("code")
+        if not parse_code(code):
+            continue
+        b = books.setdefault(code, dict(code=code, viewer_url=urljoin(base_url, f"{code}.htm"),
+                                        title=_clean(m.group("title")), pdf_url="", grades=set(),
+                                        access="viewer", served_year=m.group("gen")))
+        b["grades"].add(int(m.group("grade")))
+    return books
+
+
+def same_host_scripts(html, base_url):
+    host = urlparse(base_url).netloc
+    out = []
+    for tag in BeautifulSoup(html, "lxml").find_all("script", src=True):
+        u = urljoin(base_url, tag["src"])
+        if urlparse(u).netloc == host and not re.search(r"jquery|bootstrap|modernizr|gtag|webfont", u, re.I):
+            out.append(u)
+    return out
 
 
 def nav_links(html, base_url, follow_params):
@@ -203,12 +266,21 @@ def crawl_edition(spec, session, delay=1.0, fetch=None):
             log.warning("edition %s: %s failed: %s", spec["edition"], url, e)
             continue
         found = extract_books(html, url)
+        for js_url in same_host_scripts(html, url):
+            if js_url in seen:
+                continue
+            seen.add(js_url)
+            try:
+                found.update(books_from_script(fetch(js_url), url, spec.get("generation")))
+            except Exception as e:
+                log.warning("edition %s: script %s failed: %s", spec["edition"], js_url, e)
         log.info("edition %s: %s -> %d books", spec["edition"], url, len(found))
         for code, b in found.items():
             b.setdefault("found_on", url)
-            books.setdefault(code, b)
-            if b["title"] and len(b["title"]) > len(books[code]["title"]):
-                books[code]["title"] = b["title"]
+            known = books.setdefault(code, b)
+            if b["title"] and len(b["title"]) > len(known["title"]):
+                known["title"] = b["title"]
+            known["grades"] |= b["grades"]
         if spec.get("follow_params"):
             queue += [u for u in nav_links(html, url, spec["follow_params"]) if u not in seen]
         if delay:
@@ -216,10 +288,19 @@ def crawl_edition(spec, session, delay=1.0, fetch=None):
     rows = []
     for code, b in sorted(books.items()):
         meta = parse_code(code)
+        meta["code_grade"] = meta.pop("grade")
+        if meta["level"] not in LEVELS.values():        # e.g. Z7822, a workbook listed on the primaria page
+            meta["level"] = spec.get("level", "primaria")
+        grades = sorted(b["grades"]) or [meta["code_grade"]]   # the catalog's own grade beats the code's digit
         year_dir = re.search(r"/(\d{4})/[^/]+\.htm", b["viewer_url"])
+        subject = subject_from_title(b["title"])
         rows.append(dict(edition=spec["edition"], period=PERIOD.get(spec["edition"], ""), **meta,
-                         served_year=year_dir.group(1) if year_dir else meta["hist_year"],
-                         title=b["title"], subject=subject_from_title(b["title"]),
+                         grade=grades[0], grades=";".join(map(str, grades)),
+                         served_year=year_dir.group(1) if year_dir else (b.get("served_year") or meta["hist_year"]),
+                         title=b["title"], subject=subject,
+                         # one state book per child: kept out of the national comparison, reported apart
+                         corpus="state" if subject == "La entidad donde vivo" else "national",
+                         audience=audience_from_title(b["title"]), access=b.get("access", "viewer"),
                          viewer_url=b["viewer_url"], pdf_url=b["pdf_url"], found_on=b.get("found_on", "")))
     return rows
 

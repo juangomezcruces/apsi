@@ -22,12 +22,10 @@ ROOT = Path(__file__).resolve().parent.parent
 DATA = Path(os.environ.get("LTG_DATA", ROOT / "data"))
 
 EDITIONS = [
-    # The historical archive is filtered by query string. `g` is the year; `a`
-    # is expanded to 1..6 on the assumption that it selects the grade. If that
-    # assumption is wrong the extra requests return duplicates, which are
-    # dropped, so the expansion is safe either way. Check `catalog.csv`.
-    dict(edition="1988", seed="https://historico.conaliteg.gob.mx/?g=1988&a=1",
-         expand={"a": [str(i) for i in range(1, 7)]}, follow_params=["g"]),
+    # The historical archive (`g` = generation, `a` = grade) builds its list in
+    # JavaScript from ["TITLE","CODE",generation,grade] arrays in a same-host
+    # script; the crawler reads those and keeps the given generation.
+    dict(edition="1988", seed="https://historico.conaliteg.gob.mx/?g=1988&a=1", generation="1988"),
     dict(edition="2022", seed="https://libros.conaliteg.gob.mx/primaria_2022.html"),
     dict(edition="2023", seed="https://libros.conaliteg.gob.mx/primaria_2023.html"),
     dict(edition="2024", seed="https://libros.conaliteg.gob.mx/primaria_2024.html"),
@@ -36,8 +34,8 @@ EDITIONS = [
 ]
 
 # Analytic periods. The 2022 books predate the Nueva Escuela Mexicana (NEM)
-# textbooks first distributed for 2023-24; 1988 is the pre-1993 generation.
-PERIOD = {"1988": "pre-1993", "2022": "pre-NEM", "2023": "NEM", "2024": "NEM",
+# textbooks first distributed for 2023-24; 1988 is the archive's '1988 generation'.
+PERIOD = {"1988": "gen-1988", "2022": "pre-NEM", "2023": "NEM", "2024": "NEM",
           "2025": "NEM", "current": "NEM"}
 
 HEADERS = {

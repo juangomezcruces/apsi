@@ -30,7 +30,11 @@ os.environ.setdefault("OMP_THREAD_LIMIT", "1")     # one tesseract thread per wo
 log = logging.getLogger("ltg.extract")
 
 BOX_COLS = ["block", "par", "line", "left", "top", "width", "height", "conf", "text"]
-TARGET_HEIGHT = 2200            # roughly 300 dpi for a letter-size page
+# The served pages are ~1000-1300 px tall. Measured on sample pages from 1988, 2022,
+# 2023 and 2025, OCR at native size is as accurate as upscaling (and upscaling to
+# 2200 px *lowered* confidence and invented tokens in illustrations), at half the
+# time, so only images smaller than this are enlarged.
+MIN_HEIGHT = 900
 
 
 def dehyphenate(text):
@@ -54,9 +58,9 @@ def ocr_image(img, lang="spa", psm=3):
     import pytesseract
     img = img.convert("L")
     scale = 1.0
-    if img.height < TARGET_HEIGHT * 0.75:
-        scale = TARGET_HEIGHT / img.height
-        img = img.resize((round(img.width * scale), TARGET_HEIGHT), Image.LANCZOS)
+    if img.height < MIN_HEIGHT:
+        scale = MIN_HEIGHT / img.height
+        img = img.resize((round(img.width * scale), MIN_HEIGHT), Image.LANCZOS)
     df = pytesseract.image_to_data(img, lang=lang, config=f"--psm {psm}",
                                    output_type=pytesseract.Output.DATAFRAME)
     df = df[(df["level"] == 5) & df["text"].notna()].copy()
@@ -160,7 +164,19 @@ def extract_book(edition, code, workers=4, lang="spa", pool=None, force=False):
     return len(records)
 
 
-def books_on_disk():
+def _download_complete(book_dir):
+    m = book_dir / "manifest.json"
+    if not m.exists():
+        return True                     # pages placed by hand or rendered from a PDF
+    try:
+        return bool(json.loads(m.read_text()).get("complete"))
+    except ValueError:
+        return False
+
+
+def books_on_disk(complete_only=False):
+    """(edition, code) of every book with page images or a PDF. complete_only skips books
+    whose download is still running or failed, so extract can run alongside download."""
     seen = set()
     for root in (PATHS["pages"], PATHS["pdf"]):
         if not root.exists():
@@ -168,7 +184,7 @@ def books_on_disk():
         for d in root.iterdir():
             for p in d.iterdir():
                 code = p.stem if p.suffix == ".pdf" else p.name
-                if p.is_dir() or p.suffix == ".pdf":
+                if p.suffix == ".pdf" or (p.is_dir() and (not complete_only or _download_complete(p))):
                     seen.add((d.name, code))
     return sorted(seen)
 
@@ -191,10 +207,13 @@ def main(argv=None):
     ap.add_argument("--workers", type=int, default=max(1, (os.cpu_count() or 2) - 1))
     ap.add_argument("--lang", default="spa")
     ap.add_argument("--force", action="store_true")
+    ap.add_argument("--include-incomplete", action="store_true",
+                    help="also books whose download is unfinished (pilot runs with --max-pages)")
     args = ap.parse_args(argv)
     eds = set(filter(None, args.editions.split(",")))
     codes = set(filter(None, args.codes.split(",")))
-    books = [(e, c) for e, c in books_on_disk() if (not eds or e in eds) and (not codes or c in codes)]
+    books = [(e, c) for e, c in books_on_disk(complete_only=not args.include_incomplete)
+             if (not eds or e in eds) and (not codes or c in codes)]
     log.info("%d books to extract with %d workers", len(books), args.workers)
     with ProcessPoolExecutor(args.workers) as pool:
         for e, c in books:

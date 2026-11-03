@@ -82,7 +82,9 @@ def test_roles_and_verb_classes(parsed):
 
 
 def test_sentence_flags(parsed):
-    _, sents = parsed
+    ptok, all_sents = parsed
+    sents = T.people_talk(all_sents, ptok)        # people-talk = sentences with a counted people noun
+    assert "Vivo en un pueblo pequeño cerca de la ciudad." in set(all_sents["text"])   # kept as a candidate
     by_text = {s["text"]: s for s in sents.to_dict("records")}
     assert by_text["El pueblo de México luchó contra la dictadura."]["has_elite"]
     assert by_text["Todo el pueblo se unió para defender la patria."]["has_unidad"]
@@ -105,7 +107,7 @@ def test_report_and_exports(parsed):
     assert senses.loc["settlement", "1988"] == 1 and senses.loc["people_ethnic", "2023"] == 2
     assert (T.out_dir() / "report.md").read_text().startswith("# 'The people'")
     T.export_for_coding(n_per_cell=5)
-    sample = pd.read_csv(PATHS["results"] / "validation" / "pueblo_sense_sample.csv")
+    sample = pd.read_csv(PATHS["results"] / "validation" / "sense_sample.csv")
     assert {"predicted_sense", "gold_sense", "left", "keyword", "right"} <= set(sample.columns)
     apsi = pd.read_csv(PATHS["results"] / "people_sentences_for_apsi.csv")
     assert {"id", "text", "text_en"} <= set(apsi.columns) and len(apsi) > 5
@@ -123,3 +125,36 @@ def test_bootstrap_and_keyness():
     assert est == pytest.approx(20) and lo < est < hi
     g2, lr = T.log_likelihood(100, 10, 10_000, 10_000)
     assert g2 > 15.13 and lr > 3
+
+
+@pytest.mark.parametrize("sentence, word, sense", [
+    ("En asamblea, elaboren una lista de propuestas.", "asamblea", "classroom"),
+    ("En pequeñas comunidades, dialoguen sobre estas preguntas.", "comunidades", "classroom"),
+    ("Organizados en comunidades, observen los libros.", "comunidades", "classroom"),
+    ("Cada comunidad organice una presentación.", "comunidad", "classroom"),
+    ("La segunda comunidad creará un formulario.", "comunidad", "classroom"),
+    ("Presenten su cartel ante la comunidad escolar.", "comunidad", "school"),
+    ("Escribe la historia de tu comunidad.", "comunidad", "local"),
+    ("La comunidad se organizó para conseguir agua.", "comunidad", "collective"),
+    ("Los pueblos originarios aprendieron a vivir en comunidad.", "comunidad", "collective"),
+])
+def test_community_sense(sentence, word, sense):
+    nlp = spacy.load("es_core_news_sm")
+    tok = next(t for t in nlp(sentence) if t.text == word)
+    assert T.community_sense(tok) == sense
+
+
+def test_classroom_community_is_not_people_talk(data_root):
+    p = PATHS["text"] / "2023" / "P5PCA.jsonl"
+    p.parent.mkdir(parents=True, exist_ok=True)
+    text = "En asamblea, elaboren una lista. La comunidad se organizó para conseguir agua."
+    p.write_text(json.dumps(dict(edition="2023", code="P5PCA", page=1, source="ocr", text=text)) + "\n")
+    acc = T.parse()
+    ptok = pd.DataFrame(acc["people_tokens"]).set_index("form")
+    assert not ptok.loc["asamblea", "counted"] and ptok.loc["comunidad", "counted"]
+    sents = T.people_talk(pd.DataFrame(acc["sentences"]), pd.DataFrame(acc["people_tokens"]))
+    assert list(sents["text"]) == ["La comunidad se organizó para conseguir agua."]
+    T.report(B=20)
+    rates = pd.read_csv(T.out_dir() / "rates_per_10k.csv", dtype={"edition": str}).set_index("measure")
+    tokens = pd.read_csv(T.out_dir() / "page_tokens.csv")["n_tokens"].sum()
+    assert rates.loc["comunidad", "estimate"] == pytest.approx(1 / tokens * 10_000)   # asamblea dropped
