@@ -139,3 +139,15 @@ def test_zeroshot_sample_and_report(data_root):
     tables = V.visual_report(B=50)
     assert tables["source"]["source"].item() == "detector"
     assert tables["people"].set_index("measure").loc["crowd", "2023"].startswith("100.0")
+
+
+def test_regions_restart_drops_unfinished_book(data_root):
+    """A crash after a book's regions were appended but before its pages were: on restart
+    those regions are dropped, so the book is redone without duplicates."""
+    V.out_dir().mkdir(parents=True)
+    pd.DataFrame([dict(edition="2023", code="A", page=1, n_regions=1, illus_frac=0.1, page_colorfulness=1)]).to_csv(
+        V.out_dir() / "pages_visual.csv", index=False)
+    pd.DataFrame([dict(region_id="2023|A|1|0", edition="2023", code="A"),
+                  dict(region_id="2023|B|1|0", edition="2023", code="B")]).to_csv(V.out_dir() / "regions.csv", index=False)
+    V.run_regions(workers=1)
+    assert list(pd.read_csv(V.out_dir() / "regions.csv")["code"]) == ["A"]
