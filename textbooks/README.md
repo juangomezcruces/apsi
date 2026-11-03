@@ -5,26 +5,44 @@ Texto Gratuitos* (CONALITEG), built for a paper on how the books depict
 *el pueblo*. See [`RESEARCH_DESIGN.md`](RESEARCH_DESIGN.md) for the concepts,
 measures, validation plan and threats to validity.
 
-> **Status.** The code is tested end to end on synthetic books served from a
-> local mock of both CONALITEG servers (26 tests). It has **not yet been run on
-> the real books**: `libros.conaliteg.gob.mx` and `historico.conaliteg.gob.mx`
-> were blocked by the network policy of the environment it was written in, so
-> the live catalog markup has not been checked. The URL scheme comes from a
-> public downloader ([jlochoap/LTGbasic](https://github.com/jlochoap/LTGbasic)).
-> Start with the pilot below and read `data/catalog.csv` before a full run.
-
 ## Corpus
 
-| edition | catalog page | period |
-|---|---|---|
-| 1988 | https://historico.conaliteg.gob.mx/?g=1988&a=1 (expanded to `a=1..6`) | pre-1993 generation |
-| 2022 | https://libros.conaliteg.gob.mx/primaria_2022.html | pre-NEM |
-| 2023 | https://libros.conaliteg.gob.mx/primaria_2023.html | NEM |
-| 2024 | https://libros.conaliteg.gob.mx/primaria_2024.html | NEM |
-| 2025 | https://libros.conaliteg.gob.mx/primaria_2025.html | NEM |
-| current | https://libros.conaliteg.gob.mx/primaria.html | NEM (school year on the crawl date) |
+Checked against the live sites on 2026-11-03.
 
-Edit `ltg/config.py` to add editions (e.g. other years of the historical archive).
+| edition | catalog page | period | student books downloaded |
+|---|---|---|---|
+| 1988 | https://historico.conaliteg.gob.mx/?g=1988&a=1 | the archive's "1988 generation" | 26 |
+| 2022 | https://libros.conaliteg.gob.mx/primaria_2022.html | pre-NEM | 42 national + 31 state |
+| 2023 | https://libros.conaliteg.gob.mx/primaria_2023.html | NEM | 33 |
+| 2024 | https://libros.conaliteg.gob.mx/primaria_2024.html | NEM | 36 |
+| 2025 | https://libros.conaliteg.gob.mx/primaria_2025.html | NEM | 36 |
+| current | https://libros.conaliteg.gob.mx/primaria.html | NEM, school year 2026-27 | none (see below) |
+
+What the sites actually look like, and what the crawler does about it:
+
+- **Historical archive.** `g` is the *generation* of books and `a` the grade.
+  The list is built in the browser from a JavaScript array
+  `["TITLE","CODE",generation,grade]` in a same-host script; the crawler reads
+  that array and keeps the requested generation. Viewer pages declare no page
+  count, so pages are found by probing.
+- **Current site, 2022-2025.** Grade cards with the title in bold and
+  "Grado: N°". One book can be listed under several grades (`P0CMA`,
+  *Cartografía*, is in grades 4-6), so the card's grade, not the code's digit,
+  is used. Viewers declare `ag_pages = N`. Page images are in `c/<CODE>/` for
+  2022-2024 but in **`c2025/<CODE>/`** for 2025; the downloader reads the folder
+  from each year's `magazine.js`.
+- **Catalog flags.** `audience=teacher` for the NEM teacher's guides
+  (*Un libro sin recetas...*), not downloaded by default (`--audience all`).
+  `corpus=state` for the 31 state-specific 2022 grade-3 books (*La entidad
+  donde vivo*): a child reads one, so they are kept out of the national
+  comparison and reported separately.
+- **2026-27 (`primaria.html`).** Served only through a PDF reader whose files
+  are password-encrypted (the password ships in the reader's JavaScript). The
+  books are recorded in `catalog.csv` with `access=pdf-reader` and **not
+  downloaded**: decrypting them would mean getting around a protection the
+  publisher deliberately added. Their page images are also reachable at the
+  usual unlinked path; whether to use those is the researcher's decision. The
+  2026 codes are the same NEM titles as 2023-2025.
 
 ## Install
 
@@ -33,37 +51,39 @@ sudo apt-get install tesseract-ocr tesseract-ocr-spa        # macOS: brew instal
 python -m venv .venv && . .venv/bin/activate
 pip install -r requirements.txt
 pip install https://github.com/explosion/spacy-models/releases/download/es_core_news_sm-3.8.0/es_core_news_sm-3.8.0-py3-none-any.whl
-python -m pytest tests/                                        # 26 tests, no network
+python -m pytest tests/                                        # no network needed
 ```
 
-For the zero-shot visual codebook also `pip install torch transformers` (the
-first run downloads CLIP from huggingface.co).
+The `senses` and `zeroshot` stages also need `torch` and `transformers`
+(CPU wheels: `pip install --index-url https://download.pytorch.org/whl/cpu torch`);
+their first run downloads BETO and CLIP from huggingface.co.
 
 ## Run
 
 All commands run from this directory. Data goes to `data/` (git-ignored), or to `$LTG_DATA`.
 
 ```bash
-# 1. Pilot: catalog, then the first 10 pages of two books per edition
+# 1. Catalog and a pilot
 python -m ltg catalog
-python -m ltg download --max-pages 10 --codes <two codes from data/catalog.csv>
-python -m ltg extract
-#    -> read data/catalog.csv and data/text/*/*.jsonl before going further
+python -m ltg download --max-pages 10 --codes H1988P5CI124,P5PCA
+python -m ltg extract --include-incomplete
 
-# 2. Full corpus (tens of thousands of requests at 2 workers x 0.5 s: hours, resumable)
-python -m ltg download
-python -m ltg extract --workers 4
+# 2. Full corpus: ~200 books, ~40k pages; about 2 h at 3 workers x 0.4 s, resumable.
+#    extract skips books whose download is unfinished, so it can run alongside.
+python -m ltg download --editions 1988,2022,2023,2024,2025 --workers 3 --delay 0.4
+python -m ltg extract --workers 3
 
 # 3. Text
-python -m ltg text --workers 4      # spaCy pass
-python -m ltg report                # data/results/text/report.md + CSVs
+python -m ltg text                  # spaCy pass -> results/text/*.csv.gz
+python -m ltg senses                # 'pueblo' sense classifier (BETO + logistic regression)
+python -m ltg report                # results/text/report.md + CSVs
 python -m ltg sample                # hand-coding samples + sentences for APSI
 
 # 4. Images
 python -m ltg regions               # cut out illustrations + captions
-python -m ltg zeroshot              # CLIP codebook (GPU helps; CPU works)
+python -m ltg zeroshot --model openai/clip-vit-base-patch16   # B/16 is practical on CPU
 python -m ltg visual-sample         # hand-coding sheet (CSV + HTML contact sheet)
-python -m ltg visual-report         # data/results/visual/report.md
+python -m ltg visual-report         # results/visual/report.md
 
 # 5. Validate after hand-coding the gold_* columns
 python -m ltg validate --kind sense
@@ -71,35 +91,56 @@ python -m ltg validate --kind role
 python -m ltg validate --kind visual --dim people
 ```
 
-**If `catalog` finds no books**, the catalog page probably builds its list in
-JavaScript. Open it in a browser, find the request that returns the list
-(DevTools > Network), and either point the edition's `seed` at it or write
-`data/catalog.csv` by hand. The downloader only needs three columns:
-`edition,code,viewer_url`.
-
 ## Stages and outputs
 
 | stage | module | output |
 |---|---|---|
-| catalog | `catalog.py` | `catalog.csv`: edition, code, grade, level, title, subject (inferred from the title, fill blanks by hand), viewer and PDF URLs |
-| download | `download.py` | `pages/<ed>/<CODE>/<nnn>.jpg` + `manifest.json` (first/last page, missing pages); `pdf/` when a PDF is linked |
-| extract | `extract.py` | `text/<ed>/<CODE>.jsonl` (one record per page, with OCR confidence) and `boxes/` word boxes. PDF text layers are used instead of OCR when present |
-| text | `text_analysis.py` | tidy tables in `results/text/`: every lexicon hit, every people noun with its sense, role, verb and adjectives and a KWIC window, every people-talk sentence with flags |
+| catalog | `catalog.py` | `catalog.csv`: edition, code, grade(s), level, title, subject (from the title), corpus, audience, access, viewer URL |
+| download | `download.py` | `pages/<ed>/<CODE>/<nnn>.jpg` + `manifest.json` (pages, image folder, missing pages) |
+| extract | `extract.py` | `text/<ed>/<CODE>.jsonl` (one record per page, with OCR confidence) and `boxes/` word boxes |
+| text | `text_analysis.py` | `results/text/`: every lexicon hit; every candidate people noun with its sense, role, verb, adjectives and KWIC; every sentence with a candidate people noun, with flags |
+| senses | `senses.py` | re-labels *pueblo* in `people_tokens.csv.gz` (`sense`, `sense_p`, `sense_rule`), recomputes `counted`, writes `senses_cv.txt` |
 | report | `text_analysis.py` | `report.md` + `rates_per_10k.csv`, `people_sentence_shares.csv`, `keyness.csv`, `pueblo_collocates.csv` |
-| regions | `visual.py` | `results/visual/regions.csv` (one row per illustration: size, colourfulness, caption, whether the caption names the people) and `visual/crops/` |
+| regions | `visual.py` | `results/visual/regions.csv` (size, colourfulness, caption, whether the caption names the people) and `visual/crops/` |
 | zeroshot | `visual.py` | `zeroshot.csv`: label and probabilities on five codebook dimensions |
 
 Every rate is a ratio of sums over books with a 95% interval from resampling
 books, since pages and sentences within a book are not independent.
 
+## Measurement decisions made on the real books
+
+- **OCR at native resolution.** Pages are served at 670-970 px wide. On sample
+  pages from 1988, 2022, 2023 and 2025, Tesseract at native size was as
+  accurate as upscaling (mean word confidence 79-95) at half the time;
+  upscaling to 2200 px lowered confidence and invented tokens in illustrations.
+- **Senses of *pueblo*.** About half the 1988 uses are *towns*. The rest
+  divide into the **common people** set against rulers or as the sovereign
+  demos ("el pueblo elige", "la voluntad del pueblo", "se levantó en armas
+  contra el gobierno"), a **nation** or the peoples of the world ("el pueblo
+  mexicano", "los pueblos del mundo"), and an **ethnic / cultural / ancient
+  people** ("el pueblo hebreo", "los pueblos indígenas"). Hand-written rules
+  left 46% of 1988 uses ambiguous and zero-shot multilingual NLI did no better
+  than always guessing *town*, so `senses` trains a classifier on coded
+  examples in `ltg/seeds/pueblo_senses.csv`. **Those seed codes were made by
+  Claude, not by a human coder**; they start the classifier, and the
+  reportable accuracy is the agreement with your own hand-coded sample.
+- ***Comunidad* and *asamblea* in NEM books** are mostly classroom
+  instructions ("En pequeñas comunidades, reúnan...", "En asamblea,
+  elaboren..."). They are tagged `classroom` / `school` and not counted as
+  people-talk; *tu / su comunidad* is `local`; the rest `collective`.
+- **Formulas.** NEM books repeat sentences such as "De manera individual y sin
+  olvidar que eres parte de una comunidad, ...". They are kept (they are the
+  books' own framing), and the report lists every people-talk sentence
+  repeated five or more times.
+
 ## The lexicon is the instrument
 
 `ltg/lexicon.py` holds every word list (people families, antagonists,
-grievance, unity, pluralism, institutions, verb classes, sense cues for
-*pueblo*). These are research decisions: read them, change them, and re-run
-`text` + `report` (minutes). Terms with a common non-political meaning in
-textbooks (*unidad*, *diferencia*, *plural*, *masa*) are deliberately absent.
-The keyness tables are there to catch what the lists miss.
+grievance, unity, pluralism, institutions, verb classes, sense cues). These
+are research decisions: read them, change them, and re-run `text` + `senses` +
+`report`. Terms with a common non-political meaning in textbooks (*unidad*,
+*diferencia*, *plural*, *masa*) are deliberately absent. The keyness tables
+are there to catch what the lists miss.
 
 ## Linking to the APSI populism scorer
 
@@ -118,11 +159,10 @@ treat its scores on this corpus as something to validate, not as ground truth.
 
 ## Practicalities
 
-- **Terms of use.** The LTGbasic author reported in 2021 that the site added a
-  notice about downloading. Check the current terms before a bulk download,
-  keep the defaults polite, keep page images local and do not redistribute
-  them. Quote and reproduce pages in the paper as you would any copyrighted
-  source.
+- **Terms of use.** The viewer pages say *Distribución gratuita, prohibida su
+  venta*. Keep the download polite (the defaults), keep page images local, do
+  not redistribute them, and quote pages in the paper as you would any
+  copyrighted source.
 - **Running in Claude Code on the web**: allow `libros.conaliteg.gob.mx`,
-  `historico.conaliteg.gob.mx` and, for CLIP, `huggingface.co` in the
-  environment's network settings.
+  `historico.conaliteg.gob.mx` and `huggingface.co` in the environment's
+  network settings.

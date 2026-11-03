@@ -98,8 +98,24 @@ def _fake_regions(n_books=3):
     pd.DataFrame(pages).to_csv(V.out_dir() / "pages_visual.csv", index=False)
 
 
+class FakeDetector:
+    """Red crops have 8 people, blue ones none."""
+
+    def __call__(self, images):
+        return [8 if np.asarray(im)[..., 0].mean() > 128 else 0 for im in images]
+
+
+def test_people_category():
+    assert [V.people_category(n) for n in (0, 1, 2, 5, 6, 30)] == \
+        ["no_people", "one_person", "small_group", "small_group", "crowd", "crowd"]
+
+
 def test_zeroshot_sample_and_report(data_root):
     _fake_regions()
+    s = V.illustration_sample(n_per_edition=100)
+    assert len(s) == 24                                   # fewer than 100 per edition: all of them
+    assert len(V.illustration_sample(n_per_edition=5)) == 10
+    s = V.illustration_sample(n_per_edition=100)
     z = V.run_zeroshot(encoder=FakeEncoder())
     assert set(z["people"]) == {"crowd", "no_people"}
     assert {"people_p", "people:crowd", "medium", "activity"} <= set(z.columns)
@@ -115,4 +131,11 @@ def test_zeroshot_sample_and_report(data_root):
     people = tables["people"].set_index("measure")
     assert people.loc["with_people", "1988"].startswith("25.0")
     assert people.loc["with_people", "2023"].startswith("50.0")
+    assert tables["source"]["source"].item() == "CLIP"
     assert (V.out_dir() / "report.md").exists()
+
+    d = V.run_detector(detector=FakeDetector())
+    assert set(d["people_det"]) == {"crowd", "no_people"} and d["n_persons"].max() == 8
+    tables = V.visual_report(B=50)
+    assert tables["source"]["source"].item() == "detector"
+    assert tables["people"].set_index("measure").loc["crowd", "2023"].startswith("100.0")

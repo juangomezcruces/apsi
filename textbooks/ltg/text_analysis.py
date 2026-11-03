@@ -256,7 +256,7 @@ def community_sense(tok):
 def _meta(catalog):
     if catalog is None or catalog.empty:
         return {}
-    cols = ["edition", "code", "grade", "subject", "title", "level"]
+    cols = ["edition", "code", "grade", "subject", "title", "level", "corpus"]
     cat = catalog[[c for c in cols if c in catalog.columns]].drop_duplicates(["edition", "code"])
     return {(str(r["edition"]), r["code"]): r for r in cat.to_dict("records")}
 
@@ -266,7 +266,7 @@ def analyse_doc(doc, ctx, matcher, acc):
     ed = ctx["edition"]
     n_tokens = sum(1 for t in doc if t.is_alpha)
     acc["page_tokens"].append(dict(ctx, n_tokens=n_tokens))
-    lemma_counts = acc["lemmas"][ed]
+    lemma_counts = acc["lemmas"][(ed, ctx.get("corpus", "national"))]
     for t in doc:
         if t.is_alpha and len(t) > 1 and t.pos_ in CONTENT_POS:
             lemma_counts[(fold(t.lemma_), t.pos_)] += 1
@@ -344,7 +344,7 @@ def parse(editions=None, workers=1, catalog=None, model="es_core_news_sm", batch
             m = meta.get((ed, r.code), {})
             yield clean_page_text(r.text), dict(
                 edition=ed, period=PERIOD.get(ed, ""), code=r.code, page=int(r.page),
-                grade=m.get("grade", ""), subject=m.get("subject", ""))
+                grade=m.get("grade", ""), subject=m.get("subject", ""), corpus=m.get("corpus") or "national")
 
     for i, (doc, ctx) in enumerate(nlp.pipe(ctxs(), as_tuples=True, batch_size=batch_size,
                                             n_process=workers)):
@@ -360,7 +360,8 @@ def write_tables(acc):
     pd.DataFrame(acc["page_tokens"]).to_csv(out_dir() / "page_tokens.csv", index=False)
     for name in ("matches", "people_tokens", "sentences"):
         pd.DataFrame(acc[name]).to_csv(out_dir() / f"{name}.csv.gz", index=False)
-    lem = [dict(edition=e, lemma=l, pos=p, n=n) for e, c in acc["lemmas"].items() for (l, p), n in c.items()]
+    lem = [dict(edition=e, corpus=cp, lemma=l, pos=p, n=n)
+           for (e, cp), c in acc["lemmas"].items() for (l, p), n in c.items()]
     pd.DataFrame(lem).to_csv(out_dir() / "lemma_freq.csv.gz", index=False)
     log.info("wrote tables to %s: %d people mentions in %d sentences",
              out_dir(), len(acc["people_tokens"]), len(acc["sentences"]))
@@ -470,18 +471,35 @@ def people_talk(sents, ptok):
     return sents[sents["sent_id"].isin(ids)]
 
 
-def report(B=1000):
-    pt = pd.read_csv(out_dir() / "page_tokens.csv", dtype={"edition": str})
-    matches = pd.read_csv(out_dir() / "matches.csv.gz", dtype={"edition": str})
-    ptok = pd.read_csv(out_dir() / "people_tokens.csv.gz", dtype={"edition": str}, keep_default_na=False)
+def _in_corpus(df, corpus):
+    """national (default) | state | all. Tables written before the corpus column existed count as national."""
+    if corpus == "all" or df.empty:
+        return df
+    col = df["corpus"].replace("", "national").fillna("national") if "corpus" in df else pd.Series("national", df.index)
+    return df[col == corpus]
+
+
+def report(B=1000, corpus="national"):
+    """Tables for one corpus: 'national' (one book per child and subject), 'state' (the 2022
+    'La entidad donde vivo' books, one per state) or 'all'. Non-national runs get a suffix."""
+    sfx = "" if corpus == "national" else f"_{corpus}"
+    pt = _in_corpus(pd.read_csv(out_dir() / "page_tokens.csv", dtype={"edition": str}, keep_default_na=False), corpus)
+    pt["n_tokens"] = pt["n_tokens"].astype(int)
+    keep = set(zip(pt["edition"], pt["code"]))
+    inside = lambda df: df[[k in keep for k in zip(df["edition"], df["code"])]]
+    matches = inside(pd.read_csv(out_dir() / "matches.csv.gz", dtype={"edition": str}))
+    ptok = inside(pd.read_csv(out_dir() / "people_tokens.csv.gz", dtype={"edition": str}, keep_default_na=False))
     ptok["counted"] = ptok["counted"].astype(str) == "True"
-    sents = people_talk(pd.read_csv(out_dir() / "sentences.csv.gz", dtype={"edition": str}), ptok)
-    lemma_freq = pd.read_csv(out_dir() / "lemma_freq.csv.gz", dtype={"edition": str}, keep_default_na=False)
+    sents = people_talk(inside(pd.read_csv(out_dir() / "sentences.csv.gz", dtype={"edition": str})), ptok)
+    lemma_freq = _in_corpus(pd.read_csv(out_dir() / "lemma_freq.csv.gz", dtype={"edition": str},
+                                        keep_default_na=False), corpus)
+    lemma_freq["n"] = lemma_freq["n"].astype(int)
     eds = edition_order(pt["edition"].unique())
     tables = {}
 
     # 1. corpus overview
     pages = load_pages()
+    pages = inside(pages) if not pages.empty else pages
     conf = pages.groupby("edition")["mean_conf"].mean() if "mean_conf" in pages else pd.Series(dtype=float)
     ov = pt.groupby("edition").agg(books=("code", "nunique"), pages=("page", "size"), tokens=("n_tokens", "sum"))
     ov["mean_ocr_conf"] = conf.reindex(ov.index)
@@ -504,7 +522,7 @@ def report(B=1000):
     rates = _with_ci(rates)
     tables["rates"] = rates.pivot(index="measure", columns="edition", values="value").reindex(
         columns=eds).reindex([f for f in ["people_all"] + list(L.FAMILIES) if f in fams]).reset_index()
-    rates.to_csv(out_dir() / "rates_per_10k.csv", index=False)
+    rates.to_csv(out_dir() / f"rates_per_10k{sfx}.csv", index=False)
 
     # 3. top terms per family and edition
     tt = m.groupby(["family", "edition", "term"]).size().rename("n").reset_index()
@@ -553,7 +571,7 @@ def report(B=1000):
     sb["people_sentences"] = sents.groupby(["edition", "code"]).size()
     co = rate_table(sb.reset_index(), flags, "people_sentences", 100, B)
     tables["cooccurrence"] = _with_ci(co, 1).pivot(index="measure", columns="edition", values="value").reindex(columns=eds).reset_index()
-    co.to_csv(out_dir() / "people_sentence_shares.csv", index=False)
+    co.to_csv(out_dir() / f"people_sentence_shares{sfx}.csv", index=False)
 
     # 7. by subject and grade
     for col in ("subject", "grade"):
@@ -574,14 +592,14 @@ def report(B=1000):
     # 8. keyness between consecutive editions, 9. collocates
     kk = [keyness(lemma_freq, a, b).assign(comparison=f"{a} vs {b}") for a, b in zip(eds, eds[1:])]
     kk = pd.concat(kk) if kk else pd.DataFrame()
-    kk.to_csv(out_dir() / "keyness.csv", index=False)
+    kk.to_csv(out_dir() / f"keyness{sfx}.csv", index=False)
     col = collocates(ptok, lemma_freq)
-    col.to_csv(out_dir() / "pueblo_collocates.csv", index=False)
+    col.to_csv(out_dir() / f"pueblo_collocates{sfx}.csv", index=False)
     tables["collocates"] = (col.assign(t=lambda d: d["lemma"] + " (" + d["log_dice"].round(1).astype(str) + ")")
                               .groupby("edition")["t"].apply(", ".join).reindex(eds).rename("top (logDice)").reset_index()
                             if not col.empty else col)
 
-    write_report(tables, kk, eds)
+    write_report(tables, kk, eds, corpus, sfx)
     return tables
 
 
@@ -610,9 +628,9 @@ SECTIONS = [
 ]
 
 
-def write_report(tables, kk, eds):
-    lines = ["# 'The people' in the free textbooks: text report", "",
-             "Generated by `python -m ltg report`. Every table is also in `results/text/` as CSV.",
+def write_report(tables, kk, eds, corpus="national", sfx=""):
+    lines = [f"# 'The people' in the free textbooks: text report ({corpus} corpus)", "",
+             f"Generated by `python -m ltg report --corpus {corpus}`. Every table is also in `results/text/` as CSV.",
              "Editions: " + ", ".join(eds) + ". Editions 2023 onwards largely reprint the same NEM titles, "
              "so they are not independent samples.", ""]
     for key, title, note in SECTIONS:
@@ -624,8 +642,8 @@ def write_report(tables, kk, eds):
         for comp, g in kk.groupby("comparison", sort=False):
             for side, gg in g.groupby("key_in", sort=False):
                 lines += [f"**{comp}, key in {side}:** " + ", ".join(gg["lemma"].head(25)), ""]
-    (out_dir() / "report.md").write_text("\n".join(lines), encoding="utf-8")
-    log.info("wrote %s", out_dir() / "report.md")
+    (out_dir() / f"report{sfx}.md").write_text("\n".join(lines), encoding="utf-8")
+    log.info("wrote %s", out_dir() / f"report{sfx}.md")
 
 
 # --------------------------------------------------------------------------- exports

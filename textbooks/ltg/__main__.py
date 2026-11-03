@@ -8,7 +8,9 @@
   report         text tables + report.md            -> data/results/text/report.md
   sample         hand-coding samples + APSI export  -> data/results/validation
   regions        cut out illustrations              -> data/results/visual/regions.csv
-  zeroshot       CLIP codebook over illustrations   -> data/results/visual/zeroshot.csv
+  illustration-sample  random sample per edition    -> data/results/visual/regions_sample.csv
+  detect         person detector on the sample      -> data/results/visual/people_detect.csv
+  zeroshot       CLIP codebook on the sample        -> data/results/visual/zeroshot.csv
   visual-sample  hand-coding sheet for images       -> data/results/validation/visual_sample.*
   visual-report  visual tables + report.md          -> data/results/visual/report.md
   validate       agreement of a hand-coded sample   --kind sense|role|visual [--dim people]
@@ -43,7 +45,9 @@ def main(argv=None):
         return run()
     if stage == "report":
         from .text_analysis import report
-        return report()
+        ap = argparse.ArgumentParser(prog="ltg report")
+        ap.add_argument("--corpus", default="national", choices=["national", "state", "all"])
+        return report(corpus=ap.parse_args(rest).corpus)
     if stage == "sample":
         from .text_analysis import export_for_coding
         return export_for_coding()
@@ -55,11 +59,20 @@ def main(argv=None):
         ap.add_argument("--workers", type=int, default=4)
         a = ap.parse_args(rest)
         return visual.run_regions(set(filter(None, a.editions.split(","))) or None, a.workers)
-    if stage == "zeroshot":
-        ap.add_argument("--model", default="openai/clip-vit-large-patch14")
-        ap.add_argument("--batch", type=int, default=32)
+    if stage == "illustration-sample":
+        ap.add_argument("--n", type=int, default=300, help="illustrations per edition")
+        ap.add_argument("--seed", type=int, default=0)
         a = ap.parse_args(rest)
-        return visual.run_zeroshot(a.model, a.batch)
+        return visual.illustration_sample(a.n, a.seed)
+    if stage == "detect":
+        ap.add_argument("--all", action="store_true", help="every illustration, not the sample")
+        return visual.run_detector(sample=not ap.parse_args(rest).all)
+    if stage == "zeroshot":
+        ap.add_argument("--model", default="openai/clip-vit-base-patch16")
+        ap.add_argument("--batch", type=int, default=32)
+        ap.add_argument("--all", action="store_true", help="every illustration, not the sample")
+        a = ap.parse_args(rest)
+        return visual.run_zeroshot(a.model, a.batch, sample=not a.all)
     if stage == "visual-sample":
         return visual.visual_sample()
     if stage == "visual-report":

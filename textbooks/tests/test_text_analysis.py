@@ -158,3 +158,22 @@ def test_classroom_community_is_not_people_talk(data_root):
     rates = pd.read_csv(T.out_dir() / "rates_per_10k.csv", dtype={"edition": str}).set_index("measure")
     tokens = pd.read_csv(T.out_dir() / "page_tokens.csv")["n_tokens"].sum()
     assert rates.loc["comunidad", "estimate"] == pytest.approx(1 / tokens * 10_000)   # asamblea dropped
+
+
+def test_national_and_state_corpora_are_reported_apart(data_root):
+    for code, text in [("P4HIA", "El pueblo de México luchó contra la dictadura."),
+                       ("P3OAX", "Los pueblos originarios de Oaxaca conservan sus lenguas. El pueblo zapoteco vive aquí.")]:
+        p = PATHS["text"] / "2022" / f"{code}.jsonl"
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(json.dumps(dict(edition="2022", code=code, page=1, source="ocr", text=text)) + "\n")
+    pd.DataFrame([dict(edition="2022", code="P4HIA", grade=4, subject="Historia", corpus="national"),
+                  dict(edition="2022", code="P3OAX", grade=3, subject="La entidad donde vivo", corpus="state")]
+                 ).to_csv(PATHS["catalog"], index=False)
+    T.parse()
+    nat = T.report(B=20)
+    assert nat["overview"].set_index("edition").loc["2022", "books"] == 1
+    T.report(B=20, corpus="state")
+    state = pd.read_csv(T.out_dir() / "rates_per_10k_state.csv", dtype={"edition": str}).set_index("measure")
+    assert state.loc["etnico", "count"] >= 2 and (T.out_dir() / "report_state.md").exists()
+    national = pd.read_csv(T.out_dir() / "rates_per_10k.csv").set_index("measure")
+    assert "etnico" not in national.index or national.loc["etnico", "count"] == 0   # state book excluded

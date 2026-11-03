@@ -17,7 +17,7 @@ from 2023 onward?
 
 | period | editions | notes |
 |---|---|---|
-| pre-1993 | 1988 | Books in use in 1988, most likely the generation introduced by the 1972 reform and replaced from 1993 *(verify per book from the colophon: the archive's year is the year of use, not of first edition)*. Scans, so OCR quality matters most here. |
+| gen-1988 | 1988 | The archive's own "1988 generation": 26 primary titles, integrated *Mi libro de 1°/2°* for grades 1-2 and *Ciencias Sociales*, *Ciencias Naturales*, *Español* and *Matemáticas* for grades 3-6. The archive's year lookup has this generation in use in the late 1980s and early 1990s, before the 1993 books *(verify each book's edition history from its colophon; how much of it carries over from the 1972 books is a question for the paper, not an assumption)*. Scans; OCR confidence 81-95. |
 | pre-NEM | 2022 | Subject-based books (Lengua Materna, Matemáticas, Conocimiento del Medio, Historia, Geografía, Formación Cívica y Ética...). |
 | NEM | 2023, 2024, 2025, current | Organised by *campos formativos* and projects (*Proyectos de aula / escolares / comunitarios*, *Nuestros saberes*, *Múltiples lenguajes*...). Later editions largely reprint 2023 titles: treat them as one period with revisions, not as independent samples. |
 
@@ -44,7 +44,7 @@ eight dimensions. Each has a text and, where possible, a visual measure.
 | dimension | question | text measure (`ltg report`) | visual measure (`ltg visual-report`) |
 |---|---|---|---|
 | Salience | How much do the books talk about the people? | `people_all` per 10k tokens | % of illustrations with people |
-| Composition | Nation, class, ethnic group, citizens, community? | rates per family (`nacion`, `clase`, `etnico`, `ciudadania`, `comunidad`, `popular`); top terms | `figure` (traditional dress, ordinary adults, officials, soldiers, children); `setting` |
+| Composition | Nation, class, ethnic group, citizens, community? | rates per family (`nacion`, `clase`, `etnico`, `ciudadania`, `comunidad`, `popular`); top terms; **senses of *pueblo***: common people vs rulers / nation / ethnic people (`senses`) | `figure` (traditional dress, ordinary adults, officials, soldiers, children); `setting` |
 | Unity vs plurality | One people or many? | singular *el pueblo* vs plural *los pueblos*; `has_unidad` vs `has_pluralismo` in people-talk | crowd vs small group vs individual |
 | Agency | Does the people act, and how? | role (agent / patient / attribute / possessor); verb class when agent (struggle, participation, work, unity, will, culture, suffering) | `activity`: protest, assembly, voting, collective work, armed struggle, festival |
 | Antagonism | Against whom? | `has_elite`, `has_agravio` in people-talk; collocates of *pueblo* | hand-coded only (conquest, hacienda and battle scenes need context) |
@@ -74,7 +74,7 @@ the CIs decide.
 | instrument | sample (`ltg sample` / `visual-sample`) | report |
 |---|---|---|
 | OCR | 20 random pages per edition, transcribed by hand | word error rate per edition; rates re-computed on high-confidence pages only |
-| Sense of *pueblo* | up to 40 per edition x predicted sense | accuracy, per-sense precision/recall, kappa (`validate --kind sense`). Target precision >= .9 for `settlement`, since it is what gets excluded |
+| Sense of *pueblo*, *comunidad*, *asamblea* | up to 40 per edition x word x predicted sense | accuracy, per-sense precision/recall, kappa (`validate --kind sense`). Target precision >= .9 for `settlement` and `classroom`, since they are what gets excluded. The classifier's seed codes were made by Claude; replace them with your own before reporting |
 | Role | up to 20 per edition x predicted role | as above (`--kind role`) |
 | Visual codebook | up to 30 per edition x predicted people label | per dimension (`--kind visual --dim ...`). Dimensions with poor agreement are reported from the hand-coded sample only, or prevalence is corrected for the measured misclassification |
 | Inter-coder | second coder on ~20% of each sample | Cohen's kappa / Krippendorff's alpha |
@@ -113,6 +113,10 @@ avoid anchoring.
   them before looking at period differences, use the keyness tables to find
   what they miss, and run a leave-one-term-out sensitivity check on the main
   results.
+- **Pedagogical vocabulary.** NEM books organise group work as *comunidades*
+  and *asambleas* ("En asamblea, elaboren..."); counted naively this would
+  inflate 'community' talk severalfold. These uses are tagged `classroom` and
+  excluded; the excluded counts are reported so the decision is visible.
 - **Polysemy.** *Pueblo* is also a town; *población* is also a statistical
   population; *comunidad* is also a learning community. The sense tagger and
   term-level tables make this visible; validate.

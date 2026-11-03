@@ -1,9 +1,17 @@
 """How the books picture 'the people'.
 
-    python -m ltg regions                     # cut illustrations out of every page
-    python -m ltg zeroshot [--model ...]      # CLIP zero-shot codebook over the crops
-    python -m ltg visual-sample               # stratified sample + contact sheet for hand coding
+    python -m ltg regions                     # cut illustrations out of every page (full corpus)
+    python -m ltg illustration-sample         # simple random sample per edition for the costly models
+    python -m ltg detect                      # person detector (Faster R-CNN, COCO) on the sample
+    python -m ltg zeroshot [--model ...]      # CLIP zero-shot codebook on the sample
+    python -m ltg visual-sample               # hand-coding sheet drawn from the sample
     python -m ltg visual-report               # per-edition tables -> results/visual/report.md
+
+Density, colour and captions are measured on every illustration. People counts
+(detector) and activity / figure / setting / medium (CLIP) are measured on a
+simple random sample of illustrations per edition, because both models take
+seconds per image on a CPU; edition-level proportions from a simple random
+sample are unbiased, and the intervals still resample books.
 
 Regions: page pixels that differ from the page background, minus the OCR word
 boxes, closed and split into connected components. Flat coloured panels that
@@ -323,8 +331,8 @@ def classify(image_emb, label_emb, logit_scale):
     return out
 
 
-def run_zeroshot(model="openai/clip-vit-large-patch14", batch=32, encoder=None):
-    regions = pd.read_csv(out_dir() / "regions.csv", dtype={"edition": str})
+def run_zeroshot(model="openai/clip-vit-base-patch16", batch=32, encoder=None, sample=True):
+    regions = _analysis_regions(sample)
     encoder = encoder or ClipEncoder(model)
     lab = label_embeddings(encoder)
     rows = []
@@ -347,12 +355,88 @@ def run_zeroshot(model="openai/clip-vit-large-patch14", batch=32, encoder=None):
     return z
 
 
+# --------------------------------------------------------------------------- analysis sample
+def _national(df):
+    """Keep national-corpus books (drops the 2022 state books) using the catalog, if present."""
+    if not PATHS["catalog"].exists():
+        return df
+    cat = pd.read_csv(PATHS["catalog"], dtype={"edition": str}, keep_default_na=False)
+    if "corpus" not in cat:
+        return df
+    state = set(zip(cat.loc[cat["corpus"] == "state", "edition"], cat.loc[cat["corpus"] == "state", "code"]))
+    return df[[k not in state for k in zip(df["edition"], df["code"])]]
+
+
+def illustration_sample(n_per_edition=300, seed=0):
+    """Simple random sample of national-corpus illustrations, n per edition."""
+    regions = _national(pd.read_csv(out_dir() / "regions.csv", dtype={"edition": str}))
+    parts = [g.sample(min(len(g), n_per_edition), random_state=seed) for _, g in regions.groupby("edition")]
+    s = pd.concat(parts)
+    s.to_csv(out_dir() / "regions_sample.csv", index=False)
+    log.info("sampled %d illustrations: %s", len(s), s.groupby("edition").size().to_dict())
+    return s
+
+
+def _analysis_regions(sample=True):
+    path = out_dir() / ("regions_sample.csv" if sample else "regions.csv")
+    if sample and not path.exists():
+        raise SystemExit("run `python -m ltg illustration-sample` first (or pass --all)")
+    return pd.read_csv(path, dtype={"edition": str})
+
+
+def people_category(n):
+    return "no_people" if n == 0 else "one_person" if n == 1 else "small_group" if n <= 5 else "crowd"
+
+
+class PersonDetector:
+    """torchvision Faster R-CNN (ResNet-50 FPN v2, COCO). On 24 hand-checked NEM crops it got
+    people presence right 20 times and the none/one/group/crowd category 19 times, against 16
+    and 15 for CLIP B/16. Drawings are out of its training domain: validate."""
+
+    def __init__(self, score=0.6, min_size=640, device=None):
+        import torch
+        from torchvision.models.detection import FasterRCNN_ResNet50_FPN_V2_Weights, fasterrcnn_resnet50_fpn_v2
+        self.torch, self.score = torch, score
+        self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
+        self.model = fasterrcnn_resnet50_fpn_v2(weights=FasterRCNN_ResNet50_FPN_V2_Weights.DEFAULT,
+                                                min_size=min_size, max_size=1000).to(self.device).eval()
+
+    def __call__(self, images):
+        from torchvision.transforms.functional import to_tensor
+        with self.torch.no_grad():
+            out = self.model([to_tensor(im).to(self.device) for im in images])
+        return [int(((o["labels"] == 1) & (o["scores"] > self.score)).sum()) for o in out]
+
+
+def run_detector(sample=True, detector=None, batch=4):
+    regions = _analysis_regions(sample)
+    det = detector or PersonDetector()
+    rows = []
+    for i in range(0, len(regions), batch):
+        chunk = regions.iloc[i:i + batch]
+        counts = det([Image.open(PATHS["visual"] / c).convert("RGB") for c in chunk["crop"]])
+        rows += [dict(region_id=r, n_persons=n, people_det=people_category(n)) for r, n in zip(chunk["region_id"], counts)]
+        if i and i % (batch * 50) == 0:
+            log.info("%d / %d crops", i, len(regions))
+    d = pd.DataFrame(rows)
+    d.to_csv(out_dir() / "people_detect.csv", index=False)
+    log.info("wrote %s: %s", out_dir() / "people_detect.csv", d["people_det"].value_counts().to_dict())
+    return d
+
+
 # --------------------------------------------------------------------------- validation
 def visual_sample(n_per_cell=30, seed=0):
-    """Stratified (edition x predicted people label) sample, shuffled, with an HTML contact sheet."""
-    regions = pd.read_csv(out_dir() / "regions.csv", dtype={"edition": str})
-    zs = out_dir() / "zeroshot.csv"
-    df = regions.merge(pd.read_csv(zs), on="region_id") if zs.exists() else regions.assign(people="")
+    """Stratified (edition x predicted people label) sample of the analysis sample, shuffled,
+    with an HTML contact sheet. The people prediction is the detector's when it has run."""
+    df = _analysis_regions(sample=(out_dir() / "regions_sample.csv").exists())
+    zs, dt = out_dir() / "zeroshot.csv", out_dir() / "people_detect.csv"
+    if zs.exists():
+        df = df.merge(pd.read_csv(zs), on="region_id")
+    if dt.exists():
+        df = df.merge(pd.read_csv(dt), on="region_id")
+        df["people"] = df["people_det"]
+    if "people" not in df:
+        df["people"] = ""
     s = stratified_sample(df, ["edition", "people"], n_per_cell, seed)
     vdir = PATHS["results"] / "validation"
     vdir.mkdir(parents=True, exist_ok=True)
@@ -383,8 +467,8 @@ figure{{margin:0;border:1px solid #ccc;padding:6px}}img{{max-width:100%;max-heig
 
 # --------------------------------------------------------------------------- report
 def visual_report(B=1000):
-    regions = pd.read_csv(out_dir() / "regions.csv", dtype={"edition": str})
-    pages = pd.read_csv(out_dir() / "pages_visual.csv", dtype={"edition": str})
+    regions = _national(pd.read_csv(out_dir() / "regions.csv", dtype={"edition": str}))
+    pages = _national(pd.read_csv(out_dir() / "pages_visual.csv", dtype={"edition": str}))
     eds = edition_order(pages["edition"].unique())
     tables = {}
     pb = pages.groupby(["edition", "code"]).agg(n_pages=("page", "size"), n_regions=("n_regions", "sum"),
@@ -393,9 +477,21 @@ def visual_report(B=1000):
     tables["density"] = _with_ci(t).pivot(index="measure", columns="edition", values="value").reindex(columns=eds).reset_index()
     tables["colour"] = regions.groupby("edition")["colorfulness"].describe()[["count", "mean", "50%"]].reindex(eds).round(1).reset_index()
 
-    zs = out_dir() / "zeroshot.csv"
-    if zs.exists():
-        df = regions.merge(pd.read_csv(zs), on="region_id")
+    full = regions.groupby(["edition", "code"]).agg(n=("region_id", "size"), cap=("caption_people", "sum")).reset_index()
+    tables["captions_all"] = _with_ci(rate_table(full, ["cap"], "n", 100, B), 1).pivot(
+        index="measure", columns="edition", values="value").reindex(columns=eds).reset_index()
+
+    zs, dt = out_dir() / "zeroshot.csv", out_dir() / "people_detect.csv"
+    if zs.exists() or dt.exists():
+        df = regions[["region_id", "edition", "code", "caption_people"]]
+        if zs.exists():
+            df = df.merge(pd.read_csv(zs), on="region_id")
+        if dt.exists():                                     # the detector, when run, supplies the people count
+            df = df.merge(pd.read_csv(dt), on="region_id")
+            df["people_clip"] = df.get("people")
+            df["people"] = df["people_det"]
+        tables["source"] = pd.DataFrame([dict(measure="people count", source="detector" if dt.exists() else "CLIP",
+                                              n_illustrations=len(df))])
         df["with_people"] = df["people"] != "no_people"
         rb = df.groupby(["edition", "code"]).agg(
             n=("region_id", "size"), with_people=("with_people", "sum"),
@@ -409,6 +505,8 @@ def visual_report(B=1000):
                                                                values="value").reindex(columns=eds).reset_index()
         withp = df[df["with_people"]]
         for dim in ("activity", "figure", "setting", "medium"):
+            if dim not in df:
+                continue
             src = withp if dim in CONDITIONAL_ON_PEOPLE else df
             tables[dim] = (100 * pd.crosstab(src[dim], src["edition"], normalize="columns")).round(1).reindex(columns=eds).reset_index()
         cap = (100 * df.groupby(["edition", "with_people"])["caption_people"].mean()).unstack()
@@ -416,10 +514,14 @@ def visual_report(B=1000):
                                   False: "other images: % captions naming the people"})
         tables["captions"] = cap.reindex(eds).round(1).reset_index()
 
-    lines = ["# 'The people' in the free textbooks: visual report", "",
-             "Zero-shot labels are unvalidated until `visual-sample` has been hand-coded; see README.", ""]
-    for key, title in [("density", "Illustrations per page and share of page area (95% CI, books resampled)"),
+    lines = ["# 'The people' in the free textbooks: visual report (national corpus)", "",
+             "Density, colour and captions: every illustration. People, activity, figure, setting, medium: "
+             "the simple random sample of illustrations per edition (`illustration-sample`). Model labels are "
+             "unvalidated until `visual-sample` has been hand-coded; see README.", ""]
+    for key, title in [("source", "Where the labels come from"),
+                       ("density", "Illustrations per page and share of page area (95% CI, books resampled)"),
                        ("colour", "Colourfulness of illustrations (Hasler-Süsstrunk)"),
+                       ("captions_all", "% of all illustrations whose caption names the people"),
                        ("people", "% of illustrations with people; among those, % crowd / small group / one person"),
                        ("activity", "Activity, % of illustrations with people"),
                        ("figure", "Who is shown, % of illustrations with people"),
