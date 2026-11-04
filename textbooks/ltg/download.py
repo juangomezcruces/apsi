@@ -159,10 +159,13 @@ def fetch_file(session, throttle, url, dest, magic, timeout=60, tries=3, standar
     if dest.exists() and _valid(dest, magic):
         return "skipped"
     dest.parent.mkdir(parents=True, exist_ok=True)
+    corrupt = 0
     for attempt in range(tries):
         throttle.wait()
         try:
             r = session.get(url, timeout=timeout)
+            if r.status_code == 200 and not r.content.startswith(magic):
+                corrupt += 1                     # served, but not an image: a broken file upstream
             if r.status_code == 200 and r.content.startswith(magic):
                 data = r.content
                 if standardise and magic == JPEG_MAGIC:
@@ -179,6 +182,9 @@ def fetch_file(session, throttle, url, dest, magic, timeout=60, tries=3, standar
         except Exception as e:
             log.debug("%s attempt %d: %s", url, attempt + 1, e)
         time.sleep(2 ** attempt)
+    if corrupt == tries:
+        log.warning("%s: the server returns a file that is not a JPEG; recorded as missing", url)
+        return "missing"
     return "failed"
 
 

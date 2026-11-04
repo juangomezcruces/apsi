@@ -35,6 +35,11 @@ def server(tmp_path):
             (site / f"c/H1988P3CS001/{n:03d}.jpg").write_bytes(_jpeg(n))
     # viewer page with no images at all
     (site / "2023/P2ZZZ.htm").write_text("<html></html>")
+    # page 2 served with an image content type but broken bytes (as H2018P4HIA/036 on the live site)
+    (site / "2023/c/P3BAD").mkdir(parents=True)
+    (site / "2023/P3BAD.htm").write_text("<script>ag_pages = 5;</script>")
+    for n in range(0, 5):
+        (site / f"2023/c/P3BAD/{n:03d}.jpg").write_bytes(b"\x11\xec\xf0\xd3 not a jpeg" * 50 if n == 2 else _jpeg(n))
     # 2025 layout: same viewer, but magazine.js loads pages from c2025/ (as on the live site)
     (site / "2025/c2025/P5PCA").mkdir(parents=True)
     (site / "2025/P5PCA.htm").write_text("<script>\nag_pages = 4;\nag_clave = \"P5PCA\";\n</script>")
@@ -122,3 +127,10 @@ def test_standardise_jpeg():
     assert changed and Image.open(io.BytesIO(out)).size == (round(1617 * 1276 / 2126), 1276)
     small = _jpeg(1)
     assert D.standardise_jpeg(small) == (small, False)          # ordinary pages are left byte-identical
+
+
+def test_corrupt_upstream_page_is_recorded_as_missing(server, data_root, monkeypatch):
+    monkeypatch.setattr(D.time, "sleep", lambda s: None)
+    row = dict(code="P3BAD", edition="2023", viewer_url=f"{server}/2023/P3BAD.htm", pdf_url="")
+    m = D.download_book(row, make_session(retries=0), D.Throttle(0))
+    assert (m["first"], m["last"], m["missing"], m["failed"], m["complete"]) == (0, 4, [2], [], True)
