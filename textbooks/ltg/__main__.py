@@ -13,6 +13,7 @@
   zeroshot       CLIP codebook on the sample        -> data/results/visual/zeroshot.csv
   visual-sample  hand-coding sheet for images       -> data/results/validation/visual_sample.*
   visual-report  visual tables + report.md          -> data/results/visual/report.md
+  shrink         re-encode large page images on disk (frees space after OCR + regions)
   figures        figures for the paper              -> data/results/figures/*.png|svg
   validate       agreement of a hand-coded sample   --kind sense|role|visual [--dim people]
 """
@@ -49,6 +50,11 @@ def main(argv=None):
         ap = argparse.ArgumentParser(prog="ltg report")
         ap.add_argument("--corpus", default="national", choices=["national", "state", "all"])
         return report(corpus=ap.parse_args(rest).corpus)
+    if stage == "shrink":
+        from .download import shrink_existing
+        ap = argparse.ArgumentParser(prog="ltg shrink")
+        ap.add_argument("--editions", default="")
+        return shrink_existing(set(filter(None, ap.parse_args(rest).editions.split(","))) or None)
     if stage == "figures":
         from .figures import run
         return run()

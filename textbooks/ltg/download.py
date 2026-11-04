@@ -219,12 +219,15 @@ def download_book(row, session, throttle, workers=2, max_pages=None, want_pdf=Tr
     with ThreadPoolExecutor(workers) as ex:
         status = list(ex.map(lambda n: fetch_file(session, throttle, image_url(viewer, code, n, folder=folder),
                                                    book_dir / f"{n:03d}.jpg", JPEG_MAGIC, standardise=True), pages))
-    bad = [n for n, s in zip(pages, status) if s in ("missing", "failed")]
+    # 404s inside a book are pages the server does not have: recorded, and the book still counts
+    # as complete (otherwise OCR would wait for it forever). Network failures are retried next run.
+    missing = [n for n, s in zip(pages, status) if s == "missing"]
+    failed = [n for n, s in zip(pages, status) if s == "failed"]
     manifest.update(first=first, last=last, declared=declared[:3], folder=folder, n_pages=len(pages),
-                    missing=bad, complete=not bad and not max_pages)
+                    missing=missing, failed=failed, complete=not failed and not max_pages)
     manifest_path.write_text(json.dumps(manifest, indent=1))
-    log.info("%s/%s: pages %d-%d, %d new, %d missing", edition, code, first, last,
-             status.count("ok"), len(bad))
+    log.info("%s/%s: pages %d-%d, %d new, %d missing upstream, %d failed", edition, code, first, last,
+             status.count("ok"), len(missing), len(failed))
     return manifest
 
 
@@ -263,3 +266,26 @@ def main(argv=None):
     done = sum(bool(m.get("complete")) for m in results)
     log.info("%d/%d books complete", done, len(results))
     return results
+
+
+def shrink_existing(editions=None, workers=4):
+    """Apply the download-time standardisation to page images already on disk (frees space;
+    run after OCR and region extraction, whose results do not depend on it)."""
+    from concurrent.futures import ProcessPoolExecutor
+    files = [p for p in sorted(PATHS["pages"].glob("*/*/[0-9][0-9][0-9].jpg"))
+             if (not editions or p.parent.parent.name in editions) and p.stat().st_size > SHRINK_BYTES]
+    with ProcessPoolExecutor(workers) as ex:
+        saved = sum(ex.map(_shrink_one, files, chunksize=32))
+    log.info("re-encoded %d page images, %.1f GB freed", len(files), saved / 1e9)
+    return saved
+
+
+def _shrink_one(path):
+    before = path.stat().st_size
+    data, changed = standardise_jpeg(path.read_bytes())
+    if not changed:
+        return 0
+    tmp = path.with_suffix(".jpg.part")
+    tmp.write_bytes(data)
+    tmp.replace(path)
+    return before - len(data)

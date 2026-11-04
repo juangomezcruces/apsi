@@ -81,7 +81,7 @@ def test_probed_book_with_gap_and_resume(server, data_root):
     m = D.download_book(row, s, D.Throttle(0))
     # binary search assumes contiguous pages; the gap at 20 sits below the true end, so it is found
     assert (m["first"], m["last"]) == (0, 36)
-    assert m["missing"] == [20] and not m["complete"]
+    assert m["missing"] == [20] and m["failed"] == [] and m["complete"]      # a 404 gap is recorded, not retried forever
     # resume: existing files are skipped, nothing is re-fetched
     status = D.fetch_file(s, D.Throttle(0), f"{server}/c/H1988P3CS001/005.jpg",
                           PATHS["pages"] / "1988/H1988P3CS001/005.jpg", D.JPEG_MAGIC)
