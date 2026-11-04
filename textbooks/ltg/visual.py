@@ -467,7 +467,7 @@ def run_detector(sample=True, detector=None, batch=4, redo=False):
 
 
 # --------------------------------------------------------------------------- validation
-def visual_sample(n_per_cell=25, seed=0):
+def visual_sample(n_per_cell=15, seed=0):
     """Stratified (edition x predicted people label) sample of the analysis sample, shuffled,
     with an HTML contact sheet. The people prediction is the detector's when it has run."""
     df = _analysis_regions(sample=(out_dir() / "regions_sample.csv").exists())

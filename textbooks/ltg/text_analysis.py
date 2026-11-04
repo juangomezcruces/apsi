@@ -654,7 +654,7 @@ def stratified_sample(df, keys, n, seed=0):
     return pd.concat(parts).sample(frac=1, random_state=seed) if parts else df.iloc[:0]
 
 
-def export_for_coding(n_pueblo=30, n_community=10, n_role=15, seed=0):
+def export_for_coding(n_pueblo=20, n_community=5, n_role=8, seed=0):
     """Validation samples + the people-talk sentences for the APSI populism scorer.
 
     Strata are eras (config.ERA: decades of the archive; 2023-2025 as one), not editions:
