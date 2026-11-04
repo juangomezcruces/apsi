@@ -71,7 +71,8 @@ def dot_ci_panels(df, measures, titles, ylabel, name, ncols=4, suptitle=""):
     measures = [m for m in measures if m in set(df["measure"])]
     eds = edition_order(df["edition"].unique())
     nrows = int(np.ceil(len(measures) / ncols))
-    fig, axes = plt.subplots(nrows, ncols, figsize=(2.3 * ncols, 2.0 * nrows), sharex=True, squeeze=False)
+    width = 2.3 if len(eds) <= 6 else 3.2                  # room for 16 editions on the x axis
+    fig, axes = plt.subplots(nrows, ncols, figsize=(width * ncols, 2.2 * nrows), sharex=True, squeeze=False)
     for ax, m in zip(axes.flat, measures):
         d = df[df["measure"] == m].set_index("edition").reindex(eds)
         x = np.arange(len(eds))
@@ -80,7 +81,8 @@ def dot_ci_panels(df, measures, titles, ylabel, name, ncols=4, suptitle=""):
         ax.errorbar(x, d["estimate"], yerr=[lo, hi], fmt="o", color=SERIES[0], ecolor=SERIES[0],
                     elinewidth=1.5, capsize=0, markersize=5.5, markeredgecolor=SURFACE, markeredgewidth=1)
         ax.set_title(titles.get(m, m), loc="left")
-        ax.set_xticks(x, eds, rotation=0)
+        many = len(eds) > 6
+        ax.set_xticks(x, eds, rotation=90 if many else 0, fontsize=7 if many else 9)
         ax.set_ylim(bottom=0)
         _style(ax)
     for ax in list(axes.flat)[len(measures):]:

@@ -33,7 +33,7 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 
-from .config import PATHS, PERIOD
+from .config import ERA, PATHS, PERIOD
 from .extract import load_boxes
 from .lexicon import FAMILIES, PEOPLE_FAMILIES
 from .text_analysis import _with_ci, edition_order, fold, md_table, rate_table, stratified_sample
@@ -479,9 +479,8 @@ def visual_sample(n_per_cell=25, seed=0):
         df["people"] = df["people_det"]
     if "people" not in df:
         df["people"] = ""
-    if "period" not in df:
-        df["period"] = df["edition"].map(PERIOD)
-    s = stratified_sample(df, ["period", "people"], n_per_cell, seed)    # periods: 2023-2025 are reprints
+    df["era"] = df["edition"].map(ERA).fillna(df["edition"])
+    s = stratified_sample(df, ["era", "people"], n_per_cell, seed)      # eras: 2023-2025 are reprints
     vdir = PATHS["results"] / "validation"
     vdir.mkdir(parents=True, exist_ok=True)
     cols = ["region_id", "edition", "code", "page", "crop", "caption"] + [d for d in CODEBOOK if d in s]

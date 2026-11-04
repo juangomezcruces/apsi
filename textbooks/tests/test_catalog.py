@@ -131,3 +131,21 @@ def test_generic_nav_expand_and_failures():
     rows = C.crawl_edition(dict(edition="1988", seed=base, expand={"a": ["2", "3"]}, follow_params=["g"]),
                            None, delay=0, fetch=fetch)
     assert len(rows) == 1 and rows[0]["code"] == "H1988P1ES123"
+
+
+def test_teaching_editions_notes_and_state_books():
+    teacher = ["Matemáticas. Primer grado. Docente.", "Español. Libro para el maestro",
+               "Fichero didactico (incluye DVD)", "Un libro sin recetas, para la maestra y el maestro. Fase 3"]
+    assert all(C.audience_from_title(t) == "teacher" for t in teacher)
+    assert C.audience_from_title("Nuestros saberes: Libro para alumnos, maestros y familia") == "student"
+    assert C.audience_from_title("Desafíos matemáticos. Libro para el alumno") == "student"
+    assert C.audience_from_title("En 1960, los concursos para los libros de sexto grado, fueron declarados "
+                                 "desiertos por el jurado") == "note"
+    assert C.is_state_book("Aguascalientes. Historia y Geografía", "Historia")
+    assert C.is_state_book("México. Historia y Geografía", "Historia")
+    assert C.is_state_book("La entidad donde vivo Oaxaca", "La entidad donde vivo")
+    assert not C.is_state_book("Atlas de México", "Atlas")
+    assert not C.is_state_book("Historia", "Historia")
+    assert C.subject_from_title("MI LIBRO DE HISTORIA Y CIVISMO") == "Historia"
+    assert C.subject_from_title("MI CUADERNO DE TRABAJO, ARITMÉTICA Y GEOMETRÍA") == "Matemáticas"
+    assert C.subject_from_title("EXPLORACIÓN DE LA NATURALEZA Y LA SOCIEDAD") == "Exploración de la naturaleza y la sociedad"

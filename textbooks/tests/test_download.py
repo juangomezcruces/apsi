@@ -112,3 +112,13 @@ def test_teacher_and_reader_only_books_are_skipped(server, data_root, tmp_path):
                    "current,P5PCA,,primaria,student\n")
     res = D.main(["--catalog", str(cat), "--delay", "0"])
     assert [m["code"] for m in res] == ["P1AAA"]
+
+
+def test_standardise_jpeg():
+    import io
+    big = io.BytesIO()
+    Image.new("RGB", (1617, 2126), (200, 100, 50)).save(big, "JPEG", quality=95)
+    out, changed = D.standardise_jpeg(big.getvalue())
+    assert changed and Image.open(io.BytesIO(out)).size == (round(1617 * 1276 / 2126), 1276)
+    small = _jpeg(1)
+    assert D.standardise_jpeg(small) == (small, False)          # ordinary pages are left byte-identical

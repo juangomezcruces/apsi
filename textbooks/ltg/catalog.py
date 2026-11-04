@@ -32,7 +32,19 @@ PDF_IN_TEXT_RE = re.compile(r"""(?P<url>[\w./:%-]+\.pdf)\b""", re.I)
 BOOK_ARRAY_RE = re.compile(r'\[\s*"(?P<title>[^"]*)"\s*,\s*"(?P<code>(?:H\d{4})?[A-Z]\d[A-Z0-9]{2,10})"'
                            r'\s*,\s*(?P<gen>\d{4})\s*,\s*(?P<grade>\d)\s*\]')
 GRADE_RE = re.compile(r"Grado:?\s*(\d)")
-TEACHER_RE = re.compile(r"para (la )?maestra|para el maestro|para (el |la )?docente|libro (del|para el) maestro|sin recetas")
+TEACHER_RE = re.compile(r"para (la )?maestra|para el maestro|\bdocente\b|libro (del|para el) maestro|sin recetas|fichero didactico")
+# Entries in the archive's list that are notes, not books ("En 1960, los concursos ... fueron declarados desiertos")
+NOTE_RE = re.compile(r"declarad[oa]s? desiert|concursos? para los libros")
+STATES = ["aguascalientes", "baja california", "campeche", "chiapas", "chihuahua", "ciudad de mexico", "distrito federal",
+          "coahuila", "colima", "durango", "guanajuato", "guerrero", "hidalgo", "jalisco", "mexico", "michoacan",
+          "morelos", "nayarit", "nuevo leon", "oaxaca", "puebla", "queretaro", "quintana roo", "san luis potosi",
+          "sinaloa", "sonora", "tabasco", "tamaulipas", "tlaxcala", "veracruz", "yucatan", "zacatecas"]
+
+
+def is_state_book(title, subject):
+    """One book per state: 'La entidad donde vivo ...' (2014-2022) or '<State>. Historia y Geografía' (1993)."""
+    t = fold(title).strip()
+    return subject == "La entidad donde vivo" or any(re.match(rf"{s}\s*[.,]", t) for s in STATES)
 
 LEVELS = {"P": "primaria", "S": "secundaria", "K": "preescolar", "T": "telesecundaria"}
 
@@ -48,6 +60,13 @@ SUBJECTS = [
     ("saberes", "Saberes y pensamiento científico"),
     ("multiples lenguajes", "Múltiples lenguajes"),
     ("historia", "Historia"),
+    ("exploracion de la naturaleza", "Exploración de la naturaleza y la sociedad"),
+    ("libro integrado", "Integrado (1°-2°)"),
+    ("lengua nacional", "Lengua"),
+    ("aritmetica", "Matemáticas"),
+    ("estudio de la naturaleza", "Ciencias naturales"),
+    ("educacion fisica", "Educación física"),
+    ("alfabetizacion", "Lengua"),
     ("ciencias sociales", "Ciencias sociales"),
     ("formacion civica", "Formación cívica y ética"),
     ("civismo", "Formación cívica y ética"),
@@ -121,6 +140,8 @@ def _clean(s):
 
 def audience_from_title(title):
     t = fold(title)
+    if NOTE_RE.search(t):
+        return "note"
     return "teacher" if TEACHER_RE.search(t) and "alumn" not in t else "student"
 
 
@@ -299,7 +320,7 @@ def crawl_edition(spec, session, delay=1.0, fetch=None):
                          served_year=year_dir.group(1) if year_dir else (b.get("served_year") or meta["hist_year"]),
                          title=b["title"], subject=subject,
                          # one state book per child: kept out of the national comparison, reported apart
-                         corpus="state" if subject == "La entidad donde vivo" else "national",
+                         corpus="state" if is_state_book(b["title"], subject) else "national",
                          audience=audience_from_title(b["title"]), access=b.get("access", "viewer"),
                          viewer_url=b["viewer_url"], pdf_url=b["pdf_url"], found_on=b.get("found_on", "")))
     return rows

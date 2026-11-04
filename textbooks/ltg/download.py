@@ -133,7 +133,29 @@ def _valid(path, magic):
         return False
 
 
-def fetch_file(session, throttle, url, dest, magic, timeout=60, tries=3):
+# Page images are standardised on download: taller than MAX_HEIGHT -> scaled to it, and
+# files over SHRINK_BYTES re-encoded. 2008-2011 scans are up to 1617x2126 px and 2014-2018
+# pages up to 700 KB; the current site serves 969x1276. OCR at ~1276 px was measured to be
+# as accurate as larger sizes, and one resolution keeps the image measures comparable.
+MAX_HEIGHT, SHRINK_BYTES, JPEG_QUALITY = 1276, 200_000, 82
+
+
+def standardise_jpeg(data, max_height=MAX_HEIGHT, max_bytes=SHRINK_BYTES):
+    """Return (bytes, changed)."""
+    import io
+    from PIL import Image
+    im = Image.open(io.BytesIO(data))
+    if im.height <= max_height and len(data) <= max_bytes:
+        return data, False
+    im = im.convert("RGB")
+    if im.height > max_height:
+        im = im.resize((round(im.width * max_height / im.height), max_height), Image.LANCZOS)
+    out = io.BytesIO()
+    im.save(out, "JPEG", quality=JPEG_QUALITY, optimize=True)
+    return out.getvalue(), True
+
+
+def fetch_file(session, throttle, url, dest, magic, timeout=60, tries=3, standardise=False):
     if dest.exists() and _valid(dest, magic):
         return "skipped"
     dest.parent.mkdir(parents=True, exist_ok=True)
@@ -142,8 +164,14 @@ def fetch_file(session, throttle, url, dest, magic, timeout=60, tries=3):
         try:
             r = session.get(url, timeout=timeout)
             if r.status_code == 200 and r.content.startswith(magic):
+                data = r.content
+                if standardise and magic == JPEG_MAGIC:
+                    try:
+                        data, _ = standardise_jpeg(data)
+                    except Exception as e:                  # keep the original if PIL cannot read it
+                        log.debug("%s: not standardised (%s)", url, e)
                 tmp = dest.with_suffix(dest.suffix + ".part")
-                tmp.write_bytes(r.content)
+                tmp.write_bytes(data)
                 tmp.replace(dest)
                 return "ok"
             if r.status_code == 404:
@@ -190,7 +218,7 @@ def download_book(row, session, throttle, workers=2, max_pages=None, want_pdf=Tr
     pages = list(range(first, last + 1))
     with ThreadPoolExecutor(workers) as ex:
         status = list(ex.map(lambda n: fetch_file(session, throttle, image_url(viewer, code, n, folder=folder),
-                                                   book_dir / f"{n:03d}.jpg", JPEG_MAGIC), pages))
+                                                   book_dir / f"{n:03d}.jpg", JPEG_MAGIC, standardise=True), pages))
     bad = [n for n, s in zip(pages, status) if s in ("missing", "failed")]
     manifest.update(first=first, last=last, declared=declared[:3], folder=folder, n_pages=len(pages),
                     missing=bad, complete=not bad and not max_pages)
@@ -207,6 +235,7 @@ def main(argv=None):
     ap.add_argument("--codes", default="", help="comma-separated book codes")
     ap.add_argument("--level", default="primaria", help="'' for every level in the catalog")
     ap.add_argument("--audience", default="student", help="student | teacher | all")
+    ap.add_argument("--corpus", default="national", help="national | state | all (state = one book per state)")
     ap.add_argument("--max-pages", type=int, default=None, help="pilot runs: first N pages per book")
     ap.add_argument("--workers", type=int, default=2)
     ap.add_argument("--delay", type=float, default=0.5)
@@ -222,6 +251,8 @@ def main(argv=None):
         cat = cat[cat["level"].isna() | (cat["level"] == args.level)]
     if args.audience != "all" and "audience" in cat:
         cat = cat[cat["audience"].isna() | (cat["audience"] == args.audience)]
+    if args.corpus != "all" and "corpus" in cat:
+        cat = cat[cat["corpus"].isna() | (cat["corpus"] == args.corpus)]
     no_viewer = cat["viewer_url"].isna() | (cat["viewer_url"].astype(str).str.strip() == "")
     if no_viewer.any():
         log.info("skipping %d books with no image viewer (e.g. the 2026 encrypted PDF reader)", no_viewer.sum())

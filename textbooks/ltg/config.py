@@ -21,11 +21,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 DATA = Path(os.environ.get("LTG_DATA", ROOT / "data"))
 
-EDITIONS = [
-    # The historical archive (`g` = generation, `a` = grade) builds its list in
-    # JavaScript from ["TITLE","CODE",generation,grade] arrays in a same-host
-    # script; the crawler reads those and keeps the given generation.
-    dict(edition="1988", seed="https://historico.conaliteg.gob.mx/?g=1988&a=1", generation="1988"),
+# Every generation in the historical archive (`g` = generation, `a` = grade). The
+# archive builds its list in JavaScript from ["TITLE","CODE",generation,grade]
+# arrays in a same-host script; the crawler reads those and keeps one generation.
+HIST_GENERATIONS = ["1960", "1962", "1972", "1982", "1988", "1993", "2008", "2011", "2014", "2018", "2019"]
+
+EDITIONS = [dict(edition=g, seed=f"https://historico.conaliteg.gob.mx/?g={g}&a=1", generation=g)
+            for g in HIST_GENERATIONS] + [
     dict(edition="2022", seed="https://libros.conaliteg.gob.mx/primaria_2022.html"),
     dict(edition="2023", seed="https://libros.conaliteg.gob.mx/primaria_2023.html"),
     dict(edition="2024", seed="https://libros.conaliteg.gob.mx/primaria_2024.html"),
@@ -33,10 +35,18 @@ EDITIONS = [
     dict(edition="current", seed="https://libros.conaliteg.gob.mx/primaria.html"),
 ]
 
-# Analytic periods. The 2022 books predate the Nueva Escuela Mexicana (NEM)
-# textbooks first distributed for 2023-24; 1988 is the archive's '1988 generation'.
-PERIOD = {"1988": "gen-1988", "2022": "pre-NEM", "2023": "NEM", "2024": "NEM",
-          "2025": "NEM", "current": "NEM"}
+# Editions in chronological order (this order is used in every table and figure).
+# Historical generations keep their own label; 2022 predates the Nueva Escuela
+# Mexicana (NEM) books first distributed for 2023-24.
+PERIOD = {**{g: f"gen-{g}" for g in HIST_GENERATIONS},
+          "2022": "pre-NEM", "2023": "NEM", "2024": "NEM", "2025": "NEM", "current": "NEM"}
+
+# Coarser groups, used only to stratify the hand-coding samples (decades of the archive;
+# 2023-2025 are reprints of one set of books). Descriptive labels, not periodisation claims.
+ERA = {"1960": "1960s", "1962": "1960s", "1972": "1970s-80s", "1982": "1970s-80s",
+       "1988": "1988-93", "1993": "1988-93", "2008": "2008-14", "2011": "2008-14", "2014": "2008-14",
+       "2018": "2018-22", "2019": "2018-22", "2022": "2018-22",
+       "2023": "NEM", "2024": "NEM", "2025": "NEM", "current": "NEM"}
 
 HEADERS = {
     "User-Agent": "ltg-research/0.1 (academic text analysis of public textbooks)",
