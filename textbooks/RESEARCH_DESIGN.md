@@ -9,28 +9,39 @@ the paper.
 
 How do Mexico's primary-school free textbooks construct *el pueblo*: who it
 is, whether it is one or many, what it does, whom it stands against, and how it
-rules? And how did that construction change between the books in use in 1988,
-the last pre-NEM catalog (2022), and the Nueva Escuela Mexicana (NEM) books
-from 2023 onward?
+rules? And how did that construction change across every generation of the
+books, from the first free textbooks of 1960 to the Nueva Escuela Mexicana
+(NEM) books of 2023-2025?
 
 ## Corpus and comparison logic
 
-| period | editions | notes |
-|---|---|---|
-| gen-1988 | 1988 | The archive's own "1988 generation": 26 primary titles, integrated *Mi libro de 1°/2°* for grades 1-2 and *Ciencias Sociales*, *Ciencias Naturales*, *Español* and *Matemáticas* for grades 3-6. The archive's year lookup has this generation in use in the late 1980s and early 1990s, before the 1993 books *(verify each book's edition history from its colophon; how much of it carries over from the 1972 books is a question for the paper, not an assumption)*. Scans; OCR confidence 81-95. |
-| pre-NEM | 2022 | Subject-based books (Lengua Materna, Matemáticas, Conocimiento del Medio, Historia, Geografía, Formación Cívica y Ética...). |
-| NEM | 2023, 2024, 2025, current | Organised by *campos formativos* and projects (*Proyectos de aula / escolares / comunitarios*, *Nuestros saberes*, *Múltiples lenguajes*...). Later editions largely reprint 2023 titles: treat them as one period with revisions, not as independent samples. |
+Student books only (teaching editions excluded), national corpus (state books
+apart). Sixteen editions: the eleven generations of the historical archive
+(1960, 1962, 1972, 1982, 1988, 1993, 2008, 2011, 2014, 2018, 2019), the 2022
+catalog and the NEM books of 2023-2025 (2026-27 not downloaded; see README).
+Generation labels are the archive's; the years each was in classrooms come from
+the archive's own lookup table (README). Claims about the reforms behind each
+generation belong in the paper with sources, not in the measurement.
 
-Because the subject structure changed, report each comparison twice:
-1. **Whole corpus** (what a child receives in total), and
-2. **Social-content subset** matched by function: 1988 *Ciencias Sociales* /
-   history / civics books; 2022 *Historia*, *Formación Cívica y Ética*,
-   *Conocimiento del Medio*, *Geografía*; NEM *Proyectos comunitarios* and the
-   ethics/society material. Fix the mapping in `catalog.csv` (`subject`) before
-   looking at results.
+Things to keep in view when comparing:
 
-The reprinted NEM titles also allow a within-period analysis: diff the same
-book code across 2023, 2024 and 2025 to see what was revised.
+- **Overlaps.** The 2019 generation and the 2022 catalog are largely the same
+  titles; 2023-2025 reprint one NEM set (useful for a within-period diff of
+  what was revised, not as independent samples). Generations in use for a
+  short time (1960, 2018) cover few grades.
+- **Subject structure changed** (integrated first-grade books; *Ciencias
+  Sociales* in the 1970s-80s; separate history and civics later; NEM's
+  *campos formativos* and projects). Report each comparison twice:
+  1. **Whole corpus** (what a child receives in total), and
+  2. **Social-content subset** matched by function (history, civics, social
+     sciences, *Conocimiento del medio*, *Exploración de la naturaleza y la
+     sociedad*, NEM *Proyectos comunitarios* and ethics/society material). Fix
+     the mapping in `catalog.csv` (`subject`) before looking at results.
+- **Scans and OCR.** 1960-1993 pages are ~670x990 px scans; later pages are
+  born-digital or larger scans, standardised to 1276 px tall on download.
+  Compare OCR confidence by generation and check rates on high-confidence pages.
+- **Hand-coding strata** use eras (config `ERA`: 1960s, 1970s-80s, 1988-93,
+  2008-14, 2018-22, NEM) so one coder can validate every period.
 
 ## Concepts and measures
 

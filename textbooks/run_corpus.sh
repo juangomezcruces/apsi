@@ -8,9 +8,10 @@ cd "$(dirname "$0")"
 mkdir -p data/logs
 EDITIONS=${EDITIONS:-1988,2022,2023,2024,2025}
 OCR_WORKERS=${OCR_WORKERS:-3}
+DL_WORKERS=${DL_WORKERS:-3}
 echo "=== $(date +%T) collection start (editions $EDITIONS)"
 
-( python -m ltg download --editions "$EDITIONS" --workers 3 --delay 0.4 >> data/logs/download.log 2>&1
+( python -m ltg download --editions "$EDITIONS" --workers "$DL_WORKERS" --delay 0.4 >> data/logs/download.log 2>&1
   echo "download exit $?" >> data/logs/download.log ) &
 DL=$!
 

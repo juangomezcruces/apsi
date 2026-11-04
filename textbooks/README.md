@@ -12,16 +12,49 @@ page images and OCR text, stays in the git-ignored `data/`.
 
 ## Corpus
 
-Checked against the live sites on 2026-11-03.
+Checked against the live sites on 2026-11-03/04. Student books of the national
+corpus are analysed; teaching editions are excluded throughout; state books
+(one per state) are downloaded only for 2022 and reported separately.
 
-| edition | catalog page | period | student books downloaded |
-|---|---|---|---|
-| 1988 | https://historico.conaliteg.gob.mx/?g=1988&a=1 | the archive's "1988 generation" | 26 |
-| 2022 | https://libros.conaliteg.gob.mx/primaria_2022.html | pre-NEM | 42 national + 31 state |
-| 2023 | https://libros.conaliteg.gob.mx/primaria_2023.html | NEM | 33 |
-| 2024 | https://libros.conaliteg.gob.mx/primaria_2024.html | NEM | 36 |
-| 2025 | https://libros.conaliteg.gob.mx/primaria_2025.html | NEM | 36 |
-| current | https://libros.conaliteg.gob.mx/primaria.html | NEM, school year 2026-27 | none (see below) |
+| edition | source | label | national student books | also listed (not in the national comparison) |
+|---|---|---|---|---|
+| 1960 | historical archive `?g=1960` | generation 1960 | 20 | archive note (not a book) |
+| 1962 | `?g=1962` | generation 1962 | 38 | |
+| 1972 | `?g=1972` | generation 1972 | 36 | |
+| 1982 | `?g=1982` | generation 1982 | 28 | preschool workbook |
+| 1988 | `?g=1988` | generation 1988 | 26 | preschool workbook |
+| 1993 | `?g=1993` | generation 1993 | 83 | 31 state *Historia y Geografía* |
+| 2008 | `?g=2008` | generation 2008 | 44 | |
+| 2011 | `?g=2011` | generation 2011 | 51 | |
+| 2014 | `?g=2014` | generation 2014 | 44 | 32 state, 10 teaching editions |
+| 2018 | `?g=2018` | generation 2018 | 33 | |
+| 2019 | `?g=2019` | generation 2019 | 45 | 32 state, 6 teaching editions |
+| 2022 | `primaria_2022.html` | pre-NEM | 42 | 31 state (downloaded, reported apart) |
+| 2023 | `primaria_2023.html` | NEM | 33 | 3 teaching editions |
+| 2024 | `primaria_2024.html` | NEM | 36 | 3 teaching editions |
+| 2025 | `primaria_2025.html` | NEM | 36 | 3 teaching editions |
+| current | `primaria.html` | NEM, 2026-27 | not downloaded (encrypted reader, see below) | 3 teaching editions |
+
+When each generation was in classrooms, according to the archive's own lookup
+table (`g[year][grade]` in the same script, keyed by the year a child started
+primary school; it stops with children who started in 2019):
+
+| generation | school years in use (any grade) |
+|---|---|
+| 1960 | 1960-1961 (grades 1-2 in the lookup) |
+| 1962 | 1962-1971 |
+| 1972 | 1972-1981 |
+| 1982 | 1982-1987 |
+| 1988 | 1988-1992 |
+| 1993 | 1993-2007 |
+| 2008 | 2008-2010 |
+| 2011 | 2011-2013 |
+| 2014 | 2014-2022 (phased out grade by grade from 2018) |
+| 2018 | 2018-2019 (grades 1-2) |
+| 2019 | 2019-2025 in the lookup, phased in grade by grade |
+
+The 2019-generation books and the 2022 catalog are largely the same titles, as
+2023-2025 are reprints of one NEM set.
 
 What the sites actually look like, and what the crawler does about it:
 
@@ -36,11 +69,16 @@ What the sites actually look like, and what the crawler does about it:
   is used. Viewers declare `ag_pages = N`. Page images are in `c/<CODE>/` for
   2022-2024 but in **`c2025/<CODE>/`** for 2025; the downloader reads the folder
   from each year's `magazine.js`.
-- **Catalog flags.** `audience=teacher` for the NEM teacher's guides
-  (*Un libro sin recetas...*), not downloaded by default (`--audience all`).
-  `corpus=state` for the 31 state-specific 2022 grade-3 books (*La entidad
-  donde vivo*): a child reads one, so they are kept out of the national
-  comparison and reported separately.
+- **Catalog flags.** `audience=teacher` for teaching editions (*Docente*, *Libro
+  para el maestro*, *Fichero didáctico*, NEM's *Un libro sin recetas...*), never
+  downloaded by default (`--audience all` to include them). `corpus=state` for
+  state-specific books (*La entidad donde vivo ...*, 1993's *<Estado>. Historia y
+  Geografía*): a child reads one, so they stay out of the national comparison
+  (`download --corpus all` to fetch them). `audience=note` for archive entries
+  that are not books.
+- **Page images are standardised.** 2008-2011 scans run to 1617x2126 px and
+  2014-2018 pages to 700 KB; pages taller than 1276 px (the current site's
+  size) are scaled to it and files over 200 KB re-encoded (JPEG quality 82).
 - **2026-27 (`primaria.html`).** Served only through a PDF reader whose files
   are password-encrypted (the password ships in the reader's JavaScript). The
   books are recorded in `catalog.csv` with `access=pdf-reader` and **not
