@@ -106,7 +106,7 @@ def test_report_and_exports(parsed):
     senses = tables["pueblo_senses"].set_index("sense")
     assert senses.loc["settlement", "1988"] == 1 and senses.loc["people_ethnic", "2023"] == 2
     assert (T.out_dir() / "report.md").read_text().startswith("# 'The people'")
-    T.export_for_coding(n_per_cell=5)
+    T.export_for_coding(n_pueblo=5, n_community=3, n_role=3)
     sample = pd.read_csv(PATHS["results"] / "validation" / "sense_sample.csv")
     assert {"predicted_sense", "gold_sense", "left", "keyword", "right"} <= set(sample.columns)
     apsi = pd.read_csv(PATHS["results"] / "people_sentences_for_apsi.csv")

@@ -1,0 +1,885 @@
+sent_id,edition,period,left,keyword,right,predicted_role,head_lemma,verb_class,gold_role
+2025|P6SDA|167|3,2025,NEM,También existe ,gente, que odia a los habitantes» de otro lugar sin que necesariamente lleguen a su territorio.,agent,existir,other,
+2023|P5PAA|348|6,2023,NEM,"Si en su escuela o
+
+ ",comunidad," hay un auditorio, salón de acuerdos o espacios al aire libre que faciliten las reuniones,",oblique,haber,,
+2022|P5LEA|149|1,2022,pre-NEM,"oles entre la menuda arena, escuchando a Filomena sobre el chopo de la fuente, y ríase la ",gente,.,object,riar,,
+2025|P5PCA|219|1,2025,NEM," medicinales, aunque no sabía bien cuál era el malestar específico de Mayra; ir a la otra ",comunidad," con el médico del consultorio privado, lo que significaba que tendrían que pagar por la a",oblique,ir,,
+2022|P6FCA|25|3,2022,pre-NEM,"os, las familias, los maestros y las autoridades de la escuela,
+
+así como el gobierno, la ",comunidad," internacional y las instituciones
+
+mundiales.",other,gobierno,,
+1988|H1988P5ES125|32|5,1988,gen-1988,"gente, En la noche, cuan-
+
+hombres de las comunidades ",tarahumaras," usaban sus hondas para
+
+correrlos; les tiraban piedras grandes, y así los espantabon.
+
+",other,hombre,,
+1988|H1988P3CI115|76|9,1988,gen-1988,"La joven es seleccionada entre las hijas de los cañeros, ",obreros," y empleados del ingenio,
+
+Las características más importantes que debe reunir la reina de",other,canero,,
+2023|P5PAA|83|3,2023,NEM," de tradición popular yaqui
+
+Hace mucho tiempo, un árbol que era profeta les enseñó a los ",yaquis,", que habría de llegar del norte un monstruo feroz.
+
+",recipient,ensenar,,
+2024|P5PAA|128|3,2024,NEM,Saberes de nuestra ,comunidad,"
+
+1.",possessor,saberes,,
+2022|P5HIA|19|11,2022,pre-NEM,Más de la mitad della ,población, era indígena y pade-— Hacienda pública.,attribute,indigena,attribute,
+2022|P6DMA|70|2,2022,pre-NEM,"con menor número de habitantes?
+
+h) ¿Qué lugar ocupa su entidad con respecto al número de ",habitantes,"?
+
+1) ¿Qué entidades tienen menos de un millón de habitantes?
+
+J) ¿Consideran que el númer",possessor,numero,,
+2023|P1PEA|7|4,2023,NEM,"dad escolal ccninncnnnnnnnonicnicanicnicanacannos 90
+
+Campo formativo Ética, naturaleza y ",sociedades, Mi comunidad escolar Nos comprometemos con otros seres vivos.,other,historias,,
+1988|H1988P4CI120|129|8,1988,gen-1988,Este documento pedía al ,pueblo," que se levantara en armas el 20 de noviembre de 1910, contra la dictadura de Díaz.",recipient,pedir,,
+1988|H1988P3ES116|91|7,1988,gen-1988,"cortaban florecitas,
+
+Desde entonces, alguna ",gente," dice que
+
+los vientos son duendes vivos y traviesos.",agent,decir,thought,
+2025|P6PCA|17|5,2025,NEM,) La identificación de los roles en su ,comunidad,".
+
+5.",possessor,identificacion,,
+1988|H1988P4CI120|41|10,1988,gen-1988,"”
+
+Religión ""Los ",mayas," eran politeistas, es decir creían en muchos dioses.",attribute,politeista,attribute,
+1988|H1988P2CI113|161|0,1988,gen-1988,Los ,vecinos, ahorraron para regalar a la escuela unos juegos.,agent,ahorrar,other,
+2022|P4HIA|118|10,2022,pre-NEM,También hubo casos en que los españoles esclavizaron ,indígenas," con los que habían peleado durante la Conquista.
+
+",patient,esclavizar,victim,
+1988|H1988P6CI128|6|6,1988,gen-1988,dadano dispuesto a comprometerse y a actuar para transformar los aspectos negativos de su ,sociedad,".
+
+",possessor,aspecto,,
+2022|P5GEA|131|1,2022,pre-NEM,"ñoso, poco favorable para la agricultura y la ganadería, pero al estar rodeado de mar, su ",población, ha aprendido a alimentarse principalmente de pescado.,agent,aprender,thought,
+2022|P6GEA|96|4,2022,pre-NEM,da son ,naciones,"
+
+MErica DEL NORTE Y,
+
+En Estados Unidos y Canadá hay un aumento continuo de inmigrantes q",agent,dar,other,
+2022|P4ESA|176|10,2022,pre-NEM,... Este día tan memorable para los españoles y para los ,mexicanos," fue el 8 de noviembre de 1519.
+
+",oblique,8,,
+2024|P4SDA|149|7,2024,NEM,"Ante la desesperación de sus hombres, pidió a Moctezuma que calmara a la ",multitud," furiosa, pero el tlatoani fue herido de muerte por esa multitud indignada, por lo que los",object,calmar,,
+2025|P1PCA|244|11,2025,NEM,"a Mendaza Cruz, CIDO DE NDXICO
+
+Una manera de fomentar la lectura entre sus familias y la ",comunidad, es organizar un café literario.,possessor,lectura,,
+1988|H1988P2CI112|116|0,1988,gen-1988,"
+
+Para construir un centro de salud empezaron a trabajar 25 albañiles, 22 carpinteros y 8 ",peones,".
+
+",object,trabajar,,
+2025|P1PCA|10|8,2025,NEM,"e la comunicación
+
+Comunicación debe ser efectiva y convencer al disidente sobre cómo una ",comunidad," de-
+
+L modiversa es mejor que un colectivo inhumano.
+
+",attribute,mejor,attribute,
+2023|P6SDA|40|0,2023,NEM,"Es 40
+
+La ",asamblea, es un espacio democrático de diálogo entre las personas que conforman la comunidad escola,attribute,espacio,attribute,
+2023|P0SHA|125|9,2023,NEM,"sde Campeche, Montejo inició las operaciones bélicas; pensaba que lograría sojuzgar a los ",mayas,.,patient,sojuzgar,victim,
+2024|P5MLA|143|2,2024,NEM,"Incluso, a partir de 2014, algunos ",campesinos," fueron capacitados y apoyados, económicamente, para que cuidaran de este animalito y le p",patient,capacitar,victim,
+1988|H1988P6CI130|111|15,1988,gen-1988,"Se crearon guarderías y escuelas, donde los niños eran
+
+Lenin en una ",asamblea," de trabajadores
+
+cuidados y educados, mientras las madres trabajaban y estudiaban.
+
+",oblique,crear,,
+2024|P5PCA|218|12,2024,NEM,"¿Para qué sirven?, ¿quién los organiza y oftece alas ",comunidades,"?
+
+",other,ala,,
+2025|P3PCA|213|0,2025,NEM,"Escenario comunitario
+
+Integren ",comunidades," en donde
+
+consideren a compañeras y compañeros
+
+de otros grupos y grados.",other,escenario,,
+2024|P0SHA|113|7,2024,NEM," un vasto territorio, a excepción de los señoríos tlaxcaltecas y purépechas; así como los ",mayas, que se mantenían independientes y enemistados con ellos desde siglos atrás.,oblique,dominar,,
+2025|P5MLA|193|1,2025,NEM,"En él, invitó al ",pueblo," quien pidió ser sacrificado y
+
+a mantener la esperanza en el futuro, entregado en ofrenda",recipient,invitar,,
+2023|P6PCA|51|1,2023,NEM,"En comunidades y siendo solidarios, lean el siguiente relato:
+
+Camila estudia en una ",comunidad, en la Sierra de Guerrero.,oblique,estudiar,,
+2023|P6PEA|334|1,2023,NEM,Son el reflejo de la identidad de los diversos ,pueblos, que integran la geografía nacional.,possessor,identidad,,
+1988|H1988P3CI115|42|8,1988,gen-1988,"Hubo, también, grupos a los que obligaron a proporcionar soldados para la guerra y ",trabajadores, pora la construcción de edificios en Tenochtitlan.,possessor,soldado,,
+1988|H1988P5CI124|46|2,1988,gen-1988,Fue así como los mexicas dominaron a casi todos los ,pueblos," mesoamericanos, hasta formar un vasto señorio, que con el tiempo, al aumentar el territor",patient,dominar,victim,
+2024|P5MLA|174|0,2024,NEM,"tres hermanos, muy preocupados por qué era o quién era esa persona o cosa que mataba a la ",gente,.,patient,matar,victim,
+2025|P1SDA|148|2,2025,NEM,"Carpinteros, zapateros, ",artesanas,", organilleras, parteras, albañiles, plomeros, pescadores, peluqueros y estilistas son eje",attribute,ejemplo,attribute,
+2022|P6FCA|40|0,2022,pre-NEM," bien común y una
+
+cultura de 
+
+p
+
+e
+
+Piensen en algunos principios que, en su familia
+
+o ",comunidad,", les sirven para guiar sus actos y realicen
+
+lo siguiente:
+
+a) Hagan una lista de princip",oblique,servir,,
+1988|H1988P6CI130|39|7,1988,gen-1988,"ón empezó a sufrir derrotas, porque no sólo los reyes combatian en su contra, también los ",pueblos,.,oblique,combatiar,,
+1988|H1988P5CI124|73|5,1988,gen-1988,Al principio Roma dominó a los ,pueblos, que había vencido; pero con el tiempo concedió la ciudadanía a los hombres de las provinc,patient,dominar,victim,
+2022|P4AMA|72|2,2022,pre-NEM,"itorios dominados por los mexicas los llamaron Reino de México, a los controlados por los ",purépechas," los nombraron Reino de Nueva Galicia, mientras que el área maya recibió el nombre de Gobe",recipient,nombrar,,
+2022|P5HIA|139|15,2022,pre-NEM,"Así se creó, en 1974, el Consejo Nacional de ",Población," (Conapo) para disminuir la tasa de crecimiento.
+
+",other,consejo,,
+2025|P1PAA|7|7,2025,NEM,Diálogo Implica desarrollar un encuentro dialógico entre las diversas voces de la ,comunidad,.,possessor,voz,,
+2025|P6PEA|83|3,2025,NEM,» Todoslos integrantes de la ,comunidad," participen al pintar el mural.
+
+",possessor,integrante,,
+1988|H1988P4CI120|48|8,1988,gen-1988,La conquista española de América dominó a los ,indígenas, por la fuerza de las armas.,patient,dominar,victim,
+1988|H1988P5CI124|20|5,1988,gen-1988,"Así, en esa ",comunidad," estrechamente unida, aparecieron la religión y el arte.
+
+",oblique,aparecer,,
+2024|P0SHA|235|15,2024,NEM,Llamaba al ,pueblo, a colaborar en la construcción de un país democrático y justo para mejorar las condicione,recipient,llamar,,
+1988|H1988P6CI130|125|4,1988,gen-1988,En todos los países el ,pueblo," trató de liberarse y. gracias a su colaboración, los aliados recibían información para at",agent,tratar,other,
+2022|P5GEA|151|2,2022,pre-NEM,"Su clima seco desértico, con vegetación casi
+
+inexistente, obliga a sus ",habitantes," a permanecer en las casas, ya que la temperatura alcanza 50 *C durante el verano.",recipient,obligar,,
+2022|P3ESA|8|3,2022,pre-NEM,"buscar, seleccionar y variadas para disfrutarlo leer los textos que y compartirlo con tu
+
+",comunidad,".
+
+",oblique,compartir el,,
+2025|P4PCA|176|2,2025,NEM,Los ,pueblos," originarios forman parte importante
+
+en la conservación de los ecosistemas, además contri",agent,formar,other,
+2025|P5PEA|338|21,2025,NEM,cia la conservación in si de la biodiversidad y agrodversidad en lo eritorios indígenas y ,campesinos,", México, INAH y CDL.
+
+BP (2021) Staitical Review of Word Energy 2021, Londres, BP.
+
+",other,eritorio,,
+1988|H1988P4CI120|44|6,1988,gen-1988,Los españoles tardaron veinte años en someter a los ,mayas,", porque éstos resistieron, pero su conquista no fue tan difícil como la de Sonora, Chihua",patient,someter,victim,
+1988|H1988P5CI124|18|1,1988,gen-1988,")
+
+mucha experiencia, eran los jefes: daban órdenes y aconsejaban a la ",gente,.,object,aconsejar,,
+2022|P4HIA|136|6,2022,pre-NEM,La ,sociedad, novohispana era profundamente religiosa y confiaba en los milagros.,attribute,religioso,attribute,
+2024|P1PCA|266|61,2024,NEM," un proyecto de aprendizajeservico, Buenos Aire, Argentina, Ministerio de Educación de la ",Nación,.,other,ministerio,,
+2025|P1PAA|9|10,2025,NEM," fin, soñar cómo lograr el bienestar común, si se diseñara una comunidad diferente a esta ",sociedad, de consumo.,oblique,disenar,,
+2022|P4CCA|10|5,2022,pre-NEM,En la Constitución se establece que el ,pueblo," de México es libre y que puede decidir
+
+su forma de gobernarse.",attribute,libre,attribute,
+2022|P6HIA|86|4,2022,pre-NEM,"o encargado de vigilar y defender sus territorios y fronteras, así como conquistar nuevos ",pueblos,.,patient,conquistar,victim,
+2023|P5PEA|172|2,2023,NEM,"n verlos.
+
+ ) Anoten en su cuaderno la información que encuentren y compártanla con otras ",comunidades,".
+
+",oblique,encontrar,,
+2022|Z7823|12|0,2022,pre-NEM,"o1t2
+
+Proyecto servicio W ¿Qué es?
+
+¿Sabías que las ",comunidades, indígenas se organizan para trabajar entre todos?,agent,organizar,participation,
+1988|H1988P6MA134|77|8,1988,gen-1988,"son azules 3 No todos los coches son azulos
+
+Algunos mexicanos son hidalguenses Todos los ",mexicanos," son hidalguenses 77
+
+Ningún mexicano es
+
+ El cabello de Miguel no es más hidalguense ¡",attribute,hidalguens,attribute,
+2024|P6MLA|205|10,2024,NEM,"ces, cualquier mensaje que llegaba a Cortés en alguna de estas lenguas, yo lo traducía al ",maya," para De Aguilar y él le daba a Cortés el mensaje en español.
+
+",recipient,traducir,,
+1988|H1988P4CI120|14|8,1988,gen-1988,"De todos esos grupos, los que se mezclaron y los que no se mezclaron, ha resultado la ",población," actual de nuestro país que muestra tan diversos tipos físicos.
+
+",object,resultar,,
+1988|H1988P4CI120|39|0,1988,gen-1988,"Mujeres mayas,
+
+Ocupaciones *'Como en todos los tiempos la ",gente," ha necesitado trabajar para vivir, los mayas cultivaban la tierra para obtener sus alimen",agent,necesitar,will,
+1988|H1988P6CI130|176|4,1988,gen-1988,Mientras que algunos sectores de la ,población, viven con lujo en colonias residenciales y disfrutan de todos los servicios —e incluso lo,possessor,sector,,
+2023|P0SHA|67|1,2023,NEM,"n patio hundido rodeado por muros de piedra, con cuatro monolitos que representan felinos ",olmecas, y una cabeza de piedra semejante a las encontradas en los sitios de la región nuclear.,other,felino,,
+2022|P4LEA|45|0,2022,pre-NEM,"r, toparon con unos carboneros que, al verlos, murmuraron:
+
+—¡Muchacho holgazán!, deja al ",pobre," viejo a pie y él, que está fuerte, cabalga a sus anchas para no cansarse...
+
+—Apéate del ",object,dejar,,
+2022|P4GEA|95|3,2022,pre-NEM,la ,población," rural de México se ha reducido en comparación con la población urbana, mientras que sus c",agent,reducir,other,
+2022|P1FCA|117|49,2022,pre-NEM,") niño con sombrero, pueblo ",maya,", € Borre Wickstrom/LatitudeStock Images/Photo Stock; (ab.",other,pueblo,,
+2025|P0SHA|160|6,2025,NEM,"Gracias a ello, los ",pueblos, de esta región eran autónomos económica y políticamente.,attribute,autonomo,attribute,
+1988|H1988P4CI120|41|4,1988,gen-1988,"""
+
+Conocimientos
+
+“Los ",mayas, fueron muy buenos astrónomos.,attribute,buen,attribute,
+2022|P6HIA|45|8,2022,pre-NEM,"los patricios (personas con privilegios que podían votar en elecciones), los plebeyos (la ",población," de escasos recursos), los libertos o trabajadores libres, y los esclavos.",other,plebeyos,,
+2025|P6PEA|355|1,2025,NEM,"Otro factor que merma su estado
+
+físico, tanto en ",poblaciones," rurales como urbanas,
+
+es la anemia; la cual también es originada, en
+
+muchos de los caso",oblique,anemia,,
+2022|P5FCA|32|3,2022,pre-NEM,"Propongan preguntas sobre sus derechos y la convivencia en su casa, en la escuela y en la ",comunidad,.,oblique,propongar,,
+2022|P6FCA|102|5,2022,pre-NEM,"Cree que este problema sigue hasta hoy y complica la convivencia
+
+en su ",comunidad,.,oblique,complicar,,
+1988|H1988P4CI120|23|12,1988,gen-1988,¿Cuál de todas esas cosas que averiguaron los niños suceden en tu ,comunidad,"?
+
+",oblique,suceder,,
+1988|H1988P2CI113|143|0,1988,gen-1988,"¿Qué te gustaría que hiciera tu escuela para
+
+la ",comunidad,"?
+
+",possessor,escuela,,
+1988|H1988P6CI130|81|6,1988,gen-1988,"an descontentos formaron sociedades secretas dedicadas al terrorismo, es de-
+
+cir a matar ",gente, y a cousar daños materiales para obligar al gobierno a hacer cambios.,patient,matar,victim,
+2022|P4GEA|107|1,2022,pre-NEM,"aterna, como el mixteco, y además han aprendido a hablar español para comunicarse con los ",mestizos,".
+
+",oblique,comunicar el,,
+2025|P0SHA|158|2,2025,NEM,"Hacia 1610, casi todos los ",trabajadores," en las minas eran indígenas, lo mismo que en las zonas de mayor producción agrícola (Tlax",attribute,indigena,attribute,
+2022|P5GEA|75|1,2022,pre-NEM,"A Comencemos
+
+Como leíste en la tarjeta postal, la ",población, está distribuida de manera desigual en el mundo.,attribute,distribuido,attribute,
+2022|P4HIA|38|7,2022,pre-NEM,,Sociedad," sedentaria compleja que practicó la agricultura, construyó grandes ciudades, desarrolló l",agent,construir,work,
+1988|H1988P5CI124|61|0,1988,gen-1988,El ,pueblo," hebreo era pequeño, y siempre estuvo acosado por pueblos poderosos: sufrió muchas derrota",attribute,pequeno,attribute,
+1988|H1988P4CI120|51|7,1988,gen-1988,"Además, se les paga muy mal a los ",indígenas, que hacen el trabajo o que son dueños de los bosques.,recipient,pagar,,
+2025|P3MLA|35|8,2025,NEM,Es una linda creencia que tenemos en mi pueblo ,mazahua,"; eso nos hace
+
+respetar más a las mariposas.
+
+",other,pueblo,,
+1988|H1988P5CI124|116|6,1988,gen-1988,Esa misma ,gente, creía que el universo estaba tan ordenado como el feudo: el cielo se representaba como un,agent,creer,thought,
+2025|P0SHA|142|7,2025,NEM,Cortés había prohibido que los ,indios," encomendados trabajasen en las minas, lo cual provocó que los españoles les hicieran “jus",agent,trabajar,work,
+1988|H1988P6MA134|193|1,1988,gen-1988,"del........
+
+de la
+
+(",población,") (entidad Taderatira)
+
+Ninguna persono, física o moral, podré convertir este libro en obj",possessor,........,,
+2022|P5FCA|113|2,2022,pre-NEM,"deres, así se evita que las decisiones queden en manos de una sola persona y se abuse del ",pueblo,".
+
+",patient,abusar,victim,
+2022|P5ESA|106|0,2022,pre-NEM,"nico.en México
+
+El aguacate en México se ha aprovechado desde antes de la Colonia por los ",pueblos," indígenas de México, Centroamérica, Perú y Chile.",oblique,aprovechar,,
+2022|P5ESA|131|1,2022,pre-NEM,"Sin embargo, en la vida real la ",gente," no es totalmente buena o mala, pues no siempre la belleza va unida a las virtudes ni la r",attribute,buen,attribute,
+2024|P1SDA|156|2,2024,NEM,Todos estos personajes son muy importantes porque hacen que la ,comunidad, sea un lugar mejor para vivir y crecer juntos.,attribute,lugar,attribute,
+1988|H1988P2CI113|49|0,1988,gen-1988,Entre ,vecinos,"
+
+ Los vecinos pueden ayudarse de muchas maneras,
+
+Marca así Y lo que tu familia hace por ",oblique,ayudar el,,
+1988|H1988P6CI130|43|3,1988,gen-1988,"Dándose cuenta de que era imposible lograr la independencia en forma pacifica, los ",criollos, y mestizos con ideales de libertad decidieron unirse a los grupos populares en su lucha c,agent,decidir,participation,
+2022|P3FCA|142|7,2022,pre-NEM,"n Cristóbal de Las Casas, Chiapas, 6 Cem Canbay/agefotostock/Photo Stock; hombre indígena ",zapoteco," usa un telar, Teotitlán del Valle, Oaxaca, 6 Richard Ellis/agefotostock/Photo Stock; p. 6",object,indigena,,
+1988|H1988P6ES132|80|4,1988,gen-1988,"Los gritos, los ruidos, los tiros, el rumor de la ",multitud,", se oían en el interior del Palacio.",possessor,rumor,,
+2022|P5HIA|188|42,2022,pre-NEM,El desperir de 18 ,sociedad," chil Móxic, UNOS-FP-UMD, 000.
+
+Katz.",recipient,desperir,,
+1988|H1988P6CI128|160|0,1988,gen-1988,"Lo que hace el compesino.con la tierro, el ",obrero," en la fábrica, tu mamá o tu papá en el hogar, son trabajos físicos; pero hay otros formas",attribute,trabajo,attribute,
+2022|P4HIA|75|11,2022,pre-NEM,b) ,Tolteca,", mexica y olmeca.",other,b,,
+2022|P4CCA|13|4,2022,pre-NEM,—Y la población incluye a los ,habitantes," de México, entre ellos a los extranjeros que viven aquí.
+
+",object,incluir,,
+2022|P3FCA|140|36,2022,pre-NEM,“El ,pueblo, kumiai: la línea que los cruzó”.,other,“,,
+1988|H1988P5CI124|45|2,1988,gen-1988,"Por eso, para ganar su independencia se unieron con sus ",vecinos, de Tlacopan y Tezcoco y formaron la Triple Alianza; de esta manera lograron vencer a los ,oblique,unir,,
+2022|P3FCA|19|4,2022,pre-NEM,"el árbol, reflexionen sobre su capacidad para mejorar algunas cosas en su escuela y en su ",comunidad,.,oblique,mejorar,,
+1988|H1988P2ES114|134|3,1988,gen-1988," desde una buena nube dos gotas de agua lo miraron y una de ellas le dijo a la otra:
+
+—El ",campesino, está muy triste porque sus milpas se mueren de sed.,attribute,triste,attribute,
+2023|P0SHA|251|4,2023,NEM,Los regímenes posteriores se encargaron de marginar a las ,comunidades," y desatender las demandas sociales, hasta que el volcán revolucionario de 1910 volvió a h",patient,marginar,victim,
+2024|P3MLA|186|5,2024,NEM,"O tal vez no, los ",mixtecos," aseguran que el rey Condoy, de camino aMitla para construir su ciudad, descansó en estas ",agent,asegurar,other,
+1988|H1988P6CI130|172|1,1988,gen-1988,Madero convocó al ,pueblo, mexicano a tomar las armas en contra del gobierno porfiristo.,object,convocar,,
+2023|P4SDA|204|0,2023,NEM,"í se muestra una lista de situaciones injustas que ocurren en la familia, la escuela y la ",comunidad," y cómo deben transformarse en acciones justas:
+
+Lugar Situación injusta Situación justa m",agent,mostrar,other,
+2022|P4GEA|108|0,2022,pre-NEM,El ,tequio, es una forma detrabajo comunitario creado en la época prehispánica que aún se practica en,attribute,forma,attribute,
+1988|H1988P5CI124|51|1,1988,gen-1988,"Organización del imperio
+
+Para unificar el imperio, los incas obligaron a todos los ",habitantes," a tener la misma religión, hablar la misma lengua y pagar impuestos al gobierno.
+
+",recipient,obligar,,
+1988|H1988P5ES126|23|1,1988,gen-1988,"Otros animales huían al verle, y todos los ",habitantes, de los alrededores estaban asustados: creían que ese terrible león había bajado de la Lun,attribute,asustado,attribute,
+2022|Z7823|39|4,2022,pre-NEM,"e. to
+
+Ho CAPACIDADES EN ACCIÓN Ante un problema que afecte a tu familia, escuela o ",comunidad,":
+
+D No te conformes; imagina cómo puedes
+
+cambiar esa realidad.
+
+",object,afectar,,
+1988|H1988P4CI119|86|6,1988,gen-1988,"Mientras más grande sea la fuerza que se opone a que las cosas cambien, se necesita más ",gente," que trabaje organizadamente para cambiarias.
+
+",agent,necesitar,will,
+1988|H1988P6ES131|57|2,1988,gen-1988,"blaban otras lenguas (y muchas de ellos se siguen hablando), como el náhvotl, el mayo, el ",otomí,", el zapoteco, ate.
+
+",other,nahvotl,,
+2022|P4GEA|103|1,2022,pre-NEM,Los principales motivos por los que la ,población," de una entidad migra son los económicos y la inseguridad, provocada por los riesgos natur",attribute,economico,attribute,
+2022|P5HIA|168|0,2022,pre-NEM,"ad
+
+Al inicio de la década de 1970, debido a la crisis económica que vivía el país, mucha ",gente, buscó mejorar su situación emigrando a las ciudades.,agent,buscar,other,
+2022|P4GEA|197|25,2022,pre-NEM,) danzas ,aztecas,", Zócalo, Ciudad de México, fotografía de Carlos Hahn; p. 108: indigena cora, fotografía d",other,danza,,
+2024|P3SDA|249|23,2024,NEM,"""Lotería-Tablas”, en Las semillas que nos dieron ",Patria,.,agent,dar,other,
+2024|P4PCA|48|4,2024,NEM,"Reorientamos
+
+De manera individual y sin olvidar que formas parte de una ",comunidad,", responde las siguientes preguntas: a) De la investigación que realizaste, ¿qué fue lo qu",object,formar,,
+2022|P4ESA|89|18,2022,pre-NEM,"¿A qué creen que se deba esto?
+
+b) ¿La alimentación de los ",mexicanos, sería diferente si no se usara el maíz?,possessor,alimentacion,,
+2022|P5HIA|32|6,2022,pre-NEM,"Debido a esta práctica, numerosos ",campesinos," fueron obligados a dejar sus labores cotidianas para servir en las filas militares, lo cu",patient,obligar,victim,
+2025|P5PCA|324|1,2025,NEM,"on ayuda de un adulto, investiga los lugares físicos y virtuales que ofrecen empleos a tu ",comunidad,".
+
+",object,ofrecer,,
+1988|H1988P4CI120|55|18,1988,gen-1988,muchas las cosas que deberá aprender para que pueda convivir con su familia y con toda la ,gente,.,oblique,convivir,,
+2025|P4PAA|111|3,2025,NEM,"De manera individual, y sin olvidar que eres parte de una ",comunidad,", valora los aspectos
+
+que aprendiste.",possessor,parte,,
+2024|P6PCA|253|2,2024,NEM,"Así, diversas ",comunidades," de la población mexicana, por ejemplo, los indígenas y determinados grupos de inmigrantes",patient,afectar,victim,
+1988|H1988P3CI115|48|13,1988,gen-1988,"Sin embargo, en el campo de batalla, los ",indígenas, fueron derrotados a pesar de la valentia demostrada.,patient,derrotar,victim,
+1988|H1988P4CI120|57|6,1988,gen-1988,,Obreros," y artesanos
+
+Isaías estaba muy orgulloso de poder hablar con su tía de asuntos de trabajo",attribute,orgulloso,attribute,
+2022|P4LEA|135|2,2022,pre-NEM,Al día siguiente pregunté a mis ,vecinos, de edificio.,recipient,preguntar,,
+1988|H1988P3CI115|60|5,1988,gen-1988," nombra un encargado del orden, responsable de amonestar a quienes infrinjan la ley en la ",comunidad,"; en caso necesario, los envían al juzgado menor de San José.
+
+",oblique,infringir,,
+1988|H1988P6CI130|98|4,1988,gen-1988,", los banqueros y los comerciantes; mientros la moyorio de la pobloción quedó formada por ",campesinos, sin lerro y obreros que vivian en condiciones deplorables; y entre ambos extremos se hall,object,formado,,
+2024|P3PCA|133|3,2024,NEM,"Al ver los azulejos, le preguntaron al ",artesano," que los elaboraba si podrian ser de otra forma, por ejemplo, como las celdas hexagonales ",recipient,preguntar,,
+2023|P1PCA|145|13,2023,NEM,"Lo
+
+Por eso, aunque somos diferentes, para vivir en ",sociedad,", tomamos en cuenta a los demás EGO con y no hacemos sólo lo que nos viene en gana.",oblique,vivir,,
+2022|P3ESA|58|10,2022,pre-NEM,¿Cómo beneficiaremos a nuestra ,comunidad,?,object,beneficiarer,,
+1988|H1988P5CI124|45|5,1988,gen-1988, el señorío más importante de esos tres pueblos guerreros; después sería superado por los ,mexicas,", quienes hacia 1500 habian ya conquistado muchos pueblos.",oblique,superar,,
+2025|P4PCA|342|2,2025,NEM,"bajo licencia CCIJvecteay com; p. 300: calaveras, fotografía de padrinar"""";
+
+po 3OL: scsi ",maya,"”, p. 307: (rr) niña sonriendo”, p. 312: mercado de Xochimile, fotogafí plasmalid, bajo li",other,scsi,,
+1988|H1988P5CI124|47|5,1988,gen-1988,"Los gobernantes y el pueblo
+
+El ",pueblo," estaba dividido en calpullis o barrios, constituidos por grupos de familias emparentadas ",attribute,dividido,attribute,
+2022|P5GEA|79|2,2022,pre-NEM,Concentración y dispersión de la ,población," en un territorio
+
+Con la actividad anterior identificaste cuáles países tienen más habita",possessor,dispersion,,
+2022|Z7823|48|10,2022,pre-NEM," propuestas sobre visitas y excursiones e
+
+Conducir la asamblea
+
+Elijan un coordinador de ",asamblea,", un relator
+
+y un moderador.",possessor,coordinador,,
+1988|H1988P4CI120|133|10,1988,gen-1988,27 declara que la propiedad de todas las tierras y aguas del territorio mexicano es de la ,nación, y además establece los ejidos.,other,declarar,,
+2023|P0SHA|158|2,2023,NEM,"Hacia 1610, casi todos los ",trabajadores," en las minas eran indígenas, lo mismo que en las zonas de mayor producción agrícola (Tlax",attribute,indigena,attribute,
+1988|H1988P4CI120|126|9,1988,gen-1988,Luego buscaron a los ,obreros," que habían organizado la huelga y los fusilaron y ahorcaron delante de todo el pueblo, Fu",recipient,buscar,,
+2022|P6HIA|46|7,2022,pre-NEM,Conquistaron varios ,pueblos, y lograron el control del mar Mediterráneo.,patient,conquistar,victim,
+2025|P4PCA|192|5,2025,NEM,¿Qué significa la frase “La ,Nación," Mexicana es única e indivisible”?
+
+",attribute,unico,attribute,
+1988|H1988P4ES121|240|0,1988,gen-1988,"El hijo del minero
+
+Pancho es hijo de un ",minero,.,possessor,hijo,,
+1988|H1988P5CI123|50|8,1988,gen-1988," como ésta, sabemos que intervienen muchos factores más para mantener en equilibrio a una ",población, que comienza a crecer demasiado.,object,mantener,,
+1988|H1988P2CI112|210|0,1988,gen-1988,Investiga con los ,trabajádores, que conozcas.,object,investigar,,
+1988|H1988P4CI119|86|1,1988,gen-1988,El ,pueblo, mexicano estaba unido y de acuerdo.,attribute,unido,attribute,
+2022|P4HIA|96|4,2022,pre-NEM,"Allí habitaban los misioneros, quienes se encargaban de evangelizar a los ",indígenas," del lugar y a cultivar las tierras para satisfacer las necesidades de los presidios.
+
+",patient,evangelizar,victim,
+2022|P4HIA|47|4,2022,pre-NEM,"sa clase de guerreros y sacerdotes, que ejercía una fuerte autoridad sobre el resto de la ",sociedad,", como se puede apreciar CobimantesémtadosobrE en las representaciones pintadas y labradas",possessor,resto,,
+1988|H1988P4CI120|101|9,1988,gen-1988,"La alegría era general, ya que la intervención extranjera había enseñado claramente a los ",mexicanos, lo que quería decir soberanía nacional: el derecho del pueblo a decidir su propio gobiern,recipient,ensenar,,
+2022|P4HIA|121|8,2022,pre-NEM,La ,gente," acudía a comprar sedas, paños, loza fina, perlas, lacas, muebles, aromas y demás producto",agent,acudir,other,
+2025|P2PCA|262|0,2025,NEM,"una más sobre la Exposición colectiva llamada “Viaje transformaciónidel, histórico por mi ",comunidad,” para E consulta .,object,historico,,
+1988|H1988P5CI124|134|10,1988,gen-1988,También intentaron importar la técnica de los ,mineros," novohispanos, pero a la corona española le interesaba más la religión que la industria.
+
+",possessor,tecnica,,
+1988|H1988P6ES131|27|7,1988,gen-1988,Ésos son loz que se rebelan con fuerza terrible contra los que les roban a los ,pueblos," 4u libertad, que es robarles a los hombres su decoro.",patient,robar,victim,
+1988|H1988P6CI130|168|3,1988,gen-1988,"ana había grupos privilegiados, cuya posición contrastaba con la miseri de gran parte del ",pueblo,; sólo una minoría recibía educación y podía porticipar en el gobierno.,possessor,parte,,
+1988|H1988P6CI130|110|17,1988,gen-1988,"No había alimentos, combustibles (leña, carbón, petróleo) ni vestidos suficientes para el ",pueblo,", porque estos articulos se enviaban o los hombres que luchaban en los frentes de batalla,",possessor,suficiente,,
+2023|P0SHA|138|3,2023,NEM,"Entre 1520 y 1521, la viruela afectó tanto a los ",mexicas, como a los aliados de los diferentes señoríos que se unieron a los españoles (cempoalteca,object,afectar,,
+1988|H1988P3CI115|34|7,1988,gen-1988,Los comerciantes ,teotihuacanos," difundieron sus conocimientos y trajeron a su ciudad, los de otras culturas.
+
+",other,comerciante,,
+1988|H1988P3CI115|38|9,1988,gen-1988,Los ,mexicas," la habían fundado en el año 1325 con el nombre de Tenochtitlan, aunque también la llamaro",agent,fundar,work,
+2025|P1PCA|148|17,2025,NEM,", comuníquenlo a una autoridad de su ",comunidad," para que lleve a cabo las gestiones correspondientes.
+
+",possessor,autoridad,,
+2024|P6MLA|186|0,2024,NEM,"186
+
+Microbitos
+
+10
+
+Por la ventana de su cuarto, Jaz observa a los nuevos ",vecinos," sacar muebles de un camión
+
+de mudanzas y colocarlos en el pasillo.",recipient,observar,,
+1988|H1988P3CI115|8|0,1988,gen-1988,Una ,sociedad," la forman los hombres y mujeres; niños, jóvenes, adultos y ancianos que se ayudon, trabaj",recipient,formar,,
+1988|H1988P4CI120|44|8,1988,gen-1988,"españoles marcharon a pie y a caballo por montes, desiertos y selvas, a conquistar muchos ",pueblos,".
+
+",patient,conquistar,victim,
+2025|P1SDA|168|1,2025,NEM,"También, una ",comunidad," puede estar integrada por las personas de los distintos espacios de convivencia, como son",attribute,integrado,attribute,
+2022|P5HIA|139|5,2022,pre-NEM,"Para 1970, la ",población," urbana, es decir, la que habita en localidades con más de 2.500 habitantes, era mucho may",agent,habitar,everyday,
+2025|P0SHA|257|4,2025,NEM,Los regímenes posteriores se encargaron de marginar a las ,comunidades," y desatender las demandas sociales, hasta que el volcán revolucionario de 1910 volvió a h",patient,marginar,victim,
+2022|Z7822|27|8,2022,pre-NEM,"si podemos dialogarlo con él para
+
+D Compartan los resultados en la ",asamblea,"
+
+resolverlo directamente.",possessor,resultado,,
+2025|P6PEA|81|1,2025,NEM,"Para ello, divídanse en comunidades y realicen lo siguiente:
+
+",Comunidad," 1
+
+Cortar sels tarjetas de 21 cm x 12 cm (media cuartilla), de preferencia de material re",other,siguiente,,
+1988|H1988P6CI130|171|0,1988,gen-1988,tos internos impidieron alos gobernantes liberales resolver los múltiples problemas de la ,nación,.,possessor,problema,,
+2022|Z7822|15|14,2022,pre-NEM,¿Crees que en tu ,comunidad," los derechos de las niñas y los niños se respetan?
+
+.",oblique,respetar,,
+2022|Z7778|35|12,2022,pre-NEM,"pruebo lo que aprendí...
+
+Discute: ¿qué problemas relacionados con la concentración de la ",población, se presentan en las diudades?,possessor,concentracion,,
+2022|P5GEA|184|25,2022,pre-NEM,Un riesgo no puede presentarse si existe una ,población," vulnerable a un peligro o a una amenaza definida (como un volcán).
+
+",agent,existir,other,
+1988|H1988P6CI128|165|4,1988,gen-1988,"romos bien, deberíamos organizarnos de manero que los centros de trabojo procuraran a los ",trabajadores," la forma de mejorar su educación y de llevar una vida digno.
+
+",object,procurar,,
+1988|H1988P4CI120|126|7,1988,gen-1988,eños de la fábrica pidieron ayuda al gobierno y éste mandó al ejército para obligar a los ,obreros, a volver al trabajo.,recipient,obligar,,
+1988|H1988P4CI120|18|15,1988,gen-1988,reguntas para que compararan lo que iban sabiendo de la ciudad con lo que ya sabían de su ,pueblo,.,object,saber,,
+2024|P2PEA|187|4,2024,NEM, y la desvalorización del trabajo artesanal impiden que el trabajo de los artesanos y las ,artesanas," sea reconocido; esto evita que tengan un
+
+mejor desarrollo económico y una mejor calidad ",patient,reconocer,victim,
+2022|P4LEA|119|4,2022,pre-NEM,Pocos ,pueblos, —escribe Humboldt— habrán removido mayores masas.,recipient,escribir,,
+2025|P0SHA|236|8,2025,NEM,o de la ,gente,", sobre todoen el campo, pa, Sabía leer, por lo que reunían a las personas en pequeños gru",recipient,sabia,,
+2022|P5HIA|160|14,2022,pre-NEM,"Esta apertura benefició a algunos sectores, ya que permitió a los ",mexicanos," adquirir tecnología y productos novedosos para la industria, las comunicaciones, el trans",recipient,permitir,,
+2022|Z7823|40|3,2022,pre-NEM,para dar voz a las distintas idea de imprimir un conjunto Opiniones de los miembros de la ,comunidad,",
+
+de hojas para informar de promoviendo un proyecto común y un ejercicio
+
+sucesos a un gr",possessor,miembro,,
+2023|P0SHA|229|19,2023,NEM,Llamaba al ,pueblo, a colaborar en la construcción de un país democrático y justo para mejorar las condicione,recipient,llamar,,
+1988|H1988P4CI120|74|1,1988,gen-1988,Esta constitución establecía que el ,pueblo," es la máxima autoridad del país y tiene derecho de elegir a sus gobernantes.
+
+",attribute,autoridad,attribute,
+1988|H1988P6CI130|154|10,1988,gen-1988,"Mao, seguido de ",obreros," y campesinos, caminó 10,000 kilómetros rumbo al noroeste.",object,seguido,,
+1988|H1988P4CI120|32|20,1988,gen-1988,Las fábricas que producen estas cosas son pequeñas y por eso dan trabajo a muy poca ,gente,".
+
+",object,dar,,
+2023|P0SHA|123|13,2023,NEM,Los ,mayas," estaban resueltos a defender sus tierras y expulsar a los españoles.
+
+",attribute,resuelto,attribute,
+1988|H1988P4CI120|129|15,1988,gen-1988,"on varios jefes que tenían una relación muy estrecha con el pueblo, especialmente con los ",campesinos, y que lograron arrastrar a la revolución a mucha gente.,possessor,especialmente,,
+2023|P5PEA|237|5,2023,NEM,"Con diversos matices, los diferentes ",pueblos," fueron sometidos primero a la situación colonial, más tarde a la legalidad criolla-mestiz",patient,someter,victim,
+2023|P5PCA|209|4,2023,NEM,e) Inviten a ,vecinos, a participar en el simulacro.,recipient,invitar,,
+2022|P5HIA|19|10,2022,pre-NEM,"Por otro lado, la ",sociedad," estaba dividida, pues gran parte de la población era pobre, mientras que una minoría disf",attribute,dividido,attribute,
+2022|P5ESA|20|3,2022,pre-NEM,"hace más de 400 años, aparecen —casi siempre en boca de Sancho Panza— los refranes que la ",gente, acostumbraba decir en esa época.,agent,acostumbrar,everyday,
+1988|H1988P4CI120|65|1,1988,gen-1988,Los ,indígenas," estaban protegidos por las leyes españolas, pero no siempre se respetaron, aprovechando q",attribute,protegido,attribute,
+2022|P5CNA|83|12,2022,pre-NEM,Coloquen los carteles en un lugar apropiado dentro de la escuela para que toda la ,población, escolar esté informada.,attribute,informado,attribute,
+2024|P3PAA|300|4,2024,NEM,"scada Migue Camacho Ma, esoo boca
+
+Gard Miguo Camacho Mar, sao pco
+
+La ",comunidad," intentará
+
+adivinar qué se desea
+
+expresar.
+
+",agent,intentar,other,
+2023|P4PCA|198|1,2023,NEM,Peguen en lugares visibles de la ,comunidad," los carteles que hicieron.
+
+",possessor,lugar,,
+2022|P5HIA|118|6,2022,pre-NEM,Los campesinos y ,obreros, se inconformaron por la crisis económica que se vivía.,agent,inconformar,other,
+2024|P0CMA|148|0,2024,NEM,"ca Checa, Rumania y Suecia
+
+Elie 
+
+0:
+
+Tratado ente México, Estados Unidos y Canada — PMA ",Comunidad," Económica Eurasia
+
+Comunidad del Care (CARICOM) Mercado Común Centroamericano Comunidad A",other,pma,,
+2023|P6PAA|354|14,2023,NEM,"fari! (Consultado el 10 de marzo de
+
+ciencia nasa zov/ (Consultado
+
+Archivo General de la ",Nación, (30 de julio de 2017).,other,archivo,,
+2022|P4HIA|163|4,2022,pre-NEM,"Para ello, obligó a la Iglesia novohispana y a sus ",habitantes," más adinerados a otorgarle préstamos, confiscó propiedades de algunas órdenes religiosas ",recipient,obligar,,
+1988|H1988P3CI115|103|0,1988,gen-1988,"es, pero los hallazgos realizados, han beneficiado al Valle del Yaqui y a las comunidades ",campesinos," de nuestro país y a muchos labradores del mundo.
+
+",other,comunidad,,
+1988|H1988P4CI120|72|1,1988,gen-1988,"bertad con 600 hombres, pero en pocos días llegó a reunir cerca de 100.000, entre indios, ",mestizos, y criollos.,object,reunir,,
+2022|P4FCA|142|18,2022,pre-NEM,"e la Constitución Política de los Estados Unidos Mexicanos de 1917, Archivo General de la ",Nación,; (ab.,other,archivo,,
+2022|P5GEA|103|1,2022,pre-NEM,"nciso que le corresponde.
+
+En 2005, Japón vio por primera vez en su historia descender su ",población,.,object,descender,,
+1988|H1988P3CI115|107|1,1988,gen-1988,Tú podrás saber cuáles son las características y los problemas de tu propia ,comunidad," y describirlos.
+
+",possessor,problema,,
+2022|P4FCA|36|6,2022,pre-NEM,tectó que las zonas cercanas a la escuela se han convertido en depósitos de basura de los ,vecinos,".
+
+Proyecto: Limpieza del entorno inmediato a la escuela para conservar un ambiente saluda",possessor,basura,,
+2025|P0SHA|108|2,2025,NEM,onces la escaramuza que mencionan ciertas crónicas: los españoles fueron atacados por los ,mayas,", armados con piedras, lanzas, flechas y rodelas.",object,atacar,,
+2025|P3PAA|228|1,2025,NEM,"ueden guiarse
+
+respondiendo las siguientes preguntas:
+
+¿Qué símbolos los identifican como ",mexicanos," y cuáles les dan pertenencia a su comunidad, localidad o municipio?
+
+",recipient,identificir,,
+2024|P0SHA|291|12,2024,NEM,"En los años ochenta, con la globalización, las ",naciones, sacrificaron su soberanía para enfilarse por la senda que trazaban los organismos interna,agent,sacrificar,other,
+2025|P2MLA|148|3,2025,NEM,"ndas mexicanas empezaron a vender el papel de China y, al no tener éxito, obligaron a sus ",trabajadores, a comprarlo.,recipient,obligar,,
+2022|Z7823|16|11,2022,pre-NEM,¿Qué acuerdos y compromisos logramos con la ,comunidad,"?
+
+",object,lograr,,
+2025|P6SDA|183|2,2025,NEM," Para esto, se puede seguir la historia de cómo se construyó la escuela, cómo se formó la ",comunidad,", cómo ha ido mejotando, los servicios que se han ido incorporando, el agua, la electricid",agent,formar,other,
+1988|H1988P4CI120|71|12,1988,gen-1988,Hidalgo pidió al ,pueblo," que luchara por la independencia.
+
+",recipient,pedir,,
+1988|H1988P5CI124|126|3,1988,gen-1988,En regiones se organizaban capitanías generales donde la ,gente, podía sublevarse y los piratas solían incursionar.,agent,sublevar el,other,
+2023|P6MLA|151|1,2023,NEM,"El arte mural nos recuerda que no estamos solos, sino que somos una ",comunidad," y que generar espacios agradables para todxs es importante.
+
+",attribute,importante,attribute,
+2023|P6PCA|99|3,2023,NEM,"Actividad Fecha
+
+Compilar textos Transformar el texto que se cuenta
+
+Conformar la ",comunidad," escénica
+
+Elegir los recursos para el :enario
+
+Primer ensayo
+
+Mejorar los recursos de
+
+la",object,conformar,,
+2023|P0SHA|117|8,2023,NEM,Casa por casa fue destruida; de esa manera Cortés sometió al ,pueblo, mexica para apoderarse de su territorio y de su población; tomó Coyoacán como cuartel gen,patient,someter,victim,
+1988|H1988P3CI115|101|0,1988,gen-1988,"ca labor tan difícil y delicada, desde el año de 1940 funciona en el centro del Valle del ",Yaqui,", el campo agrícola experimental, conocido como Centro de Investigación Agrícola del Noroe",other,valle,,
+1988|H1988P6CI130|75|0,1988,gen-1988,"Una huelga
+
+El problema ",obrero," en Europa
+
+Los europeos sabían que en los países con gobiernos constitucionales, como Ing",other,problema,,
+2022|P5HIA|112|11,2022,pre-NEM,El acceso a la educación permitió a muchos ,mexicanos, elevar las oportunidades para el desarrollo personal.,recipient,permitir,,
+2022|P6GEA|79|8,2022,pre-NEM,respecto a la ,población," enfrentan estos lugares?
+
+",oblique,enfrentar,,
+2022|Z7823|12|6,2022,pre-NEM,Buscar el bien común hace que nuestra ,comunidad, crezca en armonía y que los lazos entre sus integrantes se fortalezcan e,agent,crecer,other,
+2023|P5PAA|230|1,2023,NEM,la ,sociedad," de la Nueva España estaba marcada por una gran desigualdad social, lo que provocó que se ",attribute,marcado,attribute,
+2022|P4AMA|64|0,2022,pre-NEM,"jar (mayores de15 años) y se divide en dos categorías: a) la población ocupada, que es la ",gente," con trabajo, y aquella que está ausente de sus empleos por maternidad, enfermedad u otro ",other,poblacion,,
+2022|P3ESA|44|12,2022,pre-NEM,"uárez, esa 0 méxico
+
+Nacimiento O o Nacionalidad cradaneial
+
+Identidad E e Registro civil ",Elector," - INE
+
+oe 3.",other,registro,,
+1988|H1988P6CI128|6|6,1988,gen-1988,"Más tarde, podrá ser un ",ciudadano, dispuesto a comprometerse y a actuar para transformar los aspectos negativos de su socied,other,ciudadano,,
+2022|P4HIA|169|4,2022,pre-NEM,"nes se habían refugiado allí y saquearon la ciudad durante dos días, en los cuales varios ",habitantes," de origen español fueron asesinados sin que Hidalgo y Allende pudieran evitarlo.
+
+",patient,asesinar,victim,
+2024|P0SHA|150|4,2024,NEM,"“entre a satcay gada de un nuevo ire.
+
+JUZGADO GENERAL DE INDIOS
+
+(1592) La ",sociedad, colonial fue regulada Portada dela o areas por un conjunto de instituciones Aire deLoye a,patient,regular,victim,
+2024|P4PEA|186|5,2024,NEM,"¿Por qué se producen
+
+A Materiales por ",comunidad," el día y la noche?
+
+",oblique,producir,,
+2025|P3PCA|9|17,2025,NEM,"es rasgos, ésta pue-
+
+de distinguirse en las narraciones, los mitos y las leyendas que un ",colectivo,"
+
+crea para responder a las incongruencias de la realidad y enfrentarse con
+
+E. tranqui Re",agent,creer,thought,
+2024|P6MLA|192|0,2024,NEM,"
+
+de pueblo fantasma a pueblo mágico
+
+Alo largo y ancho de nuestro país existen diversas
+
+",comunidades," que, por su historia, su arquitectura,
+
+su cultura, su comida y sus tradiciones, entre ot",agent,existir,other,
+2023|P3PCA|108|1,2023,NEM,recios de los alimentos que consumen en casa si los compran en diferentes comercios de la ,comunidad,"?”, completa la siguiente tabla.",possessor,comercio,,
+2022|P4CCA|53|1,2022,pre-NEM,—La Suprema Corte de Justicia de la : ,Nación," es la principal e defensora de nuestros
+
+derechos.
+
+",attribute,derecho,attribute,
+2025|P5PEA|229|5,2025,NEM,"Con diversos matices, los diferentes ",pueblos," fueron sometidos primero a la situación colonial, más tarde a la legalidad criolla-mestiz",patient,someter,victim,
+2023|P2SDA|246|5,2023,NEM,"Participación familiar
+
+La familia y la ",comunidad," se organizan de manera armoniosa, cuando sus miembros participan
+
+en actividades y realiz",agent,organizar,participation,
+2023|P5PEA|223|0,2023,NEM,"Escenario escolar
+
+El ataque a los ",pueblos, indígenas demostró el racismo de los militares y paramilitares que los llevó a cometer ac,object,escolar,,
+2022|P5HIA|134|2,2022,pre-NEM,La formación de sindicatos y otras asociaciones fortaleció la capacidad de los ,trabajadores, para hacer valer sus demandas.,possessor,capacidad,,
+2024|P2TPA|46|2,2024,NEM,Escribe en las líneas las palabras que usan en tu ,comunidad,".
+
+",oblique,usar,,
+2023|P6SDA|167|3,2023,NEM,También existe gente que odia a los ,habitantes, de otro lugar sin que necesariamente lleguen a su territorio.,object,odiar,,
+2023|P3PCA|180|0,2023,NEM,"rendizaje, realizarás un recorrido para reconocer que el territorio donde se encuentra tu ",comunidad, es un espacio vivo.,agent,encontrar,other,
+1988|H1988P4CI120|34|14,1988,gen-1988, dieron cuenta de que en Yucatán no se fabrican ni se cultivan muchas cosas y por eso hay ,gente," que no tiene en qué trabajar, es decir no hay suficientes fuentes de trabajo.
+
+",object,haber,,
+2023|P6PEA|92|2,2023,NEM,"En asamblea, lean lo siguiente:
+
+En la ",comunidad,", utilizamos diversos medios para comunicar y obtener saberes sobre nosotros mismos, los d",oblique,utilizar,,
+1988|H1988P6CI130|83|1,1988,gen-1988,Fue así que el expansionismo de los Estados Unidos despojó a los ,indios," de sus derechos, aunque éstos nunca han dejado de luchar porrecuperarlos.
+
+",patient,despojar,victim,
+2022|P4HIA|168|2,2022,pre-NEM,"que se unieran a la lucha, Hidalgo logró atraer a peones, mineros, campesinos, artesanos, ",indígenas," y mestizos, quienes se armaron con hondas, palos, machetes e instrumentos de la-
+
+El cura",object,atraer,,
+2022|P6LEA|81|3,2022,pre-NEM,"Enlosritos religiosos delos aztecas, ",huicholes," y otros pueblos, elloro, la guacamaya, el colibríy el águila se ofrendaban al Sol.",object,delo,,
+2022|P6HIA|97|4,2022,pre-NEM,"des, algunas de las cuales eran tan grandes que llegaron a contar con más de un millón de ",habitantes,", cuando las principales ciudades europeas no tenían más de cien mil.
+
+",possessor,millon,,
+2022|P4HIA|91|2,2022,pre-NEM,El descontento de estos ,pueblos," facilitaría la derrota mexica.
+
+",possessor,descontento,,
+2022|P6HIA|64|7,2022,pre-NEM,"Estaba situada en el Altiplano Central, lo que permitió a sus ",habitantes," aprovechar recursos naturales, como la obsidiana, para fabricar armas, herramientas y ute",recipient,permitir,,
+1988|H1988P3CI115|127|1,1988,gen-1988,"dición de que lo cuide, a
+
+(nombre del educando)
+
+alumno* alumna* del. e tarado)
+
+de la
+
+(",población,") (entidad laderotivo)
+
+Ninguna persona, física o moral, podrá convertir este libro en obj",agent,convertir,other,
+1988|H1988P3CI115|64|1,1988,gen-1988,Casi todos los miembros de la ,comunidad, trabajan tierras de ejido.,possessor,miembro,,
+2022|P6FCA|105|1,2022,pre-NEM,"dizaje cómo hacer una Gaceta escolar, para hablar de los grandes desafíos que enfrenta su ",comunidad,", como el daño al medio ambiente, la pobreza, la desigualdad económica y social, la violen",object,enfrentar,,
+2024|P0SHA|240|6,2024,NEM,"TIGUA DE MEXICO
+
+Los códices más antiguos que se conocen hasta ahora son cuatro de origen ",maya," (Códice de Dresde, Códice Maya de México, Códice París y Códice Madrid); cinco del grupo ",other,origen,,
+2022|P5HIA|18|5,2022,pre-NEM,"sin que otra persona u otro Esta-
+
+e la Algunos incluso pensaron que la nueva ",nación," estaba destinada a
+
+ser rica; sin embargo, desde el principio el país tuvo dificultades.
+",attribute,destinado,attribute,
+2022|P4CCA|44|4,2022,pre-NEM,"Sin embargo, todas y todos son electos por la ",ciudadanía,".
+
+",oblique,electo,,
+1988|H1988P6CI130|74|5,1988,gen-1988,"Las leyes y las instituciones deben cambiar con el tiempo
+
+Durante todo el siglo XIX los ",pueblos, de Europa lucharon por imponer en sus países algunas de las instituciones inglesas o fran,agent,luchar,struggle,
+1988|H1988P3ES117|5|0,1988,gen-1988,"laza, Antonio Machado
+
+El girasol, Antonio Médiz Bolio
+
+Adivina, adivinador
+
+El tejoncito ",maya,", Rosario Castellanos Táloc, Efraín Huerta
+
+Las dos ranas, Mireya Paloma Hurtado López Cop",other,tejoncito,,
+2025|P6MLA|151|1,2025,NEM,"El arte mural nos recuerda que no estamos solos, sino que somos una ",comunidad," y que generar espacios agradables para todxs
+
+es importante.
+
+",attribute,importante,attribute,
+2025|P1PAA|38|3,2025,NEM,de mi ,comunidad,"
+
+ Para saber qué En esta aventura de aprendizaje, es un cartel, buscarás información sobr",object,cartel,,
+2025|P3PAA|7|15,2025,NEM,"Todos los trabajos asamblearios, en donde la ",comunidad," participa de manera horizontal, requieren de la toma de acuerdos.
+
+",agent,participar,participation,
+1988|H1988P5CI124|62|4,1988,gen-1988,Esparta fue fundada por los dorios; fuertes guerreros que sometieron a los ,pueblos," asentados en el lugar, esclavizaron a los nativos que ofrecieron resistencia y a los demá",patient,someter,victim,
+2022|P4ESA|216|6,2022,pre-NEM,"198 PRESENTA, su hermana, chica DON JOSÉ, ",vecino,.,other,don,,
+2024|P6SDA|157|3,2024,NEM,rno y organización de un Estado donde el poder público es ejercido por representantes del ,pueblo," y un gobierno sostenido
+
+por sus instituciones democráticas para que los ciudadanos sean ",possessor,representante,,
+1988|H1988P5CI124|93|0,1988,gen-1988,"abe
+
+Con la expansión militar y política, los árabes se pusieron en contacto con diversos ",pueblos,.,oblique,poner,,
+2022|P6GEA|150|5,2022,pre-NEM,"ones descansa en sus habitantes, de modo que una nación podrá acumular más riqueza si sus ",habitantes," son capaces de desarrollar su potencial, ser productivos y aportar su creatividad.",attribute,capaz,attribute,
+2023|P5PCA|117|1,2023,NEM,"En comunidades, siendo solidarios, mencionen algunos animales originarios de su ",comunidad,".
+
+",possessor,originario,,
+2022|P4HIA|47|2,2022,pre-NEM,"des ciudades, como Tikal, Uaxactún, Palenque, Yaxchilán, entre otras, que dominaban a las ",poblaciones, de menor tamaño establecidas alrededor de ellas.,patient,dominar,victim,
+2023|P6PEA|313|4,2023,NEM,"Realizar servicios sociales que regulen la convivencia en la
+
+",comunidad,.,possessor,convivencia,,
+2022|P4GEA|196|26,2022,pre-NEM,"ca Nacho López/Comisión Nacional para el Desarrollo de los Pueblos Indigenas; (der, niños ",huicholes,", fotografía de Bob Schalkwik:; (ab.",other,nino,,
+1988|H1988P4CI120|22|6,1988,gen-1988,"s habitantes y por eso también hay muchas escuelas de diferentes tipos, pues, entre tanta ",gente," que estudia, no todos quieren estudiar las mismas cosas.",oblique,querer,,
+2023|P5PCA|80|8,2023,NEM,"Algunos de esos mitos son “Los hombres del maíz"" de la cultura ",maya," y ""El origen del maíz"" de los aztecas, así como el de la región de Collana,
+
+en Bolivia, ",other,cultura,,
+2023|P4PCA|249|1,2023,NEM,"
+
+experiencia?
+
+b) De acuerdo con las opiniones que se dieron, ¿cómo puedes vigilar en tu ",comunidad," que las autoridades atiendan las propuestas de todas las personas?
+
+c) ¿Cómo se ven afect",oblique,vigilar,,
+1988|H1988P3CI115|50|2,1988,gen-1988,"oldados cometieron: obusos, erueldades y llegaron al extremo de matar a traición a muchos ",indígenas,", mientras celebraban una fiesta.
+
+",patient,matar,victim,
+1988|H1988P3CI115|40|7,1988,gen-1988,A la ,gente, del pueblo se les conocía como macehualtin (o macehuales) éstos desempeñaban el trabajo d,recipient,conocer,,
+1988|H1988P4CI120|128|3,1988,gen-1988,"cia, Él pensaba que, gracias a los años de paz que su gobierno le había dado al país, los ",mexicanos," estaban preparados para elegir a sus gobernantes, y prometió elecciones libres para 1910.",attribute,preparado,attribute,
+1988|H1988P4CI120|76|6,1988,gen-1988,En la Constitución de Cádiz se declaró que todos los ,habitantes," del imperio, nacidos en España o en América, eran iguales; se abolieron las desigualdades",attribute,igual,attribute,
+1988|H1988P2CI112|87|6,1988,gen-1988,Los dueños de las fábricas y de los automóviles y autobuses; los ,trabajadores, y los niños.,other,dueno,,
+1988|H1988P3CI115|91|6,1988,gen-1988,"Al principio, los ",campesinos, sembraban en las riberas.,agent,sembrar,work,
+2022|P6HIA|97|7,2022,pre-NEM,"Entre los siglos XIII y XIV, China fue dominada por los mongoles, ",pueblos, guerreros asentados en las estepas y que conquistaron el norte de ese territorio; aunque ,patient,dominar,victim,
+2022|P3ESA|17|4,2022,pre-NEM,"ión di l
+
+El Chapulín brujo
+
+Hace mucho tiempo, un árbol que era profeta les enseñó a los ",yaquis," que habría de llegar del norte un monstruo feroz.
+
+",recipient,ensenar,,
+2022|P6FCA|69|6,2022,pre-NEM,El ,pobre," estaba solo en la punta del banco, asustado, y daba compasión verlo, mirando ya a uno, ya",attribute,solo,attribute,
+1988|H1988P4CI120|126|8,1988,gen-1988,Hubo una gran balacera y las tropas mataron muchos ,trabajadores, y a sus familias.,patient,matar,victim,
+2024|P0SHA|141|2,2024,NEM,El ,mestizo, era rechazado por los nativos porque se afirmaba ante ellos como “señor” y despreciado po,patient,rechazar,victim,
+1988|H1988P5ES125|32|5,1988,gen-1988,,gente,", En la noche, cuan-
+
+hombres de las comunidades tarahumaras usaban sus hondas para
+
+corre",agent,usar,everyday,
+2022|P4FCA|59|7,2022,pre-NEM,"s
+
+palabras provenientes de diferentes
+
+culturas e idiomas, como el náhuatl,
+
+el maya, el ",purépecha,", el inglés, el
+
+francés y el árabe.",other,maya,,
+2022|P6HIA|63|2,2022,pre-NEM,La primera pirámide de Preclásico: ,olmecas, Mesoamérica fue construida El Preclásico inició 2.500 años a. C. y concluyó hacia el año ,patient,construir,victim,
+2023|P6SDA|94|0,2023,NEM,"de algún fenómeno, evento o estudio realizado para conocer algunas características de una ",población,.,possessor,caracteristica,,
+2025|P6PCA|255|2,2025,NEM,"Así, diversas ",comunidades," de la población mexicana, por ejemplo, los indígenas y determinados grupos de inmigrantes",patient,afectar,victim,
+2022|P4FCA|115|8,2022,pre-NEM,"¿Eligen a sus representantes de equipo
+
+o de grupo?
+
+¿Realizan ",asambleas," para tratar los asuntos
+
+del grupo?
+
+",object,realizar,,
+2024|P6MLA|22|0,2024,NEM,"ar yaqui Versión en español
+
+Hace mucho tiempo, un árbol que era profeta les enseñó a los ",yaquis, que habría de llegar del norte un monstruo feroz.,recipient,ensenar,,
+2024|P1PCA|155|5,2024,NEM,grafía de alimentos benéficos para la salud y los lugares donde pueden encontrarlos en su ,comunidad,".
+
+",oblique,encontrar el,,
+2022|P6ESA|139|3,2022,pre-NEM,El ,zapoteco," es una lengua que pertenece al grupo lingiístico otomangue, y está clasificada como tonal",attribute,lengua,attribute,
+2022|P5ESA|66|6,2022,pre-NEM,Nuestra ,comunidad,", por desgracia, también ha sido alcanzada por este problema.",patient,alcanzar,victim,
+2025|P6PCA|275|4,2025,NEM,"ncias, tradiciones, valores, modos de vida y manifestaciones artísticas que vuelven a una ",comunidad, única.,object,volver,,
+2024|P6PEA|74|2,2024,NEM,bjetos y formas de la vida cotidiana a través de edificios y monumentos que invitan a los ,ciudadanos, a trabajar en un bien común.,recipient,invitar,,
+2022|P5GEA|150|11,2022,pre-NEM," lo representa el Consejo Federal, que está formado por siete ministros, nombrados por la ",Asamblea," Federal (Poder Legislativo), que es elegida por voto popular.",object,nombrado,,
+2022|P4HIA|75|20,2022,pre-NEM,,Olmeca,", maya, mexica.",other,olmeca,,
+2024|P4PEA|200|6,2024,NEM,"De manera individual, recordando que perteneces a una ",comunidad,", consulta Nuestros saberes: Libro para alumnos, maestros y familia, visita la biblioteca ",object,pertenecer,,
+2023|P0SHA|300|6,2023,NEM, sociales y económicas que denotan condiciones de mayor vulnerabilidad en relación con la ,población, a nivel nacional.,oblique,denotar,,
+2022|P5HIA|123|6,2022,pre-NEM,"En 1938, el partido se reformó y se conformó por cuatro sectores sociales (obrero, ",campesino,", popular y militar) y se llamó Partido de la Revolución Mexicana (PRM).",other,obrero,,
+1988|H1988P5CI124|122|2,1988,gen-1988,"Muchos seguidores rodearon a Colvino, la ",gente," de Ginebra le entregó el gobierno de esa ciudad suiza, y el reformador ejerció el poder c",agent,entregar,submission,
+2022|P4HIA|101|2,2022,pre-NEM,Tanto para los españoles como para los ,mexicas,", el triunfo en la guerra determinaba qué grupo debía mandar sobre el otro, y ambos consid",oblique,determinar,,
+2024|P5SDA|173|18,2024,NEM," poblaciones de origen africano, denominándolas la tercera raíz, lo cual reconocía que el ",pueblo," mexicano en su mayoría era producto del mestizaje entre españoles, pueblos indígenas y pu",attribute,producto,attribute,
+1988|H1988P3CI115|30|2,1988,gen-1988,Los comerciantes ,zapotecos, recorrían los caminos llevando un bastón como simbolo de su oficio; para comprar y vender,other,comerciante,,
+1988|H1988P5ES125|73|1,1988,gen-1988,"El
+
+Hay ",gente, que dice que los animales hablan.,object,haber,,
+1988|H1988P4CI120|22|0,1988,gen-1988,"4, ¿Qué hace la gente de la ciudad?
+
+Los niños, después de entrevistar a sus ",vecinos," y familiares y consultar libros, periódicos y revistas, comprobaron que en la ciudad se r",object,entrevistar,,
+2022|P6GEA|162|9,2022,pre-NEM,,Población, Las consecuencias se observan principalmente en las grandes ciudades.,agent,observar,other,
+1988|H1988P6CI130|111|21,1988,gen-1988,"Con la educación, poco a poco, los campesinos explotaron mejor la tierra y los ",obreros, manejaron las fábricas.,patient,explotar,victim,
+2024|P0SHA|316|1,2024,NEM,"acción de minerales y otras obras de interés público y privado, sin tomar en cuenta a las ",comunidades,.,object,tomar,,
+2024|P3PEA|5|6,2024,NEM,) Ingignarse por lo que separa a nuestras ,comunidades," y buscar un
+
+bienestar común.
+
+",object,separar,,
+1988|H1988P6CI130|29|11,1988,gen-1988,Había un gobernador nombrado en Inglaterra para cada colonia; pero las ,asambleas," de representantes de los colonos hacían leyes, decidían casi todos los impuestos que paga",agent,hacer,other,
+1988|H1988P4CI120|129|17,1988,gen-1988,Zapata era un ,campesino, de Morelos que quería devolver a sus paisanos las tierras que habían ido perdiendo durant,other,campesino,,
+2022|P5HIA|86|3,2022,pre-NEM," los beneficios de esta prosperidad no llegaron alos otros sectores de la población, como ",campesinos,", obreros, artesanos, jornaleros, pequeños comerciantes e indígenas.
+
+",possessor,sector,,
+2022|P2LEA|62|0,2022,pre-NEM,"Acitrón
+
+Acitrón de un fandango, zango, zango, sabaré, sabaré que va pasando, con su ",triqui,", triqui, tran.",oblique,pasar,,
+2022|P6HIA|108|10,2022,pre-NEM,"Por otra parte, los europeos conquistaron a los ",pueblos," americanos y colonizaron sus territorios —afectando su población, cultura y recursos natu",patient,conquistar,victim,
+1988|H1988P4CI120|66|5,1988,gen-1988,,sociedad, colonial estaba formoda: por castas.,attribute,formodo,attribute,
+2022|P5HIA|28|5,2022,pre-NEM,Un ,vecino," en expa
+
+La separación de Texas
+
+Al iniciar la década de 1830, la situación de Texas era ",oblique,preocupante,,
+2022|P4ESA|182|11,2022,pre-NEM,y su intento de evangelizar Y colonizar expandir su territorio las ,poblaciones," y apropiarse de las
+
+indígenas.",patient,colonizar,victim,
+1988|H1988P2CI112|271|5,1988,gen-1988,"Platícalo en tu grupo
+
+Imagina una manera bonita de decir que en nuestra ",patria, hay diferentes animales.,oblique,haber,,
+2024|P4PCA|317|2,2024,NEM,"tiene una buena alimentación?
+
+b) ¿Cómo reconoces si es adecuado el estado de salud de tu ",comunidad,"?
+
+Tomar decisiones que mejoren la alimentación y la hidratación promueve la responsabilid",possessor,estado,,
+1988|H1988P5ES125|147|4,1988,gen-1988,"a y Saúl, el rey de Israel, estaba muy triste porque lo aterrorizaba el peligro de que su ",pueblo," fuera esclavizado, y le angustiaba ver que morían muchos guerreros jóvenes.
+
+",patient,esclavizar,victim,
+2022|P4HIA|60|0,2022,pre-NEM,"desarrollaron complejos sistemas de numeración; por ejemplo, en el sistema que usaban los ",mayas," y los zapotecas, los numerales se representaban de tres maneras: en la primera había una ",agent,usar,everyday,
+2023|P2MLA|148|3,2023,NEM,"ndas mexicanas empezaron a vender el papel de China y, al no tener éxito, obligaron a sus ",trabajadores, a comprarlo.,recipient,obligar,,
+2022|P5DMA|55|6,2022,pre-NEM,¿A cuántos ,habitantes," equivale el número .9 en la población de Rusia?
+
+",object,equivaler,,
+2025|P5SDA|173|8,2025,NEM,El termino ,afromexicano," es una derivación del término afrodescendiente.
+
+",other,termino,,
+2025|P0SHA|312|0,2025,NEM,"SE 00
+
+Los pueblos ORIGINARIOS
+
+Los ",pueblos," y civilizaciones originarias fueron culturas desarrolladas, que construyeron ciudades y c",attribute,cultura,attribute,
+1988|H1988P6CI128|161|5,1988,gen-1988,En nuestra ,sociedad,", algunas personas realizan principalmente trabajo físico; mientros que otras hacen labore",oblique,realizar,,
+2022|P4AMA|26|12,2022,pre-NEM,"dato está en la sección de“Entidades federativas”), y en la columna derecha, el número de ",habitantes, de cada una.,possessor,numero,,
+1988|H1988P6CI130|161|2,1988,gen-1988,"Si entendi mos la situación actual, podremos participar, junto con todos los ",pueblos," de la Tierra, en la búsqueda de un orden más justo.
+
+",oblique,participar,,
+2022|P3ESA|207|5,2022,pre-NEM,"cididos a participar en el Gran concurso de jitanjáforas, calambures y paronomasias de su ",pueblo,.,possessor,jitanjafora,,
+2025|P4PCA|71|0,2025,NEM,"untas para la entrevista, de manera individual, pero
+
+sin olvidar que formas parte de una ",comunidad,", investiga en diversas fuentes de consulta (puede ser en la biblioteca de tu escuela o en",object,formar,,
+1988|H1988P4CI120|4|6,1988,gen-1988,"de nuestro país, o sea la Constitución, la República la forman el territorio nacional, la ",población, que la habita y el gobierno que la rige.,other,territorio,,
+2022|P4CNA|30|9,2022,pre-NEM,"r, ni volver de un lado a otro, y si alguno los meneaba daban voces Esta pestilencia mató ",gentes, sin número.,patient,matar,victim,
+2023|P0SHA|169|4,2023,NEM,Las ,naciones," que se llaman grandes en la extensión del globo, fueron dominadas por otras; y hasta que ",patient,dominar,victim,
+2025|P0SHA|111|14,2025,NEM,la Conquista; había estado cautivo ocho años durante los cuales había aprendido la lengua ,maya,", leía su libro de rezos y cuando pasaba alguna mujer debió bajar la cabeza para meterse e",other,lengua,,
+2024|P0SHA|247|14,2024,NEM,Moctezuma crearía un mundo nuevo en el que los muertos resucitarían y los ,indios, serían convertidos en amos y los españoles en sirvientes.,patient,convertir,victim,
+2022|P5HIA|177|1,2022,pre-NEM,"O
+
+Formen equipos para investigar qué problemas ambientales existen en su casa, escuela y ",comunidad,".
+
+",oblique,existir,,
+2022|P5HIA|143|3,2022,pre-NEM,"Al mismo tiempo, la radio sirvió para que la ",gente," inclinara sus gustos hacia diversos productos que se anunciaban, pero también hacia los a",agent,inclinar,other,
+2022|P6FCA|121|4,2022,pre-NEM,"ra establecer acuerdos sobre el reglamento escolar a partir de su propuesta, realicen una ",Asamblea,"
+
+donde dialoguen y propongan qué Según las Naciones Unidas, en el mundo deben cambiar o a",object,realicen,,
+1988|H1988P6CI130|64|14,1988,gen-1988,"lo que ocurría en el mundo, muchos volvieron a su patria char por la independencia de sus ",pueblos,".
+
+",possessor,independencia,,
+2025|P1PCA|11|5,2025,NEM,"oooooconinccnnnccnnoconoccnnncncnnnos 142
+
+Campo formativo Ética, naturaleza y ",sociedades, ....,agent,oooooconinccnnnccnnoconoccnnncncnnno,other,
+1988|H1988P6CI130|171|1,1988,gen-1988,"l extranjero, sobre todo norteamericano, y explotando la mano de obra de los compesinos y ",obreros, por medio de injustos condiciones de trabajo.,patient,explotar,victim,
+2022|P6GEA|112|3,2022,pre-NEM,Ya averigúé sobre su economía y fue muy triste ver que la ,población," es pobre.
+
+",attribute,pobre,attribute,
+2022|P4HIA|80|7,2022,pre-NEM,¿Cuánto tiempo tomó a los conquistadores someter a los ,mexicas,?,patient,someter,victim,
+1988|H1988P5CI124|47|13,1988,gen-1988,"aban al Telpochcalli, que entrenaba a los soldados que se necesitaban para las conquistas ",mexicas,"; los nobles entraban al Calmécac, que preparaba a los futuros gobernantes y sacerdotes.",other,conquista,,
+2024|P5MLA|193|1,2024,NEM,"En él, invitó al ",pueblo,"
+
+a mantener la esperanza en el futuro, en el nuevo amanecer, en el nuevo sol.",recipient,invitar,,
+2023|P0SHA|314|17,2023,NEM,No podemos esperar que un caudillo salve a la ,nación,", cuando es tarea de todos los ciudadanos.",oblique,salve,,
+1988|H1988P6CI130|126|2,1988,gen-1988,"Nos enteramos, en efecto, en medio de una ",multitud," de comentarios entusiastas, que cualquier ciudod de mediana importancia puede ser arrasad",oblique,enterar,,

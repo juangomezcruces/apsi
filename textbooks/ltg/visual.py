@@ -432,30 +432,42 @@ class PersonDetector:
                                                 min_size=min_size, max_size=1000).to(self.device).eval()
 
     def __call__(self, images):
+        # One image at a time: batching crops of different shapes pads them all to the largest,
+        # which measured ~6x slower per crop on CPU (8 s vs 1.4 s).
         from torchvision.transforms.functional import to_tensor
-        with self.torch.no_grad():
-            out = self.model([to_tensor(im).to(self.device) for im in images])
-        return [int(((o["labels"] == 1) & (o["scores"] > self.score)).sum()) for o in out]
+        counts = []
+        with self.torch.inference_mode():
+            for im in images:
+                o = self.model([to_tensor(im).to(self.device)])[0]
+                counts.append(int(((o["labels"] == 1) & (o["scores"] > self.score)).sum()))
+        return counts
 
 
-def run_detector(sample=True, detector=None, batch=4):
+def run_detector(sample=True, detector=None, batch=4, redo=False):
+    """Resumable: results are appended every batch and crops already done are skipped."""
     regions = _analysis_regions(sample)
-    det = detector or PersonDetector()
-    rows = []
-    for i in range(0, len(regions), batch):
-        chunk = regions.iloc[i:i + batch]
+    path = out_dir() / "people_detect.csv"
+    if redo:
+        path.unlink(missing_ok=True)
+    done = set(pd.read_csv(path)["region_id"]) if path.exists() and path.stat().st_size else set()
+    todo = regions[~regions["region_id"].isin(done)]
+    log.info("%d crops to run (%d already done)", len(todo), len(done))
+    det = detector or PersonDetector() if len(todo) else None
+    for i in range(0, len(todo), batch):
+        chunk = todo.iloc[i:i + batch]
         counts = det([Image.open(PATHS["visual"] / c).convert("RGB") for c in chunk["crop"]])
-        rows += [dict(region_id=r, n_persons=n, people_det=people_category(n)) for r, n in zip(chunk["region_id"], counts)]
-        if i and i % (batch * 50) == 0:
-            log.info("%d / %d crops", i, len(regions))
-    d = pd.DataFrame(rows)
-    d.to_csv(out_dir() / "people_detect.csv", index=False)
-    log.info("wrote %s: %s", out_dir() / "people_detect.csv", d["people_det"].value_counts().to_dict())
+        _append_csv([dict(region_id=r, n_persons=n, people_det=people_category(n))
+                     for r, n in zip(chunk["region_id"], counts)], path)
+        if i and i % (batch * 25) == 0:
+            log.info("%d / %d crops", i, len(todo))
+    d = pd.read_csv(path)
+    d = d[d["region_id"].isin(set(regions["region_id"]))]
+    log.info("%s: %d crops, %s", path, len(d), d["people_det"].value_counts().to_dict())
     return d
 
 
 # --------------------------------------------------------------------------- validation
-def visual_sample(n_per_cell=30, seed=0):
+def visual_sample(n_per_cell=25, seed=0):
     """Stratified (edition x predicted people label) sample of the analysis sample, shuffled,
     with an HTML contact sheet. The people prediction is the detector's when it has run."""
     df = _analysis_regions(sample=(out_dir() / "regions_sample.csv").exists())
@@ -467,7 +479,9 @@ def visual_sample(n_per_cell=30, seed=0):
         df["people"] = df["people_det"]
     if "people" not in df:
         df["people"] = ""
-    s = stratified_sample(df, ["edition", "people"], n_per_cell, seed)
+    if "period" not in df:
+        df["period"] = df["edition"].map(PERIOD)
+    s = stratified_sample(df, ["period", "people"], n_per_cell, seed)    # periods: 2023-2025 are reprints
     vdir = PATHS["results"] / "validation"
     vdir.mkdir(parents=True, exist_ok=True)
     cols = ["region_id", "edition", "code", "page", "crop", "caption"] + [d for d in CODEBOOK if d in s]

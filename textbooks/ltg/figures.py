@@ -107,7 +107,7 @@ def stacked_shares(table, order, labels, colors, name, title, note=""):
         v = share[cat].fillna(0).values
         ax.barh(eds, v, left=left, color=col, edgecolor=SURFACE, linewidth=1.5, height=0.62, label=labels.get(cat, cat))
         for i, (l, w) in enumerate(zip(left, v)):
-            if w >= 8:                                     # label only segments wide enough to hold it
+            if w >= 5.5:                                   # label only segments wide enough to hold it
                 dark = col in (SERIES[0], ORDINAL[1], ORDINAL[2])
                 ax.text(l + w / 2, i, f"{w:.0f}%", ha="center", va="center", fontsize=8,
                         color=SURFACE if dark else INK)

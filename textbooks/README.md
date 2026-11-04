@@ -3,7 +3,12 @@
 A pipeline for the text and visual analysis of the primary-school *Libros de
 Texto Gratuitos* (CONALITEG), built for a paper on how the books depict
 *el pueblo*. See [`RESEARCH_DESIGN.md`](RESEARCH_DESIGN.md) for the concepts,
-measures, validation plan and threats to validity.
+measures, validation plan and threats to validity, and
+[`FINDINGS.md`](FINDINGS.md) for the preliminary results of the first full run.
+
+`results/` holds the shareable outputs of that run (reports, aggregate tables,
+figures, the catalog and the hand-coding samples); everything else, including
+page images and OCR text, stays in the git-ignored `data/`.
 
 ## Corpus
 

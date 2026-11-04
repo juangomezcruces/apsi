@@ -1,0 +1,9 @@
+seed examples: 276 {'settlement': 110, 'people_ethnic': 101, 'people_commons': 38, 'people_nation': 27}
+coders: {'claude': 276}
+5-fold CV accuracy 0.880; people vs town 0.931
+predicted       people_commons  people_ethnic  people_nation  settlement
+coded                                                                   
+people_commons              28              3              0           7
+people_ethnic                3             93              1           4
+people_nation                2              5             20           0
+settlement                   2              6              0         102

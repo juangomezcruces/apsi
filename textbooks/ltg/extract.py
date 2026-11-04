@@ -26,7 +26,6 @@ from PIL import Image
 
 from .config import PATHS
 
-os.environ.setdefault("OMP_THREAD_LIMIT", "1")     # one tesseract thread per worker process
 log = logging.getLogger("ltg.extract")
 
 BOX_COLS = ["block", "par", "line", "left", "top", "width", "height", "conf", "text"]
@@ -56,6 +55,9 @@ def words_to_text(words):
 
 def ocr_image(img, lang="spa", psm=3):
     import pytesseract
+    # One tesseract thread per worker process. Set here, not at import: the variable also
+    # caps PyTorch's OpenMP threads in any process that imports this module.
+    os.environ["OMP_THREAD_LIMIT"] = "1"
     img = img.convert("L")
     scale = 1.0
     if img.height < MIN_HEIGHT:

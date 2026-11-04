@@ -653,23 +653,30 @@ def stratified_sample(df, keys, n, seed=0):
     return pd.concat(parts).sample(frac=1, random_state=seed) if parts else df.iloc[:0]
 
 
-def export_for_coding(n_per_cell=40, seed=0):
-    """Validation samples + the people-talk sentences for the APSI populism scorer."""
+def export_for_coding(n_pueblo=30, n_community=10, n_role=15, seed=0):
+    """Validation samples + the people-talk sentences for the APSI populism scorer.
+
+    Strata are periods (1988 / 2022 / NEM), not editions: 2023-2025 largely reprint the
+    same books. Default sizes give about 600 sense items (30 'pueblo' per period x sense;
+    10 per period x word x sense for comunidad / asamblea) and about 360 role items
+    (15 per period x role), a workload one coder can finish. National corpus only."""
     ptok = pd.read_csv(out_dir() / "people_tokens.csv.gz", dtype={"edition": str}, keep_default_na=False)
-    sents = people_talk(pd.read_csv(out_dir() / "sentences.csv.gz", dtype={"edition": str}), ptok)
+    ptok = _in_corpus(ptok, "national")
+    sents = people_talk(_in_corpus(pd.read_csv(out_dir() / "sentences.csv.gz", dtype={"edition": str}), "national"), ptok)
     vdir = PATHS["results"] / "validation"
     vdir.mkdir(parents=True, exist_ok=True)
-    pb = ptok[ptok["lemma"].isin({"pueblo"} | COMMUNITY_LEMMAS)]
-    s = stratified_sample(pb, ["edition", "lemma", "sense"], n_per_cell, seed)
-    s[["sent_id", "edition", "code", "page", "lemma", "left", "keyword", "right", "sense"]].rename(
+    s = pd.concat([
+        stratified_sample(ptok[ptok["lemma"] == "pueblo"], ["period", "sense"], n_pueblo, seed),
+        stratified_sample(ptok[ptok["lemma"].isin({"comunidad", "asamblea"})], ["period", "lemma", "sense"],
+                          n_community, seed)]).sample(frac=1, random_state=seed)
+    s[["sent_id", "edition", "period", "code", "page", "lemma", "left", "keyword", "right", "sense"]].rename(
         columns={"sense": "predicted_sense"}).assign(gold_sense="").to_csv(vdir / "sense_sample.csv", index=False)
-    r = stratified_sample(ptok[ptok["counted"].astype(str) == "True"], ["edition", "role"], n_per_cell // 2, seed)
-    r[["sent_id", "edition", "left", "keyword", "right", "role", "head_lemma", "verb_class"]].rename(
-        columns={"role": "predicted_role"}).assign(gold_role="").to_csv(
-        vdir / "role_sample.csv", index=False)
+    r = stratified_sample(ptok[ptok["counted"].astype(str) == "True"], ["period", "role"], n_role, seed)
+    r[["sent_id", "edition", "period", "left", "keyword", "right", "role", "head_lemma", "verb_class"]].rename(
+        columns={"role": "predicted_role"}).assign(gold_role="").to_csv(vdir / "role_sample.csv", index=False)
     apsi = sents.rename(columns={"sent_id": "id"})[["id", "edition", "period", "code", "page", "text"]]
     apsi.assign(text_en="").to_csv(PATHS["results"] / "people_sentences_for_apsi.csv", index=False)
-    log.info("wrote validation samples to %s and %d sentences for APSI", vdir, len(apsi))
+    log.info("wrote %d sense and %d role items to %s, and %d sentences for APSI", len(s), len(r), vdir, len(apsi))
 
 
 def validate(sample_csv, pred_col, gold_col):

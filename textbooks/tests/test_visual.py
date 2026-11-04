@@ -136,6 +136,7 @@ def test_zeroshot_sample_and_report(data_root):
 
     d = V.run_detector(detector=FakeDetector())
     assert set(d["people_det"]) == {"crowd", "no_people"} and d["n_persons"].max() == 8
+    assert len(V.run_detector(detector=None)) == len(d)        # resumed: nothing left, no model loaded
     tables = V.visual_report(B=50)
     assert tables["source"]["source"].item() == "detector"
     assert tables["people"].set_index("measure").loc["crowd", "2023"].startswith("100.0")
