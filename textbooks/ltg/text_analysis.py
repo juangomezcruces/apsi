@@ -607,7 +607,8 @@ SECTIONS = [
     ("overview", "Corpus", "Books, pages and alphabetic tokens per edition. Mean OCR confidence is Tesseract's 0-100 word confidence; below ~80 read the KWIC lines before trusting a rate."),
     ("rates", "People-talk per 10,000 tokens", "Ratio of sums with 95% CIs from resampling books. `people_all` counts people nouns once each, with settlement uses of *pueblo* removed; families overlap ('pueblos indígenas' is both *pueblo* and *etnico*)."),
     ("top_terms", "Most frequent terms per family", ""),
-    ("pueblo_senses", "Senses of *pueblo*", "Rule-based; validate with `python -m ltg sample` before reporting."),
+    ("pueblo_senses", "Senses of *pueblo*", "From the `senses` classifier (BETO + logistic regression; CV accuracy in "
+     "`senses_cv.txt`) if it has run, otherwise from the rules. Validate with `python -m ltg sample` before reporting."),
     ("community_senses", "Senses of *comunidad* / *asamblea*",
      "classroom = 'en (pequeñas) comunidades', 'en asamblea' (NEM's way of organising group work); school = "
      "'comunidad escolar / de aula'; local = 'tu / su comunidad'. classroom and school are not counted as people-talk."),

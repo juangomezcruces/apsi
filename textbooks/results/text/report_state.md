@@ -57,7 +57,7 @@ Ratio of sums with 95% CIs from resampling books. `people_all` counts people nou
 
 ## Senses of *pueblo*
 
-Rule-based; validate with `python -m ltg sample` before reporting.
+From the `senses` classifier (BETO + logistic regression; CV accuracy in `senses_cv.txt`) if it has run, otherwise from the rules. Validate with `python -m ltg sample` before reporting.
 
 | sense | 2022 |
 |---|---|
