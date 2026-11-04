@@ -23,7 +23,7 @@ corpus are analysed; teaching editions are excluded throughout; state books
 | 1972 | `?g=1972` | generation 1972 | 36 | |
 | 1982 | `?g=1982` | generation 1982 | 28 | preschool workbook |
 | 1988 | `?g=1988` | generation 1988 | 26 | preschool workbook |
-| 1993 | `?g=1993` | generation 1993 | 83 | 31 state *Historia y Geografía* |
+| 1993 | `?g=1993` | generation 1993 | 50 | 64 state (*Historia y Geografía*, *Monografía estatal*) |
 | 2008 | `?g=2008` | generation 2008 | 44 | |
 | 2011 | `?g=2011` | generation 2011 | 51 | |
 | 2014 | `?g=2014` | generation 2014 | 44 | 32 state, 10 teaching editions |
@@ -73,7 +73,7 @@ What the sites actually look like, and what the crawler does about it:
   para el maestro*, *Fichero didáctico*, NEM's *Un libro sin recetas...*), never
   downloaded by default (`--audience all` to include them). `corpus=state` for
   state-specific books (*La entidad donde vivo ...*, 1993's *<Estado>. Historia y
-  Geografía*): a child reads one, so they stay out of the national comparison
+  Geografía* and *Monografía estatal*): a child reads one, so they stay out of the national comparison
   (`download --corpus all` to fetch them). `audience=note` for archive entries
   that are not books.
 - **Page images are standardised.** 2008-2011 scans run to 1617x2126 px and
