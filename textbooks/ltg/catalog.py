@@ -35,16 +35,18 @@ GRADE_RE = re.compile(r"Grado:?\s*(\d)")
 TEACHER_RE = re.compile(r"para (la )?maestra|para el maestro|\bdocente\b|libro (del|para el) maestro|sin recetas|fichero didactico")
 # Entries in the archive's list that are notes, not books ("En 1960, los concursos ... fueron declarados desiertos")
 NOTE_RE = re.compile(r"declarad[oa]s? desiert|concursos? para los libros")
-STATES = ["aguascalientes", "baja california", "campeche", "chiapas", "chihuahua", "ciudad de mexico", "distrito federal",
+STATES = ["aguascalientes", "baja california sur", "baja california", "campeche", "chiapas", "chihuahua", "ciudad de mexico", "distrito federal",
           "coahuila", "colima", "durango", "guanajuato", "guerrero", "hidalgo", "jalisco", "mexico", "michoacan",
           "morelos", "nayarit", "nuevo leon", "oaxaca", "puebla", "queretaro", "quintana roo", "san luis potosi",
           "sinaloa", "sonora", "tabasco", "tamaulipas", "tlaxcala", "veracruz", "yucatan", "zacatecas"]
 
 
 def is_state_book(title, subject):
-    """One book per state: 'La entidad donde vivo ...' (2014-2022) or '<State>. Historia y Geografía' (1993)."""
+    """One book per state: 'La entidad donde vivo ...' (2014-2022), '<State>. Historia y Geografía'
+    and 'Monografía estatal <State>' (1993)."""
     t = fold(title).strip()
-    return subject == "La entidad donde vivo" or any(re.match(rf"{s}\s*[.,]", t) for s in STATES)
+    return (subject == "La entidad donde vivo" or "monografia estatal" in t
+            or any(re.match(rf"{s}\s*[.,]", t) for s in STATES))
 
 LEVELS = {"P": "primaria", "S": "secundaria", "K": "preescolar", "T": "telesecundaria"}
 

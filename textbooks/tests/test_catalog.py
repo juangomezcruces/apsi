@@ -144,6 +144,8 @@ def test_teaching_editions_notes_and_state_books():
     assert C.is_state_book("Aguascalientes. Historia y Geografía", "Historia")
     assert C.is_state_book("México. Historia y Geografía", "Historia")
     assert C.is_state_book("La entidad donde vivo Oaxaca", "La entidad donde vivo")
+    assert C.is_state_book("MONOGRAFÍA ESTATAL AGUASCALIENTES", "")
+    assert C.is_state_book("Baja California Sur. Historia y Geografía", "Historia")
     assert not C.is_state_book("Atlas de México", "Atlas")
     assert not C.is_state_book("Historia", "Historia")
     assert C.subject_from_title("MI LIBRO DE HISTORIA Y CIVISMO") == "Historia"

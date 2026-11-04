@@ -209,6 +209,7 @@ def main(argv=None):
     ap.add_argument("--workers", type=int, default=max(1, (os.cpu_count() or 2) - 1))
     ap.add_argument("--lang", default="spa")
     ap.add_argument("--force", action="store_true")
+    ap.add_argument("--corpus", default="national", help="national | state | all (uses catalog.csv)")
     ap.add_argument("--include-incomplete", action="store_true",
                     help="also books whose download is unfinished (pilot runs with --max-pages)")
     args = ap.parse_args(argv)
@@ -216,6 +217,11 @@ def main(argv=None):
     codes = set(filter(None, args.codes.split(",")))
     books = [(e, c) for e, c in books_on_disk(complete_only=not args.include_incomplete)
              if (not eds or e in eds) and (not codes or c in codes)]
+    if args.corpus != "all" and PATHS["catalog"].exists():
+        cat = pd.read_csv(PATHS["catalog"], dtype={"edition": str}, keep_default_na=False)
+        if "corpus" in cat:
+            other = {(e, c) for e, c, k in zip(cat["edition"], cat["code"], cat["corpus"]) if k and k != args.corpus}
+            books = [b for b in books if b not in other]
     log.info("%d books to extract with %d workers", len(books), args.workers)
     with ProcessPoolExecutor(args.workers) as pool:
         for e, c in books:
