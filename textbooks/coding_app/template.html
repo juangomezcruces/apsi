@@ -1,0 +1,824 @@
+<title>Textbook Coding Desk</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap">
+<style>
+/* Layout: a working desk. Item card on the left (the sentence or picture, the codes, the navigation),
+   the sample map under it, the codebook pinned on the right; one column on phones. */
+:root {
+  --bg: #eef1ed; --surface: #ffffff; --sunk: #e5e9e4; --ink: #17201b; --ink2: #46514a; --muted: #6f7a73;
+  --line: #d3d9d2; --accent: #1f6b4e; --accent-ink: #ffffff; --accent-soft: #dbeae2;
+  --mark: #ffe08a; --mark-ink: #17201b; --warn: #9a5f0c; --warn-soft: #f7e8c8; --out: #a3aba5; --focus: #2a66cc;
+  --f-text: "Newsreader", Georgia, "Times New Roman", serif;
+  --f-ui: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  --r: 10px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #101512; --surface: #171f1a; --sunk: #1f2823; --ink: #e3e9e4; --ink2: #b2bcb5; --muted: #8a958e;
+  --line: #2c3630; --accent: #5cbf93; --accent-ink: #0b1810; --accent-soft: #1d3a2c;
+  --mark: #5a4810; --mark-ink: #fff0c0; --warn: #e2aa4c; --warn-soft: #3a2e16; --out: #58625c; --focus: #7ea8ff;
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #101512; --surface: #171f1a; --sunk: #1f2823; --ink: #e3e9e4; --ink2: #b2bcb5; --muted: #8a958e;
+  --line: #2c3630; --accent: #5cbf93; --accent-ink: #0b1810; --accent-soft: #1d3a2c;
+  --mark: #5a4810; --mark-ink: #fff0c0; --warn: #e2aa4c; --warn-soft: #3a2e16; --out: #58625c; --focus: #7ea8ff;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.5 var(--f-ui); }
+button, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+kbd { font: 500 11px/1 var(--f-mono); display: inline-grid; place-items: center; min-width: 20px; height: 20px;
+  padding: 0 5px; border-radius: 5px; background: var(--sunk); color: var(--ink2); border: 1px solid var(--line); }
+kbd:empty { display: none; }
+code { font: 12px var(--f-mono); color: var(--muted); }
+.mono { font-family: var(--f-mono); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+.muted { color: var(--muted); }
+.label { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+
+.app { max-width: 1240px; margin: 0 auto; display: grid; gap: 16px; padding-block: 18px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+
+/* header */
+.top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; }
+.brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.seal { font: 600 11px/1.05 var(--f-mono); letter-spacing: .06em; color: var(--accent); border: 1.5px solid var(--accent);
+  border-radius: 6px; padding: 6px 7px; text-align: center; }
+.brand h1 { font: 600 26px/1.1 var(--f-text); margin: 0; letter-spacing: -.01em; text-wrap: balance; }
+.brand p { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
+.who { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.who input { width: 9.5em; padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+.pill { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; padding: 5px 10px; border-radius: 999px;
+  background: var(--surface); border: 1px solid var(--line); color: var(--ink2); white-space: nowrap; }
+.pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--out); }
+.pill[data-s="saved"]::before { background: var(--accent); }
+.pill[data-s="saving"]::before { background: var(--warn); }
+.pill[data-s="local"]::before, .pill[data-s="error"]::before, .pill[data-s="readonly"]::before { background: var(--warn); }
+
+/* task tabs */
+.tasks { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
+.tab { text-align: left; display: grid; gap: 6px; padding: 12px 14px; border-radius: var(--r); background: var(--surface);
+  border: 1px solid var(--line); }
+.tab:hover { border-color: var(--ink2); }
+.tab[aria-selected="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.tab .nm { font-weight: 600; }
+.tab .sub { font-size: 12.5px; color: var(--muted); }
+.tab .row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.bar { height: 5px; border-radius: 3px; background: var(--sunk); overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--accent); }
+
+.notice { padding: 10px 14px; border-radius: var(--r); background: var(--warn-soft); color: var(--ink); font-size: 13.5px; }
+
+/* desk */
+.desk { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+.work { display: grid; gap: 16px; min-width: 0; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px; min-width: 0; }
+
+.meta { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; color: var(--ink2); font-size: 13px; }
+.era { font: 500 12px var(--f-mono); padding: 2px 8px; border-radius: 999px; background: var(--accent-soft); color: var(--ink); }
+.meta a { color: var(--accent); text-decoration: none; border-bottom: 1px solid currentColor; }
+.head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 16px; margin: 16px 0 6px; }
+.head .what { display: flex; align-items: baseline; gap: 8px; }
+.lemma { font: italic 500 22px var(--f-text); }
+.kwic { font: 400 21px/1.62 var(--f-text); margin: 6px 0 20px; max-width: 64ch; overflow-wrap: anywhere; }
+.kwic mark { background: var(--mark); color: var(--mark-ink); font-weight: 600; padding: 0 .16em; border-radius: 3px;
+  box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+.kwic .para { color: var(--muted); font-size: .8em; padding: 0 .25em; }
+
+.choices { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; }
+.chip { text-align: left; display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 10px; row-gap: 2px;
+  align-items: start; padding: 10px 12px; min-height: 44px; border-radius: 8px; border: 1px solid var(--line);
+  background: var(--surface); transition: background .12s, border-color .12s; }
+.chip:hover:not(:disabled) { border-color: var(--ink2); }
+.chip kbd { grid-row: span 2; margin-top: 1px; }
+.chip .nm { font-weight: 600; }
+.chip .gl { font-size: 12.5px; line-height: 1.4; color: var(--muted); grid-column: 2; }
+.chip.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.chip.on .gl { color: inherit; opacity: .85; }
+.chip.on kbd { background: transparent; color: inherit; border-color: currentColor; }
+.chip:disabled { opacity: .45; cursor: default; }
+.choices.sm { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; }
+.choices.sm .chip { padding: 7px 10px; min-height: 40px; align-items: center; }
+.choices.sm .chip kbd { grid-row: auto; margin: 0; }
+
+.extras { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; align-items: center; }
+.tog { display: inline-flex; align-items: center; gap: 8px; padding: 7px 12px; border-radius: 999px; border: 1px solid var(--line);
+  background: var(--surface); min-height: 40px; }
+.tog.on { background: var(--sunk); border-color: var(--ink2); font-weight: 600; }
+.tog.warn.on { background: var(--warn-soft); border-color: var(--warn); }
+#note { flex: 1 1 200px; min-width: 0; padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); min-height: 40px; }
+.nav { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 8px; border: 1px solid var(--line);
+  background: var(--surface); min-height: 40px; }
+.btn:hover { border-color: var(--ink2); }
+.btn.primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.btn.primary kbd { background: transparent; color: inherit; border-color: currentColor; }
+.auto { display: inline-flex; gap: 8px; align-items: center; margin-left: auto; font-size: 13px; color: var(--ink2); }
+
+/* images */
+.crop { margin: 16px 0 10px; height: clamp(220px, 46vh, 460px); border-radius: 10px; overflow: hidden;
+  background: repeating-conic-gradient(var(--sunk) 0 25%, var(--surface) 0 50%) 0 0 / 18px 18px; border: 1px solid var(--line); }
+.crop img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.cap { font: 15px/1.5 var(--f-text); margin: 0 0 14px; color: var(--ink2); }
+.cap .label { font-family: var(--f-ui); margin-right: 6px; }
+.dims { display: grid; gap: 10px; }
+.dim { border-radius: 10px; padding: 10px 12px 12px; border: 1px solid transparent; }
+.dim.active { background: var(--sunk); border-color: var(--line); }
+.dim-h { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 8px; width: 100%;
+  background: none; border: 0; padding: 0; text-align: left; }
+.dim-h .nm { font-weight: 600; }
+.dim.active .dim-h .nm { color: var(--accent); }
+.dim-h .hint { font-size: 12.5px; color: var(--muted); }
+
+/* map */
+.map-h { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 8px 16px; margin-bottom: 12px; }
+.map-h h2, .book h2 { font: 600 19px var(--f-text); margin: 0; }
+.eras { display: flex; flex-wrap: wrap; gap: 6px; }
+.era-f { font-size: 12.5px; padding: 5px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); min-height: 32px; }
+.era-f span { font-family: var(--f-mono); color: var(--muted); margin-left: 4px; font-variant-numeric: tabular-nums; }
+.era-f[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.era-f[aria-pressed="true"] span { color: inherit; opacity: .75; }
+.squares { display: flex; flex-wrap: wrap; gap: 3px; }
+.sq { width: 12px; height: 12px; padding: 0; border-radius: 2px; border: 1px solid var(--line); background: transparent; }
+.sq.done { background: var(--accent); border-color: var(--accent); }
+.sq.part { background: var(--accent-soft); border-color: var(--accent); }
+.sq.unsure { background: var(--warn); border-color: var(--warn); }
+.sq.out { background: var(--out); border-color: var(--out); }
+.sq.cur { outline: 2px solid var(--ink); outline-offset: 1px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 12px; font-size: 12.5px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend .sq { display: inline-block; cursor: default; }
+
+/* codebook */
+.book { position: sticky; top: calc(12px + env(safe-area-inset-top, 0px)); max-height: calc(100vh - 24px); overflow: auto; }
+.book p { margin: 8px 0; color: var(--ink2); font-size: 14px; max-width: 62ch; }
+.book h3 { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 500; margin: 20px 0 8px; }
+.defs { margin: 0; display: grid; gap: 10px; }
+.defs dt { font-weight: 600; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.defs dd { margin: 2px 0 0; font-size: 13.5px; color: var(--ink2); }
+.defs .ex { display: block; font: italic 14px/1.45 var(--f-text); color: var(--muted); margin-top: 2px; }
+.defs.current { padding-left: 0; }
+.book ol { margin: 0; padding-left: 20px; display: grid; gap: 6px; font-size: 13.5px; color: var(--ink2); }
+.keys { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-size: 13.5px; color: var(--ink2); }
+.keys li { display: flex; gap: 8px; align-items: center; }
+.exports { display: grid; gap: 8px; }
+.exports .btn { justify-content: space-between; width: 100%; }
+.exports .btn span { font-family: var(--f-mono); font-size: 12px; color: var(--muted); }
+.wordset { font: italic 500 15px var(--f-text); color: var(--ink); margin: 14px 0 6px; }
+.wordset em { font-style: normal; font: 500 11px var(--f-ui); letter-spacing: .06em; text-transform: uppercase; color: var(--accent); margin-left: 6px; }
+
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+  background: var(--ink); color: var(--bg); padding: 9px 16px; border-radius: 999px; font-size: 13.5px; max-width: calc(100% - 32px); }
+.sheet { position: fixed; inset: 0; background: rgba(0,0,0,.4); display: grid; place-items: center; padding: 16px; z-index: 20; }
+.sheet > div { background: var(--surface); border-radius: 14px; padding: 18px; width: min(720px, 100%); display: grid; gap: 10px; }
+.sheet textarea { width: 100%; height: 40vh; font: 12px/1.4 var(--f-mono); background: var(--sunk); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 10px; }
+
+@media (max-width: 900px) {
+  .desk { grid-template-columns: minmax(0, 1fr); }
+  .book { position: static; max-height: none; }
+  .kwic { font-size: 19px; }
+  .auto { margin-left: 0; }
+}
+@media (max-width: 600px) {
+  .tab { padding: 10px 12px; gap: 5px; }
+  .tab .sub { display: none; }
+  .tab .row { flex-wrap: wrap; }
+  .card { padding: 16px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <div class="seal" aria-hidden="true">LTG<br>1960<br>2025</div>
+      <div>
+        <h1>Coding Desk</h1>
+        <p>Hand coding for the study of “the people” in Mexico’s free textbooks</p>
+      </div>
+    </div>
+    <div class="who">
+      <label class="label" for="initials">Coder</label>
+      <input id="initials" maxlength="16" placeholder="Your initials" autocomplete="off">
+      <span id="status" class="pill" data-s="connecting" role="status">Connecting…</span>
+    </div>
+  </header>
+
+  <nav class="tasks" id="tasks" role="tablist" aria-label="Coding tasks"></nav>
+  <div class="notice" id="notice" hidden></div>
+
+  <main class="desk">
+    <div class="work">
+      <article class="card" id="item" aria-live="polite"></article>
+      <section class="card" aria-labelledby="map-title">
+        <div class="map-h">
+          <h2 id="map-title">Sample</h2>
+          <div class="eras" id="eras"></div>
+        </div>
+        <div class="squares" id="squares"></div>
+        <div class="legend">
+          <span><i class="sq"></i>Not coded</span><span><i class="sq part"></i>Started</span>
+          <span><i class="sq done"></i>Coded</span><span><i class="sq unsure"></i>Coded, unsure</span><span><i class="sq out"></i>Left out</span>
+        </div>
+      </section>
+    </div>
+    <aside class="card book" id="book"></aside>
+  </main>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+<div class="sheet" id="sheet" hidden></div>
+
+<script>
+const DATA = /*__DATA__*/null;
+
+const KEYS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "q", "w"];
+const ERAS = ["1960s", "1970s-80s", "1988-93", "2008-14", "2018-22", "NEM"];
+
+const PUEBLO = [
+  { v: "settlement", name: "Town or place", gloss: "A village, town or hometown, or its residents as the people of a place.",
+    ex: ["la plaza de su pueblo", "de un pueblo a otro", "el pueblo de San Agustín Oapan", "pueblo mágico"] },
+  { v: "people_commons", name: "Common people", gloss: "The governed or the common people, set against rulers or elites; the sovereign people.",
+    ex: ["el pueblo los obedecía ciegamente", "el pueblo elige", "la voluntad del pueblo", "tenía el apoyo del pueblo"] },
+  { v: "people_nation", name: "Nation or peoples", gloss: "A nation or people as a collective identity, or peoples in general, with no ruler and ruled.",
+    ex: ["el pueblo mexicano estaba unido", "los pueblos del mundo", "autodeterminación de los pueblos"] },
+  { v: "people_ethnic", name: "Ethnic people", gloss: "An ethnic, cultural, ancient or indigenous people.",
+    ex: ["los pueblos originarios", "el pueblo hebreo", "pueblos indígenas", "conquistar muchos pueblos"] },
+];
+const PUEBLO_RULES = [
+  "<b>Commons or nation.</b> Common people needs a relation to rulers, government, elites or popular sovereignty (elige, autoridad, voluntad, apoyo, levantarse contra, obedecer, explotar). Without one, <i>el pueblo mexicano</i> is nation.",
+  "<b>Rural or indigenous communities in colonial and agrarian history.</b> Ethnic when the text marks them as indigenous (<i>originarios, indígenas, de indios</i>, an ethnonym); common people when set against hacendados, companies or the Crown without an ethnic marker; town when they are administrative places (<i>los cabildos de los pueblos</i>).",
+  "<b>Conquered or allied peoples</b> (<i>pueblos sometidos, pueblos aliados</i>) are ethnic.",
+  "<b>Legends and stories</b> follow the story’s meaning. If you cannot tell, leave the item out.",
+  "<b>Leave out</b> OCR debris, word lists, picture credits and cases you cannot decide. Do not guess.",
+];
+const COMMUNITY = [
+  { v: "collective", name: "Collective", gloss: "A community or assembly as a group of people that lives, decides or acts together.",
+    ex: ["la comunidad decidió", "vivir en comunidad", "la asamblea del pueblo"] },
+  { v: "local", name: "Local community", gloss: "The place-based community where someone lives or comes from.",
+    ex: ["tu comunidad", "en su comunidad", "viene de una comunidad donde se habla otra lengua"] },
+  { v: "school", name: "School community", gloss: "The school, its staff and families as a community.",
+    ex: ["la comunidad escolar", "asamblea escolar"] },
+  { v: "classroom", name: "Class grouping", gloss: "An instruction that organises class work in groups or as an assembly.",
+    ex: ["En pequeñas comunidades, reúnan…", "En asamblea, elaboren…", "la segunda comunidad"] },
+];
+const ROLES = [
+  { v: "agent", name: "Agent", gloss: "Does the action: subject of an active verb.", ex: ["el pueblo eligió", "los campesinos lucharon"] },
+  { v: "patient", name: "Patient", gloss: "Undergoes harm or control: passive subject, or object of exploit, oppress, conquer…", ex: ["el pueblo fue reprimido", "explotaban a los indígenas"] },
+  { v: "object", name: "Object", gloss: "Direct object of any other verb.", ex: ["conocer a los pueblos", "ayudar a la comunidad"] },
+  { v: "recipient", name: "Recipient", gloss: "Indirect object: receives something.", ex: ["se les paga muy mal a los indígenas", "dar tierras a los campesinos"] },
+  { v: "possessor", name: "Possessor", gloss: "Modifies another noun.", ex: ["la voluntad del pueblo", "las tierras de los campesinos"] },
+  { v: "attribute", name: "Attribute", gloss: "Subject of ser or estar with a description.", ex: ["el pueblo es valiente"] },
+  { v: "oblique", name: "Oblique", gloss: "In a prepositional phrase that completes a verb.", ex: ["luchó con el pueblo", "vivían en comunidades"] },
+  { v: "other", name: "Other", gloss: "Lists, headings, appositions, vocatives, anything else.", ex: [] },
+];
+const NONE = { v: "other", name: "None of these" };
+const VDIMS = [
+  { f: "gold_people", name: "People", hint: "How many people are shown", opts: [
+    { v: "no_people", name: "No people" }, { v: "one_person", name: "One person" },
+    { v: "small_group", name: "2 to 5 people" }, { v: "crowd", name: "6 or more" }] },
+  { f: "gold_activity", name: "Activity", hint: "The main thing people are doing", cond: true, opts: [
+    { v: "protest", name: "Protest, march" }, { v: "assembly", name: "Assembly, meeting" }, { v: "voting", name: "Voting" },
+    { v: "collective_work", name: "Working together" }, { v: "farming", name: "Farming" }, { v: "industrial_work", name: "Factory, mine" },
+    { v: "armed_struggle", name: "Armed struggle" }, { v: "festival", name: "Festival, dance" }, { v: "school", name: "School, class" },
+    { v: "family_home", name: "Family at home" }, { v: "everyday", name: "Everyday life" }, NONE] },
+  { f: "gold_figure", name: "Who", hint: "The main kind of person shown", cond: true, opts: [
+    { v: "historical_portrait", name: "Historical figure" }, { v: "ordinary_adults", name: "Ordinary adults" },
+    { v: "traditional_dress", name: "Traditional dress" }, { v: "children", name: "Children" },
+    { v: "officials", name: "Officials, politicians" }, { v: "soldiers", name: "Soldiers, rebels" }, NONE] },
+  { f: "gold_setting", name: "Setting", hint: "Where the scene takes place", cond: true, opts: [
+    { v: "village", name: "Village, town square" }, { v: "city", name: "City" }, { v: "fields", name: "Fields" },
+    { v: "industrial", name: "Factory, industry" }, { v: "school", name: "School" }, { v: "home", name: "Home" },
+    { v: "historical", name: "Colonial or ancient" }, { v: "nature", name: "Nature" }, { v: "other", name: "None, plain" }] },
+  { f: "gold_medium", name: "Medium", hint: "What kind of image it is", opts: [
+    { v: "photograph", name: "Photograph" }, { v: "drawing", name: "Drawing, cartoon" },
+    { v: "painting_mural", name: "Painting, mural" }, { v: "map_diagram", name: "Map, diagram" }, { v: "other", name: "Other" }] },
+];
+
+const TASKS = {
+  sense: { name: "Word senses", sub: "pueblo, comunidad, asamblea", kind: "text", id: "sent_id", fields: ["gold_sense"],
+    file: "sense_sample.csv", intro: "What the highlighted word means in its sentence. <i>Pueblo</i> and <i>comunidad / asamblea</i> have different codes; the buttons change with the word." },
+  role: { name: "Grammatical roles", sub: "who acts, who is acted on", kind: "text", id: "sent_id", fields: ["gold_role"],
+    file: "role_sample.csv", intro: "The role the highlighted people word plays in its sentence." },
+  visual: { name: "Illustrations", sub: "people, activity, setting, medium", kind: "visual", id: "region_id", fields: VDIMS.map(d => d.f),
+    file: "visual_sample.csv", intro: "What the illustration shows. Activity, who and setting are only needed when people are shown; pick the main one." },
+  seed: { name: "Training seeds", sub: "re-code Claude’s 451 examples", kind: "text", id: "source", fields: ["label"],
+    file: "pueblo_senses.csv", intro: "The sentences that trained the <i>pueblo</i> classifier, all coded by Claude so far. Your code replaces Claude’s in the exported seeds file, and items you leave out are dropped from it." },
+};
+const ORDER = ["sense", "role", "visual", "seed"];
+const STATUS_NAME = { todo: "not coded", part: "started", done: "coded", unsure: "coded, unsure", out: "left out" };
+
+// ---------------------------------------------------------------- items
+const ITEMS = {};
+for (const t of ORDER) {
+  const { cols, rows } = DATA.tasks[t];
+  ITEMS[t] = rows.map((r, i) => {
+    const o = {};
+    cols.forEach((c, j) => { o[c] = r[j]; });
+    const sid = String(o.sent_id || o.source || o.region_id || "").split("|");
+    o._i = i;
+    o._key = `${t}-${String(i).padStart(4, "0")}`;
+    o._ed = o.edition || sid[0] || "";
+    o._code = o.code || sid[1] || "";
+    o._page = o.page || sid[2] || "";
+    o._era = o.era || DATA.era[o._ed] || "";
+    return o;
+  });
+}
+const labelsFor = (t, it) => t === "role" ? ROLES : t === "seed" ? PUEBLO : (it.lemma === "pueblo" ? PUEBLO : COMMUNITY);
+const taskOfKey = k => k.split("-")[0];
+
+// ---------------------------------------------------------------- state
+let codes = {};                          // key -> body, this viewer's codes
+let mode = "connecting";                 // connecting | db | local | readonly
+let db = null, uid = null, downloads = null;
+const busy = new Set(), again = new Set(), pending = new Set();
+let lastError = "", stale = false;
+const S = { task: "sense", idx: { sense: 0, role: 0, visual: 0, seed: 0 }, era: { sense: "all", role: "all", visual: "all", seed: "all" }, auto: true, dim: 0 };
+
+const LS_POS = "ltg-desk-pos-v1", LS_CODES = "ltg-desk-codes-v1", LS_INIT = "ltg-desk-initials";
+const lsGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) { /* storage blocked */ } };
+try { Object.assign(S, JSON.parse(lsGet(LS_POS) || "{}")); } catch (e) { /* ignore */ }
+if (!TASKS[S.task]) S.task = "sense";
+for (const t of ORDER) {
+  if (!(S.idx[t] >= 0 && S.idx[t] < ITEMS[t].length)) S.idx[t] = 0;
+  if (S.era[t] !== "all" && !ERAS.includes(S.era[t])) S.era[t] = "all";
+}
+const savePos = () => lsSet(LS_POS, JSON.stringify({ task: S.task, idx: S.idx, era: S.era, auto: S.auto }));
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const initials = () => $("initials").value.trim();
+
+function status(t, it) {
+  const c = codes[it._key];
+  if (!c) return "todo";
+  if (c.excluded) return "out";
+  const v = c.v || {};
+  const touched = Object.values(v).some(Boolean) || c.unsure || c.note;
+  let full;
+  if (TASKS[t].kind === "text") full = !!v[TASKS[t].fields[0]];
+  else full = !!(v.gold_people && v.gold_medium && (v.gold_people === "no_people" || (v.gold_activity && v.gold_figure && v.gold_setting)));
+  if (full) return c.unsure ? "unsure" : "done";
+  return touched ? "part" : "todo";
+}
+const isDone = s => s === "done" || s === "unsure" || s === "out";
+const order = t => ITEMS[t].filter(it => S.era[t] === "all" || it._era === S.era[t]).map(it => it._i);
+const cur = () => ITEMS[S.task][S.idx[S.task]];
+const counts = t => { let d = 0; for (const it of ITEMS[t]) if (isDone(status(t, it))) d++; return d; };
+
+// ---------------------------------------------------------------- saving
+function backup() { if (mode !== "db") lsSet(LS_CODES, JSON.stringify(codes)); }
+
+function persist(key) {
+  backup();
+  if (mode !== "db") { renderStatus(); return; }
+  pending.add(key);
+  if (busy.has(key)) { again.add(key); return; }
+  run(key);
+}
+async function withRetry(fn) {
+  try { return await fn(); }
+  catch (e) {
+    if (e && e.code === "unavailable") { await new Promise(r => setTimeout(r, 600 + Math.random() * 900)); return fn(); }
+    throw e;
+  }
+}
+async function run(key) {
+  busy.add(key); renderStatus();
+  const body = codes[key];
+  const ref = db.doc(`codes/${uid}/${taskOfKey(key)}/${key}`);
+  try {
+    await withRetry(() => body ? ref.set(body) : ref.delete());
+    if (body) ensureCoderDoc();
+    lastError = "";
+  } catch (e) { onWriteError(e); }
+  busy.delete(key);
+  if (again.has(key)) { again.delete(key); return run(key); }
+  pending.delete(key);
+  renderStatus();
+}
+function onWriteError(e) {
+  const code = e && e.code;
+  if (code === "invalid_argument" || code === "not_granted" || code === "revoked") {
+    mode = "readonly";
+    lsSet(LS_CODES, JSON.stringify(codes));
+    showNotice("You can look at the items but your codes cannot be saved to this page. Ask the owner for Contributor access. Codes you make now stay in this browser.");
+  } else if (code === "quota_exceeded") {
+    lastError = "the page’s storage is full";
+  } else {
+    lastError = "connection problem; your last change may not be saved";
+  }
+}
+let coderDocDone = false, coderTimer = null, coderChain = Promise.resolve();
+function writeCoderDoc() {
+  if (mode !== "db") return;
+  const body = { initials: initials(), at: new Date().toISOString() };
+  coderChain = coderChain.then(() => withRetry(() => db.doc(`codes/${uid}`).set(body))).then(() => { coderDocDone = true; }, onWriteError);
+}
+function ensureCoderDoc() { if (!coderDocDone) { coderDocDone = true; writeCoderDoc(); } }
+
+// ---------------------------------------------------------------- editing
+function edit(t, it, fn, advance) {
+  const before = status(t, it);
+  const old = codes[it._key];
+  const c = old ? { ...old, v: { ...(old.v || {}) } } : { task: t, row: it._i, ref: it[TASKS[t].id] || "", v: {}, excluded: false, unsure: false, note: "" };
+  fn(c);
+  c.coder = initials();
+  c.at = new Date().toISOString();
+  const empty = !c.excluded && !c.unsure && !c.note && !Object.values(c.v).some(Boolean);
+  if (empty) delete codes[it._key]; else codes[it._key] = c;
+  persist(it._key);
+  renderAll();
+  if (advance && S.auto && isDone(status(t, it))) {
+    setTimeout(() => { if (cur() === it) (isDone(before) ? go(1) : nextUncoded()); }, 170);
+  }
+}
+function chooseText(val) {
+  const t = S.task, it = cur(), f = TASKS[t].fields[0];
+  edit(t, it, c => { c.v[f] = val; c.excluded = false; }, true);
+}
+function chooseDim(k, val) {
+  const t = S.task, it = cur(), d = VDIMS[k];
+  edit(t, it, c => {
+    c.v[d.f] = val; c.excluded = false;
+    if (d.f === "gold_people" && val === "no_people") VDIMS.filter(x => x.cond).forEach(x => { delete c.v[x.f]; });
+  }, false);
+  const c = codes[it._key] || { v: {} };
+  const applicable = j => !(VDIMS[j].cond && c.v.gold_people === "no_people");
+  let nxt = -1;
+  for (let j = k + 1; j < VDIMS.length; j++) if (applicable(j) && !c.v[VDIMS[j].f]) { nxt = j; break; }
+  if (nxt < 0) for (let j = 0; j < VDIMS.length; j++) if (applicable(j) && !c.v[VDIMS[j].f]) { nxt = j; break; }
+  if (nxt >= 0) { S.dim = nxt; renderItem(); return; }
+  if (S.auto) setTimeout(() => { if (cur() === it) nextUncoded(); }, 220);
+}
+function toggleOut() {
+  const t = S.task, it = cur();
+  edit(t, it, c => { c.excluded = !c.excluded; }, true);
+}
+function toggleUnsure() { const t = S.task, it = cur(); edit(t, it, c => { c.unsure = !c.unsure; }, false); }
+function clearCode() {
+  const t = S.task, it = cur();
+  edit(t, it, c => {
+    if (TASKS[t].kind === "visual") { const f = VDIMS[S.dim].f; delete c.v[f]; if (f === "gold_people") c.v = {}; }
+    else c.v = {};
+    c.excluded = false;
+  }, false);
+}
+let noteTimer = null;
+function onNote(e) {
+  const t = S.task, it = cur(), val = e.target.value;
+  clearTimeout(noteTimer);
+  noteTimer = setTimeout(() => {
+    const old = codes[it._key];
+    if ((old?.note || "") === val) return;
+    const c = old ? { ...old, v: { ...(old.v || {}) } } : { task: t, row: it._i, ref: it[TASKS[t].id] || "", v: {}, excluded: false, unsure: false };
+    c.note = val; c.coder = initials(); c.at = new Date().toISOString();
+    const empty = !c.excluded && !c.unsure && !c.note && !Object.values(c.v).some(Boolean);
+    if (empty) delete codes[it._key]; else codes[it._key] = c;
+    persist(it._key); renderTabs(); renderMap();
+  }, 700);
+}
+
+// ---------------------------------------------------------------- navigation
+function setIdx(i) { S.idx[S.task] = i; S.dim = firstOpenDim(); savePos(); renderAll(); }
+function go(delta) {
+  const ord = order(S.task);
+  if (!ord.length) return;
+  let p = ord.indexOf(S.idx[S.task]);
+  p = p < 0 ? 0 : Math.min(ord.length - 1, Math.max(0, p + delta));
+  setIdx(ord[p]);
+}
+function nextUncoded() {
+  const t = S.task, ord = order(t);
+  if (!ord.length) return;
+  const p = Math.max(0, ord.indexOf(S.idx[t]));
+  for (let s = 1; s <= ord.length; s++) {
+    const i = ord[(p + s) % ord.length];
+    if (!isDone(status(t, ITEMS[t][i]))) { setIdx(i); return; }
+  }
+  toast("Every item in this view is coded.");
+}
+function firstOpenDim() {
+  if (S.task !== "visual") return 0;
+  const c = codes[cur()._key] || { v: {} };
+  for (let j = 0; j < VDIMS.length; j++) {
+    if (VDIMS[j].cond && c.v.gold_people === "no_people") continue;
+    if (!c.v[VDIMS[j].f]) return j;
+  }
+  return 0;
+}
+function setTask(t) {
+  S.task = t;
+  if (!order(t).includes(S.idx[t])) S.idx[t] = order(t)[0] ?? 0;
+  S.dim = firstOpenDim(); savePos(); renderAll(); renderBook();
+}
+function setEra(e) {
+  const t = S.task;
+  S.era[t] = e;
+  const ord = order(t);
+  if (!ord.includes(S.idx[t])) S.idx[t] = ord.find(i => !isDone(status(t, ITEMS[t][i]))) ?? ord[0] ?? 0;
+  S.dim = firstOpenDim(); savePos(); renderAll();
+}
+
+// ---------------------------------------------------------------- rendering
+function renderTabs() {
+  $("tasks").innerHTML = ORDER.map(t => {
+    const n = ITEMS[t].length, d = counts(t), on = t === S.task;
+    return `<button class="tab" role="tab" aria-selected="${on}" data-task="${t}">
+      <span class="row"><span class="nm">${esc(TASKS[t].name)}</span><span class="mono">${d} / ${n}</span></span>
+      <span class="sub">${TASKS[t].sub}</span>
+      <span class="bar" aria-hidden="true"><i style="width:${(100 * d / n).toFixed(1)}%"></i></span></button>`;
+  }).join("");
+}
+function bookLink(it) {
+  const b = DATA.books[`${it._ed}|${it._code}`];
+  if (!b || !b[2]) return "";
+  const name = (b[1] || b[0] || "the book").replace(/\.$/, "");
+  return `<a href="${esc(b[2])}" target="_blank" rel="noopener">${esc(name)} ↗</a>`;
+}
+function kwic(it) {
+  const tidy = s => esc(s).replace(/\s*\n\s*\n\s*/g, ' <span class="para" aria-hidden="true">¶</span> ').replace(/\s*\n\s*/g, " ");
+  const l = it.left || "", r = (it.right || "").replace(/\s+$/, "");
+  const open = r && !/[.!?…»”"):]$/.test(r);
+  return `${l ? "…" : ""}${tidy(l)}<mark>${esc(it.keyword)}</mark>${tidy(r)}${open ? "…" : ""}`;
+}
+function chip(l, key, on, attrs, small, disabled) {
+  return `<button class="chip${on ? " on" : ""}" ${attrs} aria-pressed="${on}"${disabled ? " disabled" : ""}>` +
+    `<kbd>${key ? esc(key.toUpperCase()) : ""}</kbd><span class="nm">${esc(l.name)}</span>` +
+    `${!small && l.gloss ? `<span class="gl">${esc(l.gloss)}</span>` : ""}</button>`;
+}
+function navHtml(t) {
+  const ord = order(t), p = ord.indexOf(S.idx[t]);
+  return `<div class="nav">
+    <button class="btn" data-act="prev"><kbd>←</kbd> Previous</button>
+    <button class="btn" data-act="next">Next <kbd>→</kbd></button>
+    <button class="btn primary" data-act="uncoded">Next uncoded <kbd>↵</kbd></button>
+    <span class="mono muted">${p + 1} of ${ord.length}${S.era[t] !== "all" ? " in " + esc(S.era[t]) : ""}</span>
+    <label class="auto"><input type="checkbox" id="auto"${S.auto ? " checked" : ""}> Advance after coding</label></div>`;
+}
+function extrasHtml(c) {
+  return `<div class="extras">
+    <button class="tog${c.excluded ? " on" : ""}" data-act="out" aria-pressed="${!!c.excluded}"><kbd>X</kbd> Leave out</button>
+    <button class="tog warn${c.unsure ? " on" : ""}" data-act="unsure" aria-pressed="${!!c.unsure}"><kbd>U</kbd> Unsure</button>
+    <input id="note" placeholder="Note (press N)" value="${esc(c.note || "")}" autocomplete="off" aria-label="Note on this item"></div>`;
+}
+function renderItem() {
+  const t = S.task, it = cur(), c = codes[it._key] || {}, v = c.v || {};
+  const meta = `<div class="meta"><span class="era">${esc(it._era)}</span>
+    <span class="mono">${esc(it._ed)} · ${esc(it._code)} · p. ${esc(it._page)}</span>${bookLink(it)}</div>`;
+  const st = status(t, it);
+  const stTag = `<span class="label">${STATUS_NAME[st]}</span>`;
+  let body;
+  if (TASKS[t].kind === "text") {
+    const labs = labelsFor(t, it), f = TASKS[t].fields[0];
+    const word = t === "role" ? it.keyword : (it.lemma || it.keyword.toLowerCase());
+    body = `<div class="head"><div class="what"><span class="label">${t === "role" ? "Role of" : "Sense of"}</span>
+        <span class="lemma" lang="es">${esc(word)}</span></div>${stTag}</div>
+      <p class="kwic" lang="es">${kwic(it)}</p>
+      <div class="choices" role="group" aria-label="Codes">${labs.map((l, j) => chip(l, KEYS[j], v[f] === l.v, `data-v="${l.v}"`)).join("")}</div>`;
+  } else {
+    const noPeople = v.gold_people === "no_people";
+    body = `<div class="head"><div class="what"><span class="label">Illustration</span></div>${stTag}</div>
+      <figure class="crop"><img src="img/${it._key}.jpg" alt="Sampled illustration from ${esc(it._ed)}, book ${esc(it._code)}, page ${esc(it._page)}"></figure>
+      <p class="cap" lang="es"><span class="label">Text near the image</span>${it.caption ? esc(it.caption) : '<span class="muted">none found</span>'}</p>
+      <div class="dims">${VDIMS.map((d, k) => {
+        const off = d.cond && noPeople, active = k === S.dim && !off;
+        const val = d.opts.find(o => o.v === v[d.f]);
+        return `<div class="dim${active ? " active" : ""}">
+          <button class="dim-h" data-dim-pick="${k}" ${off ? "disabled" : ""}><span class="nm">${esc(d.name)}</span>
+            <span class="hint">${off ? "Not needed: no people" : val ? esc(val.name) : esc(d.hint)}</span></button>
+          <div class="choices sm" role="group" aria-label="${esc(d.name)}">${d.opts.map((o, j) =>
+            chip(o, active ? KEYS[j] : "", v[d.f] === o.v, `data-dim="${k}" data-v="${o.v}"`, true, off)).join("")}</div></div>`;
+      }).join("")}</div>`;
+  }
+  $("item").innerHTML = meta + body + extrasHtml(c) + navHtml(t);
+}
+function renderMap() {
+  const t = S.task;
+  const eraCount = e => { const xs = ITEMS[t].filter(it => e === "all" || it._era === e); return [xs.filter(it => isDone(status(t, it))).length, xs.length]; };
+  $("eras").innerHTML = ["all", ...ERAS].map(e => {
+    const [d, n] = eraCount(e);
+    return n ? `<button class="era-f" data-era="${e}" aria-pressed="${S.era[t] === e}">${e === "all" ? "All eras" : esc(e)}<span>${d}/${n}</span></button>` : "";
+  }).join("");
+  $("squares").innerHTML = order(t).map(i => {
+    const it = ITEMS[t][i], s = status(t, it);
+    return `<button class="sq ${s}${i === S.idx[t] ? " cur" : ""}" tabindex="-1" data-i="${i}" title="Item ${i + 1} · ${esc(it._era)} · ${STATUS_NAME[s]}" aria-label="Item ${i + 1}, ${esc(it._era)}, ${STATUS_NAME[s]}"></button>`;
+  }).join("");
+}
+function defsHtml(labs, keyed) {
+  return `<dl class="defs">${labs.map((l, j) => `<div><dt>${keyed ? `<kbd>${KEYS[j].toUpperCase()}</kbd>` : ""}${esc(l.name)} <code>${esc(l.v)}</code></dt>
+    <dd>${esc(l.gloss || "")}${l.ex && l.ex.length ? `<span class="ex" lang="es">${l.ex.map(x => `“${esc(x)}”`).join(" · ")}</span>` : ""}</dd></div>`).join("")}</dl>`;
+}
+let bookSig = "";
+function renderBook() {
+  const t = S.task, it = cur(), T = TASKS[t];
+  const sig = t + (t === "sense" ? (it.lemma === "pueblo" ? ":p" : ":c") : "");
+  if (sig === bookSig) return renderExports();
+  bookSig = sig;
+  let defs;
+  if (t === "sense") {
+    const p = it.lemma === "pueblo";
+    const a = `<p class="wordset">pueblo${p ? "<em>this item</em>" : ""}</p>${defsHtml(PUEBLO, p)}`;
+    const b = `<p class="wordset">comunidad, asamblea${!p ? "<em>this item</em>" : ""}</p>${defsHtml(COMMUNITY, !p)}`;
+    defs = (p ? a + b : b + a) + `<h3>Boundary rules for pueblo</h3><ol>${PUEBLO_RULES.map(r => `<li>${r}</li>`).join("")}</ol>`;
+  } else if (t === "seed") {
+    defs = defsHtml(PUEBLO, true) + `<h3>Boundary rules</h3><ol>${PUEBLO_RULES.map(r => `<li>${r}</li>`).join("")}</ol>`;
+  } else if (t === "role") {
+    defs = defsHtml(ROLES, true) + `<p>Code what the sentence says, not the parser’s view of it. Conjoined nouns take the role of the first (“los obreros y campesinos lucharon”: both agent).</p>`;
+  } else {
+    defs = VDIMS.map(d => `<p class="wordset" style="font-style:normal;font-family:var(--f-ui);font-weight:600">${esc(d.name)} <span class="muted" style="font-weight:400;font-size:13px">${esc(d.hint)}</span></p>
+      <p style="margin-top:0">${d.opts.map(o => esc(o.name)).join(" · ")}</p>`).join("") +
+      `<p>Count every visible person, drawn or photographed, including people in the background. A map or diagram with small figures is still no people unless the figures are the subject.</p>`;
+  }
+  const keys = T.kind === "visual"
+    ? `<li><kbd>1</kbd>–<kbd>9</kbd> <kbd>0</kbd> <kbd>Q</kbd> <kbd>W</kbd> code the highlighted row, then move to the next</li><li><kbd>↑</kbd> <kbd>↓</kbd> change row</li>`
+    : `<li><kbd>1</kbd>–<kbd>8</kbd> code and move on</li>`;
+  $("book").innerHTML = `<h2>${esc(T.name)}</h2><p>${T.intro}</p>
+    <p class="muted">Model labels are hidden while you code, so the check stays blind.</p>
+    <h3>Codes</h3>${defs}
+    <h3>Keys</h3><ul class="keys">${keys}
+      <li><kbd>X</kbd> leave out (OCR debris, not decidable, not an illustration)</li><li><kbd>U</kbd> mark unsure</li>
+      <li><kbd>N</kbd> write a note</li><li><kbd>⌫</kbd> clear the code</li>
+      <li><kbd>←</kbd> <kbd>→</kbd> previous, next</li><li><kbd>↵</kbd> next uncoded</li></ul>
+    <h3>Export</h3>
+    <p>Each file has the same columns as the sample in the repository, with your codes in the gold column. Put it in <code>results/validation/</code> and run <code>python -m ltg validate</code>, or ask Claude to read your codes from this page.</p>
+    <div class="exports" id="exports"></div>`;
+  renderExports();
+}
+function renderExports() {
+  const el = $("exports");
+  if (!el) return;
+  el.innerHTML = ORDER.map(t => `<button class="btn" data-export="${t}">${esc(TASKS[t].file)}<span>${counts(t)} coded</span></button>`).join("");
+}
+function renderStatus() {
+  const el = $("status");
+  let s, txt;
+  if (mode === "connecting") { s = "connecting"; txt = "Connecting…"; }
+  else if (mode === "local") { s = "local"; txt = "Saved in this browser only"; }
+  else if (mode === "readonly") { s = "readonly"; txt = "View only"; }
+  else if (lastError) { s = "error"; txt = "Not saved: " + lastError; }
+  else if (busy.size || pending.size) { s = "saving"; txt = "Saving…"; }
+  else if (stale) { s = "connecting"; txt = "Can’t reach saved codes yet"; }
+  else { s = "saved"; txt = "All codes saved"; }
+  el.dataset.s = s; el.textContent = txt;
+}
+function renderAll() {
+  renderTabs();
+  if (document.activeElement?.id !== "note") renderItem();
+  renderMap(); renderBook(); renderStatus();
+}
+let raf = 0;
+const scheduleRender = () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; renderAll(); }); };
+function showNotice(html) { const n = $("notice"); n.innerHTML = html; n.hidden = false; }
+let toastTimer = null;
+function toast(msg) { const el = $("toast"); el.textContent = msg; el.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => { el.hidden = true; }, 2600); }
+
+// ---------------------------------------------------------------- export
+function csvFor(t) {
+  const { cols } = DATA.tasks[t];
+  const q = x => `"${String(x ?? "").replace(/"/g, '""')}"`;
+  const lines = [];
+  if (t === "seed") {
+    lines.push(cols.map(q).join(","));
+    for (const it of ITEMS[t]) {
+      const c = codes[it._key];
+      if (c?.excluded) continue;
+      const lab = c?.v?.label;
+      lines.push(cols.map(k => k === "label" && lab ? lab : k === "coder" && lab ? (c.coder || "human") : it[k]).map(q).join(","));
+    }
+    return lines.join("\n") + "\n";
+  }
+  const extra = ["unsure", "excluded", "coder", "coded_at"].concat(cols.includes("notes") ? [] : ["notes"]);
+  lines.push(cols.concat(extra).map(q).join(","));
+  for (const it of ITEMS[t]) {
+    const c = codes[it._key] || {}, v = c.v || {};
+    const row = cols.map(k => TASKS[t].fields.includes(k) ? (c.excluded ? "" : v[k] || "") : k === "notes" ? (c.note || "") : it[k]);
+    const ex = { unsure: c.unsure ? "1" : "", excluded: c.excluded ? "1" : "", coder: c.coder || "", coded_at: c.at || "", notes: c.note || "" };
+    lines.push(row.concat(extra.map(k => ex[k])).map(q).join(","));
+  }
+  return lines.join("\n") + "\n";
+}
+function exportTask(t) {
+  const csv = csvFor(t), name = TASKS[t].file;
+  if (downloads) {
+    downloads.save({ filename: name, data: csv }).then(() => toast(`Saved ${name}`), e => {
+      if (e && e.code === "declined") return;
+      showSheet(name, csv);
+    });
+    return;
+  }
+  const p = navigator.clipboard && navigator.clipboard.writeText ? navigator.clipboard.writeText(csv) : Promise.reject();
+  p.then(() => toast(`Copied ${name} to the clipboard`), () => showSheet(name, csv));
+}
+function showSheet(name, csv) {
+  const s = $("sheet");
+  s.innerHTML = `<div role="dialog" aria-label="${esc(name)}"><strong>${esc(name)}</strong>
+    <p class="muted" style="margin:0">Select all and copy, then save it as a .csv file.</p>
+    <textarea id="sheet-text" readonly>${esc(csv)}</textarea>
+    <div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn" data-sheet="select">Select all</button><button class="btn primary" data-sheet="close">Close</button></div></div>`;
+  s.hidden = false;
+  $("sheet-text").select();
+}
+
+// ---------------------------------------------------------------- events
+$("tasks").addEventListener("click", e => { const b = e.target.closest("[data-task]"); if (b) setTask(b.dataset.task); });
+$("eras").addEventListener("click", e => { const b = e.target.closest("[data-era]"); if (b) setEra(b.dataset.era); });
+$("squares").addEventListener("click", e => { const b = e.target.closest("[data-i]"); if (b) setIdx(+b.dataset.i); });
+$("book").addEventListener("click", e => { const b = e.target.closest("[data-export]"); if (b) exportTask(b.dataset.export); });
+$("sheet").addEventListener("click", e => {
+  const b = e.target.closest("[data-sheet]");
+  if (e.target === $("sheet") || b?.dataset.sheet === "close") $("sheet").hidden = true;
+  else if (b?.dataset.sheet === "select") $("sheet-text").select();
+});
+$("item").addEventListener("click", e => {
+  const pick = e.target.closest("[data-dim-pick]");
+  if (pick) { S.dim = +pick.dataset.dimPick; renderItem(); return; }
+  const v = e.target.closest("[data-v]");
+  if (v && !v.disabled) { v.dataset.dim !== undefined ? (S.dim = +v.dataset.dim, chooseDim(+v.dataset.dim, v.dataset.v)) : chooseText(v.dataset.v); return; }
+  const a = e.target.closest("[data-act]");
+  if (!a) return;
+  ({ prev: () => go(-1), next: () => go(1), uncoded: nextUncoded, out: toggleOut, unsure: toggleUnsure })[a.dataset.act]?.();
+});
+$("item").addEventListener("input", e => { if (e.target.id === "note") onNote(e); });
+$("item").addEventListener("change", e => { if (e.target.id === "auto") { S.auto = e.target.checked; savePos(); } });
+$("item").addEventListener("focusout", e => { if (e.target.id === "note") setTimeout(() => { if (document.activeElement?.id !== "note") renderItem(); }, 750); });
+document.addEventListener("keydown", e => {
+  const tag = e.target.tagName;
+  if (tag === "INPUT" || tag === "TEXTAREA") { if (e.key === "Escape") e.target.blur(); return; }
+  if (e.metaKey || e.ctrlKey || e.altKey || !$("sheet").hidden) return;
+  const k = e.key.toLowerCase(), t = S.task, it = cur();
+  if (tag === "BUTTON" && (k === "enter" || k === " ")) return;
+  const j = KEYS.indexOf(k);
+  if (j >= 0) {
+    if (TASKS[t].kind === "text") { const labs = labelsFor(t, it); if (j < labs.length) { e.preventDefault(); chooseText(labs[j].v); } }
+    else { const d = VDIMS[S.dim], c = codes[it._key] || { v: {} }; if (j < d.opts.length && !(d.cond && c.v?.gold_people === "no_people")) { e.preventDefault(); chooseDim(S.dim, d.opts[j].v); } }
+    return;
+  }
+  const act = { arrowleft: () => go(-1), arrowright: () => go(1), enter: nextUncoded, x: toggleOut, u: toggleUnsure, backspace: clearCode, delete: clearCode,
+    n: () => $("note")?.focus() }[k];
+  if (act) { e.preventDefault(); act(); return; }
+  if (TASKS[t].kind === "visual" && (k === "arrowdown" || k === "arrowup")) {
+    e.preventDefault();
+    const c = codes[it._key] || { v: {} }, step = k === "arrowdown" ? 1 : -1;
+    let n = S.dim;
+    for (let s = 0; s < VDIMS.length; s++) { n = (n + step + VDIMS.length) % VDIMS.length; if (!(VDIMS[n].cond && c.v?.gold_people === "no_people")) break; }
+    S.dim = n; renderItem();
+  }
+});
+$("initials").value = lsGet(LS_INIT) || "";
+$("initials").addEventListener("input", () => {
+  lsSet(LS_INIT, initials());
+  clearTimeout(coderTimer);
+  coderTimer = setTimeout(() => { if (mode === "db") { coderDocDone = true; writeCoderDoc(); } }, 800);
+});
+
+// ---------------------------------------------------------------- boot
+S.dim = firstOpenDim();
+renderAll();
+const use = n => (window.claude && typeof window.claude.use === "function") ? window.claude.use(n).catch(() => null) : Promise.resolve(null);
+
+function localMode(msg) {
+  mode = "local";
+  try { codes = JSON.parse(lsGet(LS_CODES) || "{}") || {}; } catch (e) { codes = {}; }
+  showNotice(msg);
+  renderAll();
+}
+(async function boot() {
+  const [dbNs, user, dl] = await Promise.all([use("db"), use("user"), use("downloads")]);
+  downloads = dl;
+  let id = null;
+  try { id = user ? await user.id() : null; } catch (e) { id = null; }
+  if (!dbNs || !id) {
+    localMode("Your codes are kept in this browser only. Open this page in claude.ai while signed in to save them to the page, where Claude can read them back.");
+    return;
+  }
+  db = dbNs; uid = id; mode = "db";
+  renderStatus();
+  const loaded = new Set();
+  const timer = setTimeout(() => { if (loaded.size < ORDER.length) { stale = true; renderStatus(); } }, 10000);
+  for (const t of ORDER) {
+    db.collection(`codes/${uid}/${t}`).onSnapshot(snap => {
+      for (const ch of snap.docChanges()) {
+        const k = ch.doc.id;
+        if (pending.has(k)) continue;
+        if (ch.type === "removed") delete codes[k]; else codes[k] = ch.doc.data();
+      }
+      if (!snap.metadata.fromCache) { loaded.add(t); if (loaded.size === ORDER.length) { clearTimeout(timer); stale = false; } }
+      scheduleRender();
+    }, err => {
+      loaded.add(t);
+      lastError = err && err.code === "revoked" ? "access changed; reload the page" : "saved codes could not be loaded";
+      renderStatus();
+    });
+  }
+  try {
+    const me = await db.doc(`codes/${uid}`).get();
+    if (me.exists) { coderDocDone = true; const v = me.data().initials; if (v && !initials()) { $("initials").value = v; lsSet(LS_INIT, v); } }
+  } catch (e) { /* the codes still load */ }
+})();
+</script>
