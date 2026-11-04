@@ -132,6 +132,43 @@ def stacked_shares(table, order, labels, colors, name, title, note=""):
     plt.close(fig)
 
 
+SEQ_BLUE = ["#f7f9fd", "#cde2fb", "#9ec5f4", "#6da7ec", "#3987e5", "#256abf", "#184f95", "#0d366b"]
+
+
+def reuse_heatmap(matrix_csv, name="text_reuse"):
+    """Sequential one-hue heatmap: share of the row edition's sentences found in the column edition."""
+    plt = _plt()
+    from matplotlib.colors import LinearSegmentedColormap
+    m = pd.read_csv(matrix_csv, index_col=0)
+    m.index, m.columns = m.index.astype(str), m.columns.astype(str)
+    eds = [e for e in edition_order(m.index) if e in m.columns]
+    m = m.reindex(index=eds, columns=eds).astype(float)
+    cmap = LinearSegmentedColormap.from_list("seq_blue", SEQ_BLUE)
+    fig, ax = plt.subplots(figsize=(0.48 * len(eds) + 1.6, 0.42 * len(eds) + 1.2))
+    ax.imshow(m.values, cmap=cmap, vmin=0, vmax=100)
+    ax.set_xticks(range(len(eds)), eds, rotation=90, fontsize=8)
+    ax.set_yticks(range(len(eds)), eds, fontsize=8)
+    for i in range(len(eds)):
+        for j in range(len(eds)):
+            v = m.values[i, j]
+            if i != j and v >= 5:                          # only label shares worth reading
+                ax.text(j, i, f"{v:.0f}", ha="center", va="center", fontsize=6.5,
+                        color=SURFACE if v >= 45 else INK)
+    for side in ax.spines.values():
+        side.set_visible(False)
+    ax.tick_params(length=0)
+    ax.set_xticks(np.arange(-.5, len(eds)), minor=True)
+    ax.set_yticks(np.arange(-.5, len(eds)), minor=True)
+    ax.grid(which="minor", color=SURFACE, linewidth=1.5)
+    ax.tick_params(which="minor", length=0)
+    ax.set_xlabel("... found word for word in this edition", color=INK2)
+    ax.set_ylabel("% of this edition's sentences ...", color=INK2)
+    ax.set_title("Text shared between editions (distinct sentences of 8+ words)", loc="left", fontsize=10.5)
+    fig.tight_layout()
+    _save(fig, name)
+    plt.close(fig)
+
+
 def run():
     td = text_dir()
     made = []
@@ -173,5 +210,9 @@ def run():
                        "People in the illustrations (% of sampled illustrations)",
                        note="Person detector (Faster R-CNN, COCO) on a random sample of illustrations per edition; validate before citing.")
         made.append("illustration_people")
+    reuse = td / "reuse_matrix.csv"
+    if reuse.exists():
+        reuse_heatmap(reuse)
+        made.append("text_reuse")
     log.info("figures: %s", made)
     return made

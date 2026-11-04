@@ -10,7 +10,7 @@ step() { echo "=== $(date +%T) $*"; python -m ltg "$@" > "data/logs/$1.log" 2>&1
 
 part=${1:-all}
 if [[ $part == all || $part == text ]]; then
-  step text
+  step text --workers 4
   step senses
   step report --corpus national
   python -m ltg report --corpus state > data/logs/report_state.log 2>&1
