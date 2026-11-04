@@ -130,7 +130,12 @@ python -m ltg zeroshot              # CLIP B/16 codebook on the sample
 python -m ltg visual-sample         # hand-coding sheet drawn from the sample (CSV + HTML)
 python -m ltg visual-report         # results/visual/report.md
 
-# 5. Validate after hand-coding the gold_* columns
+# 5. Models and figures
+python -m ltg reuse                 # shared sentences between editions -> reuse_matrix.csv
+python -m ltg stats                 # era models: rate ratios, trends, logits -> results/text/stats_*.csv
+python -m ltg figures               # results/figures/*.png|svg
+
+# 6. Validate after hand-coding the gold_* columns
 python -m ltg validate --kind sense
 python -m ltg validate --kind role
 python -m ltg validate --kind visual --dim people
@@ -150,6 +155,7 @@ python -m ltg validate --kind visual --dim people
 | illustration-sample | `visual.py` | `regions_sample.csv`: the random sample the two models run on |
 | detect | `visual.py` | `people_detect.csv`: persons detected per illustration and none / one / group / crowd |
 | zeroshot | `visual.py` | `zeroshot.csv`: label and probabilities on five codebook dimensions |
+| stats | `stats.py` | `stats_rate_ratios.csv`, `stats_trends.csv`, `stats_logits.csv`, `stats_shares.csv`, `stats_sense_chi2.csv`, `stats_era_sizes.csv`: book-level Poisson and logit models by era (reference 2008-22), SEs clustered by title, Holm-adjusted p |
 
 Every rate is a ratio of sums over books with a 95% interval from resampling
 books, since pages and sentences within a book are not independent.

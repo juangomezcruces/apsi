@@ -1,0 +1,31 @@
+outcome,label,era,n,share
+commons,pueblo = common people (of all uses),1960-62,1129,24.357838795394155
+commons,pueblo = common people (of all uses),1972-88,1679,19.058963668850506
+commons,pueblo = common people (of all uses),1993,554,9.025270758122744
+commons,pueblo = common people (of all uses),2008-22,2360,13.898305084745763
+commons,pueblo = common people (of all uses),NEM,2799,8.395855662736691
+nation,pueblo = nation (of all uses),1960-62,1129,19.13197519929141
+nation,pueblo = nation (of all uses),1972-88,1679,14.532459797498513
+nation,pueblo = nation (of all uses),1993,554,9.386281588447654
+nation,pueblo = nation (of all uses),2008-22,2360,12.754237288135592
+nation,pueblo = nation (of all uses),NEM,2799,7.359771346909611
+ethnic,pueblo = ethnic people (of all uses),1960-62,1129,30.292294065544727
+ethnic,pueblo = ethnic people (of all uses),1972-88,1679,24.419297200714713
+ethnic,pueblo = ethnic people (of all uses),1993,554,35.74007220216607
+ethnic,pueblo = ethnic people (of all uses),2008-22,2360,36.610169491525426
+ethnic,pueblo = ethnic people (of all uses),NEM,2799,53.51911396927475
+plural,plural pueblos (of people-sense uses),1960-62,833,38.2953181272509
+plural,plural pueblos (of people-sense uses),1972-88,974,49.58932238193018
+plural,plural pueblos (of people-sense uses),1993,300,61.33333333333333
+plural,plural pueblos (of people-sense uses),2008-22,1493,60.21433355659745
+plural,plural pueblos (of people-sense uses),NEM,1939,76.07013924703455
+agent,people noun as agent (of counted mentions),1960-62,6093,21.729853930740195
+agent,people noun as agent (of counted mentions),1972-88,7994,34.62596947710783
+agent,people noun as agent (of counted mentions),1993,3904,22.97643442622951
+agent,people noun as agent (of counted mentions),2008-22,23209,16.622861820845362
+agent,people noun as agent (of counted mentions),NEM,29541,10.70376764496801
+people_image,illustration shows people (sampled),1960-62,600,19.333333333333332
+people_image,illustration shows people (sampled),1972-88,900,20.88888888888889
+people_image,illustration shows people (sampled),1993,300,22.0
+people_image,illustration shows people (sampled),2008-22,1800,24.666666666666668
+people_image,illustration shows people (sampled),NEM,900,43.22222222222222
