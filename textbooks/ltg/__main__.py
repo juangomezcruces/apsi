@@ -17,7 +17,7 @@
   stats          era models (rate ratios, logits)    -> data/results/text/stats_*.csv
   reuse          shared sentences between editions  -> data/results/text/reuse_matrix.csv
   figures        figures for the paper              -> data/results/figures/*.png|svg
-  validate       agreement of a hand-coded sample   --kind sense|role|visual [--dim people]
+  validate       hand codes vs models, weighted      --kind sense|role|visual|seed [--dim people]
 """
 import argparse
 import logging
@@ -97,16 +97,19 @@ def main(argv=None):
     if stage == "visual-report":
         return visual.visual_report()
     if stage == "validate":
-        from .config import PATHS
-        from .text_analysis import validate
-        ap.add_argument("--kind", choices=["sense", "role", "visual"], required=True)
+        from .validation import run, write_strata
+        ap.add_argument("--kind", choices=["sense", "role", "visual", "seed"])
         ap.add_argument("--dim", default="people", help="visual codebook dimension")
+        ap.add_argument("--file", default="", help="hand-coded CSV (default: results/validation/<kind> sample)")
+        ap.add_argument("--strata", action="store_true", help="recount the sampling cells from data/")
         a = ap.parse_args(rest)
-        v = PATHS["results"] / "validation"
-        spec = {"sense": (v / "sense_sample.csv", "predicted_sense", "gold_sense"),
-                "role": (v / "role_sample.csv", "predicted_role", "gold_role"),
-                "visual": (v / "visual_sample.csv", f"pred_{a.dim}", f"gold_{a.dim}")}[a.kind]
-        return validate(*spec)
+        if a.strata:
+            write_strata()
+        if a.kind:
+            return run(a.kind, a.dim, a.file or None)
+        if not a.strata:
+            ap.error("--kind is required")
+        return
     print(__doc__)
     raise SystemExit(f"unknown stage {stage!r}")
 

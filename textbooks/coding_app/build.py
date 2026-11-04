@@ -3,8 +3,8 @@
     python coding_app/build.py --out <dir>      # -> <dir>/index.html + <dir>/img/*.jpg
 
 The page embeds the four item sets (sense, role and visual validation samples, and
-the Claude-coded training seeds) and serves the illustration crops as files beside
-it. Each coder's codes are saved in the artifact's own store, under
+the Claude-coded training seeds, of which a fixed random 100 form the seed check) and
+serves the illustration crops as files beside it. Each coder's codes are saved in the artifact's own store, under
 codes/<coder id>/<task>/<task>-<row>, and can be exported from the page as CSVs in
 the same format as results/validation/*.csv (gold_* columns filled) and
 ltg/seeds/pueblo_senses.csv.
@@ -17,6 +17,7 @@ import json
 import sys
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 from PIL import Image
 
@@ -28,6 +29,7 @@ from ltg.config import ERA, PATHS  # noqa: E402
 VALID = ROOT / "results" / "validation"
 SEEDS = ROOT / "ltg" / "seeds" / "pueblo_senses.csv"
 MAX_SIDE, QUALITY = 640, 80
+N_CHECK, SEED = 100, 0          # random seed rows re-coded as a check of Claude's labels
 
 
 def _table(df):
@@ -45,8 +47,9 @@ def load():
     for df, col in ((sense, "sent_id"), (role, "sent_id"), (seed, "source")):
         used |= {"|".join(s.split("|")[:2]) for s in df[col]}
     used |= set(visual["edition"] + "|" + visual["code"])
+    check = [int(i) for i in np.random.default_rng(SEED).permutation(len(seed))[:N_CHECK]]   # in coding order
     return dict(tasks=dict(sense=_table(sense), role=_table(role), visual=_table(visual), seed=_table(seed)),
-                books={k: v for k, v in books.items() if k in used}, era=ERA)
+                books={k: v for k, v in books.items() if k in used}, era=ERA, seed_check=check)
 
 
 def write_images(visual, out):

@@ -681,22 +681,17 @@ def export_for_coding(n_pueblo=20, n_community=5, n_role=8, seed=0):
 
 
 def validate(sample_csv, pred_col, gold_col):
-    """Accuracy, per-class precision/recall and Cohen's kappa for a hand-coded sample."""
+    """Unweighted agreement for a simple random sample. The validation samples are stratified:
+    use `python -m ltg validate` (ltg.validation), which weights them to the books."""
+    from .validation import agreement
     df = pd.read_csv(sample_csv, keep_default_na=False)
     df = df[df[gold_col].astype(str).str.strip() != ""]
     if df.empty:
         raise SystemExit(f"no rows with {gold_col} filled in")
-    y, p = df[gold_col].str.strip(), df[pred_col].str.strip()
-    labels = sorted(set(y) | set(p))
-    acc = float((y == p).mean())
-    pe = sum((y == l).mean() * (p == l).mean() for l in labels)
-    kappa = (acc - pe) / (1 - pe) if pe < 1 else np.nan
-    per = pd.DataFrame([dict(label=l, n_gold=int((y == l).sum()), n_pred=int((p == l).sum()),
-                             precision=((y == l) & (p == l)).sum() / max((p == l).sum(), 1),
-                             recall=((y == l) & (p == l)).sum() / max((y == l).sum(), 1)) for l in labels])
+    acc, kappa, per, cm = agreement(df[gold_col].str.strip(), df[pred_col].str.strip())
     print(f"n={len(df)}  accuracy={acc:.3f}  kappa={kappa:.3f}")
     print(per.to_string(index=False, float_format=lambda v: f"{v:.3f}"))
-    print(pd.crosstab(y.rename("gold"), p.rename("predicted")))
+    print(cm)
     return acc, kappa, per
 
 

@@ -135,10 +135,11 @@ python -m ltg reuse                 # shared sentences between editions -> reuse
 python -m ltg stats                 # era models: rate ratios, trends, logits -> results/text/stats_*.csv
 python -m ltg figures               # results/figures/*.png|svg
 
-# 6. Validate after hand-coding the gold_* columns
-python -m ltg validate --kind sense
+# 6. Validate after hand-coding (coding_app/ exports the gold_* columns)
+python -m ltg validate --kind sense            # weighted to the books, by era
 python -m ltg validate --kind role
 python -m ltg validate --kind visual --dim people
+python -m ltg validate --kind seed             # your codes vs Claude's on the 100-seed check
 ```
 
 ## Stages and outputs
