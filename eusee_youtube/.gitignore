@@ -1,0 +1,4 @@
+# collected data, audio and generated outputs stay out of git
+data/
+outputs/
+cookies*.txt

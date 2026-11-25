@@ -1,0 +1,21 @@
+# EU SEE YouTube pipeline (Python 3.10+)
+pandas>=2.0
+numpy>=1.24
+scipy>=1.10                    # Mann-Whitney test in step 4 (optional)
+matplotlib>=3.7
+tqdm>=4.65
+
+# step 1 - collection
+google-api-python-client>=2.100
+
+# step 2 - audio-to-text
+yt-dlp>=2025.1.1               # needs ffmpeg on PATH
+faster-whisper>=1.1
+av>=11,<16                     # faster-whisper 1.2 breaks with PyAV 16+
+
+# step 3 - text analysis
+torch>=2.1
+transformers>=4.40
+sentence-transformers>=3.0
+sentencepiece>=0.2             # mDeBERTa tokenizer
+protobuf>=4.25
