@@ -4,7 +4,7 @@ Shared configuration for the EU SEE "Civil Society under Pressure" YouTube pipel
 Every script in this folder imports from here, so countries, keywords, the
 study window, the classification prompts and file locations are defined once.
 
-Edit KEYWORDS to match the exact keyword lists used in the study; the values
+Edit the `queries` in COUNTRIES to match the exact keyword lists used in the study; the values
 below are a sensible starting point in the languages named in the report
 (Spanish, English, Arabic, French-Arabic, Sinhala).
 """
